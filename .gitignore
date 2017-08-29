@@ -1,0 +1,12 @@
+# output directory
+bin/
+
+# working directory
+tmp/
+
+# no binaries
+*.exe
+
+# no IDE files
+*.sdf
+*.suo

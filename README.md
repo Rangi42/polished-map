@@ -1,2 +1,3 @@
-# polished-map
-A map and tileset editor for Polished Crystal.
+# Polished Map
+
+A map and tileset editor for Pokémon Polished Crystal.
