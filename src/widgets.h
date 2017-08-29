@@ -16,10 +16,19 @@
 #include <FL/Fl_Radio_Round_Button.H>
 #include <FL/Fl_Progress.H>
 #include <FL/Fl_Help_View.H>
+#include <FL/Fl_Radio_Button.H>
 #pragma warning(pop)
 
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_MENU_ITEM(l, s, c, d, f) {l "    ", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
+
+class Metatile : public Fl_Radio_Button {
+private:
+	uint8_t _id;
+public:
+	Metatile(int x, int y, uint8_t id, bool show_label = true);
+	void draw(void);
+};
 
 class DnD_Receiver : public Fl_Box {
 public:
@@ -237,12 +246,9 @@ public:
 	OS_Scroll(int x, int y, int w, int h, const char *l = NULL);
 };
 
-class Sidebar : public Fl_Group {
-private:
-	OS_Scroll _scroll;
+class Workspace : public Fl_Scroll {
 public:
-	Sidebar(int x, int y, int w, int h, const char *l = NULL);
-	OS_Scroll &scroll(void) { return _scroll; }
+	Workspace(int x, int y, int w, int h, const char *l = NULL);
 };
 
 class Toolbar : public Fl_Pack {

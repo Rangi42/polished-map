@@ -13,6 +13,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Toggle_Button.H>
 #pragma warning(pop)
 
 #include "version.h"
@@ -49,16 +50,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_status_bar->end();
 	begin();
 
-	_sidebar = new Sidebar(wx, wy, 128 + 3 + Fl::scrollbar_size() + Fl::box_dw(OS_PANEL_THIN_UP_FRAME), wh);
+	_sidebar = new Workspace(wx, wy, (32 + 1) * 4 + Fl::scrollbar_size(), wh);
 	wx += _sidebar->w();
 	ww -= _sidebar->w();
-	_sidebar->scroll().type(Fl_Scroll::VERTICAL_ALWAYS);
+	_sidebar->type(Fl_Scroll::VERTICAL_ALWAYS);
+	_sidebar->end();
 	begin();
 
-	Fl_Box *box = new Fl_Box(wx, wy, ww, wh, "Hello, World!");
-	box->box(FL_UP_BOX);
-	box->labelsize(36);
-	end();
+	_map_scroll = new Workspace(wx, wy, ww, wh);
+	_map_scroll->type(Fl_Scroll::BOTH);
+	_map = new Fl_Group(wx, wy, 0, 0);
+	_map->end();
 
 	_open_tb->tooltip("Open... (Ctrl+O)");
 	_open_tb->callback((Fl_Callback *)open_cb, this);
@@ -78,7 +80,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	// Initialize window
 	size_range(384, 256);
-	resizable(box);
+	resizable(_map_scroll);
 	callback(exit_cb);
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
 
@@ -113,7 +115,76 @@ void Main_Window::show() {
 void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
 }
 
+static const char *dummy_xpm[] = {
+	"32 32 4 1",
+	"0 c #B0F850", // white
+	"1 c #287000", // dark
+	"2 c #60C808", // light
+	"3 c #383838", // black
+	"2020200020202000202020002020200020202000202020002020200020202000",
+	"0212020202120202021202020212020202120202021202020212020202120202",
+	"2020102020201020202010202020102020201020202010202020102020201020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020202020202020202020202020202020202020202020202020202020202020",
+	"0202021202020212020202120202021202020212020202120202021202020212",
+	"0000202000002020000020200000202000002020000020200000202000002020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020200020202000202020002020200020202000202020002020200020202000",
+	"0212020202120202021202020212020202120202021202020212020202120202",
+	"2020102020201020202010202020102020201020202010202020102020201020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020202020202020202020202020202020202020202020202020202020202020",
+	"0202021202020212020202120202021202020212020202120202021202020212",
+	"0000202000002020000020200000202000002020000020200000202000002020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020200020202000202020002020200020202000202020002020200020202000",
+	"0212020202120202021202020212020202120202021202020212020202120202",
+	"2020102020201020202010202020102020201020202010202020102020201020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020202020202020202020202020202020202020202020202020202020202020",
+	"0202021202020212020202120202021202020212020202120202021202020212",
+	"0000202000002020000020200000202000002020000020200000202000002020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020200020202000202020002020200020202000202020002020200020202000",
+	"0212020202120202021202020212020202120202021202020212020202120202",
+	"2020102020201020202010202020102020201020202010202020102020201020",
+	"0002020000020200000202000002020000020200000202000002020000020200",
+	"2020202020202020202020202020202020202020202020202020202020202020",
+	"0202021202020212020202120202021202020212020202120202021202020212",
+	"0000202000002020000020200000202000002020000020200000202000002020",
+	"0002020000020200000202000002020000020200000202000002020000020200"
+};
+
 void Main_Window::open_cb(Fl_Widget *w, Main_Window *mw) {
+	// dummy metatiles
+	Fl_Pixmap dummy_icon(dummy_xpm);
+	mw->_sidebar->clear();
+	char label[4] = {};
+	for (int i = 0; i < 256; i++) {
+		int x = 33 * (i % 4), y = 33 * (i / 4);
+		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, (uint8_t)i);
+		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_xpm);
+		metatile->image(dummy_icon);
+		mw->_sidebar->add(metatile);
+	}
+	mw->_sidebar->scrollbar.value(0);
+	mw->_sidebar->init_sizes();
+	mw->_sidebar->redraw();
+
+	// dummy map
+	mw->_map->clear();
+	mw->_map->size(33 * 18, 33 * 10);
+	for (int i = 0; i < 18 * 10; i++) {
+		int x = 33 * (i % 18), y = 33 * (i / 18);
+		Metatile *metatile = new Metatile(mw->_map->x() + x, mw->_map->y() + y, 0, false);
+		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_xpm);
+		metatile->image(dummy_icon);
+		mw->_map->add(metatile);
+	}
+	mw->_map_scroll->scrollbar.value(0);
+	mw->_map_scroll->hscrollbar.value(0);
+	mw->_map_scroll->init_sizes();
+	mw->_map_scroll->redraw();
 }
 
 void Main_Window::close_cb(Fl_Widget *w, Main_Window *mw) {

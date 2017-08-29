@@ -15,6 +15,43 @@
 #include "math.h"
 #include "widgets.h"
 
+static const char *hex_digits = "0123456789ABCDEF";
+
+Metatile::Metatile(int x, int y, uint8_t id, bool show_label) : Fl_Radio_Button(x, y, 33, 33), _id(id) {
+	box(FL_NO_BOX);
+	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+	labelcolor(FL_RED);
+	labelsize(12);
+	labelfont(FL_COURIER);
+	labeltype(show_label ? FL_FREE_LABELTYPE : FL_NO_LABEL);
+	char label[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
+	copy_label(label);
+}
+
+void Metatile::draw() {
+	Fl_Radio_Button::draw();
+	if (value()) {
+		fl_rect(x(), y(), 32, 32, FL_BLACK);
+		fl_rect(x()+1, y()+1, 30, 30, FL_WHITE);
+		fl_rect(x()+2, y()+2, 28, 28, FL_BLACK);
+	}
+	if (labeltype() == FL_NO_LABEL) { return; }
+	Fl_Align a = align();
+	if (a & FL_ALIGN_CLIP) {
+		fl_push_clip(x(), y(), w(), h());
+		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
+	}
+	fl_font(labelfont() | FL_BOLD, labelsize());
+	fl_color(FL_BLACK);
+	fl_draw(label(), x()-3, y()+1, w(), h(), a);
+	fl_font(labelfont() | FL_BOLD, labelsize());
+	fl_color(labelcolor());
+	fl_draw(label(), x()-4, y(), w(), h(), a);
+	if (align() & FL_ALIGN_CLIP) {
+		fl_pop_clip();
+	}
+}
+
 void DnD_Receiver::deferred_callback(DnD_Receiver *dndr) {
 	dndr->do_callback();
 }
@@ -705,13 +742,10 @@ OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y
 	hscrollbar.slider(OS_BUTTON_UP_BOX);
 }
 
-Sidebar::Sidebar(int x, int y, int w, int h, const char *l) : Fl_Group(x, y, w, h, l), _scroll(x, y, w, h) {
+Workspace::Workspace(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y, w, h, l) {
 	labeltype(FL_NO_LABEL);
-	box(OS_PANEL_THIN_UP_FRAME);
-	_scroll.resize(x + Fl::box_dx(box()), y + Fl::box_dy(box()),
-		w - Fl::box_dw(box()), h - Fl::box_dh(box()));
-	_scroll.end();
-	resizable(_scroll);
+	box(FL_NO_BOX);
+	color(FL_INACTIVE_COLOR);
 }
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Pack(x, y, w, h, l), _spacer(0, 0, 0, 0), _alt_h(h) {

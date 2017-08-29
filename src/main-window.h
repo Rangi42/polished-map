@@ -4,6 +4,7 @@
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
+#include <FL/Fl_Group.H>
 #pragma warning(pop)
 
 #include "utils.h"
@@ -16,7 +17,9 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Bar *_menu_bar;
 	Toolbar *_toolbar;
-	Sidebar *_sidebar;
+	Workspace *_sidebar;
+	Workspace *_map_scroll;
+	Fl_Group *_map;
 	Toolbar *_status_bar;
 	Toolbar_Button *_open_tb, *_save_tb;
 public:
