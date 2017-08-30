@@ -19,16 +19,21 @@
 
 static const char *hex_digits = "0123456789ABCDEF";
 
-Metatile::Metatile(int x, int y, uint8_t id) : Fl_Radio_Button(x, y, 33, 33), _id(id) {
+Metatile::Metatile(int x, int y, int s, uint8_t id_) : Fl_Radio_Button(x, y, s, s) {
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
+	id(id_);
+	when(FL_WHEN_CHANGED);
+}
+
+void Metatile::id(uint8_t id) {
+	_id = id;
 	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
 	copy_label(id_str);
-	when(FL_WHEN_CHANGED);
 }
 
 void Metatile::draw() {
@@ -38,7 +43,13 @@ void Metatile::draw() {
 	if (value()) {
 		fl_rect(x(), y(), ms, ms, FL_BLACK);
 		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_WHITE);
-		fl_rect(x()+2, y()+2, ms-4, ms-4, FL_BLACK);
+		if (ms == 32) {
+			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_BLACK);
+		}
+		else {
+			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_WHITE);
+			fl_rect(x()+3, y()+3, ms-6, ms-6, FL_BLACK);
+		}
 	}
 	if (!mw->show_hex_ids()) { return; }
 	Fl_Align a = align();
@@ -60,16 +71,21 @@ void Metatile::draw() {
 	}
 }
 
-Block::Block(int x, int y, uint8_t id) : Fl_Button(x, y, 33, 33), _id(id) {
+Block::Block(int x, int y, int s, uint8_t id_) : Fl_Box(x, y, s, s) {
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
+	id(id_);
+	when(FL_WHEN_RELEASE_ALWAYS);
+}
+
+void Block::id(uint8_t id) {
+	_id = id;
 	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
 	copy_label(id_str);
-	when(FL_WHEN_RELEASE_ALWAYS);
 }
 
 void Block::draw() {
@@ -77,6 +93,13 @@ void Block::draw() {
 	int ms = mw->metatile_size();
 	Fl_Image *img = mw->metatile_image(_id);
 	img->draw(x(), y(), ms, ms);
+	if (Fl::belowmouse() == this) {
+		fl_rect(x(), y(), ms, ms, FL_YELLOW);
+		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_YELLOW);
+		if (ms == 64) {
+			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_YELLOW);
+		}
+	}
 	if (!mw->show_hex_ids()) { return; }
 	Fl_Align a = align();
 	if (a & FL_ALIGN_CLIP) {
@@ -90,7 +113,7 @@ void Block::draw() {
 	fl_draw(label(), x()-2, y()-1, w(), h(), a);
 	fl_draw(label(), x()-2, y()+1, w(), h(), a);
 	fl_font(labelfont() | FL_BOLD, labelsize());
-	fl_color(labelcolor());
+	fl_color(Fl::belowmouse() == this ? FL_YELLOW : labelcolor());
 	fl_draw(label(), x()-3, y(), w(), h(), a);
 	if (align() & FL_ALIGN_CLIP) {
 		fl_pop_clip();
@@ -98,7 +121,21 @@ void Block::draw() {
 }
 
 int Block::handle(int event) {
-	return Fl_Button::handle(event);
+	switch (event) {
+	case FL_ENTER:
+	case FL_LEAVE:
+	case FL_MOVE:
+		redraw();
+		return 1;
+	case FL_PUSH:
+		return 1;
+	case FL_RELEASE:
+		do_callback();
+		return 1;
+	case FL_DRAG:
+		return 1;
+	}
+	return Fl_Box::handle(event);
 }
 
 void DnD_Receiver::deferred_callback(DnD_Receiver *dndr) {
