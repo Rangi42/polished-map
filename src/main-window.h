@@ -23,6 +23,7 @@ private:
 	Fl_Group *_map;
 	Toolbar *_status_bar;
 	Toolbar_Button *_open_tb, *_save_tb, *_hex_tb, *_zoom_tb;
+	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
 	uint8_t _num_metatiles;
 	Metatile *_metatiles[256];
 	Metatile *_selected;
@@ -36,6 +37,7 @@ public:
 	Fl_Image *metatile_image(uint8_t id);
 	bool show_hex_ids(void) const { return _show_hex_ids; }
 	int metatile_size(void) const { return _zoom ? 64 : 32; }
+	void update_status(Block *b);
 private:
 	void toggle_zoom(void);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);

@@ -34,6 +34,12 @@
 
 #include "dummy.h"
 
+static int text_width(const char *l, int pad = 0) {
+	int lw = 0, lh = 0;
+	fl_measure(l, lw, lh, 0);
+	return lw + 2 * pad;
+}
+
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_num_metatiles(0), _metatiles(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
 	_default_metatile_image(DEFAULT_METATILE_XPM), _show_hex_ids(false), _zoom(false) {
@@ -57,6 +63,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
+	_metatile_count = new Status_Bar_Field(0, 0, text_width("Metatiles: 9999", 3), 0, "");
+	new Spacer(0, 0, 2, 0);
+	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 9999 x 9999", 3), 0, "");
+	new Spacer(0, 0, 2, 0);
+	_hover_x = new Status_Bar_Field(0, 0, text_width("X: 9999", 3), 0, "");
+	_hover_y = new Status_Bar_Field(0, 0, text_width("Y: 9999", 3), 0, "");
+	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $9999", 3), 0, "");
 	_status_bar->end();
 	begin();
 
@@ -134,6 +147,28 @@ Fl_Image *Main_Window::metatile_image(uint8_t id) {
 	return _metatiles[id]->image();
 }
 
+void Main_Window::update_status(Block *b) {
+	char buffer[256];
+	if (!b) {
+		sprintf(buffer, "Metatiles: %d", _num_metatiles);
+		_metatile_count->copy_label(buffer);
+		sprintf(buffer, "Map: %d x %d", _map_w, _map_h);
+		_map_dimensions->copy_label(buffer);
+		_hover_x->label("X:");
+		_hover_y->label("Y:");
+		_hover_id->label("ID:");
+		return;
+	}
+	uint8_t row = b->row(), col = b->col(), id = b->id();
+	sprintf(buffer, "X: %d", col);
+	_hover_x->copy_label(buffer);
+	sprintf(buffer, "Y: %d", row);
+	_hover_y->copy_label(buffer);
+	sprintf(buffer, "ID: $%02x", id);
+	_hover_id->copy_label(buffer);
+	_status_bar->redraw();
+}
+
 void Main_Window::toggle_zoom() {
 	int ms = metatile_size();
 	_sidebar->size((ms + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
@@ -197,7 +232,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	for (int row = 0; row < mw->_map_h; row++) {
 		for (int col = 0; col < mw->_map_w; col++) {
 			int x = col * (ms + 1), y = row * (ms + 1);
-			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, 0);
+			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
 			block->callback((Fl_Callback *)change_block_cb, mw);
 			mw->_map->add(block);
 			mw->_blocks[row * mw->_map_h + col] = block;
@@ -206,6 +241,9 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->scroll_to(0, 0);
 	mw->_map_scroll->init_sizes();
 	mw->_map_scroll->redraw();
+
+	mw->update_status(NULL);
+	mw->_status_bar->redraw();
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
@@ -219,6 +257,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_blocks = NULL;
 	mw->_map_w = mw->_map_h = 0;
 	mw->init_sizes();
+	mw->update_status(NULL);
 	mw->redraw();
 }
 
@@ -247,7 +286,6 @@ void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
-	// TODO: middle-click to flood fill
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		uint8_t id = b->id();
 		if (id >= mw->_num_metatiles) { return; }
@@ -262,9 +300,13 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 			mw->_sidebar->redraw();
 		}
 	}
-	else if (mw->_selected != NULL) {
+	else if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+		// TODO: middle-click to flood fill
+	}
+	else if (mw->_selected) { // FL_LEFT_MOUSE or FL_DRAG
 		uint8_t id = mw->_selected->id();
 		b->id(id);
 		b->damage(1);
+		mw->update_status(b);
 	}
 }

@@ -34,9 +34,12 @@ public:
 
 class Block : public Fl_Box {
 private:
+	uint8_t _row, _col;
 	uint8_t _id;
 public:
-	Block(int x, int y, int s, uint8_t id);
+	Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id);
+	uint8_t row(void) const { return _row; }
+	uint8_t col(void) const { return _col; }
 	uint8_t id(void) const { return _id; }
 	void id(uint8_t id);
 	void draw(void);

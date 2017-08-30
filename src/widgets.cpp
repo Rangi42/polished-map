@@ -20,13 +20,13 @@
 static const char *hex_digits = "0123456789ABCDEF";
 
 Metatile::Metatile(int x, int y, int s, uint8_t id_) : Fl_Radio_Button(x, y, s, s) {
+	id(id_);
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
-	id(id_);
 	when(FL_WHEN_CHANGED);
 }
 
@@ -71,15 +71,15 @@ void Metatile::draw() {
 	}
 }
 
-Block::Block(int x, int y, int s, uint8_t id_) : Fl_Box(x, y, s, s) {
+Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id_) : Fl_Box(x, y, s, s),
+	_row(row), _col(col) {
+	id(id_);
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
-	id(id_);
-	when(FL_WHEN_RELEASE_ALWAYS);
 }
 
 void Block::id(uint8_t id) {
@@ -121,11 +121,13 @@ void Block::draw() {
 }
 
 int Block::handle(int event) {
+	Main_Window *mw = (Main_Window *)user_data();
 	switch (event) {
 	case FL_ENTER:
 		if (Fl::event_button1() && !Fl::pushed()) {
 			Fl::pushed(this);
 		}
+		mw->update_status(this);
 	case FL_LEAVE:
 	case FL_MOVE:
 		redraw();
