@@ -18,8 +18,11 @@
 
 static void use_theme(int &argc, char **&argv) {
 	if (argc < 2) {
-		OS::use_native_theme();
+		OS::use_blue_theme();
 		return;
+	}
+	else if (!strcmp(argv[1], "--native")) {
+		OS::use_native_theme();
 	}
 	else if (!strcmp(argv[1], "--aero")) {
 		OS::use_aero_theme();

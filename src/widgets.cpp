@@ -17,10 +17,8 @@
 #include "widgets.h"
 #include "main-window.h"
 
-static const char *hex_digits = "0123456789ABCDEF";
-
-Metatile::Metatile(int x, int y, int s, uint8_t id_) : Fl_Radio_Button(x, y, s, s) {
-	id(id_);
+Metatile::Metatile(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
+	user_data(NULL);
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
@@ -32,8 +30,10 @@ Metatile::Metatile(int x, int y, int s, uint8_t id_) : Fl_Radio_Button(x, y, s, 
 
 void Metatile::id(uint8_t id) {
 	_id = id;
-	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
-	copy_label(id_str);
+	Main_Window *mw = (Main_Window *)user_data();
+	char buffer[16];
+	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%d", _id);
+	copy_label(buffer);
 }
 
 void Metatile::draw() {
@@ -43,7 +43,7 @@ void Metatile::draw() {
 	if (value()) {
 		fl_rect(x(), y(), ms, ms, FL_BLACK);
 		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_WHITE);
-		if (ms == 32) {
+		if (ms == METATILE_SIZE) {
 			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_BLACK);
 		}
 		else {
@@ -51,7 +51,7 @@ void Metatile::draw() {
 			fl_rect(x()+3, y()+3, ms-6, ms-6, FL_BLACK);
 		}
 	}
-	if (!mw->show_hex_ids()) { return; }
+	if (!mw->ids()) { return; }
 	Fl_Align a = align();
 	if (a & FL_ALIGN_CLIP) {
 		fl_push_clip(x(), y(), w(), h());
@@ -71,9 +71,9 @@ void Metatile::draw() {
 	}
 }
 
-Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id_) : Fl_Box(x, y, s, s),
-	_row(row), _col(col) {
-	id(id_);
+Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x, y, s, s),
+	_row(row), _col(col), _id(id) {
+	user_data(NULL);
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_WHITE);
@@ -84,8 +84,10 @@ Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id_) : Fl_Bo
 
 void Block::id(uint8_t id) {
 	_id = id;
-	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
-	copy_label(id_str);
+	Main_Window *mw = (Main_Window *)user_data();
+	char buffer[16];
+	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%d", _id);
+	copy_label(buffer);
 }
 
 void Block::draw() {
@@ -96,11 +98,11 @@ void Block::draw() {
 	if (Fl::belowmouse() == this) {
 		fl_rect(x(), y(), ms, ms, FL_YELLOW);
 		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_YELLOW);
-		if (ms == 64) {
+		if (ms > METATILE_SIZE) {
 			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_YELLOW);
 		}
 	}
-	if (!mw->show_hex_ids()) { return; }
+	if (!mw->ids()) { return; }
 	Fl_Align a = align();
 	if (a & FL_ALIGN_CLIP) {
 		fl_push_clip(x(), y(), w(), h());

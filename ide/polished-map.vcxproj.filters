@@ -103,13 +103,34 @@
     <None Include="..\res\warning.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\src\metatile.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\hex.xpm">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\zoom.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\grid.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\ids.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\new.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\print.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\redo.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\resize.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\undo.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\metatile.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

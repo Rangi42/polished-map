@@ -43,25 +43,38 @@ static int text_width(const char *l, int pad = 0) {
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_num_metatiles(0), _metatiles(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
-	_default_metatile_image(DEFAULT_METATILE_XPM), _show_hex_ids(false), _zoom(false) {
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL),
+	_default_metatile_image(DEFAULT_METATILE_XPM), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
+
 	int wx = 0, wy = 0, ww = w, wh = h;
 
+	// Initialize menu bar
 	_menu_bar = new Fl_Menu_Bar(wx, wy, w, 21);
 	wy += _menu_bar->h();
 	wh -= _menu_bar->h();
 
+	// Toolbar
 	_toolbar = new Toolbar(wx, wy, w, 26);
 	wy += _toolbar->h();
 	wh -= _toolbar->h();
+	_new_tb = new Toolbar_Button(0, 0, 24, 24);
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
+	_print_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
-	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
+	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
+	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
+	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_toolbar->end();
 	begin();
 
+	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
 	_metatile_count = new Status_Bar_Field(0, 0, text_width("Metatiles: 9999", 3), 0, "");
@@ -74,6 +87,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_status_bar->end();
 	begin();
 
+	// Sidebar
 	_sidebar = new Workspace(wx, wy, (metatile_size() + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), wh);
 	wx += _sidebar->w();
 	ww -= _sidebar->w();
@@ -81,54 +95,126 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_sidebar->end();
 	begin();
 
+	// Map
 	_map_scroll = new Workspace(wx, wy, ww, wh);
 	_map_scroll->type(Fl_Scroll::BOTH);
 	_map = new Fl_Group(wx, wy, 0, 0);
 	_map->end();
 
-	_open_tb->tooltip("Open... (Ctrl+O)");
-	_open_tb->callback((Fl_Callback *)open_cb, this);
-	_open_tb->image(OPEN_ICON);
-	_open_tb->take_focus();
-
-	_save_tb->tooltip("Save (Ctrl+S)");
-	_save_tb->callback((Fl_Callback *)save_cb, this);
-	_save_tb->image(SAVE_ICON);
-
-	_hex_tb->tooltip("Show Hex IDs (Ctrl+H)");
-	_hex_tb->callback((Fl_Callback *)hex_cb, this);
-	_hex_tb->shortcut(FL_COMMAND + 'h');
-	_hex_tb->image(HEX_ICON);
-	_hex_tb->user_data(this);
-	_hex_tb->value(_show_hex_ids ? 1 : 0);
-
-	_zoom_tb->tooltip("Zoom (Ctrl+=)");
-	_zoom_tb->callback((Fl_Callback *)zoom_cb, this);
-	_zoom_tb->shortcut(FL_COMMAND + '=');
-	_zoom_tb->image(ZOOM_ICON);
-	_zoom_tb->user_data(this);
-	_zoom_tb->value(_zoom ? 1 : 0);
-
-	// Initialize window
+	// Configure window
 	size_range(384, 256);
 	resizable(_map_scroll);
 	callback(exit_cb);
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
 
-	// Initialize menu bar
+	// Configure menu bar
 	_menu_bar->box(OS_PANEL_THIN_UP_BOX);
 	_menu_bar->down_box(FL_FLAT_BOX);
+
+	// Configure menu bar items
 	Fl_Menu_Item menu_items[] = {
 		// label, shortcut, callback, data, flags
 		OS_SUBMENU("&File"),
+		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
 		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
-		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, 0),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
+		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
+		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
+		{},
+		OS_SUBMENU("&Edit"),
+		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, 0),
+		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Re&size", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
+		{},
+		OS_SUBMENU("&View"),
+		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Aero", 0, (Fl_Callback *)aero_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::AERO ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Metro", 0, (Fl_Callback *)metro_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::METRO ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::BLUE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::DARK ? FL_MENU_VALUE : 0)),
+		{},
+		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
+		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this, FL_MENU_TOGGLE),
+		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
+		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
+		{},
+		OS_SUBMENU("&Help"),
+		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)about_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&About", FL_COMMAND + 'a', (Fl_Callback *)about_cb, this, 0),
 		{},
 		{}
 	};
 	_menu_bar->copy(menu_items);
+
+	// Initialize menu bar items
+#define PM_FIND_MENU_ITEM_CB(c) (const_cast<Fl_Menu_Item *>(_menu_bar->find_item((Fl_Callback *)(c))))
+	_aero_theme_mi = PM_FIND_MENU_ITEM_CB(aero_theme_cb);
+	_metro_theme_mi = PM_FIND_MENU_ITEM_CB(metro_theme_cb);
+	_blue_theme_mi = PM_FIND_MENU_ITEM_CB(blue_theme_cb);
+	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
+	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
+	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
+	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
+	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
+	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
+#undef PM_FIND_MENU_ITEM_CB
+
+	// Configure toolbar buttons
+
+	_new_tb->tooltip("New... (Ctrl+N)");
+	_new_tb->callback((Fl_Callback *)new_cb, this);
+	_new_tb->image(NEW_ICON);
+	_new_tb->take_focus();
+
+	_open_tb->tooltip("Open... (Ctrl+O)");
+	_open_tb->callback((Fl_Callback *)open_cb, this);
+	_open_tb->image(OPEN_ICON);
+
+	_save_tb->tooltip("Save (Ctrl+S)");
+	_save_tb->callback((Fl_Callback *)save_cb, this);
+	_save_tb->image(SAVE_ICON);
+
+	_print_tb->tooltip("Print (Ctrl+P)");
+	_print_tb->callback((Fl_Callback *)print_cb, this);
+	_print_tb->image(PRINT_ICON);
+
+	_undo_tb->tooltip("Undo (Ctrl+Z)");
+	_undo_tb->callback((Fl_Callback *)undo_cb, this);
+	_undo_tb->image(UNDO_ICON);
+
+	_redo_tb->tooltip("Redo (Ctrl+Y)");
+	_redo_tb->callback((Fl_Callback *)redo_cb, this);
+	_redo_tb->image(REDO_ICON);
+
+	_grid_tb->tooltip("Grid (Ctrl+G)");
+	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
+	_grid_tb->image(GRID_ICON);
+	_grid_tb->value(grid() ? 1 : 0);
+
+	_zoom_tb->tooltip("Zoom (Ctrl+=)");
+	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
+	_zoom_tb->image(ZOOM_ICON);
+	_zoom_tb->value(zoom() ? 1 : 0);
+
+	_ids_tb->tooltip("IDs (Ctrl+I)");
+	_ids_tb->callback((Fl_Callback *)ids_tb_cb, this);
+	_ids_tb->image(IDS_ICON);
+	_ids_tb->value(ids() ? 1 : 0);
+
+	_hex_tb->tooltip("Hex (Ctrl+H)");
+	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
+	_hex_tb->image(HEX_ICON);
+	_hex_tb->value(hex() ? 1 : 0);
+
+	_resize_tb->tooltip("Resize (Ctrl+E)");
+	_resize_tb->callback((Fl_Callback *)resize_cb, this);
+	_resize_tb->image(RESIZE_ICON);
 }
 
 void Main_Window::show() {
@@ -165,7 +251,7 @@ void Main_Window::update_status(Block *b) {
 	_hover_x->copy_label(buffer);
 	sprintf(buffer, "Y: %d", row);
 	_hover_y->copy_label(buffer);
-	sprintf(buffer, "ID: $%02x", id);
+	sprintf(buffer, hex() ? "ID: $%02X" : "ID: %d", id);
 	_hover_id->copy_label(buffer);
 	_status_bar->redraw();
 }
@@ -181,7 +267,11 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
 }
 
-void Main_Window::toggle_zoom() {
+void Main_Window::update_grid() {
+	// TODO: update grid
+}
+
+void Main_Window::update_zoom() {
 	int ms = metatile_size();
 	_sidebar->size((ms + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
@@ -209,6 +299,20 @@ void Main_Window::toggle_zoom() {
 	}
 }
 
+void Main_Window::update_labels() {
+	for (int i = 0; i < _num_metatiles; i++) {
+		_metatiles[i]->id(_metatiles[i]->id());
+	}
+	for (int i = 0; i < _map_w * _map_h; i++) {
+		_blocks[i]->id(_blocks[i]->id());
+	}
+	redraw();
+}
+
+void Main_Window::new_cb(Fl_Widget *, Main_Window *) {
+	// TODO: new map
+}
+
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	close_cb(NULL, mw);
 
@@ -234,7 +338,6 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->init_sizes();
-	mw->_sidebar->redraw();
 
 	// dummy map
 	mw->_map_w = 18;
@@ -252,10 +355,19 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	mw->_map_scroll->scroll_to(0, 0);
 	mw->_map_scroll->init_sizes();
-	mw->_map_scroll->redraw();
 
+	mw->update_labels();
 	mw->update_status(NULL);
-	mw->_status_bar->redraw();
+
+	mw->redraw();
+}
+
+void Main_Window::save_cb(Fl_Widget *, Main_Window *) {
+	// TODO: save
+}
+
+void Main_Window::save_as_cb(Fl_Widget *, Main_Window *) {
+	// TODO: save as
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
@@ -273,7 +385,8 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::save_cb(Fl_Widget *, Main_Window *) {
+void Main_Window::print_cb(Fl_Widget *, Main_Window *) {
+	// TODO: print
 }
 
 void Main_Window::exit_cb(Fl_Widget *, void *) {
@@ -282,15 +395,122 @@ void Main_Window::exit_cb(Fl_Widget *, void *) {
 	exit(EXIT_SUCCESS);
 }
 
-void Main_Window::hex_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	mw->_show_hex_ids = !!mw->_hex_tb->value();
+void Main_Window::undo_cb(Fl_Widget *, Main_Window *) {
+	// TODO: undo
+}
+
+void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
+	// TODO: redo
+}
+
+void Main_Window::resize_cb(Fl_Widget *, Main_Window *) {
+	// TODO: resize
+	/*
+	W: [___] H: [___]
+	Anchor:
+	(.) Top (_) Bottom
+	(.) Left (_) Right
+		  [OK] [Cancel]
+	*/
+}
+
+void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_aero_theme();
+	mw->_aero_theme_mi->setonly();
 	mw->redraw();
 }
 
-void Main_Window::zoom_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	mw->_zoom = !!mw->_zoom_tb->value();
-	mw->toggle_zoom();
+void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_metro_theme();
+	mw->_metro_theme_mi->setonly();
 	mw->redraw();
+}
+
+void Main_Window::blue_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_blue_theme();
+	mw->_blue_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_dark_theme();
+	mw->_dark_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::grid_cb(Fl_Menu_ *m, Main_Window *mw) {
+	int v = m->mvalue()->value();
+	mw->_grid_tb->value(v);
+	mw->redraw();
+}
+
+void Main_Window::zoom_cb(Fl_Menu_ *m, Main_Window *mw) {
+	int v = m->mvalue()->value();
+	mw->_zoom_tb->value(v);
+	mw->update_zoom();
+	mw->redraw();
+}
+
+void Main_Window::ids_cb(Fl_Menu_ *m, Main_Window *mw) {
+	int v = m->mvalue()->value();
+	mw->_ids_tb->value(v);
+	mw->redraw();
+}
+
+void Main_Window::hex_cb(Fl_Menu_ *m, Main_Window *mw) {
+	int v = m->mvalue()->value();
+	mw->_hex_tb->value(v);
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
+	if (m->mvalue()->value()) {
+		mw->_wx = mw->x(); mw->_wy = mw->y();
+		mw->_ww = mw->w(); mw->_wh = mw->h();
+		mw->fullscreen();
+	}
+	else {
+		mw->fullscreen_off(mw->_wx, mw->_wy, mw->_ww, mw->_wh);
+	}
+}
+
+void Main_Window::grid_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	bool v = !!mw->_grid_tb->value();
+	if (v) { mw->_grid_mi->set(); }
+	else { mw->_grid_mi->clear(); }
+	mw->redraw();
+}
+
+void Main_Window::zoom_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	bool v = !!mw->_zoom_tb->value();
+	if (v) { mw->_zoom_mi->set(); }
+	else { mw->_zoom_mi->clear(); }
+	mw->update_zoom();
+	mw->redraw();
+}
+
+void Main_Window::ids_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	bool v = !!mw->_ids_tb->value();
+	if (v) { mw->_ids_mi->set(); }
+	else { mw->_ids_mi->clear(); }
+	mw->redraw();
+}
+
+void Main_Window::hex_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	bool v = !!mw->_hex_tb->value();
+	if (v) { mw->_hex_mi->set(); }
+	else { mw->_hex_mi->clear(); }
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::help_cb(Fl_Widget *, Main_Window *) {
+	// TODO: help
+}
+
+void Main_Window::about_cb(Fl_Widget *, Main_Window *) {
+	// TODO: about
 }
 
 void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {

@@ -131,13 +131,20 @@
   <ItemGroup>
     <None Include="..\res\app.ico" />
     <None Include="..\res\error.xpm" />
+    <None Include="..\res\grid.xpm" />
     <None Include="..\res\hex.xpm" />
+    <None Include="..\res\ids.xpm" />
+    <None Include="..\res\metatile.xpm" />
+    <None Include="..\res\new.xpm" />
     <None Include="..\res\open.xpm" />
+    <None Include="..\res\print.xpm" />
+    <None Include="..\res\redo.xpm" />
+    <None Include="..\res\resize.xpm" />
     <None Include="..\res\save.xpm" />
     <None Include="..\res\success.xpm" />
+    <None Include="..\res\undo.xpm" />
     <None Include="..\res\warning.xpm" />
     <None Include="..\res\zoom.xpm" />
-    <None Include="..\src\metatile.xpm" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc" />
