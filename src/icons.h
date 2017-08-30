@@ -7,8 +7,10 @@
 
 #include "open.xpm"
 #include "save.xpm"
+#include "hex.xpm"
 
 static Fl_Pixmap OPEN_ICON(OPEN_XPM);
 static Fl_Pixmap SAVE_ICON(SAVE_XPM);
+static Fl_Pixmap HEX_ICON(HEX_XPM);
 
 #endif

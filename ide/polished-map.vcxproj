@@ -114,6 +114,7 @@
     <ClCompile Include="..\src\widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\dummy.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
     <ClInclude Include="..\src\main-window.h" />
@@ -130,10 +131,12 @@
   <ItemGroup>
     <None Include="..\res\app.ico" />
     <None Include="..\res\error.xpm" />
+    <None Include="..\res\hex.xpm" />
     <None Include="..\res\open.xpm" />
     <None Include="..\res\save.xpm" />
     <None Include="..\res\success.xpm" />
     <None Include="..\res\warning.xpm" />
+    <None Include="..\src\metatile.xpm" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc" />

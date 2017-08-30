@@ -80,6 +80,9 @@
     <ClInclude Include="..\src\icons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\dummy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\app.ico">
@@ -98,6 +101,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\warning.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\src\metatile.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\hex.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

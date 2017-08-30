@@ -26,8 +26,21 @@ class Metatile : public Fl_Radio_Button {
 private:
 	uint8_t _id;
 public:
-	Metatile(int x, int y, uint8_t id, bool show_label = true);
+	Metatile(int x, int y, uint8_t id);
+	uint8_t id(void) const { return _id; }
+	void id(uint8_t id) { _id = id; }
 	void draw(void);
+};
+
+class Block : public Fl_Button {
+private:
+	uint8_t _id;
+public:
+	Block(int x, int y, uint8_t id);
+	uint8_t id(void) const { return _id; }
+	void id(uint8_t id) { _id = id; }
+	void draw(void);
+	int handle(int event);
 };
 
 class DnD_Receiver : public Fl_Box {

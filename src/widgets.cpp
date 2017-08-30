@@ -9,23 +9,26 @@
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Menu_.H>
 #include <FL/fl_draw.H>
+#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "themes.h"
 #include "math.h"
 #include "widgets.h"
+#include "main-window.h"
 
 static const char *hex_digits = "0123456789ABCDEF";
 
-Metatile::Metatile(int x, int y, uint8_t id, bool show_label) : Fl_Radio_Button(x, y, 33, 33), _id(id) {
+Metatile::Metatile(int x, int y, uint8_t id) : Fl_Radio_Button(x, y, 33, 33), _id(id) {
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
 	labelcolor(FL_RED);
 	labelsize(12);
 	labelfont(FL_COURIER);
-	labeltype(show_label ? FL_FREE_LABELTYPE : FL_NO_LABEL);
-	char label[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
-	copy_label(label);
+	labeltype(FL_NO_LABEL);
+	when(FL_WHEN_CHANGED);
+	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
+	copy_label(id_str);
 }
 
 void Metatile::draw() {
@@ -35,7 +38,8 @@ void Metatile::draw() {
 		fl_rect(x()+1, y()+1, 30, 30, FL_WHITE);
 		fl_rect(x()+2, y()+2, 28, 28, FL_BLACK);
 	}
-	if (labeltype() == FL_NO_LABEL) { return; }
+	Main_Window *mw = (Main_Window *)user_data();
+	if (!mw->show_hex_ids()) { return; }
 	Fl_Align a = align();
 	if (a & FL_ALIGN_CLIP) {
 		fl_push_clip(x(), y(), w(), h());
@@ -50,6 +54,28 @@ void Metatile::draw() {
 	if (align() & FL_ALIGN_CLIP) {
 		fl_pop_clip();
 	}
+}
+
+Block::Block(int x, int y, uint8_t id) : Fl_Button(x, y, 33, 33), _id(id) {
+	box(FL_NO_BOX);
+	align(FL_ALIGN_IMAGE_BACKDROP);
+	labeltype(FL_NO_LABEL);
+	when(FL_WHEN_RELEASE_ALWAYS);
+}
+
+void Block::draw() {
+	Main_Window *mw = (Main_Window *)user_data();
+	Fl_Image *img = mw->metatile_image(_id);
+	img->draw(x() + (w() - img->w()) / 2, y() + (h() - img->h()) / 2);
+	if (!mw->show_hex_ids()) { return; }
+	fl_font(FL_COURIER_BOLD, 12);
+	fl_color(FL_BLACK);
+	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
+	fl_draw(id_str, x()-4, y(), w(), h(), FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+}
+
+int Block::handle(int event) {
+	return Fl_Button::handle(event);
 }
 
 void DnD_Receiver::deferred_callback(DnD_Receiver *dndr) {

@@ -14,6 +14,7 @@
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
+#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "version.h"
@@ -29,7 +30,13 @@
 
 #include "resource.h"
 
-Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME) {
+#include "metatile.xpm"
+
+#include "dummy.h"
+
+Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
+	_num_metatiles(0), _metatiles(), _selected(NULL), _default_metatile_image(DEFAULT_METATILE_XPM),
+	_show_hex_ids(false) {
 	// Populate window
 	int wx = 0, wy = 0, ww = w, wh = h;
 
@@ -42,6 +49,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	wh -= _toolbar->h();
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
+	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_toolbar->end();
 	begin();
 
@@ -71,12 +80,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_save_tb->callback((Fl_Callback *)save_cb, this);
 	_save_tb->image(SAVE_ICON);
 
-	// Initialize drag-and-drop receiver
-	begin();
-	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
-	end();
-	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
-	_dnd_receiver->user_data(this);
+	_hex_tb->tooltip("Show Hex IDs (Ctrl+H)");
+	_hex_tb->callback((Fl_Callback *)hex_cb, this);
+	_hex_tb->shortcut(FL_COMMAND + 'h');
+	_hex_tb->image(HEX_ICON);
+	_hex_tb->user_data(this);
+	_hex_tb->value(_show_hex_ids ? 1 : 0);
 
 	// Initialize window
 	size_range(384, 256);
@@ -112,60 +121,27 @@ void Main_Window::show() {
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
 }
 
-void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
+Fl_Image *Main_Window::metatile_image(uint8_t id) {
+	if (id >= _num_metatiles) { return &_default_metatile_image; }
+	return _metatiles[id]->image();
 }
 
-static const char *dummy_xpm[] = {
-	"32 32 4 1",
-	"0 c #B0F850", // white
-	"1 c #287000", // dark
-	"2 c #60C808", // light
-	"3 c #383838", // black
-	"2020200020202000202020002020200020202000202020002020200020202000",
-	"0212020202120202021202020212020202120202021202020212020202120202",
-	"2020102020201020202010202020102020201020202010202020102020201020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020202020202020202020202020202020202020202020202020202020202020",
-	"0202021202020212020202120202021202020212020202120202021202020212",
-	"0000202000002020000020200000202000002020000020200000202000002020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020200020202000202020002020200020202000202020002020200020202000",
-	"0212020202120202021202020212020202120202021202020212020202120202",
-	"2020102020201020202010202020102020201020202010202020102020201020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020202020202020202020202020202020202020202020202020202020202020",
-	"0202021202020212020202120202021202020212020202120202021202020212",
-	"0000202000002020000020200000202000002020000020200000202000002020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020200020202000202020002020200020202000202020002020200020202000",
-	"0212020202120202021202020212020202120202021202020212020202120202",
-	"2020102020201020202010202020102020201020202010202020102020201020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020202020202020202020202020202020202020202020202020202020202020",
-	"0202021202020212020202120202021202020212020202120202021202020212",
-	"0000202000002020000020200000202000002020000020200000202000002020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020200020202000202020002020200020202000202020002020200020202000",
-	"0212020202120202021202020212020202120202021202020212020202120202",
-	"2020102020201020202010202020102020201020202010202020102020201020",
-	"0002020000020200000202000002020000020200000202000002020000020200",
-	"2020202020202020202020202020202020202020202020202020202020202020",
-	"0202021202020212020202120202021202020212020202120202021202020212",
-	"0000202000002020000020200000202000002020000020200000202000002020",
-	"0002020000020200000202000002020000020200000202000002020000020200"
-};
+// right-click to select the metatile with a block's id
+// middle-click to flood fill
 
 void Main_Window::open_cb(Fl_Widget *w, Main_Window *mw) {
+	close_cb(w, mw);
+
 	// dummy metatiles
-	Fl_Pixmap dummy_icon(dummy_xpm);
-	mw->_sidebar->clear();
-	char label[4] = {};
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 245; i++) {
 		int x = 33 * (i % 4), y = 33 * (i / 4);
-		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, (uint8_t)i);
-		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_xpm);
+		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, (uint8_t)(i % 256));
+		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_metatiles[i]);
 		metatile->image(dummy_icon);
+		metatile->callback((Fl_Callback *)select_metatile_cb, mw);
 		mw->_sidebar->add(metatile);
+		mw->_metatiles[i] = metatile;
+		mw->_num_metatiles++;
 	}
 	mw->_sidebar->scrollbar.value(0);
 	mw->_sidebar->init_sizes();
@@ -176,10 +152,9 @@ void Main_Window::open_cb(Fl_Widget *w, Main_Window *mw) {
 	mw->_map->size(33 * 18, 33 * 10);
 	for (int i = 0; i < 18 * 10; i++) {
 		int x = 33 * (i % 18), y = 33 * (i / 18);
-		Metatile *metatile = new Metatile(mw->_map->x() + x, mw->_map->y() + y, 0, false);
-		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_xpm);
-		metatile->image(dummy_icon);
-		mw->_map->add(metatile);
+		Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, (uint8_t)(i % 256));
+		block->callback((Fl_Callback *)change_block_cb, mw);
+		mw->_map->add(block);
 	}
 	mw->_map_scroll->scrollbar.value(0);
 	mw->_map_scroll->hscrollbar.value(0);
@@ -187,14 +162,44 @@ void Main_Window::open_cb(Fl_Widget *w, Main_Window *mw) {
 	mw->_map_scroll->redraw();
 }
 
-void Main_Window::close_cb(Fl_Widget *w, Main_Window *mw) {
+void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
+	mw->_sidebar->clear();
+	mw->_num_metatiles = 0;
+	memset(mw->_metatiles, 0, sizeof(mw->_metatiles));
+	mw->_selected = NULL;
+	mw->_map->clear();
+	mw->redraw();
 }
 
-void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
+void Main_Window::save_cb(Fl_Widget *, Main_Window *) {
 }
 
 void Main_Window::exit_cb(Fl_Widget *, void *) {
 	// Override default behavior of Esc to close main window
 	if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape) { return; }
 	exit(EXIT_SUCCESS);
+}
+
+void Main_Window::hex_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	mw->_show_hex_ids = !!mw->_hex_tb->value();
+	mw->redraw();
+}
+
+void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {
+	mw->_selected = mt;
+}
+
+void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
+	if (Fl::event_button() == FL_RIGHT_MOUSE) {
+		uint8_t id = b->id();
+		if (id < mw->_num_metatiles) {
+			mw->_selected = mw->_metatiles[id];
+			mw->_selected->setonly();
+		}
+	}
+	else if (mw->_selected != NULL) {
+		uint8_t id = mw->_selected->id();
+		b->id(id);
+		b->damage(1);
+	}
 }
