@@ -22,13 +22,13 @@ static const char *hex_digits = "0123456789ABCDEF";
 Metatile::Metatile(int x, int y, uint8_t id) : Fl_Radio_Button(x, y, 33, 33), _id(id) {
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
-	labelcolor(FL_RED);
+	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
-	when(FL_WHEN_CHANGED);
 	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
 	copy_label(id_str);
+	when(FL_WHEN_CHANGED);
 }
 
 void Metatile::draw() {
@@ -48,10 +48,13 @@ void Metatile::draw() {
 	}
 	fl_font(labelfont() | FL_BOLD, labelsize());
 	fl_color(FL_BLACK);
-	fl_draw(label(), x()-3, y()+1, w(), h(), a);
+	fl_draw(label(), x()-4, y()-1, w(), h(), a);
+	fl_draw(label(), x()-4, y()+1, w(), h(), a);
+	fl_draw(label(), x()-2, y()-1, w(), h(), a);
+	fl_draw(label(), x()-2, y()+1, w(), h(), a);
 	fl_font(labelfont() | FL_BOLD, labelsize());
 	fl_color(labelcolor());
-	fl_draw(label(), x()-4, y(), w(), h(), a);
+	fl_draw(label(), x()-3, y(), w(), h(), a);
 	if (align() & FL_ALIGN_CLIP) {
 		fl_pop_clip();
 	}
@@ -59,8 +62,13 @@ void Metatile::draw() {
 
 Block::Block(int x, int y, uint8_t id) : Fl_Button(x, y, 33, 33), _id(id) {
 	box(FL_NO_BOX);
-	align(FL_ALIGN_IMAGE_BACKDROP);
+	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+	labelcolor(FL_WHITE);
+	labelsize(12);
+	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
+	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
+	copy_label(id_str);
 	when(FL_WHEN_RELEASE_ALWAYS);
 }
 
@@ -70,10 +78,23 @@ void Block::draw() {
 	Fl_Image *img = mw->metatile_image(_id);
 	img->draw(x(), y(), ms, ms);
 	if (!mw->show_hex_ids()) { return; }
-	fl_font(FL_COURIER_BOLD, 12);
+	Fl_Align a = align();
+	if (a & FL_ALIGN_CLIP) {
+		fl_push_clip(x(), y(), w(), h());
+		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
+	}
+	fl_font(labelfont() | FL_BOLD, labelsize());
 	fl_color(FL_BLACK);
-	char id_str[3] = {hex_digits[(_id / 16) % 16], hex_digits[_id % 16], '\0'};
-	fl_draw(id_str, x()-4, y(), w(), h(), FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+	fl_draw(label(), x()-4, y()-1, w(), h(), a);
+	fl_draw(label(), x()-4, y()+1, w(), h(), a);
+	fl_draw(label(), x()-2, y()-1, w(), h(), a);
+	fl_draw(label(), x()-2, y()+1, w(), h(), a);
+	fl_font(labelfont() | FL_BOLD, labelsize());
+	fl_color(labelcolor());
+	fl_draw(label(), x()-3, y(), w(), h(), a);
+	if (align() & FL_ALIGN_CLIP) {
+		fl_pop_clip();
+	}
 }
 
 int Block::handle(int event) {
