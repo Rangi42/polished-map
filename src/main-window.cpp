@@ -202,7 +202,7 @@ void Main_Window::toggle_zoom() {
 	int mx = _map->x(), my = _map->y();
 	for (int row = 0; row < _map_h; row++) {
 		for (int col = 0; col < _map_w; col++) {
-			Block *block = _blocks[row * _map_h + col];
+			Block *block = _blocks[row * _map_w + col];
 			int dx = col * (ms + 1), dy = row * (ms + 1);
 			block->resize(mx + dx, my + dy, ms + 1, ms + 1);
 		}
