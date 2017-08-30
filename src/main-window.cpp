@@ -88,7 +88,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	begin();
 
 	// Sidebar
-	_sidebar = new Workspace(wx, wy, (metatile_size() + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), wh);
+	_sidebar = new Workspace(wx, wy, metatile_size() * METATILES_PER_ROW + Fl::scrollbar_size(), wh);
 	wx += _sidebar->w();
 	ww -= _sidebar->w();
 	_sidebar->type(Fl_Scroll::VERTICAL_ALWAYS);
@@ -267,22 +267,18 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
 }
 
-void Main_Window::update_grid() {
-	// TODO: update grid
-}
-
 void Main_Window::update_zoom() {
 	int ms = metatile_size();
-	_sidebar->size((ms + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
+	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
-	_map->resize(_sidebar->w(), _map->y(), _map_w * (ms + 1), _map_h * (ms + 1));
+	_map->resize(_sidebar->w(), _map->y(), _map_w * ms, _map_h * ms);
 	_sidebar->init_sizes();
 	_map->init_sizes();
 	_map_scroll->init_sizes();
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	for (int i = 0; i < _num_metatiles; i++) {
 		Metatile *mt = _metatiles[i];
-		int dx = (ms + 1) * (i % METATILES_PER_ROW), dy = (ms + 1) * (i / METATILES_PER_ROW);
+		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
 		Fl_Image *img = mt->image();
 		Fl_Image *resized = img->copy(ms, ms);
@@ -293,8 +289,8 @@ void Main_Window::update_zoom() {
 	for (int row = 0; row < _map_h; row++) {
 		for (int col = 0; col < _map_w; col++) {
 			Block *block = _blocks[row * _map_w + col];
-			int dx = col * (ms + 1), dy = row * (ms + 1);
-			block->resize(mx + dx, my + dy, ms + 1, ms + 1);
+			int dx = col * ms, dy = row * ms;
+			block->resize(mx + dx, my + dy, ms, ms);
 		}
 	}
 }
@@ -321,7 +317,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	// dummy metatiles
 	mw->_num_metatiles = 245;
 	for (int i = 0; i < mw->_num_metatiles; i++) {
-		int x = (ms + 1) * (i % METATILES_PER_ROW), y = (ms + 1) * (i / METATILES_PER_ROW);
+		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)(i % MAX_METATILES));
 		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_metatiles[i]);
 		if (dummy_icon->w() != ms || dummy_icon->h() != ms) {
@@ -343,10 +339,10 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_w = 18;
 	mw->_map_h = 10;
 	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
-	mw->_map->size((ms + 1) * mw->_map_w, (ms + 1) * mw->_map_h);
+	mw->_map->size(ms * mw->_map_w, ms * mw->_map_h);
 	for (int row = 0; row < mw->_map_h; row++) {
 		for (int col = 0; col < mw->_map_w; col++) {
-			int x = col * (ms + 1), y = row * (ms + 1);
+			int x = col * ms, y = row * ms;
 			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
 			block->callback((Fl_Callback *)change_block_cb, mw);
 			mw->_map->add(block);
@@ -523,12 +519,13 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		if (id >= mw->_num_metatiles) { return; }
 		mw->_selected = mw->_metatiles[id];
 		mw->_selected->setonly();
-		if ((mw->metatile_size() + 1) * (id / 4) >= mw->_sidebar->yposition() + mw->_sidebar->h() - mw->metatile_size() / 2) {
-			mw->_sidebar->scroll_to(0, (mw->metatile_size() + 1) * (id / 4 + 1) - mw->_sidebar->h());
+		int ms = mw->metatile_size();
+		if (ms * (id / 4) >= mw->_sidebar->yposition() + mw->_sidebar->h() - ms / 2) {
+			mw->_sidebar->scroll_to(0, ms * (id / 4 + 1) - mw->_sidebar->h());
 			mw->_sidebar->redraw();
 		}
-		else if ((mw->metatile_size() + 1) * (id / 4 + 1) <= mw->_sidebar->yposition() + mw->metatile_size() / 2) {
-			mw->_sidebar->scroll_to(0, (mw->metatile_size() + 1) * (id / 4));
+		else if (ms * (id / 4 + 1) <= mw->_sidebar->yposition() + ms / 2) {
+			mw->_sidebar->scroll_to(0, ms * (id / 4));
 			mw->_sidebar->redraw();
 		}
 	}

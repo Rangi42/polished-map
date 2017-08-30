@@ -40,15 +40,20 @@ void Metatile::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	int ms = mw->metatile_size();
 	image()->draw(x(), y(), ms, ms);
+	if (mw->grid()) {
+		fl_color(FL_INACTIVE_COLOR);
+		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
+	}
 	if (value()) {
-		fl_rect(x(), y(), ms, ms, FL_BLACK);
-		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_WHITE);
+		int rs = ms - (mw->grid() ? 1 : 0);
+		fl_rect(x(), y(), rs, rs, FL_BLACK);
+		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
 		if (ms == METATILE_SIZE) {
-			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_BLACK);
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
 		}
 		else {
-			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_WHITE);
-			fl_rect(x()+3, y()+3, ms-6, ms-6, FL_BLACK);
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
+			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
 		}
 	}
 	if (!mw->ids()) { return; }
@@ -95,11 +100,16 @@ void Block::draw() {
 	int ms = mw->metatile_size();
 	Fl_Image *img = mw->metatile_image(_id);
 	img->draw(x(), y(), ms, ms);
+	if (mw->grid()) {
+		fl_color(FL_INACTIVE_COLOR);
+		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
+	}
 	if (Fl::belowmouse() == this) {
-		fl_rect(x(), y(), ms, ms, FL_YELLOW);
-		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_YELLOW);
+		int rs = ms - (mw->grid() ? 1 : 0);
+		fl_rect(x(), y(), rs, rs, FL_YELLOW);
+		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_YELLOW);
 		if (ms > METATILE_SIZE) {
-			fl_rect(x()+2, y()+2, ms-4, ms-4, FL_YELLOW);
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_YELLOW);
 		}
 	}
 	if (!mw->ids()) { return; }
@@ -128,6 +138,7 @@ int Block::handle(int event) {
 	case FL_ENTER:
 		if (Fl::event_button1() && !Fl::pushed()) {
 			Fl::pushed(this);
+			do_callback();
 		}
 		mw->update_status(this);
 	case FL_LEAVE:
@@ -135,14 +146,13 @@ int Block::handle(int event) {
 		redraw();
 		return 1;
 	case FL_PUSH:
+		do_callback();
 		return 1;
 	case FL_RELEASE:
-		do_callback();
 		return 1;
 	case FL_DRAG:
 		if (!Fl::event_inside(x(), y(), w(), h())) {
 			Fl::pushed(NULL);
-			do_callback();
 		}
 		return 1;
 	}

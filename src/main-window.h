@@ -54,7 +54,6 @@ public:
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
-	void update_grid(void);
 	void update_zoom(void);
 	void update_labels(void);
 	// File menu
