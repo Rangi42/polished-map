@@ -162,9 +162,6 @@ void Main_Window::toggle_zoom() {
 	}
 }
 
-// right-click to select the metatile with a block's id
-// middle-click to flood fill
-
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	close_cb(NULL, mw);
 
@@ -250,6 +247,7 @@ void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
+	// TODO: middle-click to flood fill
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		uint8_t id = b->id();
 		if (id >= mw->_num_metatiles) { return; }

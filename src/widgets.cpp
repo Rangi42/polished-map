@@ -123,6 +123,9 @@ void Block::draw() {
 int Block::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
+		if (Fl::event_button1() && !Fl::pushed()) {
+			Fl::pushed(this);
+		}
 	case FL_LEAVE:
 	case FL_MOVE:
 		redraw();
@@ -133,6 +136,10 @@ int Block::handle(int event) {
 		do_callback();
 		return 1;
 	case FL_DRAG:
+		if (!Fl::event_inside(x(), y(), w(), h())) {
+			Fl::pushed(NULL);
+			do_callback();
+		}
 		return 1;
 	}
 	return Fl_Box::handle(event);
