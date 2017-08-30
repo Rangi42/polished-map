@@ -1,13 +1,4 @@
 #include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <ios>
-#include <iomanip>
-#include <locale>
-#include <algorithm>
-#include <queue>
 
 #pragma warning(push, 0)
 #include <FL/Fl.H>
@@ -259,8 +250,8 @@ void Main_Window::update_status(Block *b) {
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (f == t || b->id() != f) { return; }
 	b->id(t);
-	uint8_t row = b->row(), col = b->col();
-	uint8_t i = row * _map_w + col;
+	int row = b->row(), col = b->col();
+	int i = row * _map_w + col;
 	if (col > 0) { flood_fill(_blocks[i-1], f, t); } // left
 	if (col < _map_w - 1) { flood_fill(_blocks[i+1], f, t); } // right
 	if (row > 0) { flood_fill(_blocks[i-_map_w], f, t); } // up
@@ -336,12 +327,12 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->init_sizes();
 
 	// dummy map
-	mw->_map_w = 18;
-	mw->_map_h = 10;
+	mw->_map_w = 32;
+	mw->_map_h = 32;
 	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
 	mw->_map->size(ms * mw->_map_w, ms * mw->_map_h);
-	for (int row = 0; row < mw->_map_h; row++) {
-		for (int col = 0; col < mw->_map_w; col++) {
+	for (uint8_t row = 0; row < mw->_map_h; row++) {
+		for (uint8_t col = 0; col < mw->_map_w; col++) {
 			int x = col * ms, y = row * ms;
 			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
 			block->callback((Fl_Callback *)change_block_cb, mw);
