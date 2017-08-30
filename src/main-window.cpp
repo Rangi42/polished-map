@@ -208,6 +208,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_resize_tb->image(RESIZE_ICON);
 }
 
+Main_Window::~Main_Window() {
+	delete _menu_bar; // includes menu items
+	delete _toolbar; // includes toolbar buttons
+	delete _sidebar; // includes metatiles
+	delete _status_bar; // includes status bar fields
+	delete _map_scroll; // includes map and blocks
+}
+
 void Main_Window::show() {
 	Fl_Double_Window::show();
 	// Fix for 16x16 icon from <http://www.fltk.org/str.php?L925>

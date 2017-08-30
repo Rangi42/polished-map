@@ -44,6 +44,7 @@ private:
 	int _wx, _wy, _ww, _wh;
 public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
+	~Main_Window();
 	void show(void);
 	Fl_Image *metatile_image(uint8_t id);
 	bool grid(void) const { return _grid_mi && _grid_mi->value(); }
