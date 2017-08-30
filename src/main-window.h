@@ -38,6 +38,7 @@ public:
 	bool show_hex_ids(void) const { return _show_hex_ids; }
 	int metatile_size(void) const { return _zoom ? 64 : 32; }
 	void update_status(Block *b);
+	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
 	void toggle_zoom(void);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);

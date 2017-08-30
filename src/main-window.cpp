@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <locale>
 #include <algorithm>
+#include <queue>
 
 #pragma warning(push, 0)
 #include <FL/Fl.H>
@@ -169,6 +170,17 @@ void Main_Window::update_status(Block *b) {
 	_status_bar->redraw();
 }
 
+void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
+	if (f == t || b->id() != f) { return; }
+	b->id(t);
+	uint8_t row = b->row(), col = b->col();
+	uint8_t i = row * _map_w + col;
+	if (col > 0) { flood_fill(_blocks[i-1], f, t); } // left
+	if (col < _map_w - 1) { flood_fill(_blocks[i+1], f, t); } // right
+	if (row > 0) { flood_fill(_blocks[i-_map_w], f, t); } // up
+	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
+}
+
 void Main_Window::toggle_zoom() {
 	int ms = metatile_size();
 	_sidebar->size((ms + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
@@ -235,7 +247,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
 			block->callback((Fl_Callback *)change_block_cb, mw);
 			mw->_map->add(block);
-			mw->_blocks[row * mw->_map_h + col] = block;
+			mw->_blocks[row * mw->_map_w + col] = block;
 		}
 	}
 	mw->_map_scroll->scroll_to(0, 0);
@@ -301,7 +313,11 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		}
 	}
 	else if (Fl::event_button() == FL_MIDDLE_MOUSE) {
-		// TODO: middle-click to flood fill
+		if (mw->_selected) {
+			mw->flood_fill(b, b->id(), mw->_selected->id());
+			mw->_map->redraw();
+			mw->update_status(b);
+		}
 	}
 	else if (mw->_selected) { // FL_LEFT_MOUSE or FL_DRAG
 		uint8_t id = mw->_selected->id();
