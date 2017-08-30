@@ -141,7 +141,12 @@ int Block::handle(int event) {
 			do_callback();
 		}
 		mw->update_status(this);
+		redraw();
+		return 1;
 	case FL_LEAVE:
+		mw->update_status(NULL);
+		redraw();
+		return 1;
 	case FL_MOVE:
 		redraw();
 		return 1;
