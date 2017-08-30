@@ -8,9 +8,11 @@
 #include "open.xpm"
 #include "save.xpm"
 #include "hex.xpm"
+#include "zoom.xpm"
 
 static Fl_Pixmap OPEN_ICON(OPEN_XPM);
 static Fl_Pixmap SAVE_ICON(SAVE_XPM);
 static Fl_Pixmap HEX_ICON(HEX_XPM);
+static Fl_Pixmap ZOOM_ICON(ZOOM_XPM);
 
 #endif

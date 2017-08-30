@@ -32,13 +32,14 @@ Metatile::Metatile(int x, int y, uint8_t id) : Fl_Radio_Button(x, y, 33, 33), _i
 }
 
 void Metatile::draw() {
-	Fl_Radio_Button::draw();
-	if (value()) {
-		fl_rect(x(), y(), 32, 32, FL_BLACK);
-		fl_rect(x()+1, y()+1, 30, 30, FL_WHITE);
-		fl_rect(x()+2, y()+2, 28, 28, FL_BLACK);
-	}
 	Main_Window *mw = (Main_Window *)user_data();
+	int ms = mw->metatile_size();
+	image()->draw(x(), y(), ms, ms);
+	if (value()) {
+		fl_rect(x(), y(), ms, ms, FL_BLACK);
+		fl_rect(x()+1, y()+1, ms-2, ms-2, FL_WHITE);
+		fl_rect(x()+2, y()+2, ms-4, ms-4, FL_BLACK);
+	}
 	if (!mw->show_hex_ids()) { return; }
 	Fl_Align a = align();
 	if (a & FL_ALIGN_CLIP) {
@@ -65,8 +66,9 @@ Block::Block(int x, int y, uint8_t id) : Fl_Button(x, y, 33, 33), _id(id) {
 
 void Block::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
+	int ms = mw->metatile_size();
 	Fl_Image *img = mw->metatile_image(_id);
-	img->draw(x() + (w() - img->w()) / 2, y() + (h() - img->h()) / 2);
+	img->draw(x(), y(), ms, ms);
 	if (!mw->show_hex_ids()) { return; }
 	fl_font(FL_COURIER_BOLD, 12);
 	fl_color(FL_BLACK);

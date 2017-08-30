@@ -35,8 +35,8 @@
 #include "dummy.h"
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_num_metatiles(0), _metatiles(), _selected(NULL), _default_metatile_image(DEFAULT_METATILE_XPM),
-	_show_hex_ids(false) {
+	_num_metatiles(0), _metatiles(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
+	_default_metatile_image(DEFAULT_METATILE_XPM), _show_hex_ids(false), _zoom(false) {
 	// Populate window
 	int wx = 0, wy = 0, ww = w, wh = h;
 
@@ -51,6 +51,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_toolbar->end();
 	begin();
 
@@ -59,7 +60,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_status_bar->end();
 	begin();
 
-	_sidebar = new Workspace(wx, wy, (32 + 1) * 4 + Fl::scrollbar_size(), wh);
+	_sidebar = new Workspace(wx, wy, (metatile_size() + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), wh);
 	wx += _sidebar->w();
 	ww -= _sidebar->w();
 	_sidebar->type(Fl_Scroll::VERTICAL_ALWAYS);
@@ -86,6 +87,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_tb->image(HEX_ICON);
 	_hex_tb->user_data(this);
 	_hex_tb->value(_show_hex_ids ? 1 : 0);
+
+	_zoom_tb->tooltip("Zoom (Ctrl+=)");
+	_zoom_tb->callback((Fl_Callback *)zoom_cb, this);
+	_zoom_tb->shortcut(FL_COMMAND + '=');
+	_zoom_tb->image(ZOOM_ICON);
+	_zoom_tb->user_data(this);
+	_zoom_tb->value(_zoom ? 1 : 0);
 
 	// Initialize window
 	size_range(384, 256);
@@ -126,6 +134,30 @@ Fl_Image *Main_Window::metatile_image(uint8_t id) {
 	return _metatiles[id]->image();
 }
 
+void Main_Window::toggle_zoom() {
+	int ms = metatile_size();
+	_sidebar->size((ms + 1) * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
+	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
+	_map->size(_map_w * ms, _map_h * ms);
+	int sx = _sidebar->x(), sy = _sidebar->y();
+	for (int i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		int dx = (ms + 1) * (i % METATILES_PER_ROW), dy = (ms + 1) * (i / METATILES_PER_ROW);
+		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
+	}
+	int mx = _map->x(), my = _map->y();
+	for (int row = 0; row < _map_h; row++) {
+		for (int col = 0; col < _map_w; col++) {
+			Block *block = _blocks[row * _map_h + col];
+			int dx = col * (ms + 1), dy = row * (ms + 1);
+			block->resize(mx + dx, my + dy, ms + 1, ms + 1);
+		}
+	}
+	_sidebar->init_sizes();
+	_map->init_sizes();
+	_map_scroll->init_sizes();
+}
+
 // right-click to select the metatile with a block's id
 // middle-click to flood fill
 
@@ -133,28 +165,31 @@ void Main_Window::open_cb(Fl_Widget *w, Main_Window *mw) {
 	close_cb(w, mw);
 
 	// dummy metatiles
-	for (int i = 0; i < 245; i++) {
-		int x = 33 * (i % 4), y = 33 * (i / 4);
-		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, (uint8_t)(i % 256));
+	mw->_num_metatiles = 245;
+	for (int i = 0; i < mw->_num_metatiles; i++) {
+		int x = (mw->metatile_size() + 1) * (i % METATILES_PER_ROW), y = (mw->metatile_size() + 1) * (i / METATILES_PER_ROW);
+		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, (uint8_t)(i % MAX_METATILES));
 		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_metatiles[i]);
 		metatile->image(dummy_icon);
 		metatile->callback((Fl_Callback *)select_metatile_cb, mw);
 		mw->_sidebar->add(metatile);
 		mw->_metatiles[i] = metatile;
-		mw->_num_metatiles++;
 	}
 	mw->_sidebar->scrollbar.value(0);
 	mw->_sidebar->init_sizes();
 	mw->_sidebar->redraw();
 
 	// dummy map
-	mw->_map->clear();
-	mw->_map->size(33 * 18, 33 * 10);
-	for (int i = 0; i < 18 * 10; i++) {
-		int x = 33 * (i % 18), y = 33 * (i / 18);
-		Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, (uint8_t)(i % 256));
+	mw->_map_w = 18;
+	mw->_map_h = 10;
+	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
+	mw->_map->size((mw->metatile_size() + 1) * mw->_map_w, (mw->metatile_size() + 1) * mw->_map_h);
+	for (int i = 0; i < mw->_map_w * mw->_map_h; i++) {
+		int x = (mw->metatile_size() + 1) * (i % mw->_map_w), y = (mw->metatile_size() + 1) * (i / mw->_map_w);
+		Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, 0);
 		block->callback((Fl_Callback *)change_block_cb, mw);
 		mw->_map->add(block);
+		mw->_blocks[i] = block;
 	}
 	mw->_map_scroll->scrollbar.value(0);
 	mw->_map_scroll->hscrollbar.value(0);
@@ -168,6 +203,9 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	memset(mw->_metatiles, 0, sizeof(mw->_metatiles));
 	mw->_selected = NULL;
 	mw->_map->clear();
+	delete [] mw->_blocks;
+	mw->_blocks = NULL;
+	mw->_map_w = mw->_map_h = 0;
 	mw->redraw();
 }
 
@@ -182,6 +220,12 @@ void Main_Window::exit_cb(Fl_Widget *, void *) {
 
 void Main_Window::hex_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	mw->_show_hex_ids = !!mw->_hex_tb->value();
+	mw->redraw();
+}
+
+void Main_Window::zoom_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	//mw->_zoom = !!mw->_zoom_tb->value();
+	//mw->toggle_zoom();
 	mw->redraw();
 }
 

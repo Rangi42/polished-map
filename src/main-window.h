@@ -11,6 +11,9 @@
 #include "utils.h"
 #include "widgets.h"
 
+#define MAX_METATILES 256
+#define METATILES_PER_ROW 4
+
 class Main_Window : public Fl_Double_Window {
 private:
 	Fl_Menu_Bar *_menu_bar;
@@ -19,23 +22,28 @@ private:
 	Workspace *_map_scroll;
 	Fl_Group *_map;
 	Toolbar *_status_bar;
-	Toolbar_Button *_open_tb, *_save_tb, *_hex_tb;
+	Toolbar_Button *_open_tb, *_save_tb, *_hex_tb, *_zoom_tb;
 	uint8_t _num_metatiles;
 	Metatile *_metatiles[256];
 	Metatile *_selected;
+	Block **_blocks;
+	uint8_t _map_w, _map_h;
 	Fl_Pixmap _default_metatile_image;
-	bool _show_hex_ids;
+	bool _show_hex_ids, _zoom;
 public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	void show(void);
 	Fl_Image *metatile_image(uint8_t id);
-	bool show_hex_ids() const { return _show_hex_ids; }
+	bool show_hex_ids(void) const { return _show_hex_ids; }
+	int metatile_size(void) const { return _zoom ? 64 : 32; }
 private:
+	void toggle_zoom(void);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void exit_cb(Fl_Widget *w, void *v);
 	static void hex_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void zoom_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void select_metatile_cb(Metatile *mt, Main_Window *mw);
 	static void change_block_cb(Block *b, Main_Window *mw);
 };

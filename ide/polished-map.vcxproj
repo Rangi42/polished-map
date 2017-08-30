@@ -136,6 +136,7 @@
     <None Include="..\res\save.xpm" />
     <None Include="..\res\success.xpm" />
     <None Include="..\res\warning.xpm" />
+    <None Include="..\res\zoom.xpm" />
     <None Include="..\src\metatile.xpm" />
   </ItemGroup>
   <ItemGroup>
