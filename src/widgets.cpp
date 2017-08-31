@@ -106,10 +106,14 @@ void Block::draw() {
 	}
 	if (Fl::belowmouse() == this) {
 		int rs = ms - (mw->grid() ? 1 : 0);
-		fl_rect(x(), y(), rs, rs, FL_YELLOW);
-		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_YELLOW);
-		if (ms > METATILE_SIZE) {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_YELLOW);
+		fl_rect(x(), y(), rs, rs, FL_BLACK);
+		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
+		if (ms == METATILE_SIZE) {
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
+		}
+		else {
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
+			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
 		}
 	}
 	if (!mw->ids()) { return; }
