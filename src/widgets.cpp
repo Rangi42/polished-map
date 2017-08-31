@@ -874,8 +874,10 @@ int Workspace::handle(int event) {
 		_oy = yposition();
 		_cx = Fl::event_x();
 		_cy = Fl::event_y();
+		fl_cursor(FL_CURSOR_MOVE);
 		return 1;
 	case FL_RELEASE:
+		fl_cursor(FL_CURSOR_DEFAULT);
 		return 1;
 	case FL_DRAG:
 		int dx = Fl::event_x(), dy = Fl::event_y();
