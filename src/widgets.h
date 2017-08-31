@@ -263,8 +263,13 @@ public:
 };
 
 class Workspace : public Fl_Scroll {
+private:
+	int _content_w, _content_h;
+	int _ox, _oy, _cx, _cy;
 public:
 	Workspace(int x, int y, int w, int h, const char *l = NULL);
+	void contents(int w, int h) { _content_w = w; _content_h = h; }
+	int handle(int event);
 };
 
 class Toolbar : public Fl_Pack {

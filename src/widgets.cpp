@@ -858,10 +858,34 @@ OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y
 	hscrollbar.slider(OS_BUTTON_UP_BOX);
 }
 
-Workspace::Workspace(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y, w, h, l) {
+Workspace::Workspace(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y, w, h, l),
+	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0) {
 	labeltype(FL_NO_LABEL);
 	box(FL_NO_BOX);
 	color(FL_INACTIVE_COLOR);
+}
+
+int Workspace::handle(int event) {
+	switch (event) {
+	case FL_PUSH:
+		if (Fl::event_button() != FL_MIDDLE_MOUSE) { break; }
+		Fl::belowmouse(this);
+		_ox = xposition();
+		_oy = yposition();
+		_cx = Fl::event_x();
+		_cy = Fl::event_y();
+		return 1;
+	case FL_RELEASE:
+		return 1;
+	case FL_DRAG:
+		int dx = Fl::event_x(), dy = Fl::event_y();
+		int nx = _ox + (_cx - dx), ny = _oy + (_cy - dy);
+		int max_x = _content_w - w() + (scrollbar.visible() ? Fl::scrollbar_size() : 0);
+		int max_y = _content_h - h() + (hscrollbar.visible() ? Fl::scrollbar_size() : 0);
+		scroll_to(MAX(MIN(nx, max_x), 0), MAX(MIN(ny, max_y), 0));
+		return 1;
+	}
+	return Fl_Scroll::handle(event);
 }
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Pack(x, y, w, h, l), _spacer(0, 0, 0, 0), _alt_h(h) {

@@ -278,8 +278,10 @@ void Main_Window::update_zoom() {
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
 	_map->resize(_sidebar->w(), _map->y(), _map_w * ms, _map_h * ms);
 	_sidebar->init_sizes();
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * ((_num_metatiles + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map->init_sizes();
 	_map_scroll->init_sizes();
+	_map_scroll->contents(_map->w(), _map->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	for (int i = 0; i < _num_metatiles; i++) {
 		Metatile *mt = _metatiles[i];
@@ -339,6 +341,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->init_sizes();
+	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * ((mw->_num_metatiles + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
 	mw->_metatiles[0]->setonly();
 	select_metatile_cb(mw->_metatiles[0], mw);
@@ -359,6 +362,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	mw->_map_scroll->scroll_to(0, 0);
 	mw->_map_scroll->init_sizes();
+	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
 
 	mw->update_labels();
 	mw->update_status(NULL);
@@ -377,13 +381,16 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *) {
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
+	mw->_sidebar->contents(0, 0);
 	mw->_num_metatiles = 0;
 	memset(mw->_metatiles, 0, sizeof(mw->_metatiles));
 	mw->_selected = NULL;
 	mw->_map->clear();
+	mw->_map->size(0, 0);
 	delete [] mw->_blocks;
 	mw->_blocks = NULL;
 	mw->_map_w = mw->_map_h = 0;
+	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
 	mw->update_status(NULL);
 	mw->redraw();
@@ -522,7 +529,24 @@ void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
-	if (Fl::event_button() == FL_RIGHT_MOUSE) {
+	if (Fl::event_button() == FL_LEFT_MOUSE) {
+		if (!mw->_selected) { return; }
+		if (Fl::event_shift()) {
+			// Shift+left click to flood fill
+			mw->flood_fill(b, b->id(), mw->_selected->id());
+			mw->_map->redraw();
+			mw->update_status(b);
+		}
+		else {
+			// Left click/drag to edit
+			uint8_t id = mw->_selected->id();
+			b->id(id);
+			b->damage(1);
+			mw->update_status(b);
+		}
+	}
+	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
+		// Right-click to select
 		uint8_t id = b->id();
 		if (id >= mw->_num_metatiles) { return; }
 		mw->_selected = mw->_metatiles[id];
@@ -535,22 +559,6 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		else if (ms * (id / 4 + 1) <= mw->_sidebar->yposition() + ms / 2) {
 			mw->_sidebar->scroll_to(0, ms * (id / 4));
 			mw->_sidebar->redraw();
-		}
-	}
-	else if (Fl::event_button() == FL_MIDDLE_MOUSE) {
-		// TODO: pan
-	}
-	else if (mw->_selected) { // FL_LEFT_MOUSE or FL_DRAG
-		if (Fl::event_shift()) {
-			mw->flood_fill(b, b->id(), mw->_selected->id());
-			mw->_map->redraw();
-			mw->update_status(b);
-		}
-		else {
-			uint8_t id = mw->_selected->id();
-			b->id(id);
-			b->damage(1);
-			mw->update_status(b);
 		}
 	}
 }
