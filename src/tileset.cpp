@@ -1,5 +1,4 @@
 #pragma warning(push, 0)
-#include <FL/Fl_Image.H>
 #include <FL/Fl_PNG_Image.H>
 #pragma warning(pop)
 
@@ -11,7 +10,7 @@ bool Tileset::read_palette_map(const char *f) {
 	return _palette_map.read_from(f);
 }
 
-bool Tileset::read_2bpp_graphics(const char *f) {
+bool Tileset::read_2bpp_graphics(const char *) {
 	return false;
 }
 

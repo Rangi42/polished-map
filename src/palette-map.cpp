@@ -75,6 +75,6 @@ bool Palette_Map::read_from(const char *f) {
 				return false;
 			}
 		}
-		return true;
 	}
+	return true;
 }
