@@ -25,7 +25,7 @@ Metatile::Metatile(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s
 	labelsize(12);
 	labelfont(FL_COURIER);
 	labeltype(FL_NO_LABEL);
-	when(FL_WHEN_CHANGED);
+	when(FL_WHEN_RELEASE);
 }
 
 void Metatile::id(uint8_t id) {

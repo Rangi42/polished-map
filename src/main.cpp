@@ -48,9 +48,9 @@ static void use_theme(int &argc, char **&argv) {
 int main(int argc, char **argv) {
 	std::ios::sync_with_stdio(false);
 	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_NAME));
+	Fl::visual(FL_DOUBLE | FL_RGB);
 	use_theme(argc, argv);
 	Main_Window *window = new Main_Window(48, 48 + GetSystemMetrics(SM_CYCAPTION), 640, 480);
-	Fl::visual(FL_DOUBLE | FL_INDEX);
 	window->show();
 	return Fl::run();
 }
