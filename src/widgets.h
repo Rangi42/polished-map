@@ -22,11 +22,11 @@
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_MENU_ITEM(l, s, c, d, f) {l "    ", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 
-class Metatile : public Fl_Radio_Button {
+class Metatile_Button : public Fl_Radio_Button {
 private:
 	uint8_t _id;
 public:
-	Metatile(int x, int y, int s, uint8_t id);
+	Metatile_Button(int x, int y, int s, uint8_t id);
 	uint8_t id(void) const { return _id; }
 	void id(uint8_t id);
 	void draw(void);

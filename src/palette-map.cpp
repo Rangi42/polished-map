@@ -24,22 +24,22 @@ static void remove_comment(std::string &s, char c = ';') {
 	}
 }
 
-Palette_Map::Palette_Map() : _palette(), _palette_size(0) {}
+Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {}
 
-bool Palette_Map::read_from(const char *f) {
+void Palette_Map::clear() {
+	memset(_palette, Palette::TEXT, MAX_NUM_TILES);
+	_palette_size = 0;
+	_result = PALETTE_OK;
+}
+
+Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
-	std::string prefix("\ttilepal"), skip_macro("\ttilepal_skip");
 	std::ifstream ifs(f);
-	if (!ifs.good()) { return false; }
+	if (!ifs.good()) { return (_result = BAD_PALETTE_FILE); }
+	std::string prefix("\ttilepal");
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		if (startswith(line, skip_macro)) {
-			for (int i = 0; i < 8; i++) {
-				_palette[_palette_size++] = Palette::TEXT;
-			}
-			continue;
-		}
 		if (!startswith(line, prefix)) { continue; }
 		remove_comment(line);
 		std::istringstream lss(line);
@@ -72,9 +72,9 @@ bool Palette_Map::read_from(const char *f) {
 				_palette[_palette_size++] = Palette::TEXT;
 			}
 			else {
-				return false;
+				return (_result = BAD_PALETTE_NAME);
 			}
 		}
 	}
-	return true;
+	return (_result = PALETTE_OK);
 }

@@ -107,6 +107,8 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
     <ClCompile Include="..\src\math.cpp" />
+    <ClCompile Include="..\src\metatile.cpp" />
+    <ClCompile Include="..\src\metatileset.cpp" />
     <ClCompile Include="..\src\modal-dialog.cpp" />
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\progress-dialog.cpp" />
@@ -123,6 +125,8 @@
     <ClInclude Include="..\src\image.h" />
     <ClInclude Include="..\src\main-window.h" />
     <ClInclude Include="..\src\math.h" />
+    <ClInclude Include="..\src\metatile.h" />
+    <ClInclude Include="..\src\metatileset.h" />
     <ClInclude Include="..\src\modal-dialog.h" />
     <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\progress-dialog.h" />

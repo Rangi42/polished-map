@@ -10,10 +10,10 @@
 
 #include "utils.h"
 #include "widgets.h"
+#include "metatileset.h"
 
-#define MAX_METATILES 256
 #define METATILES_PER_ROW 4
-#define METATILE_SIZE 32
+#define METATILE_PX_SIZE 32
 
 class Main_Window : public Fl_Double_Window {
 private:
@@ -33,8 +33,8 @@ private:
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
 	// Metatile properties
 	uint8_t _num_metatiles;
-	Metatile *_metatiles[MAX_METATILES];
-	Metatile *_selected;
+	Metatile_Button *_metatiles[MAX_NUM_METATILES];
+	Metatile_Button *_selected;
 	// Map properties
 	uint8_t _map_w, _map_h;
 	Block **_blocks;
@@ -51,7 +51,7 @@ public:
 	bool zoom(void) const { return _zoom_mi && _zoom_mi->value(); }
 	bool ids(void) const { return _ids_mi && _ids_mi->value(); }
 	bool hex(void) const { return _hex_mi && _hex_mi->value(); }
-	int metatile_size(void) const { return zoom() ? METATILE_SIZE * 2 : METATILE_SIZE; }
+	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
@@ -88,7 +88,7 @@ private:
 	static void help_cb(Fl_Widget *w, Main_Window *mw);
 	static void about_cb(Fl_Widget *w, Main_Window *mw);
 	// Metatiles sidebar
-	static void select_metatile_cb(Metatile *mt, Main_Window *mw);
+	static void select_metatile_cb(Metatile_Button *mt, Main_Window *mw);
 	// Map
 	static void change_block_cb(Block *b, Main_Window *mw);
 };

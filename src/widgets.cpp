@@ -17,7 +17,7 @@
 #include "widgets.h"
 #include "main-window.h"
 
-Metatile::Metatile(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
+Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
@@ -28,7 +28,7 @@ Metatile::Metatile(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s
 	when(FL_WHEN_RELEASE);
 }
 
-void Metatile::id(uint8_t id) {
+void Metatile_Button::id(uint8_t id) {
 	_id = id;
 	Main_Window *mw = (Main_Window *)user_data();
 	char buffer[16];
@@ -36,7 +36,7 @@ void Metatile::id(uint8_t id) {
 	copy_label(buffer);
 }
 
-void Metatile::draw() {
+void Metatile_Button::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	int ms = mw->metatile_size();
 	image()->draw(x(), y(), ms, ms);
@@ -48,7 +48,7 @@ void Metatile::draw() {
 		int rs = ms - (mw->grid() ? 1 : 0);
 		fl_rect(x(), y(), rs, rs, FL_BLACK);
 		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (ms == METATILE_SIZE) {
+		if (ms == METATILE_PX_SIZE) {
 			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
 		}
 		else {
@@ -108,7 +108,7 @@ void Block::draw() {
 		int rs = ms - (mw->grid() ? 1 : 0);
 		fl_rect(x(), y(), rs, rs, FL_BLACK);
 		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (ms == METATILE_SIZE) {
+		if (ms == METATILE_PX_SIZE) {
 			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
 		}
 		else {

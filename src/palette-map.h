@@ -5,19 +5,23 @@
 
 #include "utils.h"
 
-#define MAX_TILESET_SIZE 256
+#define MAX_NUM_TILES 256
 
 class Palette_Map {
 public:
-	enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT };
+	enum Palette { UNDEFINED, GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT };
+	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_NULL = -1 };
 private:
-	Palette _palette[MAX_TILESET_SIZE];
-	uint8_t _palette_size;
+	Palette _palette[MAX_NUM_TILES];
+	size_t _palette_size;
+	Result _result;
 public:
 	Palette_Map(void);
-	bool read_from(const char *f);
-	void clear(void) { memset(_palette, Palette::TEXT, MAX_TILESET_SIZE); _palette_size = 0; }
-	uint8_t size(void) const { return _palette_size; }
+	Palette palette(uint8_t i) { return _palette[i]; }
+	size_t size(void) const { return _palette_size; }
+	Result result(void) const { return _result; }
+	void clear(void);
+	Result read_from(const char *f);
 };
 
 #endif

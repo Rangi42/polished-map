@@ -17,6 +17,8 @@
 #include "modal-dialog.h"
 #include "progress-dialog.h"
 #include "waiting-dialog.h"
+#include "tileset.h"
+#include "metatileset.h"
 #include "main-window.h"
 #include "icons.h"
 
@@ -285,7 +287,7 @@ void Main_Window::update_zoom() {
 	_map_scroll->contents(_map->w(), _map->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	for (int i = 0; i < _num_metatiles; i++) {
-		Metatile *mt = _metatiles[i];
+		Metatile_Button *mt = _metatiles[i];
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
 		Fl_Image *img = mt->image();
@@ -320,13 +322,24 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *) {
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	close_cb(NULL, mw);
 
+	Metatileset mts;
+	if (Palette_Map::Result pm_r = mts.read_palette_map("E:/Code/polishedcrystal/tilesets/johto1_palette_map.asm")) {
+		fl_alert("bad palette map %d", pm_r);
+	}
+	if (Tileset::Result ts_r = mts.read_png_graphics("E:/Dropbox/pkmn/tilesets/johto1.png")) {
+		fl_alert("bad png %d", ts_r);
+	}
+	if (Metatileset::Result mts_r = mts.read_metatiles("E:/Code/polishedcrystal/tilesets/johto1_metatiles.bin")) {
+		fl_alert("bad meta %d", mts_r);
+	}
+
 	int ms = mw->metatile_size();
 
 	// dummy metatiles
 	mw->_num_metatiles = 245;
 	for (int i = 0; i < mw->_num_metatiles; i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
-		Metatile *metatile = new Metatile(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)(i % MAX_METATILES));
+		Metatile_Button *metatile = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)(i % MAX_NUM_METATILES));
 		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_metatiles[i]);
 		if (dummy_icon->w() != ms || dummy_icon->h() != ms) {
 			Fl_Image *copy = dummy_icon->copy(ms, ms);
@@ -525,7 +538,7 @@ void Main_Window::about_cb(Fl_Widget *, Main_Window *) {
 	// TODO: about
 }
 
-void Main_Window::select_metatile_cb(Metatile *mt, Main_Window *mw) {
+void Main_Window::select_metatile_cb(Metatile_Button *mt, Main_Window *mw) {
 	mw->_selected = mt;
 }
 
