@@ -3,7 +3,7 @@
 
 Tile::Tile(uint8_t id) : _id(id), _rgb(), _rgb2() {}
 
-void Tile::pixel(int y, int x, uchar *rgb) {
+void Tile::pixel(int y, int x, const uchar *rgb) {
 	int i = (y * TILE_SIZE + x) * 3;
 	int i2 = (y * 2 * TILE_SIZE * 2 + x * 2) * 3;
 	// red

@@ -12,7 +12,7 @@
 #pragma warning(pop)
 
 #include "themes.h"
-#include "math.h"
+#include "utils.h"
 #include "widgets.h"
 #include "main-window.h"
 

@@ -17,18 +17,13 @@
 #include "modal-dialog.h"
 #include "progress-dialog.h"
 #include "waiting-dialog.h"
+#include "option-dialogs.h"
 #include "tileset.h"
 #include "metatileset.h"
 #include "main-window.h"
 #include "icons.h"
 
 #include "resource.h"
-
-static int text_width(const char *l, int pad = 0) {
-	int lw = 0, lh = 0;
-	fl_measure(l, lw, lh, 0);
-	return lw + 2 * pad;
-}
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_metatileset(), _metatile_buttons(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
@@ -92,6 +87,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Dialogs
 	_blk_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
+	_open_blk_dialog = new Open_Blk_Dialog("Open BLK");
 
 	// Configure window
 	size_range(384, 256);
@@ -108,7 +105,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		// label, shortcut, callback, data, flags
 		OS_SUBMENU("&File"),
 		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
-		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, FL_MENU_INACTIVE),
 		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, FL_MENU_INACTIVE),
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
@@ -133,7 +130,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		{},
 		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
 		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this, FL_MENU_TOGGLE),
-		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
+		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this, FL_MENU_TOGGLE),
 		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this, FL_MENU_DIVIDER | FL_MENU_TOGGLE | FL_MENU_VALUE),
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
@@ -168,7 +165,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_open_tb->tooltip("Open... (Ctrl+O)");
 	_open_tb->callback((Fl_Callback *)open_cb, this);
 	_open_tb->image(OPEN_ICON);
-	_open_tb->deactivate(); // TODO: implement open
 
 	_save_tb->tooltip("Save (Ctrl+S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
@@ -223,6 +219,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
 	_png_chooser->preset_file("map.png");
+
+	_error_dialog->width_range(280, 700);
 }
 
 Main_Window::~Main_Window() {
@@ -324,6 +322,15 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
+	// TODO: new
+	// how to get the tileset directories?
+	/*
+	W: [___] H: [___]
+	Tileset: [______|V]
+	Lighting: [_____|V]
+		  [OK] [Cancel]
+	*/
+
 	close_cb(NULL, mw);
 
 	int ms = mw->metatile_size();
@@ -348,13 +355,13 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
 
 	// read data
-	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/johto1_palette_map.asm")) {
+	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/shamouti_palette_map.asm")) {
 		fl_alert("bad palette map %d", pm_r);
 	}
-	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/johto1.png")) {
+	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/shamouti.png", Tileset::DAY)) {
 		fl_alert("bad png %d", ts_r);
 	}
-	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/johto1_metatiles.bin")) {
+	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/shamouti_metatiles.bin")) {
 		fl_alert("bad meta %d", mts_r);
 	}
 
@@ -379,8 +386,79 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::open_cb(Fl_Widget *, Main_Window *) {
-	// TODO: open
+void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
+	int status = mw->_blk_chooser->show();
+	if (status == 1) { return; }
+	const char *filename = mw->_blk_chooser->filename();
+	if (status == -1) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n" + mw->_blk_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->_open_blk_dialog->show(mw);
+	bool canceled = mw->_open_blk_dialog->canceled();
+	if (canceled) { return; }
+
+	const char *f = mw->_blk_chooser->filename();
+	mw->_open_blk_dialog->limit_blk_options(f);
+
+	close_cb(NULL, mw);
+
+	int ms = mw->metatile_size();
+
+	// populate map with blocks
+	// dummy map
+	mw->_map_w = 32;
+	mw->_map_h = 32;
+	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
+	mw->_map->size(ms * (int)mw->_map_w, ms * (int)mw->_map_h);
+	for (uint8_t row = 0; row < mw->_map_h; row++) {
+		for (uint8_t col = 0; col < mw->_map_w; col++) {
+			int x = col * ms, y = row * ms;
+			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
+			block->callback((Fl_Callback *)change_block_cb, mw);
+			mw->_map->add(block);
+			mw->_blocks[row * mw->_map_w + col] = block;
+		}
+	}
+	mw->_map_scroll->scroll_to(0, 0);
+	mw->_map_scroll->init_sizes();
+	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
+
+	// read data
+	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/shamouti_palette_map.asm")) {
+		fl_alert("bad palette map %d", pm_r);
+	}
+	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/shamouti.png", mw->_open_blk_dialog->lighting())) {
+		fl_alert("bad png %d", ts_r);
+	}
+	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/shamouti_metatiles.bin")) {
+		fl_alert("bad meta %d", mts_r);
+	}
+
+	// populate sidebar with metatile buttons
+	for (int i = 0; i < mw->_metatileset.num_metatiles(); i++) {
+		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
+		Metatile_Button *mtb = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)i);
+		mtb->callback((Fl_Callback *)select_metatile_cb, mw);
+		mw->_sidebar->add(mtb);
+		mw->_metatile_buttons[i] = mtb;
+	}
+	mw->_sidebar->scroll_to(0, 0);
+	mw->_sidebar->init_sizes();
+	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)mw->_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+
+	mw->_metatile_buttons[0]->setonly();
+	select_metatile_cb(mw->_metatile_buttons[0], mw);
+
+	mw->update_labels();
+	mw->update_status(NULL);
+
+	mw->redraw();
 }
 
 void Main_Window::save_cb(Fl_Widget *, Main_Window *) {

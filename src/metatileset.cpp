@@ -50,12 +50,12 @@ Palette_Map::Result Metatileset::read_palette_map(const char *f) {
 	return _tileset.read_palette_map(f);
 }
 
-Tileset::Result Metatileset::read_2bpp_graphics(const char *f) {
-	return _tileset.read_2bpp_graphics(f);
+Tileset::Result Metatileset::read_2bpp_graphics(const char *f, Tileset::Lighting l) {
+	return _tileset.read_2bpp_graphics(f, l);
 }
 
-Tileset::Result Metatileset::read_png_graphics(const char *f) {
-	return _tileset.read_png_graphics(f);
+Tileset::Result Metatileset::read_png_graphics(const char *f, Tileset::Lighting l) {
+	return _tileset.read_png_graphics(f, l);
 }
 
 Metatileset::Result Metatileset::read_metatiles(const char *f) {

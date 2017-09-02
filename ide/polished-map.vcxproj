@@ -106,16 +106,17 @@
     <ClCompile Include="..\src\image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
-    <ClCompile Include="..\src\math.cpp" />
     <ClCompile Include="..\src\metatile.cpp" />
     <ClCompile Include="..\src\metatileset.cpp" />
     <ClCompile Include="..\src\modal-dialog.cpp" />
+    <ClCompile Include="..\src\option-dialogs.cpp" />
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\progress-dialog.cpp" />
     <ClCompile Include="..\src\themes.cpp" />
     <ClCompile Include="..\src\tile.cpp" />
     <ClCompile Include="..\src\tileset.cpp" />
     <ClCompile Include="..\src\twobpp-reader.cpp" />
+    <ClCompile Include="..\src\utils.cpp" />
     <ClCompile Include="..\src\waiting-dialog.cpp" />
     <ClCompile Include="..\src\widgets.cpp" />
   </ItemGroup>
@@ -124,10 +125,10 @@
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
     <ClInclude Include="..\src\main-window.h" />
-    <ClInclude Include="..\src\math.h" />
     <ClInclude Include="..\src\metatile.h" />
     <ClInclude Include="..\src\metatileset.h" />
     <ClInclude Include="..\src\modal-dialog.h" />
+    <ClInclude Include="..\src\option-dialogs.h" />
     <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\progress-dialog.h" />
     <ClInclude Include="..\src\resource.h" />

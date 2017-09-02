@@ -10,6 +10,8 @@
 
 #include "utils.h"
 #include "widgets.h"
+#include "modal-dialog.h"
+#include "option-dialogs.h"
 #include "metatileset.h"
 
 #define METATILES_PER_ROW 4
@@ -33,6 +35,8 @@ private:
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
 	// Dialogs
 	Fl_Native_File_Chooser *_blk_chooser, *_png_chooser;
+	Modal_Dialog *_error_dialog;
+	Open_Blk_Dialog *_open_blk_dialog;
 	// Data
 	Metatileset _metatileset;
 	// Metatile button properties

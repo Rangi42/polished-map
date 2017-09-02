@@ -21,7 +21,7 @@ public:
 	uint8_t id(void) const { return _id; }
 	const uchar *rgb(void) const { return _rgb; }
 	const uchar *rgb2(void) const { return _rgb2; }
-	void pixel(int y, int x, uchar *rgb);
+	void pixel(int y, int x, const uchar *rgb);
 	void clear(void) { _rgb[0] = _rgb[1] = _rgb[2] = WHITE; }
 };
 
