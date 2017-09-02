@@ -29,7 +29,6 @@ void Metatileset::clear() {
 }
 
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
-	// TODO: zoom
 	Metatile *mt = _metatiles[id];
 	for (int ty = 0; ty < METATILE_SIZE; ty++) {
 		for (int tx = 0; tx < METATILE_SIZE; tx++) {

@@ -5,7 +5,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Group.H>
-#include <FL/Fl_Pixmap.H>
+#include <FL/Fl_Native_File_Chooser.H>
 #pragma warning(pop)
 
 #include "utils.h"
@@ -31,6 +31,8 @@ private:
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
+	// Dialogs
+	Fl_Native_File_Chooser *_blk_chooser, *_png_chooser;
 	// Data
 	Metatileset _metatileset;
 	// Metatile button properties
