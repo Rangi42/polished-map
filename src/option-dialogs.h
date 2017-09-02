@@ -43,7 +43,7 @@ private:
 public:
 	Open_Blk_Dialog(const char *t);
 	~Open_Blk_Dialog();
-	void limit_blk_options(const char *f);
+	bool limit_blk_options(const char *f);
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	inline const char *tileset(void) const { return _tileset->mvalue() ? _tileset->mvalue()->label() : NULL; }
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }

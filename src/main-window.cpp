@@ -250,7 +250,7 @@ void Main_Window::draw_metatile(int x, int y, uint8_t id) {
 }
 
 void Main_Window::update_status(Block *b) {
-	char buffer[256];
+	char buffer[64] = {};
 	if (!b) {
 		sprintf(buffer, "Metatiles: %d", _metatileset.num_metatiles());
 		_metatile_count->copy_label(buffer);
@@ -399,12 +399,11 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
+	const char *f = mw->_blk_chooser->filename();
+	mw->_open_blk_dialog->limit_blk_options(f);
 	mw->_open_blk_dialog->show(mw);
 	bool canceled = mw->_open_blk_dialog->canceled();
 	if (canceled) { return; }
-
-	const char *f = mw->_blk_chooser->filename();
-	mw->_open_blk_dialog->limit_blk_options(f);
 
 	close_cb(NULL, mw);
 
@@ -430,13 +429,18 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
 
 	// read data
-	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/shamouti_palette_map.asm")) {
+	char buffer[MAX_PATH * 2] = {};
+	const char *ts_name = mw->_open_blk_dialog->tileset();
+	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_palette_map.asm", ts_name);
+	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map(buffer)) {
 		fl_alert("bad palette map %d", pm_r);
 	}
-	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/shamouti.png", mw->_open_blk_dialog->lighting())) {
+	sprintf(buffer, "E:/Dropbox/pkmn/tilesets/%s.png", ts_name);
+	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
 		fl_alert("bad png %d", ts_r);
 	}
-	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/shamouti_metatiles.bin")) {
+	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_metatiles.bin", ts_name);
+	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles(buffer)) {
 		fl_alert("bad meta %d", mts_r);
 	}
 

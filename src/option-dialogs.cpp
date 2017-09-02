@@ -1,6 +1,7 @@
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>
 #include <FL/Fl_Double_Window.H>
+#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "themes.h"
@@ -88,10 +89,30 @@ Open_Blk_Dialog::~Open_Blk_Dialog() {
 	delete _lighting;
 }
 
-void Open_Blk_Dialog::limit_blk_options(const char *) {
+bool Open_Blk_Dialog::limit_blk_options(const char *f) {
+	initialize();
+	// Assuming the given BLK file is in maps/,
+	// then ../gfx/tilesets/ is where tileset images are
+	char d[MAX_PATH * 2] = {};
+	if (_splitpath_s(f, NULL, 0, d, MAX_PATH * 2, NULL, 0, NULL, 0)) { fl_alert("splitpath"); return false; }
+	strcat(d, "..\\gfx\\tilesets\\");
+	dirent **list;
+	int n = fl_filename_list(d, &list);
+	if (n < 0) { fl_alert("fl_filename_list %d", n); return false; }
 	// TODO: read the passed blk file, limit the height range and tilesets choices
 	// use a util function to derive /gfx/tilesets/*.png from /maps/*.blk
 	// since that's reusable for loading the map
+	_map_height->range(0, 255);
+	_tileset->clear();
+	_tileset->add("johto1");
+	_tileset->add("johto2");
+	_tileset->add("kanto1");
+	_tileset->add("kanto2");
+	_tileset->add("shamouti");
+	_tileset->add("house1");
+	_tileset->add("house2");
+	_tileset->value(0);
+	return true;
 }
 
 void Open_Blk_Dialog::initialize_content() {
@@ -101,11 +122,12 @@ void Open_Blk_Dialog::initialize_content() {
 	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
 	// Initialize content group's children
 	_map_height->align(FL_ALIGN_LEFT);
+	_map_height->range(0, 255);
 	_tileset->align(FL_ALIGN_LEFT);
 	_lighting->align(FL_ALIGN_LEFT);
-	_lighting->add("Day", 0, (Fl_Callback *)NULL, NULL, 0); // DAY
-	_lighting->add("Nite", 0, (Fl_Callback *)NULL, NULL, 0); // NITE
-	_lighting->add("Indoor", 0, (Fl_Callback *)NULL, NULL, 0); // INDOOR
+	_lighting->add("Day"); // DAY
+	_lighting->add("Nite"); // NITE
+	_lighting->add("Indoor"); // INDOOR
 	_lighting->value(0);
 }
 
