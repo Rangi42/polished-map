@@ -18,6 +18,7 @@ public:
 	uint8_t id(void) const { return _id; }
 	void tile_id(int y, int x, uint8_t id) { _tile_ids[y][x] = id; }
 	uint8_t tile_id(int y, int x) const { return _tile_ids[y][x]; }
+	void clear(void);
 };
 
 #endif

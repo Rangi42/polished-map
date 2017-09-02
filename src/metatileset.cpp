@@ -1,6 +1,8 @@
 #include <cstdio>
 
-#include <FL/fl_ask.H>
+#pragma warning(push, 0)
+#include <FL/fl_draw.H>
+#pragma warning(pop)
 
 #include "metatileset.h"
 
@@ -11,8 +13,37 @@ Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _resul
 }
 
 Metatileset::~Metatileset() {
+	clear();
 	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
 		delete _metatiles[i];
+	}
+}
+
+void Metatileset::clear() {
+	_tileset.clear();
+	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
+		_metatiles[i]->clear();
+	}
+	_num_metatiles = 0;
+	_result = META_NULL;
+}
+
+void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
+	// TODO: zoom
+	Metatile *mt = _metatiles[id];
+	for (int ty = 0; ty < METATILE_SIZE; ty++) {
+		for (int tx = 0; tx < METATILE_SIZE; tx++) {
+			uint8_t tid = mt->tile_id(ty, tx);
+			const Tile *t = _tileset.tile(tid);
+			if (z) {
+				const uchar *rgb2 = t->rgb2();
+				fl_draw_image(rgb2, x + tx * TILE_SIZE * 2, y + ty * TILE_SIZE * 2, TILE_SIZE * 2, TILE_SIZE * 2);
+			}
+			else {
+				const uchar *rgb = t->rgb();
+				fl_draw_image(rgb, x + tx * TILE_SIZE, y + ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+			}
+		}
 	}
 }
 

@@ -9,7 +9,6 @@
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Menu_.H>
 #include <FL/fl_draw.H>
-#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "themes.h"
@@ -20,7 +19,7 @@
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
@@ -39,21 +38,21 @@ void Metatile_Button::id(uint8_t id) {
 void Metatile_Button::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	int ms = mw->metatile_size();
-	image()->draw(x(), y(), ms, ms);
+	mw->draw_metatile(x(), y(), _id);
 	if (mw->grid()) {
-		fl_color(FL_INACTIVE_COLOR);
+		fl_color(GRID_COLOR);
 		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
 	}
 	if (value()) {
 		int rs = ms - (mw->grid() ? 1 : 0);
 		fl_rect(x(), y(), rs, rs, FL_BLACK);
 		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (ms == METATILE_PX_SIZE) {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
-		}
-		else {
+		if (mw->zoom()) {
 			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
 			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
+		}
+		else {
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
 		}
 	}
 	if (!mw->ids()) { return; }
@@ -80,7 +79,7 @@ Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box
 	_row(row), _col(col), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_TEXT_OVER_IMAGE | FL_ALIGN_IMAGE_BACKDROP);
+	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE);
 	labelcolor(FL_WHITE);
 	labelsize(12);
 	labelfont(FL_COURIER);
@@ -98,22 +97,21 @@ void Block::id(uint8_t id) {
 void Block::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	int ms = mw->metatile_size();
-	Fl_Image *img = mw->metatile_image(_id);
-	img->draw(x(), y(), ms, ms);
+	mw->draw_metatile(x(), y(), _id);
 	if (mw->grid()) {
-		fl_color(FL_INACTIVE_COLOR);
+		fl_color(GRID_COLOR);
 		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
 	}
 	if (Fl::belowmouse() == this) {
 		int rs = ms - (mw->grid() ? 1 : 0);
 		fl_rect(x(), y(), rs, rs, FL_BLACK);
 		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (ms == METATILE_PX_SIZE) {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
-		}
-		else {
+		if (mw->zoom()) {
 			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
 			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
+		}
+		else {
+			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
 		}
 	}
 	if (!mw->ids()) { return; }

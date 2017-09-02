@@ -24,10 +24,6 @@
 
 #include "resource.h"
 
-#include "metatile.xpm"
-
-#include "dummy.h"
-
 static int text_width(const char *l, int pad = 0) {
 	int lw = 0, lh = 0;
 	fl_measure(l, lw, lh, 0);
@@ -35,9 +31,8 @@ static int text_width(const char *l, int pad = 0) {
 }
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_num_metatiles(0), _metatiles(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
-	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL),
-	_default_metatile_image(DEFAULT_METATILE_XPM), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_metatileset(), _metatile_buttons(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
 
 	int wx = 0, wy = 0, ww = w, wh = h;
@@ -237,15 +232,14 @@ void Main_Window::show() {
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
 }
 
-Fl_Image *Main_Window::metatile_image(uint8_t id) {
-	if (id >= _num_metatiles) { return &_default_metatile_image; }
-	return _metatiles[id]->image();
+void Main_Window::draw_metatile(int x, int y, uint8_t id) {
+	_metatileset.draw_metatile(x, y, id, zoom());
 }
 
 void Main_Window::update_status(Block *b) {
 	char buffer[256];
 	if (!b) {
-		sprintf(buffer, "Metatiles: %d", _num_metatiles);
+		sprintf(buffer, "Metatiles: %d", _metatileset.num_metatiles());
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %d x %d", _map_w, _map_h);
 		_map_dimensions->copy_label(buffer);
@@ -268,7 +262,7 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (f == t || b->id() != f) { return; }
 	b->id(t);
 	int row = b->row(), col = b->col();
-	int i = row * _map_w + col;
+	size_t i = row * _map_w + col;
 	if (col > 0) { flood_fill(_blocks[i-1], f, t); } // left
 	if (col < _map_w - 1) { flood_fill(_blocks[i+1], f, t); } // right
 	if (row > 0) { flood_fill(_blocks[i-_map_w], f, t); } // up
@@ -279,21 +273,18 @@ void Main_Window::update_zoom() {
 	int ms = metatile_size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
-	_map->resize(_sidebar->w(), _map->y(), _map_w * ms, _map_h * ms);
+	_map->resize(_sidebar->w(), _map->y(), (int)_map_w * ms, (int)_map_h * ms);
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * ((_num_metatiles + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map->init_sizes();
 	_map_scroll->init_sizes();
 	_map_scroll->contents(_map->w(), _map->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
-	for (int i = 0; i < _num_metatiles; i++) {
-		Metatile_Button *mt = _metatiles[i];
+	size_t n = _metatileset.num_metatiles();
+	for (int i = 0; i < n; i++) {
+		Metatile_Button *mt = _metatile_buttons[i];
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
-		Fl_Image *img = mt->image();
-		Fl_Image *resized = img->copy(ms, ms);
-		mt->image(resized);
-		delete img;
 	}
 	int mx = _map->x(), my = _map->y();
 	for (int row = 0; row < _map_h; row++) {
@@ -306,10 +297,12 @@ void Main_Window::update_zoom() {
 }
 
 void Main_Window::update_labels() {
-	for (int i = 0; i < _num_metatiles; i++) {
-		_metatiles[i]->id(_metatiles[i]->id());
+	size_t n = _metatileset.num_metatiles();
+	for (int i = 0; i < n; i++) {
+		_metatile_buttons[i]->id(_metatile_buttons[i]->id());
 	}
-	for (int i = 0; i < _map_w * _map_h; i++) {
+	n = _map_w * _map_h;
+	for (int i = 0; i < n; i++) {
 		_blocks[i]->id(_blocks[i]->id());
 	}
 	redraw();
@@ -322,49 +315,40 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *) {
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	close_cb(NULL, mw);
 
-	Metatileset mts;
-	if (Palette_Map::Result pm_r = mts.read_palette_map("E:/Code/polishedcrystal/tilesets/johto1_palette_map.asm")) {
+	// read data
+	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/johto1_palette_map.asm")) {
 		fl_alert("bad palette map %d", pm_r);
 	}
-	if (Tileset::Result ts_r = mts.read_png_graphics("E:/Dropbox/pkmn/tilesets/johto1.png")) {
+	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/johto1.png")) {
 		fl_alert("bad png %d", ts_r);
 	}
-	if (Metatileset::Result mts_r = mts.read_metatiles("E:/Code/polishedcrystal/tilesets/johto1_metatiles.bin")) {
+	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/johto1_metatiles.bin")) {
 		fl_alert("bad meta %d", mts_r);
 	}
 
 	int ms = mw->metatile_size();
 
-	// dummy metatiles
-	mw->_num_metatiles = 245;
-	for (int i = 0; i < mw->_num_metatiles; i++) {
+	// populate sidebar with metatile buttons
+	for (int i = 0; i < mw->_metatileset.num_metatiles(); i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
-		Metatile_Button *metatile = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)(i % MAX_NUM_METATILES));
-		Fl_Pixmap *dummy_icon = new Fl_Pixmap(dummy_metatiles[i]);
-		if (dummy_icon->w() != ms || dummy_icon->h() != ms) {
-			Fl_Image *copy = dummy_icon->copy(ms, ms);
-			delete dummy_icon;
-			metatile->image(copy);
-		}
-		else {
-			metatile->image(dummy_icon);
-		}
-		metatile->callback((Fl_Callback *)select_metatile_cb, mw);
-		mw->_sidebar->add(metatile);
-		mw->_metatiles[i] = metatile;
+		Metatile_Button *mtb = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)i);
+		mtb->callback((Fl_Callback *)select_metatile_cb, mw);
+		mw->_sidebar->add(mtb);
+		mw->_metatile_buttons[i] = mtb;
 	}
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->init_sizes();
-	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * ((mw->_num_metatiles + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)mw->_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
-	mw->_metatiles[0]->setonly();
-	select_metatile_cb(mw->_metatiles[0], mw);
+	mw->_metatile_buttons[0]->setonly();
+	select_metatile_cb(mw->_metatile_buttons[0], mw);
 
+	// populate map with blocks
 	// dummy map
 	mw->_map_w = 32;
 	mw->_map_h = 32;
 	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
-	mw->_map->size(ms * mw->_map_w, ms * mw->_map_h);
+	mw->_map->size(ms * (int)mw->_map_w, ms * (int)mw->_map_h);
 	for (uint8_t row = 0; row < mw->_map_h; row++) {
 		for (uint8_t col = 0; col < mw->_map_w; col++) {
 			int x = col * ms, y = row * ms;
@@ -396,8 +380,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->contents(0, 0);
-	mw->_num_metatiles = 0;
-	memset(mw->_metatiles, 0, sizeof(mw->_metatiles));
+	memset(mw->_metatile_buttons, 0, sizeof(mw->_metatile_buttons));
 	mw->_selected = NULL;
 	mw->_map->clear();
 	mw->_map->size(0, 0);
@@ -407,6 +390,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
 	mw->update_status(NULL);
+	mw->_metatileset.clear();
 	mw->redraw();
 }
 
@@ -562,16 +546,16 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
 		uint8_t id = b->id();
-		if (id >= mw->_num_metatiles) { return; }
-		mw->_selected = mw->_metatiles[id];
+		if (id >= mw->_metatileset.num_metatiles()) { return; }
+		mw->_selected = mw->_metatile_buttons[id];
 		mw->_selected->setonly();
 		int ms = mw->metatile_size();
-		if (ms * (id / 4) >= mw->_sidebar->yposition() + mw->_sidebar->h() - ms / 2) {
-			mw->_sidebar->scroll_to(0, ms * (id / 4 + 1) - mw->_sidebar->h());
+		if (ms * (id / METATILES_PER_ROW) >= mw->_sidebar->yposition() + mw->_sidebar->h() - ms / 2) {
+			mw->_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW + 1) - mw->_sidebar->h());
 			mw->_sidebar->redraw();
 		}
-		else if (ms * (id / 4 + 1) <= mw->_sidebar->yposition() + ms / 2) {
-			mw->_sidebar->scroll_to(0, ms * (id / 4));
+		else if (ms * (id / METATILES_PER_ROW + 1) <= mw->_sidebar->yposition() + ms / 2) {
+			mw->_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW));
 			mw->_sidebar->redraw();
 		}
 	}

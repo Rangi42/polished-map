@@ -22,6 +22,8 @@
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_MENU_ITEM(l, s, c, d, f) {l "    ", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 
+#define GRID_COLOR FL_INACTIVE_COLOR
+
 class Metatile_Button : public Fl_Radio_Button {
 private:
 	uint8_t _id;

@@ -24,12 +24,14 @@ static void remove_comment(std::string &s, char c = ';') {
 	}
 }
 
-Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {}
+Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {
+	clear();
+}
 
 void Palette_Map::clear() {
-	memset(_palette, Palette::TEXT, MAX_NUM_TILES);
+	memset(_palette, Palette::UNDEFINED, MAX_NUM_TILES);
 	_palette_size = 0;
-	_result = PALETTE_OK;
+	_result = PALETTE_NULL;
 }
 
 Palette_Map::Result Palette_Map::read_from(const char *f) {

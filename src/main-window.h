@@ -31,14 +31,14 @@ private:
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
-	// Metatile properties
-	uint8_t _num_metatiles;
-	Metatile_Button *_metatiles[MAX_NUM_METATILES];
+	// Data
+	Metatileset _metatileset;
+	// Metatile button properties
+	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected;
 	// Map properties
-	uint8_t _map_w, _map_h;
+	size_t _map_w, _map_h;
 	Block **_blocks;
-	Fl_Pixmap _default_metatile_image;
 	bool _unsaved;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
@@ -46,12 +46,12 @@ public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
 	void show(void);
-	Fl_Image *metatile_image(uint8_t id);
 	bool grid(void) const { return _grid_mi && _grid_mi->value(); }
 	bool zoom(void) const { return _zoom_mi && _zoom_mi->value(); }
 	bool ids(void) const { return _ids_mi && _ids_mi->value(); }
 	bool hex(void) const { return _hex_mi && _hex_mi->value(); }
 	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
+	void draw_metatile(int x, int y, uint8_t id);
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:

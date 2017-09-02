@@ -7,7 +7,7 @@
 
 class Tileset {
 public:
-	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_DIMS, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_NULL = -1 };
+	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_DIMS, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_NULL };
 private:
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES];
@@ -19,6 +19,7 @@ public:
 	const Tile *tile(uint8_t i) const { return _tiles[i]; }
 	size_t num_tiles(void) const { return _num_tiles; }
 	Result result(void) const { return _result; }
+	void clear(void);
 	Palette_Map::Result read_palette_map(const char *f);
 	Result read_2bpp_graphics(const char *f);
 	Result read_png_graphics(const char *f);

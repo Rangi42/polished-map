@@ -9,8 +9,8 @@
 
 class Palette_Map {
 public:
-	enum Palette { UNDEFINED, GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT };
-	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_NULL = -1 };
+	enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, UNDEFINED };
+	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_NULL };
 private:
 	Palette _palette[MAX_NUM_TILES];
 	size_t _palette_size;
