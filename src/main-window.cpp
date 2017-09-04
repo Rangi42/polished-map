@@ -251,15 +251,25 @@ void Main_Window::draw_metatile(int x, int y, uint8_t id) {
 }
 
 void Main_Window::update_status(Block *b) {
+	if (!_map.size()) {
+		_metatile_count->label("");
+		_map_dimensions->label("");
+		_hover_x->label("");
+		_hover_y->label("");
+		_hover_id->label("");
+		_status_bar->redraw();
+		return;
+	}
 	char buffer[64] = {};
 	if (!b) {
 		sprintf(buffer, "Metatiles: %d", _metatileset.num_metatiles());
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %d x %d", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);
-		_hover_x->label("X:");
-		_hover_y->label("Y:");
-		_hover_id->label("ID:");
+		_hover_x->label("");
+		_hover_y->label("");
+		_hover_id->label("");
+		_status_bar->redraw();
 		return;
 	}
 	uint8_t row = b->row(), col = b->col(), id = b->id();

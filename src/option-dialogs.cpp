@@ -143,8 +143,8 @@ void Map_Options_Dialog::initialize_content() {
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
-	int wgt_w = 0, wgt_h = 23;
-	int ch = (wgt_h + 2) * 2 + wgt_h;
+	int wgt_w = 0, wgt_h = 22;
+	int ch = (wgt_h + 4) * 2 + wgt_h;
 	_content->resize(10, dy, ww, ch);
 
 	int wgt_off = 10 + MAX(MAX(text_width(_map_width->label()), text_width(_tileset->label())), text_width(_lighting->label()));
@@ -152,11 +152,11 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	wgt_w = text_width("999", 2) + wgt_h;
 	_map_width->resize(10 + wgt_off, dy, wgt_w, wgt_h);
 	_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
-	dy += _map_height->h() + 2;
+	dy += _map_height->h() + 4;
 
 	wgt_w = ww - wgt_off;
 	_tileset->resize(10 + wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + 2;
+	dy += _tileset->h() + 4;
 
 	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
 	_lighting->resize(10 + wgt_off, dy, wgt_w, wgt_h);
