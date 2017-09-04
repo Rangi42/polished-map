@@ -61,3 +61,18 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 	}
 	return (_result = PALETTE_OK);
 }
+
+const char *Palette_Map::error_message(Result result) {
+	switch (result) {
+	case PALETTE_OK:
+		return "OK.";
+	case BAD_PALETTE_FILE:
+		return "Cannot open file.";
+	case BAD_PALETTE_NAME:
+		return "Invalid color name.";
+	case PALETTE_NULL:
+		return "No *_palette_map.asm file chosen.";
+	default:
+		return "Unspecified error.";
+	}
+}

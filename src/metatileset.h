@@ -26,6 +26,7 @@ public:
 	Tileset::Result read_2bpp_graphics(const char *f, Tileset::Lighting l);
 	Tileset::Result read_png_graphics(const char *f, Tileset::Lighting l);
 	Result read_metatiles(const char *f);
+	static const char *error_message(Result result);
 };
 
 #endif

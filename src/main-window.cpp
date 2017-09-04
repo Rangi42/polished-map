@@ -20,6 +20,7 @@
 #include "option-dialogs.h"
 #include "tileset.h"
 #include "metatileset.h"
+#include "config.h"
 #include "main-window.h"
 #include "icons.h"
 
@@ -407,7 +408,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 		fl_alert("splitpath");
 		return;
 	}
-	strcat(d, "..\\");
+	project_path_from_blk_path(d);
 
 	mw->_open_blk_dialog->limit_blk_options(d);
 	mw->_open_blk_dialog->show(mw);
@@ -422,19 +423,34 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	// read data
 	char buffer[MAX_PATH * 2] = {};
 	const char *ts_name = mw->_open_blk_dialog->tileset();
-	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_palette_map.asm", ts_name);
-	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map(buffer)) {
-		fl_alert("bad palette map %d", pm_r);
+	palette_map_path(buffer, d, ts_name);
+	if (Palette_Map::Result r = mw->_metatileset.read_palette_map(buffer)) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Error reading ";
+		palette_map_path(buffer, "", ts_name);
+		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
 		return;
 	}
-	sprintf(buffer, "E:/Dropbox/pkmn/tilesets/%s.png", ts_name);
-	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
-		fl_alert("bad png %d", ts_r);
+	tileset_path(buffer, d, ts_name);
+	if (Tileset::Result r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Error reading ";
+		tileset_path(buffer, "", ts_name);
+		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
 		return;
 	}
-	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_metatiles.bin", ts_name);
-	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles(buffer)) {
-		fl_alert("bad meta %d", mts_r);
+	metatileset_path(buffer, d, ts_name);
+	if (Metatileset::Result r = mw->_metatileset.read_metatiles(buffer)) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Error reading ";
+		metatileset_path(buffer, "", ts_name);
+		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
 		return;
 	}
 

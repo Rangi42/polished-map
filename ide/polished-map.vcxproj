@@ -103,6 +103,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
@@ -121,6 +122,7 @@
     <ClCompile Include="..\src\widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\config.h" />
     <ClInclude Include="..\src\dummy.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />

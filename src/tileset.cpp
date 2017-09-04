@@ -110,3 +110,24 @@ Tileset::Result Tileset::read_png_graphics(const char *f, Lighting l) {
 
 	return (_result = GFX_OK);
 }
+
+const char *Tileset::error_message(Result result) {
+	switch (result) {
+	case GFX_OK:
+		return "OK.";
+	case GFX_NO_PALETTE:
+		return "No corresponding *_palette_map.asm file chosen.";
+	case GFX_BAD_FILE:
+		return "Cannot parse file format.";
+	case GFX_BAD_DIMS:
+		return "Image dimensions do not fit the tile grid.";
+	case GFX_TOO_LARGE:
+		return "Too many pixels.";
+	case GFX_NOT_GRAYSCALE:
+		return "Image cannot be made grayscale.";
+	case GFX_NULL:
+		return "No graphics file chosen.";
+	default:
+		return "Unspecified error.";
+	}
+}

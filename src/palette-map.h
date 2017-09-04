@@ -22,6 +22,7 @@ public:
 	Result result(void) const { return _result; }
 	void clear(void);
 	Result read_from(const char *f);
+	static const char *error_message(Result result);
 };
 
 #endif

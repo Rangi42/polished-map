@@ -79,3 +79,18 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 
 	return (_result = META_OK);
 }
+
+const char *Metatileset::error_message(Result result) {
+	switch (result) {
+	case META_OK:
+		return "OK.";
+	case META_NO_GFX:
+		return "No corresponding graphics file chosen.";
+	case META_BAD_FILE:
+		return "Cannot open file.";
+	case META_TOO_SHORT:
+		return "File ends too early.";
+	default:
+		return "Unspecified error.";
+	}
+}

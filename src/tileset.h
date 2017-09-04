@@ -24,6 +24,7 @@ public:
 	Palette_Map::Result read_palette_map(const char *f);
 	Result read_2bpp_graphics(const char *f, Lighting l);
 	Result read_png_graphics(const char *f, Lighting l);
+	static const char *error_message(Result result);
 };
 
 #endif
