@@ -89,7 +89,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
-	_open_blk_dialog = new Open_Blk_Dialog("Open BLK");
+	_map_options_dialog = new Map_Options_Dialog("Map Options");
 
 	// Configure window
 	size_range(384, 256);
@@ -283,10 +283,22 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
 }
 
-void Main_Window::open_map(const char *tileset_name, Tileset::Lighting lighting) {
+void Main_Window::open_map(const char *directory, const char *filename) {
+	// get map options
+	_map_options_dialog->limit_blk_options(directory);
+	_map_options_dialog->show(this);
+	bool canceled = _map_options_dialog->canceled();
+	if (canceled) { return; }
+
+	close_cb(NULL, this);
+
+	_directory = directory;
+	_blk_file = filename;
+
 	// read data
-	const char *directory = _directory.c_str();
+	const char *tileset_name = _map_options_dialog->tileset();
 	char buffer[MAX_PATH * 2] = {};
+
 	palette_map_path(buffer, directory, tileset_name);
 	if (Palette_Map::Result r = _metatileset.read_palette_map(buffer)) {
 		std::string msg = "Error reading ";
@@ -296,8 +308,9 @@ void Main_Window::open_map(const char *tileset_name, Tileset::Lighting lighting)
 		_error_dialog->show(this);
 		return;
 	}
+
 	tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = _metatileset.read_png_graphics(buffer, lighting)) {
+	if (Tileset::Result r = _metatileset.read_png_graphics(buffer, _map_options_dialog->lighting())) {
 		std::string msg = "Error reading ";
 		tileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
@@ -305,6 +318,7 @@ void Main_Window::open_map(const char *tileset_name, Tileset::Lighting lighting)
 		_error_dialog->show(this);
 		return;
 	}
+
 	metatileset_path(buffer, directory, tileset_name);
 	if (Metatileset::Result r = _metatileset.read_metatiles(buffer)) {
 		std::string msg = "Error reading ";
@@ -320,7 +334,6 @@ void Main_Window::open_map(const char *tileset_name, Tileset::Lighting lighting)
 	// populate map with blocks
 	// dummy map
 	// TODO: load filename (_blk_file) instead
-	const char *filename = _blk_file.c_str();
 	_map_w = 32;
 	_map_h = 32;
 	_blocks = new Block *[_map_w * _map_h]();
@@ -399,21 +412,8 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
-	// TODO: new
-	/*
-	W: [___] H: [___]
-	Tileset: [______|V]
-	Lighting: [_____|V]
-		  [OK] [Cancel]
-	*/
-
-	close_cb(NULL, mw);
-
-	// TODO: how to determine the project directory?
-	mw->_directory = "E:\\Code\\polishedcrystal\\";
-	mw->_blk_file = "E:\\Code\\polishedcrystal\\maps\\NewBarkTown.blk";
-
-	mw->open_map("johto1", Tileset::DAY);
+	// TODO: how to choose these new map paths?
+	mw->open_map("E:\\Code\\polishedcrystal\\", "E:\\Desktop\\new.blk");
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
@@ -423,7 +423,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	if (status == -1) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not open ";
-		msg = msg + basename + "!\n" + mw->_blk_chooser->errmsg();
+		msg = msg + basename + "!\n\n" + mw->_blk_chooser->errmsg();
 		mw->_error_dialog->message(msg);
 		mw->_error_dialog->show(mw);
 		return;
@@ -437,17 +437,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	project_path_from_blk_path(directory);
 
-	mw->_open_blk_dialog->limit_blk_options(directory);
-	mw->_open_blk_dialog->show(mw);
-	bool canceled = mw->_open_blk_dialog->canceled();
-	if (canceled) { return; }
-
-	close_cb(NULL, mw);
-
-	mw->_directory = directory;
-	mw->_blk_file = filename;
-
-	mw->open_map(mw->_open_blk_dialog->tileset(), mw->_open_blk_dialog->lighting());
+	mw->open_map(directory, filename);
 }
 
 void Main_Window::save_cb(Fl_Widget *, Main_Window *) {

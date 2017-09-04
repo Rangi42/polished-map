@@ -81,17 +81,17 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Open_Blk_Dialog::Open_Blk_Dialog(const char *t) : Option_Dialog(t),
+Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(t),
 	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
 
-Open_Blk_Dialog::~Open_Blk_Dialog() {
+Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
 	delete _tileset;
 	delete _lighting;
 }
 
-bool Open_Blk_Dialog::limit_blk_options(const char *d) {
+bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	initialize();
 
 	char td[MAX_PATH * 2] = {};
@@ -123,7 +123,7 @@ bool Open_Blk_Dialog::limit_blk_options(const char *d) {
 	return true;
 }
 
-void Open_Blk_Dialog::initialize_content() {
+void Map_Options_Dialog::initialize_content() {
 	// Populate content group
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
@@ -142,7 +142,7 @@ void Open_Blk_Dialog::initialize_content() {
 	_lighting->value(0);
 }
 
-int Open_Blk_Dialog::refresh_content(int ww, int dy) {
+int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 23;
 	int ch = (wgt_h + 2) * 2 + wgt_h;
 	_content->resize(10, dy, ww, ch);

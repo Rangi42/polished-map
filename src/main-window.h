@@ -36,7 +36,7 @@ private:
 	// Dialogs
 	Fl_Native_File_Chooser *_blk_chooser, *_png_chooser;
 	Modal_Dialog *_error_dialog;
-	Open_Blk_Dialog *_open_blk_dialog;
+	Map_Options_Dialog *_map_options_dialog;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
@@ -62,7 +62,7 @@ public:
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
-	void open_map(const char *tileset_name, Tileset::Lighting lighting);
+	void open_map(const char *directory, const char *filename);
 	void update_zoom(void);
 	void update_labels(void);
 	// File menu
