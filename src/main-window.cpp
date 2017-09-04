@@ -283,6 +283,82 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
 }
 
+void Main_Window::open_map(const char *tileset_name, Tileset::Lighting lighting) {
+	// read data
+	const char *directory = _directory.c_str();
+	char buffer[MAX_PATH * 2] = {};
+	palette_map_path(buffer, directory, tileset_name);
+	if (Palette_Map::Result r = _metatileset.read_palette_map(buffer)) {
+		std::string msg = "Error reading ";
+		palette_map_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+	tileset_path(buffer, directory, tileset_name);
+	if (Tileset::Result r = _metatileset.read_png_graphics(buffer, lighting)) {
+		std::string msg = "Error reading ";
+		tileset_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+	metatileset_path(buffer, directory, tileset_name);
+	if (Metatileset::Result r = _metatileset.read_metatiles(buffer)) {
+		std::string msg = "Error reading ";
+		metatileset_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
+	int ms = metatile_size();
+
+	// populate map with blocks
+	// dummy map
+	// TODO: load filename (_blk_file) instead
+	const char *filename = _blk_file.c_str();
+	_map_w = 32;
+	_map_h = 32;
+	_blocks = new Block *[_map_w * _map_h]();
+	_map->size(ms * (int)_map_w, ms * (int)_map_h);
+	for (uint8_t row = 0; row < _map_h; row++) {
+		for (uint8_t col = 0; col < _map_w; col++) {
+			int x = col * ms, y = row * ms;
+			Block *block = new Block(_map->x() + x, _map->y() + y, ms, row, col, 0);
+			block->callback((Fl_Callback *)change_block_cb, this);
+			_map->add(block);
+			_blocks[row * _map_w + col] = block;
+		}
+	}
+	_map_scroll->scroll_to(0, 0);
+	_map_scroll->init_sizes();
+	_map_scroll->contents(_map->w(), _map->h());
+
+	// populate sidebar with metatile buttons
+	for (int i = 0; i < _metatileset.num_metatiles(); i++) {
+		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
+		Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
+		mtb->callback((Fl_Callback *)select_metatile_cb, this);
+		_sidebar->add(mtb);
+		_metatile_buttons[i] = mtb;
+	}
+	_sidebar->scroll_to(0, 0);
+	_sidebar->init_sizes();
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+
+	_metatile_buttons[0]->setonly();
+	select_metatile_cb(_metatile_buttons[0], this);
+
+	update_labels();
+	update_status(NULL);
+
+	redraw();
+}
+
 void Main_Window::update_zoom() {
 	int ms = metatile_size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
@@ -324,7 +400,6 @@ void Main_Window::update_labels() {
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	// TODO: new
-	// how to get the tileset directories?
 	/*
 	W: [___] H: [___]
 	Tileset: [______|V]
@@ -334,57 +409,11 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 
 	close_cb(NULL, mw);
 
-	int ms = mw->metatile_size();
+	// TODO: how to determine the project directory?
+	mw->_directory = "E:\\Code\\polishedcrystal\\";
+	mw->_blk_file = "E:\\Code\\polishedcrystal\\maps\\NewBarkTown.blk";
 
-	// populate map with blocks
-	// dummy map
-	mw->_map_w = 32;
-	mw->_map_h = 32;
-	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
-	mw->_map->size(ms * (int)mw->_map_w, ms * (int)mw->_map_h);
-	for (uint8_t row = 0; row < mw->_map_h; row++) {
-		for (uint8_t col = 0; col < mw->_map_w; col++) {
-			int x = col * ms, y = row * ms;
-			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
-			block->callback((Fl_Callback *)change_block_cb, mw);
-			mw->_map->add(block);
-			mw->_blocks[row * mw->_map_w + col] = block;
-		}
-	}
-	mw->_map_scroll->scroll_to(0, 0);
-	mw->_map_scroll->init_sizes();
-	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
-
-	// read data
-	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map("E:/Code/polishedcrystal/tilesets/shamouti_palette_map.asm")) {
-		fl_alert("bad palette map %d", pm_r);
-	}
-	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics("E:/Dropbox/pkmn/tilesets/shamouti.png", Tileset::DAY)) {
-		fl_alert("bad png %d", ts_r);
-	}
-	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles("E:/Code/polishedcrystal/tilesets/shamouti_metatiles.bin")) {
-		fl_alert("bad meta %d", mts_r);
-	}
-
-	// populate sidebar with metatile buttons
-	for (int i = 0; i < mw->_metatileset.num_metatiles(); i++) {
-		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
-		Metatile_Button *mtb = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)i);
-		mtb->callback((Fl_Callback *)select_metatile_cb, mw);
-		mw->_sidebar->add(mtb);
-		mw->_metatile_buttons[i] = mtb;
-	}
-	mw->_sidebar->scroll_to(0, 0);
-	mw->_sidebar->init_sizes();
-	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)mw->_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
-
-	mw->_metatile_buttons[0]->setonly();
-	select_metatile_cb(mw->_metatile_buttons[0], mw);
-
-	mw->update_labels();
-	mw->update_status(NULL);
-
-	mw->redraw();
+	mw->open_map("johto1", Tileset::DAY);
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
@@ -400,100 +429,25 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	const char *f = mw->_blk_chooser->filename();
-
 	// Assuming the given file is in maps/, then the main project directory is above it
-	char d[MAX_PATH * 2] = {};
-	if (_splitpath_s(f, NULL, 0, d, MAX_PATH * 2, NULL, 0, NULL, 0)) {
+	char directory[MAX_PATH * 2] = {};
+	if (_splitpath_s(filename, NULL, 0, directory, MAX_PATH * 2, NULL, 0, NULL, 0)) {
 		fl_alert("splitpath");
 		return;
 	}
-	project_path_from_blk_path(d);
+	project_path_from_blk_path(directory);
 
-	mw->_open_blk_dialog->limit_blk_options(d);
+	mw->_open_blk_dialog->limit_blk_options(directory);
 	mw->_open_blk_dialog->show(mw);
 	bool canceled = mw->_open_blk_dialog->canceled();
 	if (canceled) { return; }
 
 	close_cb(NULL, mw);
 
-	mw->_directory = d;
-	mw->_blk_file = f;
+	mw->_directory = directory;
+	mw->_blk_file = filename;
 
-	// read data
-	char buffer[MAX_PATH * 2] = {};
-	const char *ts_name = mw->_open_blk_dialog->tileset();
-	palette_map_path(buffer, d, ts_name);
-	if (Palette_Map::Result r = mw->_metatileset.read_palette_map(buffer)) {
-		const char *basename = fl_filename_name(filename);
-		std::string msg = "Error reading ";
-		palette_map_path(buffer, "", ts_name);
-		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-	tileset_path(buffer, d, ts_name);
-	if (Tileset::Result r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
-		const char *basename = fl_filename_name(filename);
-		std::string msg = "Error reading ";
-		tileset_path(buffer, "", ts_name);
-		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-	metatileset_path(buffer, d, ts_name);
-	if (Metatileset::Result r = mw->_metatileset.read_metatiles(buffer)) {
-		const char *basename = fl_filename_name(filename);
-		std::string msg = "Error reading ";
-		metatileset_path(buffer, "", ts_name);
-		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-
-	int ms = mw->metatile_size();
-
-	// populate map with blocks
-	// dummy map
-	mw->_map_w = 32;
-	mw->_map_h = 32;
-	mw->_blocks = new Block *[mw->_map_w * mw->_map_h]();
-	mw->_map->size(ms * (int)mw->_map_w, ms * (int)mw->_map_h);
-	for (uint8_t row = 0; row < mw->_map_h; row++) {
-		for (uint8_t col = 0; col < mw->_map_w; col++) {
-			int x = col * ms, y = row * ms;
-			Block *block = new Block(mw->_map->x() + x, mw->_map->y() + y, ms, row, col, 0);
-			block->callback((Fl_Callback *)change_block_cb, mw);
-			mw->_map->add(block);
-			mw->_blocks[row * mw->_map_w + col] = block;
-		}
-	}
-	mw->_map_scroll->scroll_to(0, 0);
-	mw->_map_scroll->init_sizes();
-	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
-
-	// populate sidebar with metatile buttons
-	for (int i = 0; i < mw->_metatileset.num_metatiles(); i++) {
-		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
-		Metatile_Button *mtb = new Metatile_Button(mw->_sidebar->x() + x, mw->_sidebar->y() + y, ms, (uint8_t)i);
-		mtb->callback((Fl_Callback *)select_metatile_cb, mw);
-		mw->_sidebar->add(mtb);
-		mw->_metatile_buttons[i] = mtb;
-	}
-	mw->_sidebar->scroll_to(0, 0);
-	mw->_sidebar->init_sizes();
-	mw->_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)mw->_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
-
-	mw->_metatile_buttons[0]->setonly();
-	select_metatile_cb(mw->_metatile_buttons[0], mw);
-
-	mw->update_labels();
-	mw->update_status(NULL);
-
-	mw->redraw();
+	mw->open_map(mw->_open_blk_dialog->tileset(), mw->_open_blk_dialog->lighting());
 }
 
 void Main_Window::save_cb(Fl_Widget *, Main_Window *) {
