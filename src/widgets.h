@@ -16,37 +16,10 @@
 #include <FL/Fl_Radio_Round_Button.H>
 #include <FL/Fl_Progress.H>
 #include <FL/Fl_Help_View.H>
-#include <FL/Fl_Radio_Button.H>
 #pragma warning(pop)
 
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_MENU_ITEM(l, s, c, d, f) {l "    ", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
-
-#define GRID_COLOR FL_INACTIVE_COLOR
-
-class Metatile_Button : public Fl_Radio_Button {
-private:
-	uint8_t _id;
-public:
-	Metatile_Button(int x, int y, int s, uint8_t id);
-	uint8_t id(void) const { return _id; }
-	void id(uint8_t id);
-	void draw(void);
-};
-
-class Block : public Fl_Box {
-private:
-	uint8_t _row, _col;
-	uint8_t _id;
-public:
-	Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id);
-	uint8_t row(void) const { return _row; }
-	uint8_t col(void) const { return _col; }
-	uint8_t id(void) const { return _id; }
-	void id(uint8_t id);
-	void draw(void);
-	int handle(int event);
-};
 
 class DnD_Receiver : public Fl_Box {
 public:

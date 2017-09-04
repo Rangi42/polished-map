@@ -27,7 +27,7 @@
 #include "resource.h"
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_directory(), _blk_file(), _metatileset(), _metatile_buttons(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
+	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
 
@@ -65,9 +65,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Spacer(0, 0, 2, 0);
 	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 9999 x 9999", 3), 0, "");
 	new Spacer(0, 0, 2, 0);
-	_hover_x = new Status_Bar_Field(0, 0, text_width("X: 9999", 3), 0, "");
-	_hover_y = new Status_Bar_Field(0, 0, text_width("Y: 9999", 3), 0, "");
-	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $9999", 3), 0, "");
+	_hover_x = new Status_Bar_Field(0, 0, text_width("X: $999", 3), 0, "");
+	_hover_y = new Status_Bar_Field(0, 0, text_width("Y: $999", 3), 0, "");
+	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $999", 3), 0, "");
 	_status_bar->end();
 	begin();
 
@@ -82,8 +82,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Map
 	_map_scroll = new Workspace(wx, wy, ww, wh);
 	_map_scroll->type(Fl_Scroll::BOTH);
-	_map = new Fl_Group(wx, wy, 0, 0);
-	_map->end();
+	_map_group = new Fl_Group(wx, wy, 0, 0);
+	_map_group->end();
 
 	// Dialogs
 	_blk_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
@@ -255,7 +255,7 @@ void Main_Window::update_status(Block *b) {
 	if (!b) {
 		sprintf(buffer, "Metatiles: %d", _metatileset.num_metatiles());
 		_metatile_count->copy_label(buffer);
-		sprintf(buffer, "Map: %d x %d", _map_w, _map_h);
+		sprintf(buffer, "Map: %d x %d", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);
 		_hover_x->label("X:");
 		_hover_y->label("Y:");
@@ -263,12 +263,22 @@ void Main_Window::update_status(Block *b) {
 		return;
 	}
 	uint8_t row = b->row(), col = b->col(), id = b->id();
-	sprintf(buffer, "X: %d", col);
-	_hover_x->copy_label(buffer);
-	sprintf(buffer, "Y: %d", row);
-	_hover_y->copy_label(buffer);
-	sprintf(buffer, hex() ? "ID: $%02X" : "ID: %d", id);
-	_hover_id->copy_label(buffer);
+	if (hex()) {
+		sprintf(buffer, "X: $%X", col);
+		_hover_x->copy_label(buffer);
+		sprintf(buffer, "Y: $%X", row);
+		_hover_y->copy_label(buffer);
+		sprintf(buffer, "ID: $%02X", id);
+		_hover_id->copy_label(buffer);
+	}
+	else {
+		sprintf(buffer, "X: %d", col);
+		_hover_x->copy_label(buffer);
+		sprintf(buffer, "Y: %d", row);
+		_hover_y->copy_label(buffer);
+		sprintf(buffer, "ID: %d", id);
+		_hover_id->copy_label(buffer);
+	}
 	_status_bar->redraw();
 }
 
@@ -276,11 +286,11 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (f == t || b->id() != f) { return; }
 	b->id(t);
 	int row = b->row(), col = b->col();
-	size_t i = row * _map_w + col;
-	if (col > 0) { flood_fill(_blocks[i-1], f, t); } // left
-	if (col < _map_w - 1) { flood_fill(_blocks[i+1], f, t); } // right
-	if (row > 0) { flood_fill(_blocks[i-_map_w], f, t); } // up
-	if (row < _map_h - 1) { flood_fill(_blocks[i+_map_w], f, t); } // down
+	size_t i = row * _map.width() + col;
+	if (col > 0) { flood_fill(_map.block(i-1), f, t); } // left
+	if (col < _map.width() - 1) { flood_fill(_map.block(i+1), f, t); } // right
+	if (row > 0) { flood_fill(_map.block(i-_map.width()), f, t); } // up
+	if (row < _map.height() - 1) { flood_fill(_map.block(i+_map.width()), f, t); } // down
 }
 
 void Main_Window::open_map(const char *directory, const char *filename) {
@@ -290,10 +300,17 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	bool canceled = _map_options_dialog->canceled();
 	if (canceled) { return; }
 
+	if (!filename && (!_map_options_dialog->map_width() || !_map_options_dialog->map_height())) {
+		std::string msg = "Dimensions must be nonzero!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
 	close_cb(NULL, this);
 
 	_directory = directory;
-	_blk_file = filename;
+	_blk_file = filename ? filename : "";
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
@@ -332,24 +349,40 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	int ms = metatile_size();
 
 	// populate map with blocks
-	// dummy map
-	// TODO: load filename (_blk_file) instead
-	_map_w = 32;
-	_map_h = 32;
-	_blocks = new Block *[_map_w * _map_h]();
-	_map->size(ms * (int)_map_w, ms * (int)_map_h);
-	for (uint8_t row = 0; row < _map_h; row++) {
-		for (uint8_t col = 0; col < _map_w; col++) {
-			int x = col * ms, y = row * ms;
-			Block *block = new Block(_map->x() + x, _map->y() + y, ms, row, col, 0);
-			block->callback((Fl_Callback *)change_block_cb, this);
-			_map->add(block);
-			_blocks[row * _map_w + col] = block;
+	if (filename) {
+		// load map
+		// TODO: load filename (_blk_file) instead
+		uint8_t w = 32, h = 32;
+		_map.size(w, h);
+		_map_group->size(ms * (int)w, ms * (int)h);
+		for (uint8_t row = 0; row < h; row++) {
+			for (uint8_t col = 0; col < w; col++) {
+				int x = col * ms, y = row * ms;
+				Block *block = new Block(_map_group->x() + x, _map_group->y() + y, ms, row, col, 0);
+				block->callback((Fl_Callback *)change_block_cb, this);
+				_map_group->add(block);
+				_map.block(col, row, block);
+			}
+		}
+	}
+	else {
+		// new map
+		uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
+		_map.size(w, h);
+		_map_group->size(ms * (int)w, ms * (int)h);
+		for (uint8_t row = 0; row < h; row++) {
+			for (uint8_t col = 0; col < w; col++) {
+				int x = col * ms, y = row * ms;
+				Block *block = new Block(_map_group->x() + x, _map_group->y() + y, ms, row, col, 0);
+				block->callback((Fl_Callback *)change_block_cb, this);
+				_map_group->add(block);
+				_map.block(col, row, block);
+			}
 		}
 	}
 	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
-	_map_scroll->contents(_map->w(), _map->h());
+	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	// populate sidebar with metatile buttons
 	for (int i = 0; i < _metatileset.num_metatiles(); i++) {
@@ -376,12 +409,12 @@ void Main_Window::update_zoom() {
 	int ms = metatile_size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
-	_map->resize(_sidebar->w(), _map->y(), (int)_map_w * ms, (int)_map_h * ms);
+	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
-	_map->init_sizes();
+	_map_group->init_sizes();
 	_map_scroll->init_sizes();
-	_map_scroll->contents(_map->w(), _map->h());
+	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	size_t n = _metatileset.num_metatiles();
 	for (int i = 0; i < n; i++) {
@@ -389,10 +422,10 @@ void Main_Window::update_zoom() {
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
 	}
-	int mx = _map->x(), my = _map->y();
-	for (int row = 0; row < _map_h; row++) {
-		for (int col = 0; col < _map_w; col++) {
-			Block *block = _blocks[row * _map_w + col];
+	int mx = _map_group->x(), my = _map_group->y();
+	for (uint8_t row = 0; row < _map.height(); row++) {
+		for (uint8_t col = 0; col < _map.width(); col++) {
+			Block *block = _map.block(col, row);
 			int dx = col * ms, dy = row * ms;
 			block->resize(mx + dx, my + dy, ms, ms);
 		}
@@ -404,16 +437,16 @@ void Main_Window::update_labels() {
 	for (int i = 0; i < n; i++) {
 		_metatile_buttons[i]->id(_metatile_buttons[i]->id());
 	}
-	n = _map_w * _map_h;
+	n = _map.size();
 	for (int i = 0; i < n; i++) {
-		_blocks[i]->id(_blocks[i]->id());
+		_map.block(i)->update_label();
 	}
 	redraw();
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	// TODO: how to choose these new map paths?
-	mw->open_map("E:\\Code\\polishedcrystal\\", "E:\\Desktop\\new.blk");
+	mw->open_map("E:\\Code\\polishedcrystal\\", NULL);
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
@@ -454,11 +487,9 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->contents(0, 0);
 	memset(mw->_metatile_buttons, 0, sizeof(mw->_metatile_buttons));
 	mw->_selected = NULL;
-	mw->_map->clear();
-	mw->_map->size(0, 0);
-	delete [] mw->_blocks;
-	mw->_blocks = NULL;
-	mw->_map_w = mw->_map_h = 0;
+	mw->_map_group->clear();
+	mw->_map_group->size(0, 0);
+	mw->_map.clear();
 	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
 	mw->update_status(NULL);
@@ -606,7 +637,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		if (Fl::event_shift()) {
 			// Shift+left click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
-			mw->_map->redraw();
+			mw->_map_group->redraw();
 			mw->update_status(b);
 		}
 		else {

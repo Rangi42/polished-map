@@ -13,6 +13,7 @@
 #include "modal-dialog.h"
 #include "option-dialogs.h"
 #include "metatileset.h"
+#include "map.h"
 
 #define METATILES_PER_ROW 4
 #define METATILE_PX_SIZE 32
@@ -25,8 +26,8 @@ private:
 	Workspace *_sidebar;
 	Toolbar *_status_bar;
 	Workspace *_map_scroll;
+	Fl_Group *_map_group;
 	// GUI inputs
-	Fl_Group *_map;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_full_screen_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_resize_tb;
@@ -40,12 +41,11 @@ private:
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
+	Map _map;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected;
-	// Map properties
-	size_t _map_w, _map_h;
-	Block **_blocks;
+	// Work properties
 	bool _unsaved;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
