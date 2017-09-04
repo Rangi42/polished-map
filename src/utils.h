@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <limits>
 #include <cmath>
+#include <string>
 
 /* debug */
 #include <iostream>
@@ -26,6 +27,13 @@ typedef uint16_t size16_t;
 typedef uint32_t size32_t;
 typedef uint64_t size64_t;
 
+extern const std::string whitespace;
+
+bool starts_with(const std::string &s, const std::string &p);
+bool ends_with(const std::string &s, const std::string &p);
+void trim(std::string &s, const std::string &t = whitespace);
+void remove_comment(std::string &s, char c = ';');
+int text_width(const char *l, int pad);
 int text_width(const char *l, int pad = 0);
 
 #endif

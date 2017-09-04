@@ -2,27 +2,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "utils.h"
 #include "palette-map.h"
-
-static const std::string whitespace(" \f\n\r\t\v");
-
-static bool startswith(std::string &s, std::string &p) {
-	return !s.compare(0, p.size(), p);
-}
-
-static void trim(std::string &s, const std::string &t = whitespace) {
-	std::string::size_type p = s.find_first_not_of(t);
-	s.erase(0, p);
-	p = s.find_last_not_of(t);
-	s.erase(p + 1);
-}
-
-static void remove_comment(std::string &s, char c = ';') {
-	size_t p = s.find(c);
-	if (p != std::string::npos) {
-		s.erase(p);
-	}
-}
 
 Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {
 	clear();
@@ -42,7 +23,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		if (!startswith(line, prefix)) { continue; }
+		if (!starts_with(line, prefix)) { continue; }
 		remove_comment(line);
 		std::istringstream lss(line);
 		std::string token;

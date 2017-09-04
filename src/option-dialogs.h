@@ -38,12 +38,13 @@ private:
 
 class Open_Blk_Dialog : public Option_Dialog {
 private:
-	OS_Spinner *_map_height;
+	OS_Spinner *_map_width, *_map_height;
 	Dropdown *_tileset, *_lighting;
 public:
 	Open_Blk_Dialog(const char *t);
 	~Open_Blk_Dialog();
 	bool limit_blk_options(const char *f);
+	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	inline const char *tileset(void) const { return _tileset->mvalue() ? _tileset->mvalue()->label() : NULL; }
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }

@@ -81,46 +81,57 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Open_Blk_Dialog::Open_Blk_Dialog(const char *t) : Option_Dialog(t), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
+Open_Blk_Dialog::Open_Blk_Dialog(const char *t) : Option_Dialog(t),
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
 
 Open_Blk_Dialog::~Open_Blk_Dialog() {
+	delete _map_width;
 	delete _map_height;
 	delete _tileset;
 	delete _lighting;
 }
 
-bool Open_Blk_Dialog::limit_blk_options(const char *f) {
+bool Open_Blk_Dialog::limit_blk_options(const char *d) {
 	initialize();
-	// Assuming the given BLK file is in maps/,
-	// then ../gfx/tilesets/ is where tileset images are
-	char d[MAX_PATH * 2] = {};
-	if (_splitpath_s(f, NULL, 0, d, MAX_PATH * 2, NULL, 0, NULL, 0)) { fl_alert("splitpath"); return false; }
-	strcat(d, "..\\gfx\\tilesets\\");
+
+	char td[MAX_PATH * 2] = {};
+	strcpy(td, d);
+	strcat(td, /* "gfx\\tilesets\\" */ "..\\..\\Dropbox\\pkmn\\tilesets\\");
+
 	dirent **list;
-	int n = fl_filename_list(d, &list);
-	if (n < 0) { fl_alert("fl_filename_list %d", n); return false; }
-	// TODO: read the passed blk file, limit the height range and tilesets choices
-	// use a util function to derive /gfx/tilesets/*.png from /maps/*.blk
-	// since that's reusable for loading the map
-	_map_height->range(0, 255);
+	int n = fl_filename_list(td, &list);
+	if (n < 0) {
+		fl_alert("fl_filename_list %d", n);
+		return false;
+	}
+
+	_map_width->value(0);
+	_map_height->value(0);
 	_tileset->clear();
-	_tileset->add("johto1");
-	_tileset->add("johto2");
-	_tileset->add("kanto1");
-	_tileset->add("kanto2");
-	_tileset->add("shamouti");
-	_tileset->add("house1");
-	_tileset->add("house2");
+
+	std::string dir(d);
+	for (int i = 0; i < n; i++) {
+		const char *name = list[i]->d_name;
+		if (ends_with(name, ".png")) {
+			std::string v(name);
+			v.erase(v.size() - 4, 4);
+			_tileset->add(v.c_str());
+		}
+	}
 	_tileset->value(0);
+
 	return true;
 }
 
 void Open_Blk_Dialog::initialize_content() {
 	// Populate content group
+	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
 	// Initialize content group's children
+	_map_width->align(FL_ALIGN_LEFT);
+	_map_width->range(0, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(0, 255);
 	_tileset->align(FL_ALIGN_LEFT);
@@ -136,17 +147,18 @@ int Open_Blk_Dialog::refresh_content(int ww, int dy) {
 	int ch = (wgt_h + 2) * 2 + wgt_h;
 	_content->resize(10, dy, ww, ch);
 
-	int wgt_off = 10 + MAX(MAX(text_width(_map_height->label()), text_width(_tileset->label())), text_width(_lighting->label()));
+	int wgt_off = 10 + MAX(MAX(text_width(_map_width->label()), text_width(_tileset->label())), text_width(_lighting->label()));
 
-	wgt_w = text_width(_map_height->label()) + text_width("999");
-	_map_height->resize(10 + wgt_off, dy, wgt_w, wgt_h);
+	wgt_w = text_width("999", 2) + wgt_h;
+	_map_width->resize(10 + wgt_off, dy, wgt_w, wgt_h);
+	_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
 	dy += _map_height->h() + 2;
 
 	wgt_w = ww - wgt_off;
 	_tileset->resize(10 + wgt_off, dy, wgt_w, wgt_h);
 	dy += _tileset->h() + 2;
 
-	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day"), text_width("Nite")), text_width("Indoor"));
+	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
 	_lighting->resize(10 + wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;

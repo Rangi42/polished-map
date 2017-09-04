@@ -26,7 +26,7 @@
 #include "resource.h"
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_metatileset(), _metatile_buttons(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
+	_directory(), _blk_file(), _metatileset(), _metatile_buttons(), _selected(NULL), _blocks(), _map_w(0), _map_h(0),
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
 
@@ -400,12 +400,43 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	const char *f = mw->_blk_chooser->filename();
-	mw->_open_blk_dialog->limit_blk_options(f);
+
+	// Assuming the given file is in maps/, then the main project directory is above it
+	char d[MAX_PATH * 2] = {};
+	if (_splitpath_s(f, NULL, 0, d, MAX_PATH * 2, NULL, 0, NULL, 0)) {
+		fl_alert("splitpath");
+		return;
+	}
+	strcat(d, "..\\");
+
+	mw->_open_blk_dialog->limit_blk_options(d);
 	mw->_open_blk_dialog->show(mw);
 	bool canceled = mw->_open_blk_dialog->canceled();
 	if (canceled) { return; }
 
 	close_cb(NULL, mw);
+
+	mw->_directory = d;
+	mw->_blk_file = f;
+
+	// read data
+	char buffer[MAX_PATH * 2] = {};
+	const char *ts_name = mw->_open_blk_dialog->tileset();
+	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_palette_map.asm", ts_name);
+	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map(buffer)) {
+		fl_alert("bad palette map %d", pm_r);
+		return;
+	}
+	sprintf(buffer, "E:/Dropbox/pkmn/tilesets/%s.png", ts_name);
+	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
+		fl_alert("bad png %d", ts_r);
+		return;
+	}
+	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_metatiles.bin", ts_name);
+	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles(buffer)) {
+		fl_alert("bad meta %d", mts_r);
+		return;
+	}
 
 	int ms = mw->metatile_size();
 
@@ -427,22 +458,6 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->scroll_to(0, 0);
 	mw->_map_scroll->init_sizes();
 	mw->_map_scroll->contents(mw->_map->w(), mw->_map->h());
-
-	// read data
-	char buffer[MAX_PATH * 2] = {};
-	const char *ts_name = mw->_open_blk_dialog->tileset();
-	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_palette_map.asm", ts_name);
-	if (Palette_Map::Result pm_r = mw->_metatileset.read_palette_map(buffer)) {
-		fl_alert("bad palette map %d", pm_r);
-	}
-	sprintf(buffer, "E:/Dropbox/pkmn/tilesets/%s.png", ts_name);
-	if (Tileset::Result ts_r = mw->_metatileset.read_png_graphics(buffer, mw->_open_blk_dialog->lighting())) {
-		fl_alert("bad png %d", ts_r);
-	}
-	sprintf(buffer, "E:/Code/polishedcrystal/tilesets/%s_metatiles.bin", ts_name);
-	if (Metatileset::Result mts_r = mw->_metatileset.read_metatiles(buffer)) {
-		fl_alert("bad meta %d", mts_r);
-	}
 
 	// populate sidebar with metatile buttons
 	for (int i = 0; i < mw->_metatileset.num_metatiles(); i++) {
@@ -487,6 +502,8 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
 	mw->update_status(NULL);
+	mw->_directory.clear();
+	mw->_blk_file.clear();
 	mw->_metatileset.clear();
 	mw->redraw();
 }

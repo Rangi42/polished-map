@@ -38,6 +38,7 @@ private:
 	Modal_Dialog *_error_dialog;
 	Open_Blk_Dialog *_open_blk_dialog;
 	// Data
+	std::string _directory, _blk_file;
 	Metatileset _metatileset;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
