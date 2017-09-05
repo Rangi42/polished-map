@@ -356,29 +356,40 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		return;
 	}
 
+	uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
+	_map.size(w, h);
 	int ms = metatile_size();
 
 	// populate map with blocks
 	if (filename) {
-		// load map
-		// TODO: load filename (_blk_file) instead
-		uint8_t w = 32, h = 32;
-		_map.size(w, h);
+		const char *basename = fl_filename_name(filename);
+
+		if (Map::Result r = _map.read_blocks(filename)) {
+			_map.clear();
+			std::string msg = "Error reading ";
+			msg = msg + basename + "!\n\n" + _map.error_message(r);
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+			return;
+		}
+
+		sprintf(buffer, PROGRAM_NAME " - %s", basename);
+		copy_label(buffer);
+
 		_map_group->size(ms * (int)w, ms * (int)h);
-		for (uint8_t row = 0; row < h; row++) {
-			for (uint8_t col = 0; col < w; col++) {
-				int x = col * ms, y = row * ms;
-				Block *block = new Block(_map_group->x() + x, _map_group->y() + y, ms, row, col, 0);
+		for (uint8_t y = 0; y < h; y++) {
+			for (uint8_t x = 0; x < w; x++) {
+				Block *block = _map.block(x, y);
+				block->resize(_map_group->x() + x * ms, _map_group->y() + y * ms, ms, ms);
 				block->callback((Fl_Callback *)change_block_cb, this);
 				_map_group->add(block);
-				_map.block(col, row, block);
 			}
 		}
 	}
 	else {
 		// new map
-		uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
-		_map.size(w, h);
+		label(PROGRAM_NAME " - New Map");
+
 		_map_group->size(ms * (int)w, ms * (int)h);
 		for (uint8_t row = 0; row < h; row++) {
 			for (uint8_t col = 0; col < w; col++) {
@@ -492,6 +503,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *) {
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
+	mw->label(PROGRAM_NAME);
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->contents(0, 0);

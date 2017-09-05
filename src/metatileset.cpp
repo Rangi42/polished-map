@@ -90,6 +90,8 @@ const char *Metatileset::error_message(Result result) {
 		return "Cannot open file.";
 	case META_TOO_SHORT:
 		return "File ends too early.";
+	case META_NULL:
+		return "No *_metatiles.bin file chosen.";
 	default:
 		return "Unspecified error.";
 	}
