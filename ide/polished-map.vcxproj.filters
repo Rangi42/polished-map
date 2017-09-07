@@ -69,12 +69,6 @@
     <ClCompile Include="..\src\map-buttons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\twobpp-image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\lz-file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\tiled-image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -141,12 +135,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\map-buttons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\twobpp-image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\lz-file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\tiled-image.h">

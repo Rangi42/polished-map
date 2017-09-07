@@ -105,7 +105,6 @@
   <ItemGroup>
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\image.cpp" />
-    <ClCompile Include="..\src\lz-file.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
     <ClCompile Include="..\src\map-buttons.cpp" />
@@ -120,7 +119,6 @@
     <ClCompile Include="..\src\tile.cpp" />
     <ClCompile Include="..\src\tiled-image.cpp" />
     <ClCompile Include="..\src\tileset.cpp" />
-    <ClCompile Include="..\src\twobpp-image.cpp" />
     <ClCompile Include="..\src\utils.cpp" />
     <ClCompile Include="..\src\waiting-dialog.cpp" />
     <ClCompile Include="..\src\widgets.cpp" />
@@ -130,7 +128,6 @@
     <ClInclude Include="..\src\dummy.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
-    <ClInclude Include="..\src\lz-file.h" />
     <ClInclude Include="..\src\main-window.h" />
     <ClInclude Include="..\src\map-buttons.h" />
     <ClInclude Include="..\src\map.h" />
@@ -145,7 +142,6 @@
     <ClInclude Include="..\src\tile.h" />
     <ClInclude Include="..\src\tiled-image.h" />
     <ClInclude Include="..\src\tileset.h" />
-    <ClInclude Include="..\src\twobpp-image.h" />
     <ClInclude Include="..\src\utils.h" />
     <ClInclude Include="..\src\version.h" />
     <ClInclude Include="..\src\waiting-dialog.h" />

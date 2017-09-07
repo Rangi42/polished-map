@@ -80,6 +80,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7
 	case Tiled_Image::IMG_TOO_SHORT: return (_result = GFX_TOO_SHORT);
 	case Tiled_Image::IMG_TOO_LARGE: return (_result = GFX_TOO_LARGE);
 	case Tiled_Image::IMG_NOT_GRAYSCALE: return (_result = GFX_NOT_GRAYSCALE);
+	case Tiled_Image::IMG_BAD_CMD: return (_result = GFX_BAD_CMD);
 	default: return (_result = GFX_BAD_FILE);
 	}
 
@@ -109,7 +110,7 @@ const char *Tileset::error_message(Result result) {
 	case GFX_BAD_FILE:
 		return "Cannot parse file format.";
 	case GFX_BAD_EXT:
-		return "Unkown file extension.";
+		return "Unknown file extension.";
 	case GFX_BAD_DIMS:
 		return "Image dimensions do not fit the tile grid.";
 	case GFX_TOO_SHORT:
@@ -118,6 +119,8 @@ const char *Tileset::error_message(Result result) {
 		return "Too many pixels.";
 	case GFX_NOT_GRAYSCALE:
 		return "Image cannot be made grayscale.";
+	case GFX_BAD_CMD:
+		return "Invalid LZ command.";
 	case GFX_NULL:
 		return "No graphics file chosen.";
 	default:
