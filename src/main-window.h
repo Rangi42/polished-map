@@ -35,8 +35,8 @@ private:
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
 	// Dialogs
-	Fl_Native_File_Chooser *_blk_chooser, *_png_chooser;
-	Modal_Dialog *_error_dialog;
+	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_png_chooser;
+	Modal_Dialog *_error_dialog, *_success_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	// Data
 	std::string _directory, _blk_file;
@@ -63,6 +63,7 @@ public:
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
 	void open_map(const char *directory, const char *filename);
+	void save_map(void);
 	void update_zoom(void);
 	void update_labels(void);
 	// File menu

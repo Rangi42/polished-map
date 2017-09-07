@@ -86,9 +86,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_group->end();
 
 	// Dialogs
-	_blk_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
+	_blk_open_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
+	_blk_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
+	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 
 	// Configure window
@@ -107,8 +109,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&File"),
 		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
 		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
-		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, FL_MENU_INACTIVE),
-		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
+		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
@@ -170,7 +172,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_save_tb->tooltip("Save (Ctrl+S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
 	_save_tb->image(SAVE_ICON);
-	_save_tb->deactivate(); // TODO: implement save
 
 	_print_tb->tooltip("Print (Ctrl+P)");
 	_print_tb->callback((Fl_Callback *)print_cb, this);
@@ -214,14 +215,19 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	// Configure dialogs
 
-	_blk_chooser->title("Open Map");
-	_blk_chooser->filter("BLK Files\t*.blk\n");
+	_blk_open_chooser->title("Open Map");
+	_blk_open_chooser->filter("BLK Files\t*.blk\n");
+
+	_blk_save_chooser->title("Save Map");
+	_blk_save_chooser->filter("BLK Files\t*.blk\n");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
 	_png_chooser->preset_file("map.png");
 
 	_error_dialog->width_range(280, 700);
+
+	_success_dialog->width_range(280, 700);
 }
 
 Main_Window::~Main_Window() {
@@ -230,8 +236,11 @@ Main_Window::~Main_Window() {
 	delete _sidebar; // includes metatiles
 	delete _status_bar; // includes status bar fields
 	delete _map_scroll; // includes map and blocks
-	delete _blk_chooser;
+	delete _blk_open_chooser;
+	delete _blk_save_chooser;
 	delete _png_chooser;
+	delete _error_dialog;
+	delete _success_dialog;
 }
 
 void Main_Window::show() {
@@ -305,7 +314,13 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
-	_map_options_dialog->limit_blk_options(directory);
+	if (!_map_options_dialog->limit_blk_options(directory)) {
+		std::string msg = "Wrong project directory structure!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
 	_map_options_dialog->show(this);
 	bool canceled = _map_options_dialog->canceled();
 	if (canceled) { return; }
@@ -426,6 +441,32 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
+void Main_Window::save_map() {
+	const char *filename = _blk_file.c_str();
+	FILE *file = fopen(filename, "wb");
+	if (!file) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
+	size_t n = _map.size();
+	for (size_t i = 0; i < n; i++) {
+		uint8_t id = _map.block(i)->id();
+		fputc(id, file);
+	}
+	fclose(file);
+
+	const char *basename = fl_filename_name(filename);
+	std::string msg = "Saved ";
+	msg = msg + basename + "!";
+	_success_dialog->message(msg);
+	_success_dialog->show(this);
+}
+
 void Main_Window::update_zoom() {
 	int ms = metatile_size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
@@ -471,35 +512,76 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
-	int status = mw->_blk_chooser->show();
+	int status = mw->_blk_open_chooser->show();
 	if (status == 1) { return; }
-	const char *filename = mw->_blk_chooser->filename();
+
+	const char *filename = mw->_blk_open_chooser->filename();
 	if (status == -1) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not open ";
-		msg = msg + basename + "!\n\n" + mw->_blk_chooser->errmsg();
+		msg = msg + basename + "!\n\n" + mw->_blk_open_chooser->errmsg();
 		mw->_error_dialog->message(msg);
 		mw->_error_dialog->show(mw);
 		return;
 	}
 
-	// Assuming the given file is in maps/, then the main project directory is above it
 	char directory[FL_PATH_MAX] = {};
-	if (_splitpath_s(filename, NULL, 0, directory, FL_PATH_MAX, NULL, 0, NULL, 0)) {
-		fl_alert("splitpath");
+	if (!project_path_from_blk_path(filename, directory)) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not get project directory for ";
+		msg = msg + basename + "!";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
 		return;
 	}
-	project_path_from_blk_path(directory);
 
 	mw->open_map(directory, filename);
 }
 
-void Main_Window::save_cb(Fl_Widget *, Main_Window *) {
-	// TODO: save
+void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	if (mw->_blk_file.empty()) {
+		save_as_cb(w, mw);
+		return;
+	}
+	mw->save_map();
 }
 
-void Main_Window::save_as_cb(Fl_Widget *, Main_Window *) {
-	// TODO: save as
+void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	int status = mw->_blk_save_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_blk_save_chooser->filename();
+	if (status == -1) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_blk_save_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	char directory[FL_PATH_MAX] = {};
+	if (!project_path_from_blk_path(filename, directory)) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not get project directory for ";
+		msg = msg + basename + "!";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->_directory = directory;
+	mw->_blk_file = filename ? filename : "";
+
+	const char *basename = fl_filename_name(filename);
+	char buffer[FL_PATH_MAX] = {};
+	sprintf(buffer, PROGRAM_NAME " - %s", basename);
+	mw->copy_label(buffer);
+
+	mw->save_map();
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {

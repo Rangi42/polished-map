@@ -1,6 +1,10 @@
 #include <cstdio>
 #include <cstring>
 
+#pragma warning(push, 0)
+#include <FL/filename.H>
+#pragma warning(pop)
+
 #include "utils.h"
 #include "config.h"
 
@@ -8,8 +12,10 @@ const char *gfx_tileset_dir() {
 	return "gfx\\tilesets\\";
 }
 
-void project_path_from_blk_path(char *path) {
-	strcat(path, "..\\"); // go up from maps/
+bool project_path_from_blk_path(const char *blk_path, char *project_path) {
+	if (_splitpath_s(blk_path, NULL, 0, project_path, FL_PATH_MAX, NULL, 0, NULL, 0)) { return false; }
+	strcat(project_path, "..\\"); // go up from maps/
+	return true;
 }
 
 void palette_map_path(char *dest, const char *root, const char *tileset) {

@@ -1,7 +1,6 @@
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>
 #include <FL/Fl_Double_Window.H>
-#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "config.h"
@@ -102,10 +101,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 
 	dirent **list;
 	int n = fl_filename_list(td, &list);
-	if (n < 0) {
-		fl_alert("fl_filename_list %d", n);
-		return false;
-	}
+	if (n < 0) { return false; }
 
 	_map_width->value(0);
 	_map_height->value(0);
