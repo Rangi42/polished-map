@@ -88,6 +88,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Dialogs
 	_blk_open_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_blk_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+	_new_dir_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
@@ -220,6 +221,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
+
+	_new_dir_chooser->title("Choose pokecrystal project directory:");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -507,8 +510,20 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
-	// TODO: how to choose these new map paths?
-	mw->open_map("E:\\Code\\polishedcrystal\\", NULL);
+	int status = mw->_new_dir_chooser->show();
+	if (status == 1) { return; }
+	if (status == -1) {
+		std::string msg = "Could not get project directory!";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	const char *project_dir = mw->_new_dir_chooser->filename();
+	char buffer[FL_PATH_MAX] = {};
+	strcpy(buffer, project_dir);
+	strcat(buffer, "\\");
+	mw->open_map(buffer, NULL);
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {

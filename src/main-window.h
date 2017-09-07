@@ -35,7 +35,7 @@ private:
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
 	// Dialogs
-	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_png_chooser;
+	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_new_dir_chooser, *_png_chooser;
 	Modal_Dialog *_error_dialog, *_success_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	// Data
