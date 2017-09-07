@@ -7,6 +7,8 @@
 
 #include "tile.h"
 
+#define BYTES_PER_2BPP_TILE (TILE_SIZE * TILE_SIZE / 4)
+
 class Tiled_Image {
 public:
 	enum Result { IMG_OK, IMG_BAD_FILE, IMG_BAD_EXT, IMG_BAD_DIMS,
