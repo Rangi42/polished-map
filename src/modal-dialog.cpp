@@ -17,10 +17,12 @@
 #include "warning.xpm"
 #include "error.xpm"
 #include "success.xpm"
+#include "app.xpm"
 
 Fl_Pixmap Modal_Dialog::SUCCESS_SHIELD_ICON(SUCCESS_XPM);
 Fl_Pixmap Modal_Dialog::WARNING_SHIELD_ICON(WARNING_XPM);
 Fl_Pixmap Modal_Dialog::ERROR_SHIELD_ICON(ERROR_XPM);
+Fl_Pixmap Modal_Dialog::PROGRAM_ICON(APP_XPM);
 
 Modal_Dialog::Modal_Dialog(Fl_Window *top, const char *t, Icon c) : _icon_type(c), _title(t), _subject(), _message(),
 _min_w(0), _max_w(1000), _top_window(top), _dialog(NULL), _icon(NULL), _heading(NULL), _body(NULL), _ok_button(NULL) {}
@@ -74,6 +76,9 @@ void Modal_Dialog::refresh() {
 	case ERROR_ICON:
 		_icon->image(ERROR_SHIELD_ICON);
 		break;
+	case APP_ICON:
+		_icon->image(PROGRAM_ICON);
+		break;
 	}
 	// Refresh widget positions and sizes
 	int bwd = (_icon_type == NO_ICON ? 0 : 60) + 20;
@@ -113,6 +118,12 @@ void Modal_Dialog::refresh() {
 		_body->resize(70, h, ww-60, bh);
 		h += _body->h() + 10;
 		h = MAX(h, 70);
+		if (_icon_type == APP_ICON) {
+			w += _icon->w() + 10;
+			if (hw > bw) {
+				w -= hw - bw;
+			}
+		}
 		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
 		h += _ok_button->h() + 10;
 	}

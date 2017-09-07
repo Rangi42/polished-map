@@ -11,8 +11,8 @@
 
 class Modal_Dialog {
 public:
-	enum Icon { NO_ICON, SUCCESS_ICON, WARNING_ICON, ERROR_ICON };
-	static Fl_Pixmap SUCCESS_SHIELD_ICON, WARNING_SHIELD_ICON, ERROR_SHIELD_ICON;
+	enum Icon { NO_ICON, SUCCESS_ICON, WARNING_ICON, ERROR_ICON, APP_ICON };
+	static Fl_Pixmap SUCCESS_SHIELD_ICON, WARNING_SHIELD_ICON, ERROR_SHIELD_ICON, PROGRAM_ICON;
 private:
 	Icon _icon_type;
 	std::string _title, _subject, _message;

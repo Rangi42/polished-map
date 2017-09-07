@@ -92,6 +92,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
+	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 
 	// Configure window
@@ -140,7 +141,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)about_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
-		OS_MENU_ITEM("&About", FL_COMMAND + 'a', (Fl_Callback *)about_cb, this, FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&About", FL_COMMAND + '/', (Fl_Callback *)about_cb, this, 0),
 		{},
 		{}
 	};
@@ -231,6 +232,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_error_dialog->width_range(280, 700);
 
 	_success_dialog->width_range(280, 700);
+
+	_about_dialog->subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING);
+	_about_dialog->message(
+		"Copyright \xc2\xa9 2017 Rangi.\n"
+		"\n"
+		"Source code is available at:\n"
+		"https://github.com/roukaour/polished-map\n"
+		"\n"
+		"Some icons by Yusuke Kamiyamane."
+	);
+	_about_dialog->width_range(280, 700);
 }
 
 Main_Window::~Main_Window() {
@@ -244,6 +256,7 @@ Main_Window::~Main_Window() {
 	delete _png_chooser;
 	delete _error_dialog;
 	delete _success_dialog;
+	delete _about_dialog;
 }
 
 void Main_Window::show() {
@@ -742,8 +755,8 @@ void Main_Window::help_cb(Fl_Widget *, Main_Window *) {
 	// TODO: help
 }
 
-void Main_Window::about_cb(Fl_Widget *, Main_Window *) {
-	// TODO: about
+void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {
+	mw->_about_dialog->show(mw);
 }
 
 void Main_Window::select_metatile_cb(Metatile_Button *mt, Main_Window *mw) {
