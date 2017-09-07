@@ -1,7 +1,4 @@
-#pragma warning(push, 0)
-#include <FL/Fl_PNG_Image.H>
-#pragma warning(pop)
-
+#include "tiled-image.h"
 #include "tileset.h"
 
 // Tileset.Lighting x Palette_Map.Palette x Tile.Hue x RGB
@@ -70,40 +67,31 @@ Palette_Map::Result Tileset::read_palette_map(const char *f) {
 	return _palette_map.read_from(f);
 }
 
-Tileset::Result Tileset::read_2bpp_graphics(const char *, Lighting) {
-	return (_result = GFX_BAD_FILE);
-}
-
-Tileset::Result Tileset::read_png_graphics(const char *f, Lighting l) {
+Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
-	Fl_PNG_Image png(f);
-	if (png.fail()) { return (_result = GFX_BAD_FILE); } // cannot load PNG
+	Tiled_Image ti(f);
+	switch (ti.result()) {
+	case Tiled_Image::IMG_OK: break;
+	case Tiled_Image::IMG_NULL: return (_result = GFX_BAD_FILE);
+	case Tiled_Image::IMG_BAD_FILE: return (_result = GFX_BAD_FILE);
+	case Tiled_Image::IMG_BAD_EXT: return (_result = GFX_BAD_EXT);
+	case Tiled_Image::IMG_BAD_DIMS: return (_result = GFX_BAD_DIMS);
+	case Tiled_Image::IMG_TOO_SHORT: return (_result = GFX_TOO_SHORT);
+	case Tiled_Image::IMG_TOO_LARGE: return (_result = GFX_TOO_LARGE);
+	case Tiled_Image::IMG_NOT_GRAYSCALE: return (_result = GFX_NOT_GRAYSCALE);
+	default: return (_result = GFX_BAD_FILE);
+	}
 
-	int w = png.w(), h = png.h();
-	if (w % TILE_SIZE || h % TILE_SIZE) { return (_result = GFX_BAD_DIMS); } // dimensions do not fit the tile grid
-
-	w /= TILE_SIZE;
-	h /= TILE_SIZE;
-	_num_tiles = w * h;
-	if (_num_tiles > MAX_NUM_TILES) { return (_result = GFX_TOO_LARGE); } // too many tiles
-
-	png.desaturate();
-	if (png.d() != 1 || png.count() != 1) { return (_result = GFX_NOT_GRAYSCALE); } // not grayscale
-
-	Tile::Hue png_hues[4] = {Tile::BLACK, Tile::DARK, Tile::LIGHT, Tile::WHITE};
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int i = y * w + x;
-			Tile *t = _tiles[i];
-			Palette_Map::Palette p = _palette_map.palette((uint8_t)i);
-			for (int ty = 0; ty < TILE_SIZE; ty++) {
-				for (int tx = 0; tx < TILE_SIZE; tx++) {
-					long ti = (y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx);
-					Tile::Hue h = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
-					const uchar *rgb = tileset_colors[l][p][h];
-					t->pixel(ty, tx, rgb);
-				}
+	_num_tiles = ti.num_tiles();
+	for (int i = 0; i < _num_tiles; i++) {
+		Tile *t = _tiles[i];
+		Palette_Map::Palette p = _palette_map.palette((uint8_t)i);
+		for (int ty = 0; ty < TILE_SIZE; ty++) {
+			for (int tx = 0; tx < TILE_SIZE; tx++) {
+				Tile::Hue h = ti.tile_hue(i, tx, ty);
+				const uchar *rgb = tileset_colors[l][p][h];
+				t->pixel(ty, tx, rgb);
 			}
 		}
 	}
@@ -119,8 +107,12 @@ const char *Tileset::error_message(Result result) {
 		return "No corresponding *_palette_map.asm file chosen.";
 	case GFX_BAD_FILE:
 		return "Cannot parse file format.";
+	case GFX_BAD_EXT:
+		return "Unkown file extension.";
 	case GFX_BAD_DIMS:
 		return "Image dimensions do not fit the tile grid.";
+	case GFX_TOO_SHORT:
+		return "Too few bytes.";
 	case GFX_TOO_LARGE:
 		return "Too many pixels.";
 	case GFX_NOT_GRAYSCALE:

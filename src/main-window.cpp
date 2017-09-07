@@ -337,7 +337,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = _metatileset.read_png_graphics(buffer, _map_options_dialog->lighting())) {
+	if (Tileset::Result r = _metatileset.read_graphics(buffer, _map_options_dialog->lighting())) {
 		std::string msg = "Error reading ";
 		tileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);

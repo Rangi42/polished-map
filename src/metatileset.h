@@ -23,8 +23,7 @@ public:
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool z);
 	Palette_Map::Result read_palette_map(const char *f);
-	Tileset::Result read_2bpp_graphics(const char *f, Tileset::Lighting l);
-	Tileset::Result read_png_graphics(const char *f, Tileset::Lighting l);
+	Tileset::Result read_graphics(const char *f, Tileset::Lighting l);
 	Result read_metatiles(const char *f);
 	static const char *error_message(Result result);
 };

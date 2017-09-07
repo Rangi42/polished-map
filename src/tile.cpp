@@ -1,34 +1,28 @@
 #include "utils.h"
 #include "tile.h"
 
-Tile::Tile(uint8_t id) : _id(id), _rgb(), _rgb2() {}
+Tile::Tile(uint8_t id) : _id(id), _rgb() {}
 
 void Tile::pixel(int y, int x, const uchar *rgb) {
-	int i = (y * TILE_SIZE + x) * 3;
-	int i2 = (y * 2 * TILE_SIZE * 2 + x * 2) * 3;
+	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
 	// red
 	uchar r = *rgb++;
 	_rgb[i] = r;
-	_rgb2[i2] = r;
-	_rgb2[i2+3] = r;
-	_rgb2[i2+TILE_SIZE*2*3] = r;
-	_rgb2[i2+TILE_SIZE*2*3+3] = r;
+	_rgb[i + NUM_CHANNELS] = r;
+	_rgb[i + LINE_BYTES] = r;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = r;
 	i++;
-	i2++;
 	// green
 	uchar g = *rgb++;
 	_rgb[i] = g;
-	_rgb2[i2] = g;
-	_rgb2[i2+3] = g;
-	_rgb2[i2+TILE_SIZE*2*3] = g;
-	_rgb2[i2+TILE_SIZE*2*3+3] = g;
+	_rgb[i + NUM_CHANNELS] = g;
+	_rgb[i + LINE_BYTES] = g;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = g;
 	i++;
-	i2++;
 	// blue
 	uchar b = *rgb;
 	_rgb[i] = b;
-	_rgb2[i2] = b;
-	_rgb2[i2+3] = b;
-	_rgb2[i2+TILE_SIZE*2*3] = b;
-	_rgb2[i2+TILE_SIZE*2*3+3] = b;
+	_rgb[i + NUM_CHANNELS] = b;
+	_rgb[i + LINE_BYTES] = b;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = b;
 }

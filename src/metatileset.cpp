@@ -30,18 +30,15 @@ void Metatileset::clear() {
 
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
 	Metatile *mt = _metatiles[id];
+	int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
+	int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);
+	int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
 	for (int ty = 0; ty < METATILE_SIZE; ty++) {
 		for (int tx = 0; tx < METATILE_SIZE; tx++) {
 			uint8_t tid = mt->tile_id(ty, tx);
 			const Tile *t = _tileset.tile(tid);
-			if (z) {
-				const uchar *rgb2 = t->rgb2();
-				fl_draw_image(rgb2, x + tx * TILE_SIZE * 2, y + ty * TILE_SIZE * 2, TILE_SIZE * 2, TILE_SIZE * 2);
-			}
-			else {
-				const uchar *rgb = t->rgb();
-				fl_draw_image(rgb, x + tx * TILE_SIZE, y + ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-			}
+			const uchar *rgb = t->rgb();
+			fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
 		}
 	}
 }
@@ -50,12 +47,8 @@ Palette_Map::Result Metatileset::read_palette_map(const char *f) {
 	return _tileset.read_palette_map(f);
 }
 
-Tileset::Result Metatileset::read_2bpp_graphics(const char *f, Tileset::Lighting l) {
-	return _tileset.read_2bpp_graphics(f, l);
-}
-
-Tileset::Result Metatileset::read_png_graphics(const char *f, Tileset::Lighting l) {
-	return _tileset.read_png_graphics(f, l);
+Tileset::Result Metatileset::read_graphics(const char *f, Tileset::Lighting l) {
+	return _tileset.read_graphics(f, l);
 }
 
 Metatileset::Result Metatileset::read_metatiles(const char *f) {

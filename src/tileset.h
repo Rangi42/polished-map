@@ -8,7 +8,8 @@
 class Tileset {
 public:
 	enum Lighting { DAY, NITE, INDOOR };
-	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_DIMS, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_NULL };
+	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
+		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_NULL };
 private:
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES];
@@ -22,8 +23,7 @@ public:
 	Result result(void) const { return _result; }
 	void clear(void);
 	Palette_Map::Result read_palette_map(const char *f);
-	Result read_2bpp_graphics(const char *f, Lighting l);
-	Result read_png_graphics(const char *f, Lighting l);
+	Result read_graphics(const char *f, Lighting l);
 	static const char *error_message(Result result);
 };
 
