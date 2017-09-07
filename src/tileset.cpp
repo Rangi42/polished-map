@@ -67,7 +67,7 @@ Palette_Map::Result Tileset::read_palette_map(const char *f) {
 	return _palette_map.read_from(f);
 }
 
-Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
+Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7f) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
 	Tiled_Image ti(f);
@@ -85,7 +85,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 
 	_num_tiles = ti.num_tiles();
 	for (int i = 0; i < _num_tiles; i++) {
-		Tile *t = _tiles[i];
+		int j = skip_60_7f && i >= 0x60 ? i + 0x20 : i;
+		Tile *t = _tiles[j];
 		Palette_Map::Palette p = _palette_map.palette((uint8_t)i);
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
 			for (int tx = 0; tx < TILE_SIZE; tx++) {

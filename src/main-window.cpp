@@ -324,7 +324,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
-	char buffer[MAX_PATH * 2] = {};
+	char buffer[FL_PATH_MAX] = {};
 
 	palette_map_path(buffer, directory, tileset_name);
 	if (Palette_Map::Result r = _metatileset.read_palette_map(buffer)) {
@@ -337,7 +337,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = _metatileset.read_graphics(buffer, _map_options_dialog->lighting())) {
+	if (Tileset::Result r = _metatileset.read_graphics(buffer, _map_options_dialog->lighting(), _map_options_dialog->skip_60_7f())) {
 		std::string msg = "Error reading ";
 		tileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
@@ -484,8 +484,8 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	// Assuming the given file is in maps/, then the main project directory is above it
-	char directory[MAX_PATH * 2] = {};
-	if (_splitpath_s(filename, NULL, 0, directory, MAX_PATH * 2, NULL, 0, NULL, 0)) {
+	char directory[FL_PATH_MAX] = {};
+	if (_splitpath_s(filename, NULL, 0, directory, FL_PATH_MAX, NULL, 0, NULL, 0)) {
 		fl_alert("splitpath");
 		return;
 	}

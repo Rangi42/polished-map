@@ -23,7 +23,7 @@ public:
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool z);
 	Palette_Map::Result read_palette_map(const char *f);
-	Tileset::Result read_graphics(const char *f, Tileset::Lighting l);
+	Tileset::Result read_graphics(const char *f, Tileset::Lighting l, bool skip_60_7f = false);
 	Result read_metatiles(const char *f);
 	static const char *error_message(Result result);
 };

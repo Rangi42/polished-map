@@ -1,15 +1,15 @@
 #pragma warning(push, 0)
-#include <FL/filename.H>
 #include <FL/Fl_PNG_Image.H>
 #pragma warning(pop)
 
+#include "utils.h"
 #include "palette-map.h"
 #include "tiled-image.h"
 
 Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(IMG_NULL) {
-	if (fl_filename_match(f, "*.[Pp][Nn][Gg]")) { read_png_graphics(f); }
-	else if (fl_filename_match(f, "*.2[Bb][Pp][Pp]")) { read_2bpp_graphics(f); }
-	else if (fl_filename_match(f, "*.2[Bb][Pp][Pp].[Ll][Zz]")) { read_lz_graphics(f); }
+	if (ends_with(f, ".png")) { read_png_graphics(f); }
+	else if (ends_with(f, ".2bpp")) { read_2bpp_graphics(f); }
+	else if (ends_with(f, ".2bpp.lz")) { read_lz_graphics(f); }
 }
 
 Tiled_Image::~Tiled_Image() {

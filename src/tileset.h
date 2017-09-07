@@ -23,7 +23,7 @@ public:
 	Result result(void) const { return _result; }
 	void clear(void);
 	Palette_Map::Result read_palette_map(const char *f);
-	Result read_graphics(const char *f, Lighting l);
+	Result read_graphics(const char *f, Lighting l, bool skip_60_7f = false);
 	static const char *error_message(Result result);
 };
 

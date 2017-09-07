@@ -47,8 +47,8 @@ Palette_Map::Result Metatileset::read_palette_map(const char *f) {
 	return _tileset.read_palette_map(f);
 }
 
-Tileset::Result Metatileset::read_graphics(const char *f, Tileset::Lighting l) {
-	return _tileset.read_graphics(f, l);
+Tileset::Result Metatileset::read_graphics(const char *f, Tileset::Lighting l, bool skip_60_7f) {
+	return _tileset.read_graphics(f, l, skip_60_7f);
 }
 
 Metatileset::Result Metatileset::read_metatiles(const char *f) {

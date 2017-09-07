@@ -35,5 +35,6 @@ void trim(std::string &s, const std::string &t = whitespace);
 void remove_comment(std::string &s, char c = ';');
 int text_width(const char *l, int pad);
 int text_width(const char *l, int pad = 0);
+bool file_exists(const char *f);
 
 #endif

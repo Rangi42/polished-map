@@ -4,6 +4,7 @@
 #include <FL/fl_ask.H>
 #pragma warning(pop)
 
+#include "config.h"
 #include "themes.h"
 #include "widgets.h"
 #include "utils.h"
@@ -82,21 +83,22 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(t),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL), _skip_60_7f(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
 	delete _tileset;
 	delete _lighting;
+	delete _skip_60_7f;
 }
 
 bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	initialize();
 
-	char td[MAX_PATH * 2] = {};
+	char td[FL_PATH_MAX] = {};
 	strcpy(td, d);
-	strcat(td, /* "gfx\\tilesets\\" */ "..\\..\\Dropbox\\pkmn\\tilesets\\");
+	strcat(td, gfx_tileset_dir());
 
 	dirent **list;
 	int n = fl_filename_list(td, &list);
@@ -112,13 +114,21 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	std::string dir(d);
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
-		if (ends_with(name, ".png")) {
+		if (ends_with(name, ".2bpp.lz")) {
+			std::string v(name);
+			v.erase(v.size() - 8, 8);
+			_tileset->add(v.c_str());
+		}
+		else if (ends_with(name, ".png")) {
 			std::string v(name);
 			v.erase(v.size() - 4, 4);
-			_tileset->add(v.c_str());
+			if (_tileset->find_index(v.c_str()) == -1) {
+				_tileset->add(v.c_str());
+			}
 		}
 	}
 	_tileset->value(0);
+	_skip_60_7f->value(0);
 
 	return true;
 }
@@ -129,6 +139,7 @@ void Map_Options_Dialog::initialize_content() {
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
+	_skip_60_7f = new OS_Check_Button(0, 0, 0, 0, "Skip tile IDs $60-$7F (pokecrystal)");
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
 	_map_width->range(0, 255);
@@ -140,11 +151,12 @@ void Map_Options_Dialog::initialize_content() {
 	_lighting->add("Nite"); // NITE
 	_lighting->add("Indoor"); // INDOOR
 	_lighting->value(0);
+	_skip_60_7f->value(0);
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22;
-	int ch = (wgt_h + 4) * 2 + wgt_h;
+	int ch = (wgt_h + 4) * 3 + wgt_h;
 	_content->resize(10, dy, ww, ch);
 
 	int wgt_off = 10 + MAX(MAX(text_width(_map_width->label()), text_width(_tileset->label())), text_width(_lighting->label()));
@@ -160,6 +172,10 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
 	_lighting->resize(10 + wgt_off, dy, wgt_w, wgt_h);
+	dy += _tileset->h() + 4;
+
+	wgt_w = text_width("Skip tile IDs $60-$7F (pokecrystal)", 2) + wgt_h;
+	_skip_60_7f->resize(10 + wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
 }
