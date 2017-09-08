@@ -1,11 +1,11 @@
 # To Do
 
-# 1.0
+## 1.0
 
 * Resize
 
 
-# 1.x
+## 1.x
 
 * Undo + Redo
 * Help
@@ -13,19 +13,19 @@
 * Save default settings to registry
 
 
-# 2.0
+## 2.0
 
 * Metatile editor
 
 
-# Maybe
+## Maybe
 
 * Swap tilesets for an already-open map
 * Change color schemes for an already-open map
 * More color schemes than just Day, Nite, and Indoor
 
 
-# Never
+## Never
 
 * Automatically find map data for .blk
    * A .blk file could have zero or many associated .asm files, not just one; and multiple maps sharing a .blk could have different sizes or tilesets. (Polished Crystal already has examples of these cases.)
