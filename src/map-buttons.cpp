@@ -22,8 +22,8 @@ void Metatile_Button::id(uint8_t id) {
 
 void Metatile_Button::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
-	int ms = mw->metatile_size();
 	mw->draw_metatile(x(), y(), _id);
+	int ms = mw->metatile_size();
 	if (mw->grid()) {
 		fl_color(GRID_COLOR);
 		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
@@ -79,8 +79,8 @@ void Block::update_label() {
 
 void Block::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
-	int ms = mw->metatile_size();
 	mw->draw_metatile(x(), y(), _id);
+	int ms = mw->metatile_size();
 	if (mw->grid()) {
 		fl_color(GRID_COLOR);
 		fl_xyline(x(), y()+ms-1, x()+ms-1, y());

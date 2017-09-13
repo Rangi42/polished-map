@@ -43,6 +43,35 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
 	}
 }
 
+uchar *Metatileset::print_rgb(const Map &map) const {
+	int w = map.width(), h = map.height();
+	int bw = w * METATILE_SIZE * TILE_SIZE, bh = h * METATILE_SIZE * TILE_SIZE;
+	uchar *buffer = new uchar[bw * bh * NUM_CHANNELS]();
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			Block *b = map.block((uint8_t)x, (uint8_t)y);
+			const Metatile *m = _metatiles[b->id()];
+			for (int ty = 0; ty < METATILE_SIZE; ty++) {
+				for (int tx = 0; tx < METATILE_SIZE; tx++) {
+					uint8_t tid = m->tile_id(ty, tx);
+					const Tile *t = _tileset.tile(tid);
+					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
+					for (int py = 0; py < TILE_SIZE; py++) {
+						for (int px = 0; px < TILE_SIZE; px++) {
+							const uchar *rgb = t->const_pixel(px, py);
+							size_t j = o + (py * bw + px) * NUM_CHANNELS;
+							buffer[j++] = rgb[0];
+							buffer[j++] = rgb[1];
+							buffer[j] = rgb[2];
+						}
+					}
+				}
+			}
+		}
+	}
+	return buffer;
+}
+
 Palette_Map::Result Metatileset::read_palette_map(const char *f) {
 	return _tileset.read_palette_map(f);
 }

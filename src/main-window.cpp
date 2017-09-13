@@ -22,6 +22,7 @@
 #include "metatileset.h"
 #include "config.h"
 #include "main-window.h"
+#include "image.h"
 #include "icons.h"
 
 #include "resource.h"
@@ -114,13 +115,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
 		{},
 		OS_SUBMENU("&Edit"),
 		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, FL_MENU_INACTIVE),
 		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
-		OS_MENU_ITEM("Re&size", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_INACTIVE),
+		OS_MENU_ITEM("Re&size", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
 		{},
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -178,7 +179,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_print_tb->tooltip("Print (Ctrl+P)");
 	_print_tb->callback((Fl_Callback *)print_cb, this);
 	_print_tb->image(PRINT_ICON);
-	_print_tb->deactivate(); // TODO: implement print
 
 	_undo_tb->tooltip("Undo (Ctrl+Z)");
 	_undo_tb->callback((Fl_Callback *)undo_cb, this);
@@ -193,7 +193,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_resize_tb->tooltip("Resize (Ctrl+E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
-	_resize_tb->deactivate(); // TODO: implement resize
 
 	_grid_tb->tooltip("Grid (Ctrl+G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
@@ -222,6 +221,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
+	_blk_save_chooser->preset_file("NewMap.blk");
 
 	_new_dir_chooser->title("Choose pokecrystal project directory:");
 
@@ -582,8 +582,9 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	if (status == 1) { return; }
 
 	const char *filename = mw->_blk_save_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+
 	if (status == -1) {
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not open ";
 		msg = msg + basename + "!\n\n" + mw->_blk_save_chooser->errmsg();
 		mw->_error_dialog->message(msg);
@@ -593,7 +594,6 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 
 	char directory[FL_PATH_MAX] = {};
 	if (!project_path_from_blk_path(filename, directory)) {
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not get project directory for ";
 		msg = msg + basename + "!";
 		mw->_error_dialog->message(msg);
@@ -604,7 +604,6 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_directory = directory;
 	mw->_blk_file = filename ? filename : "";
 
-	const char *basename = fl_filename_name(filename);
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	mw->copy_label(buffer);
@@ -613,6 +612,8 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
 	mw->label(PROGRAM_NAME);
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
@@ -631,8 +632,36 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::print_cb(Fl_Widget *, Main_Window *) {
-	// TODO: print
+void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	int status = mw->_png_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_png_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+
+	if (status == -1) {
+		std::string msg = "Could not print to ";
+		msg = msg + basename + "!\n\n" + mw->_png_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	Image::Result result = Image::write_image(filename, mw->_map, mw->_metatileset);
+	if (result) {
+		std::string msg = "Could not print to ";
+		msg = msg + basename + "!\n\n" + Image::error_message(result);
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+	}
+	else {
+		std::string msg = "Printed ";
+		msg = msg + basename + "!";
+		mw->_success_dialog->message(msg);
+		mw->_success_dialog->show(mw);
+	}
 }
 
 void Main_Window::exit_cb(Fl_Widget *, void *) {

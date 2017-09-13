@@ -93,7 +93,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7
 			for (int tx = 0; tx < TILE_SIZE; tx++) {
 				Tile::Hue h = ti.tile_hue(i, tx, ty);
 				const uchar *rgb = tileset_colors[l][p][h];
-				t->pixel(ty, tx, rgb);
+				t->pixel(tx, ty, rgb);
 			}
 		}
 	}

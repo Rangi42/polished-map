@@ -1,5 +1,8 @@
 #include <cstdio>
 
+#include "tile.h"
+#include "metatile.h"
+#include "metatileset.h"
 #include "map.h"
 
 Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL) {}

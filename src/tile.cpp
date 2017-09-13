@@ -3,7 +3,7 @@
 
 Tile::Tile(uint8_t id) : _id(id), _rgb() {}
 
-void Tile::pixel(int y, int x, const uchar *rgb) {
+void Tile::pixel(int x, int y, const uchar *rgb) {
 	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
 	// red
 	uchar r = *rgb++;

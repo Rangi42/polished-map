@@ -3,6 +3,7 @@
 
 #include "palette-map.h"
 #include "tileset.h"
+#include "map.h"
 #include "metatile.h"
 
 #define MAX_NUM_METATILES 256
@@ -22,6 +23,7 @@ public:
 	Result result(void) const { return _result; }
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool z);
+	uchar *print_rgb(const Map &map) const;
 	Palette_Map::Result read_palette_map(const char *f);
 	Tileset::Result read_graphics(const char *f, Tileset::Lighting l, bool skip_60_7f = false);
 	Result read_metatiles(const char *f);
