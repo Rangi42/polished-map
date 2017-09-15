@@ -6,7 +6,7 @@
 
 class Map {
 public:
-	enum Result { MAP_OK, MAP_BAD_FILE, MAP_TOO_SHORT, MAP_NULL };
+	enum Result { MAP_OK, MAP_BAD_FILE, MAP_TOO_SHORT, MAP_TOO_LONG, MAP_NULL };
 private:
 	uint8_t _width, _height;
 	Block **_blocks;

@@ -92,6 +92,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_dir_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
+	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
 	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
@@ -231,7 +232,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_png_chooser->preset_file("map.png");
 
 	_error_dialog->width_range(280, 700);
-
+	_warning_dialog->width_range(280, 700);
 	_success_dialog->width_range(280, 700);
 
 	_about_dialog->subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING);
@@ -256,6 +257,7 @@ Main_Window::~Main_Window() {
 	delete _blk_save_chooser;
 	delete _png_chooser;
 	delete _error_dialog;
+	delete _warning_dialog;
 	delete _success_dialog;
 	delete _about_dialog;
 	delete _map_options_dialog;
@@ -398,7 +400,14 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	if (filename) {
 		const char *basename = fl_filename_name(filename);
 
-		if (Map::Result r = _map.read_blocks(filename)) {
+		Map::Result r = _map.read_blocks(filename);
+		if (r == Map::Result::MAP_TOO_LONG) {
+			std::string msg = "Warning: ";
+			msg = msg + basename + ":\n\n" + _map.error_message(r);
+			_warning_dialog->message(msg);
+			_warning_dialog->show(this);
+		}
+		else if (r) {
 			_map.clear();
 			std::string msg = "Error reading ";
 			msg = msg + basename + "!\n\n" + _map.error_message(r);

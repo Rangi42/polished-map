@@ -28,12 +28,16 @@ void Map::clear() {
 }
 
 Map::Result Map::read_blocks(const char *f) {
+	bool too_long = false;
+
 	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = MAP_BAD_FILE); } // cannot load file
 
-	uint8_t *data = new uint8_t[size()];
-	size_t c = fread(data, 1, size(), file);
+	uint8_t *data = new uint8_t[size() + 1];
+	size_t c = fread(data, 1, size() + 1, file);
+	fclose(file);
 	if (c < size()) { return (_result = MAP_TOO_SHORT); } // too-short blk
+	if (c == size() + 1) { too_long = true; }
 
 	for (uint8_t y = 0; y < (size_t)_height; y++) {
 		for (uint8_t x = 0; x < (size_t)_width; x++) {
@@ -43,9 +47,7 @@ Map::Result Map::read_blocks(const char *f) {
 		}
 	}
 
-	// TODO: detect if the file is too big and warn about it
-
-	return (_result = MAP_OK);
+	return (_result = too_long ? MAP_TOO_LONG : MAP_OK);
 }
 
 const char *Map::error_message(Result result) {
@@ -56,6 +58,8 @@ const char *Map::error_message(Result result) {
 		return "Cannot open file.";
 	case MAP_TOO_SHORT:
 		return "File ends too early.";
+	case MAP_TOO_LONG:
+		return "The .blk file is larger than the specified size.";
 	case MAP_NULL:
 		return "No *.blk file chosen.";
 	default:
