@@ -118,12 +118,6 @@ void Modal_Dialog::refresh() {
 		_body->resize(70, h, ww-60, bh);
 		h += _body->h() + 10;
 		h = MAX(h, 70);
-		if (_icon_type == APP_ICON) {
-			w += _icon->w() + 10;
-			if (hw > bw) {
-				w -= hw - bw;
-			}
-		}
 		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
 		h += _ok_button->h() + 10;
 	}

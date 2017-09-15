@@ -95,6 +95,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
+	_resize_dialog = new Resize_Dialog("Resize Map");
 
 	// Configure window
 	size_range(384, 256);
@@ -257,6 +258,8 @@ Main_Window::~Main_Window() {
 	delete _error_dialog;
 	delete _success_dialog;
 	delete _about_dialog;
+	delete _map_options_dialog;
+	delete _resize_dialog;
 }
 
 void Main_Window::show() {
@@ -341,7 +344,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	bool canceled = _map_options_dialog->canceled();
 	if (canceled) { return; }
 
-	if (!filename && (!_map_options_dialog->map_width() || !_map_options_dialog->map_height())) {
+	if (!_map_options_dialog->map_width() || !_map_options_dialog->map_height()) {
 		std::string msg = "Dimensions must be nonzero!";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
@@ -457,9 +460,79 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
+void Main_Window::resize_map(int w, int h) {
+	int dw = w - _map.width(), dh = h - _map.height();
+
+	int px, py;
+	switch (_resize_dialog->horizontal_anchor()) {
+	case Resize_Dialog::Hor_Align::LEFT:
+		px = 0;
+		break;
+	case Resize_Dialog::Hor_Align::RIGHT:
+		px = dw;
+		break;
+	case Resize_Dialog::Hor_Align::CENTER:
+	default:
+		px = dw / 2;
+	}
+	switch (_resize_dialog->vertical_anchor()) {
+	case Resize_Dialog::Vert_Align::TOP:
+		py = 0;
+		break;
+	case Resize_Dialog::Vert_Align::BOTTOM:
+		py = dh;
+		break;
+	case Resize_Dialog::Vert_Align::MIDDLE:
+	default:
+		py = dh / 2;
+	}
+
+	while (_map_group->children()) {
+		_map_group->remove(0);
+	}
+	int mx = MAX(px, 0), my = MAX(py, 0), mw = MIN(w, _map.width() + px), mh = MIN(h, _map.height() + py);
+	for (int y = 0; y < py; y++) {
+		for (int x = 0; x < w; x++) {
+			_map_group->add(new Block());
+		}
+	}
+	for (int y = my; y < mh; y++) {
+		for (int x = 0; x < px; x++) {
+			_map_group->add(new Block());
+		}
+		for (int x = mx; x < mw; x++) {
+			_map_group->add(_map.block((uint8_t)(x - px), (uint8_t)(y - py)));
+		}
+		for (int x = mw; x < w; x++) {
+			_map_group->add(new Block());
+		}
+	}
+	for (int y = mh; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			_map_group->add(new Block());
+		}
+	}
+
+	int ms = metatile_size();
+	_map_group->size(ms * (int)w, ms * (int)h);
+	_map.size((uint8_t)w, (uint8_t)h);
+	int i = 0;
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			Block *block = (Block *)_map_group->child(i++);
+			block->coords((uint8_t)y, (uint8_t)x);
+			block->resize(_map_group->x() + x * ms, _map_group->y() + y * ms, ms, ms);
+			block->callback((Fl_Callback *)change_block_cb, this);
+			_map.block((uint8_t)x, (uint8_t)y, block);
+		}
+	}
+
+	redraw();
+}
+
 void Main_Window::save_map() {
 	const char *filename = _blk_file.c_str();
-	FILE *file = fopen(filename, "wb");
+	FILE *file = fl_fopen(filename, "wb");
 	if (!file) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not write to ";
@@ -678,15 +751,10 @@ void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
 	// TODO: redo
 }
 
-void Main_Window::resize_cb(Fl_Widget *, Main_Window *) {
-	// TODO: resize
-	/*
-	W: [___] H: [___]
-	Anchor:
-	(.) Top (_) Bottom
-	(.) Left (_) Right
-		  [OK] [Cancel]
-	*/
+void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
+	mw->_resize_dialog->map_size(mw->_map.width(), mw->_map.height());
+	mw->_resize_dialog->show(mw);
+	mw->resize_map(mw->_resize_dialog->map_width(), mw->_resize_dialog->map_height());
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {

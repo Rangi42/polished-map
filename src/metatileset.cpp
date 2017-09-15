@@ -83,7 +83,7 @@ Tileset::Result Metatileset::read_graphics(const char *f, Tileset::Lighting l, b
 Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
 
-	FILE *file = fopen(f, "rb");
+	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = META_BAD_FILE); } // cannot load file
 
 	uchar data[METATILE_SIZE * METATILE_SIZE];

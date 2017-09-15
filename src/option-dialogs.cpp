@@ -9,8 +9,8 @@
 #include "utils.h"
 #include "option-dialogs.h"
 
-Option_Dialog::Option_Dialog(const char *t) : _title(t), _canceled(false), _dialog(NULL), _content(NULL),
-	_ok_button(NULL), _cancel_button(NULL) {}
+Option_Dialog::Option_Dialog(int w, const char *t) : _width(w), _title(t), _canceled(false),
+	_dialog(NULL), _content(NULL), _ok_button(NULL), _cancel_button(NULL) {}
 
 Option_Dialog::~Option_Dialog() {
 	delete _dialog;
@@ -51,13 +51,12 @@ void Option_Dialog::refresh() {
 	_dialog->copy_label(_title);
 	// Refresh widget positions and sizes
 	int dy = 10;
-	int w = 320;
-	dy += refresh_content(w - 20, dy) + 16;
-	_ok_button->resize(w - 184, dy, 80, 22);
-	_cancel_button->resize(w - 90, dy, 80, 22);
+	dy += refresh_content(_width - 20, dy) + 16;
+	_ok_button->resize(_width - 184, dy, 80, 22);
+	_cancel_button->resize(_width - 90, dy, 80, 22);
 	dy += _cancel_button->h() + 10;
-	_dialog->size_range(w, dy, w, dy);
-	_dialog->size(w, dy);
+	_dialog->size_range(_width, dy, _width, dy);
+	_dialog->size(_width, dy);
 	_dialog->redraw();
 }
 
@@ -81,7 +80,7 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(t),
+Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(290, t), _max_tileset_name_length(0),
 	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL), _skip_60_7f(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
@@ -103,8 +102,9 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	int n = fl_filename_list(td, &list);
 	if (n < 0) { return false; }
 
-	_map_width->value(0);
-	_map_height->value(0);
+	_max_tileset_name_length = 0;
+	_map_width->value(1);
+	_map_height->value(1);
 	_tileset->clear();
 
 	std::string dir(d);
@@ -114,12 +114,16 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 			std::string v(name);
 			v.erase(v.size() - 8, 8);
 			_tileset->add(v.c_str());
+			int m = text_width(v.c_str(), 6);
+			_max_tileset_name_length = MAX(m, _max_tileset_name_length);
 		}
 		else if (ends_with(name, ".png")) {
 			std::string v(name);
 			v.erase(v.size() - 4, 4);
 			if (_tileset->find_index(v.c_str()) == -1) {
 				_tileset->add(v.c_str());
+				int m = text_width(v.c_str(), 6);
+				_max_tileset_name_length = MAX(m, _max_tileset_name_length);
 			}
 		}
 	}
@@ -138,40 +142,139 @@ void Map_Options_Dialog::initialize_content() {
 	_skip_60_7f = new OS_Check_Button(0, 0, 0, 0, "Skip tile IDs $60-$7F (pokecrystal)");
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
-	_map_width->range(0, 255);
+	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
-	_map_height->range(0, 255);
+	_map_height->range(1, 255);
 	_tileset->align(FL_ALIGN_LEFT);
 	_lighting->align(FL_ALIGN_LEFT);
 	_lighting->add("Day"); // DAY
 	_lighting->add("Nite"); // NITE
 	_lighting->add("Indoor"); // INDOOR
-	_lighting->value(0);
+	_lighting->value(Tileset::Lighting::DAY);
 	_skip_60_7f->value(0);
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
-	int wgt_w = 0, wgt_h = 22;
-	int ch = (wgt_h + 4) * 3 + wgt_h;
-	_content->resize(10, dy, ww, ch);
+	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
+	int ch = (wgt_h + wgt_m) * 3 + wgt_h;
+	_content->resize(win_m, dy, ww, ch);
 
-	int wgt_off = 10 + MAX(MAX(text_width(_map_width->label()), text_width(_tileset->label())), text_width(_lighting->label()));
+	int wgt_off = win_m + MAX(MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2)), text_width(_lighting->label(), 2));
 
 	wgt_w = text_width("999", 2) + wgt_h;
-	_map_width->resize(10 + wgt_off, dy, wgt_w, wgt_h);
+	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
 	_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
-	dy += _map_height->h() + 4;
+	dy += _map_height->h() + wgt_m;
 
-	wgt_w = ww - wgt_off;
-	_tileset->resize(10 + wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + 4;
+	wgt_w = _max_tileset_name_length + wgt_h;
+	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
+	dy += _tileset->h() + wgt_m;
 
 	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
-	_lighting->resize(10 + wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + 4;
+	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
+	dy += _tileset->h() + wgt_m;
 
 	wgt_w = text_width("Skip tile IDs $60-$7F (pokecrystal)", 2) + wgt_h;
-	_skip_60_7f->resize(10 + wgt_off, dy, wgt_w, wgt_h);
+	_skip_60_7f->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
+}
+
+Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(240, t), _map_width(NULL), _map_height(NULL),
+	_anchor_top_left(NULL), _anchor_top_center(NULL), _anchor_top_right(NULL),
+	_anchor_middle_left(NULL), _anchor_middle_center(NULL), _anchor_middle_right(NULL),
+	_anchor_bottom_left(NULL), _anchor_bottom_center(NULL), _anchor_bottom_right(NULL) {}
+
+Resize_Dialog::~Resize_Dialog() {
+	delete _map_width;
+	delete _map_height;
+	delete _anchor_top_left;
+	delete _anchor_top_center;
+	delete _anchor_top_right;
+	delete _anchor_middle_left;
+	delete _anchor_middle_center;
+	delete _anchor_middle_right;
+	delete _anchor_bottom_left;
+	delete _anchor_bottom_center;
+	delete _anchor_bottom_right;
+}
+
+Resize_Dialog::Hor_Align Resize_Dialog::horizontal_anchor() const {
+	if (_anchor_top_left->value() || _anchor_middle_left->value() || _anchor_bottom_left->value()) { return LEFT; }
+	if (_anchor_top_right->value() || _anchor_middle_right->value() || _anchor_bottom_right->value()) { return RIGHT; }
+	return CENTER;
+}
+
+Resize_Dialog::Vert_Align Resize_Dialog::vertical_anchor() const {
+	if (_anchor_top_left->value() || _anchor_top_center->value() || _anchor_top_right->value()) { return TOP; }
+	if (_anchor_bottom_left->value() || _anchor_bottom_center->value() || _anchor_bottom_right->value()) { return BOTTOM; }
+	return MIDDLE;
+}
+
+void Resize_Dialog::initialize_content() {
+	// Populate content group
+	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
+	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
+	_anchor_top_left = new OS_Button(0, 0, 0, 0, "@7>");
+	_anchor_top_center = new OS_Button(0, 0, 0, 0, "@8>");
+	_anchor_top_right = new OS_Button(0, 0, 0, 0, "@9>");
+	_anchor_middle_left = new OS_Button(0, 0, 0, 0, "@4>");
+	_anchor_middle_center = new OS_Button(0, 0, 0, 0, "@-2square");
+	_anchor_middle_right = new OS_Button(0, 0, 0, 0, "@>");
+	_anchor_bottom_left = new OS_Button(0, 0, 0, 0, "@1>");
+	_anchor_bottom_center = new OS_Button(0, 0, 0, 0, "@2>");
+	_anchor_bottom_right = new OS_Button(0, 0, 0, 0, "@3>");
+	// Initialize content group's children
+	_map_width->align(FL_ALIGN_LEFT);
+	_map_width->range(1, 255);
+	_map_height->align(FL_ALIGN_LEFT);
+	_map_height->range(1, 255);
+	_anchor_top_left->type(FL_RADIO_BUTTON);
+	_anchor_top_center->type(FL_RADIO_BUTTON);
+	_anchor_top_right->type(FL_RADIO_BUTTON);
+	_anchor_middle_left->type(FL_RADIO_BUTTON);
+	_anchor_middle_center->type(FL_RADIO_BUTTON);
+	_anchor_middle_right->type(FL_RADIO_BUTTON);
+	_anchor_bottom_left->type(FL_RADIO_BUTTON);
+	_anchor_bottom_center->type(FL_RADIO_BUTTON);
+	_anchor_bottom_right->type(FL_RADIO_BUTTON);
+	_anchor_top_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_top_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_top_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_middle_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_middle_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_middle_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_bottom_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_bottom_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_bottom_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_middle_center->setonly();
+}
+
+int Resize_Dialog::refresh_content(int ww, int dy) {
+	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
+	int ch = (wgt_h + wgt_m) * 2 + wgt_h;
+	_content->resize(win_m, dy, ww, ch);
+
+	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_map_height->label(), 2));
+
+	wgt_w = text_width("999", 2) + wgt_h;
+	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
+	_map_height->resize(wgt_off, _map_width->y() + _map_width->h() + wgt_m, wgt_w, wgt_h);
+	wgt_off += wgt_w + 20;
+
+	wgt_w = wgt_h = 24;
+	wgt_m = 2;
+	_anchor_top_left->resize(wgt_off, dy, wgt_w, wgt_h);
+	_anchor_top_center->resize(wgt_off + wgt_w + wgt_m, dy, wgt_w, wgt_h);
+	_anchor_top_right->resize(wgt_off + (wgt_w + wgt_m) * 2, dy, wgt_w, wgt_h);
+	dy +=  + wgt_h + wgt_m;
+	_anchor_middle_left->resize(wgt_off, dy, wgt_w, wgt_h);
+	_anchor_middle_center->resize(wgt_off + wgt_w + wgt_m, dy, wgt_w, wgt_h);
+	_anchor_middle_right->resize(wgt_off + (wgt_w + wgt_m) * 2, dy, wgt_w, wgt_h);
+	dy +=  + wgt_h + wgt_m;
+	_anchor_bottom_left->resize(wgt_off, dy, wgt_w, wgt_h);
+	_anchor_bottom_center->resize(wgt_off + wgt_w + wgt_m, dy, wgt_w, wgt_h);
+	_anchor_bottom_right->resize(wgt_off + (wgt_w + wgt_m) * 2, dy, wgt_w, wgt_h);
 
 	return ch;
 }

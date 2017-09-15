@@ -1,5 +1,5 @@
 #pragma warning(push, 0)
-#include <FL/fl_ask.H>
+#include <FL/fl_utf8.H>
 #include <FL/Fl_PNG_Image.H>
 #pragma warning(pop)
 
@@ -53,7 +53,7 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 }
 
 Tiled_Image::Result Tiled_Image::read_2bpp_graphics(const char *f) {
-	FILE *file = fopen(f, "rb");
+	FILE *file = fl_fopen(f, "rb");
 	if (!file) { return (_result = IMG_BAD_FILE); }
 
 	fseek(file, 0, SEEK_END);
@@ -112,7 +112,7 @@ static uchar bit_flipped[256] = {
 };
 
 Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
-	FILE *file = fopen(f, "rb");
+	FILE *file = fl_fopen(f, "rb");
 	if (!file) { return (_result = IMG_BAD_FILE); }
 
 	fseek(file, 0, SEEK_END);

@@ -26,9 +26,10 @@ private:
 	uint8_t _row, _col;
 	uint8_t _id;
 public:
-	Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id);
+	Block(int x = 0, int y = 0, int s = 0, uint8_t row = 0, uint8_t col = 0, uint8_t id = 0);
 	uint8_t row(void) const { return _row; }
 	uint8_t col(void) const { return _col; }
+	void coords(uint8_t row, uint8_t col) { _row = row; _col = col; }
 	uint8_t id(void) const { return _id; }
 	void id(uint8_t id) { _id = id; update_label(); }
 	void update_label(void);

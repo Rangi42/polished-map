@@ -1,8 +1,5 @@
 #include <cstdio>
 
-#include "tile.h"
-#include "metatile.h"
-#include "metatileset.h"
 #include "map.h"
 
 Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL) {}
@@ -31,7 +28,7 @@ void Map::clear() {
 }
 
 Map::Result Map::read_blocks(const char *f) {
-	FILE *file = fopen(f, "rb");
+	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = MAP_BAD_FILE); } // cannot load file
 
 	uint8_t *data = new uint8_t[size()];
@@ -45,6 +42,8 @@ Map::Result Map::read_blocks(const char *f) {
 			_blocks[i] = new Block(0, 0, 0, y, x, id);
 		}
 	}
+
+	// TODO: detect if the file is too big and warn about it
 
 	return (_result = MAP_OK);
 }
