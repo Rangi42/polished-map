@@ -5,7 +5,6 @@
 
 * Undo + Redo
 * Help
-* Prompt for unsaved changes
 * Save default settings to registry
 
 

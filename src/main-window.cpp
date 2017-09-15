@@ -94,6 +94,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
 	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
+	_unsaved_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON, true);
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
@@ -101,7 +102,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Configure window
 	size_range(384, 256);
 	resizable(_map_scroll);
-	callback(exit_cb);
+	callback((Fl_Callback *)exit_cb, this);
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
 
 	// Configure menu bar
@@ -234,6 +235,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_error_dialog->width_range(280, 700);
 	_warning_dialog->width_range(280, 700);
 	_success_dialog->width_range(280, 700);
+	_unsaved_dialog->width_range(280, 700);
 
 	_about_dialog->subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING);
 	_about_dialog->message(
@@ -259,6 +261,7 @@ Main_Window::~Main_Window() {
 	delete _error_dialog;
 	delete _warning_dialog;
 	delete _success_dialog;
+	delete _unsaved_dialog;
 	delete _about_dialog;
 	delete _map_options_dialog;
 	delete _resize_dialog;
@@ -353,6 +356,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		return;
 	}
 
+	_map.modified(false);
 	close_cb(NULL, this);
 
 	_directory = directory;
@@ -536,6 +540,8 @@ void Main_Window::resize_map(int w, int h) {
 		}
 	}
 
+	_map.modified(true);
+
 	redraw();
 }
 
@@ -557,6 +563,8 @@ void Main_Window::save_map() {
 		fputc(id, file);
 	}
 	fclose(file);
+
+	_map.modified(false);
 
 	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
@@ -605,6 +613,16 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
+	if (mw->_map.modified()) {
+		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = blk_name;
+		msg = msg + " has unsaved changes!\n\n"
+			"Create a new map anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
 	int status = mw->_new_dir_chooser->show();
 	if (status == 1) { return; }
 	if (status == -1) {
@@ -622,12 +640,22 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
+	if (mw->_map.modified()) {
+		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = blk_name;
+		msg = msg + " has unsaved changes!\n\n"
+			"Open another map anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
 	int status = mw->_blk_open_chooser->show();
 	if (status == 1) { return; }
 
 	const char *filename = mw->_blk_open_chooser->filename();
+	const char *basename = fl_filename_name(filename);
 	if (status == -1) {
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not open ";
 		msg = msg + basename + "!\n\n" + mw->_blk_open_chooser->errmsg();
 		mw->_error_dialog->message(msg);
@@ -637,7 +665,6 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 
 	char directory[FL_PATH_MAX] = {};
 	if (!project_path_from_blk_path(filename, directory)) {
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not get project directory for ";
 		msg = msg + basename + "!";
 		mw->_error_dialog->message(msg);
@@ -696,6 +723,16 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
+	if (mw->_map.modified()) {
+		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = blk_name;
+		msg = msg + " has unsaved changes!\n\n"
+			"Close it anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
 	mw->label(PROGRAM_NAME);
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
@@ -746,9 +783,20 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 	}
 }
 
-void Main_Window::exit_cb(Fl_Widget *, void *) {
+void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	// Override default behavior of Esc to close main window
 	if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape) { return; }
+
+	if (mw->_map.modified()) {
+		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = blk_name;
+		msg = msg + " has unsaved changes!\n\n"
+			"Exit anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
 	exit(EXIT_SUCCESS);
 }
 
@@ -876,6 +924,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 			// Shift+left click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
+			mw->_map.modified(true);
 			mw->update_status(b);
 		}
 		else {
@@ -883,6 +932,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 			uint8_t id = mw->_selected->id();
 			b->id(id);
 			b->damage(1);
+			mw->_map.modified(true);
 			mw->update_status(b);
 		}
 	}

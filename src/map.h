@@ -11,6 +11,7 @@ private:
 	uint8_t _width, _height;
 	Block **_blocks;
 	Result _result;
+	bool _modified;
 public:
 	Map();
 	~Map();
@@ -21,7 +22,9 @@ public:
 	inline Block *block(uint8_t x, uint8_t y) const { return _blocks[(size_t)y * _width + (size_t)x]; }
 	inline Block *block(size_t i) const { return _blocks[i]; }
 	void block(uint8_t x, uint8_t y, Block *b);
-	Result result(void) const { return _result; }
+	inline Result result(void) const { return _result; }
+	inline bool modified(void) const { return _modified; }
+	inline void modified(bool m) { _modified = m; }
 	void clear();
 	Result read_blocks(const char *f);
 	static const char *error_message(Result result);

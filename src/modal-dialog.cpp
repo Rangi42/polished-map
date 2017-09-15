@@ -24,8 +24,9 @@ Fl_Pixmap Modal_Dialog::WARNING_SHIELD_ICON(WARNING_XPM);
 Fl_Pixmap Modal_Dialog::ERROR_SHIELD_ICON(ERROR_XPM);
 Fl_Pixmap Modal_Dialog::PROGRAM_ICON(APP_XPM);
 
-Modal_Dialog::Modal_Dialog(Fl_Window *top, const char *t, Icon c) : _icon_type(c), _title(t), _subject(), _message(),
-_min_w(0), _max_w(1000), _top_window(top), _dialog(NULL), _icon(NULL), _heading(NULL), _body(NULL), _ok_button(NULL) {}
+Modal_Dialog::Modal_Dialog(Fl_Window *top, const char *t, Icon c, bool cancel) : _icon_type(c),
+	_title(t), _subject(), _message(), _canceled(cancel), _min_w(0), _max_w(1000),
+	_top_window(top), _dialog(NULL), _icon(NULL), _heading(NULL), _body(NULL), _ok_button(NULL), _cancel_button(NULL) {}
 
 Modal_Dialog::~Modal_Dialog() {
 	_top_window = NULL;
@@ -42,6 +43,8 @@ void Modal_Dialog::initialize() {
 	_heading = new Label(0, 0, 0, 0, _subject.c_str());
 	_body = new Label(0, 0, 0, 0);
 	_ok_button = new Default_Button(0, 0, 0, 0, "OK");
+	_cancel_button = _canceled ? new OS_Button(0, 0, 0, 0, "Cancel") : NULL;
+	_canceled = false;
 	_dialog->end();
 	// Initialize dialog
 	_dialog->resizable(NULL);
@@ -54,10 +57,16 @@ void Modal_Dialog::initialize() {
 	_body->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
+	if (_cancel_button) {
+		_cancel_button->shortcut(FL_Escape);
+		_cancel_button->tooltip("Cancel (Esc)");
+		_cancel_button->callback((Fl_Callback *)cancel_cb, this);
+	}
 	Fl_Group::current(prev_current);
 }
 
 void Modal_Dialog::refresh() {
+	_canceled = false;
 	// Refresh widget labels
 	_heading->label(_subject.c_str());
 	_dialog->label(_title.c_str());
@@ -103,8 +112,6 @@ void Modal_Dialog::refresh() {
 		}
 		_body->resize(10, h, ww, bh);
 		h += _body->h() + 10;
-		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
-		h += _ok_button->h() + 10;
 	}
 	else {
 		_icon->resize(10, h, 50, 50);
@@ -118,9 +125,15 @@ void Modal_Dialog::refresh() {
 		_body->resize(70, h, ww-60, bh);
 		h += _body->h() + 10;
 		h = MAX(h, 70);
-		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
-		h += _ok_button->h() + 10;
 	}
+	if (_cancel_button) {
+		_ok_button->resize(w-btn_w-14-btn_w-10, h, btn_w, btn_h);
+		_cancel_button->resize(w-btn_w-10, h, btn_w, btn_h);
+	}
+	else {
+		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
+	}
+	h += _ok_button->h() + 10;
 	_dialog->size_range(w, h, w, h);
 	_dialog->size(w, h);
 	_dialog->redraw();
@@ -149,4 +162,11 @@ void Modal_Dialog::show(const Fl_Widget *p) {
 	while (_dialog->shown()) { Fl::wait(); }
 }
 
-void Modal_Dialog::close_cb(Fl_Widget *, Modal_Dialog *md) { md->_dialog->hide(); }
+void Modal_Dialog::close_cb(Fl_Widget *, Modal_Dialog *md) {
+	md->_dialog->hide();
+}
+
+void Modal_Dialog::cancel_cb(Fl_Widget *w, Modal_Dialog *md) {
+	md->_canceled = true;
+	close_cb(w, md);
+}

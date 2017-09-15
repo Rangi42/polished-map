@@ -2,7 +2,7 @@
 
 #include "map.h"
 
-Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL) {}
+Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false) {}
 
 Map::~Map() {
 	clear();
@@ -13,7 +13,6 @@ void Map::size(uint8_t w, uint8_t h) {
 	_width = w;
 	_height = h;
 	_blocks = new Block *[size()]();
-	_result = MAP_NULL;
 }
 
 void Map::block(uint8_t x, uint8_t y, Block *b) {
@@ -25,6 +24,7 @@ void Map::clear() {
 	_blocks = NULL;
 	_width = _height = 0;
 	_result = MAP_NULL;
+	_modified = false;
 }
 
 Map::Result Map::read_blocks(const char *f) {
