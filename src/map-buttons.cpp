@@ -1,14 +1,46 @@
 #include "main-window.h"
 #include "map-buttons.h"
 
+static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool highlight) {
+	Main_Window *mw = (Main_Window *)wgt->user_data();
+	int x = wgt->x(), y = wgt->y(), w = wgt->w(), h = wgt->h();
+	int ms = mw->metatile_size();
+	mw->draw_metatile(x, y, id);
+	if (mw->grid()) {
+		fl_color(GRID_COLOR);
+		fl_xyline(x, y+ms-1, x+ms-1, y);
+	}
+	if (highlight) {
+		int rs = ms - (mw->grid() ? 1 : 0);
+		fl_rect(x, y, rs, rs, FL_BLACK);
+		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
+		if (mw->zoom()) {
+			fl_rect(x+2, y+2, rs-4, rs-4, FL_WHITE);
+			fl_rect(x+3, y+3, rs-6, rs-6, FL_BLACK);
+		}
+		else {
+			fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
+		}
+	}
+	if (!mw->ids()) { return; }
+	const char *l = wgt->label();
+	Fl_Align a = FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE;
+	int p = mw->zoom() ? 2 : 1;
+	fl_font(FL_COURIER_BOLD, 14);
+	fl_color(FL_BLACK);
+	fl_draw(l, x+p+1, y+p-1, w, h, a);
+	fl_draw(l, x+p+1, y+p+1, w, h, a);
+	fl_draw(l, x+p+3, y+p-1, w, h, a);
+	fl_draw(l, x+p+3, y+p+1, w, h, a);
+	fl_color(highlight ? wgt->labelcolor() : FL_WHITE);
+	fl_draw(l, x+p+2, y+p, w, h, a);
+}
+
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
-	labelcolor(FL_WHITE);
-	labelsize(14);
-	labelfont(FL_COURIER_BOLD);
 	labeltype(FL_NO_LABEL);
+	labelcolor(FL_WHITE);
 	when(FL_WHEN_RELEASE);
 }
 
@@ -21,54 +53,15 @@ void Metatile_Button::id(uint8_t id) {
 }
 
 void Metatile_Button::draw() {
-	Main_Window *mw = (Main_Window *)user_data();
-	mw->draw_metatile(x(), y(), _id);
-	int ms = mw->metatile_size();
-	if (mw->grid()) {
-		fl_color(GRID_COLOR);
-		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
-	}
-	if (value()) {
-		int rs = ms - (mw->grid() ? 1 : 0);
-		fl_rect(x(), y(), rs, rs, FL_BLACK);
-		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (mw->zoom()) {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
-			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
-		}
-		else {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
-		}
-	}
-	if (!mw->ids()) { return; }
-	Fl_Align a = align();
-	if (a & FL_ALIGN_CLIP) {
-		fl_push_clip(x(), y(), w(), h());
-		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
-	}
-	int p = mw->zoom() ? 2 : 1;
-	fl_font(labelfont(), labelsize());
-	fl_color(FL_BLACK);
-	fl_draw(label(), x()+p+1, y()+p-1, w(), h(), a);
-	fl_draw(label(), x()+p+1, y()+p+1, w(), h(), a);
-	fl_draw(label(), x()+p+3, y()+p-1, w(), h(), a);
-	fl_draw(label(), x()+p+3, y()+p+1, w(), h(), a);
-	fl_color(labelcolor());
-	fl_draw(label(), x()+p+2, y()+p, w(), h(), a);
-	if (align() & FL_ALIGN_CLIP) {
-		fl_pop_clip();
-	}
+	draw_map_button(this, _id, !!value());
 }
 
 Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x, y, s, s),
 	_row(row), _col(col), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
-	labelcolor(FL_WHITE);
-	labelsize(14);
-	labelfont(FL_COURIER_BOLD);
 	labeltype(FL_NO_LABEL);
+	labelcolor(FL_YELLOW);
 }
 
 void Block::update_label() {
@@ -79,43 +72,7 @@ void Block::update_label() {
 }
 
 void Block::draw() {
-	Main_Window *mw = (Main_Window *)user_data();
-	mw->draw_metatile(x(), y(), _id);
-	int ms = mw->metatile_size();
-	if (mw->grid()) {
-		fl_color(GRID_COLOR);
-		fl_xyline(x(), y()+ms-1, x()+ms-1, y());
-	}
-	if (Fl::belowmouse() == this) {
-		int rs = ms - (mw->grid() ? 1 : 0);
-		fl_rect(x(), y(), rs, rs, FL_BLACK);
-		fl_rect(x()+1, y()+1, rs-2, rs-2, FL_WHITE);
-		if (mw->zoom()) {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_WHITE);
-			fl_rect(x()+3, y()+3, rs-6, rs-6, FL_BLACK);
-		}
-		else {
-			fl_rect(x()+2, y()+2, rs-4, rs-4, FL_BLACK);
-		}
-	}
-	if (!mw->ids()) { return; }
-	Fl_Align a = align();
-	if (a & FL_ALIGN_CLIP) {
-		fl_push_clip(x(), y(), w(), h());
-		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
-	}
-	int p = mw->zoom() ? 2 : 1;
-	fl_font(labelfont(), labelsize());
-	fl_color(FL_BLACK);
-	fl_draw(label(), x()+p+1, y()+p-1, w(), h(), a);
-	fl_draw(label(), x()+p+1, y()+p+1, w(), h(), a);
-	fl_draw(label(), x()+p+3, y()+p-1, w(), h(), a);
-	fl_draw(label(), x()+p+3, y()+p+1, w(), h(), a);
-	fl_color(Fl::belowmouse() == this ? FL_YELLOW : labelcolor());
-	fl_draw(label(), x()+p+2, y()+p, w(), h(), a);
-	if (align() & FL_ALIGN_CLIP) {
-		fl_pop_clip();
-	}
+	draw_map_button(this, _id, Fl::belowmouse() == this);
 }
 
 int Block::handle(int event) {
