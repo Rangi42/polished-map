@@ -104,6 +104,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\config.cpp" />
+    <ClCompile Include="..\src\help-window.cpp" />
     <ClCompile Include="..\src\image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\config.h" />
     <ClInclude Include="..\src\dummy.h" />
+    <ClInclude Include="..\src\help-window.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
     <ClInclude Include="..\src\main-window.h" />
@@ -152,6 +154,7 @@
     <None Include="..\res\app.xpm" />
     <None Include="..\res\error.xpm" />
     <None Include="..\res\grid.xpm" />
+    <None Include="..\res\help.html" />
     <None Include="..\res\hex.xpm" />
     <None Include="..\res\ids.xpm" />
     <None Include="..\res\metatile.xpm" />

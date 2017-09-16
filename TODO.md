@@ -4,7 +4,6 @@
 ## 1.x
 
 * Undo + Redo
-* Help
 * Save default settings to registry
 
 

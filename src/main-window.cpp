@@ -98,6 +98,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
+	_help_window = new Help_Window(48, 48, 480, 360, PROGRAM_NAME " Help");
 
 	// Configure window
 	size_range(384, 256);
@@ -144,7 +145,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Help"),
-		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)about_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&About", FL_COMMAND + '/', (Fl_Callback *)about_cb, this, 0),
 		{},
 		{}
@@ -247,6 +248,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		"Some icons by Yusuke Kamiyamane."
 	);
 	_about_dialog->width_range(280, 700);
+
+	_help_window->content(
+#include "help.html" // a C++11 raw string literal
+		);
 }
 
 Main_Window::~Main_Window() {
@@ -265,6 +270,7 @@ Main_Window::~Main_Window() {
 	delete _about_dialog;
 	delete _map_options_dialog;
 	delete _resize_dialog;
+	delete _help_window;
 }
 
 void Main_Window::show() {
@@ -905,8 +911,8 @@ void Main_Window::hex_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::help_cb(Fl_Widget *, Main_Window *) {
-	// TODO: help
+void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
+	mw->_help_window->show(mw);
 }
 
 void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {

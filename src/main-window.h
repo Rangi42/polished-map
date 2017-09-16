@@ -14,6 +14,7 @@
 #include "option-dialogs.h"
 #include "metatileset.h"
 #include "map.h"
+#include "help-window.h"
 
 #define METATILES_PER_ROW 4
 #define METATILE_PX_SIZE 32
@@ -39,6 +40,7 @@ private:
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Resize_Dialog *_resize_dialog;
+	Help_Window *_help_window;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
