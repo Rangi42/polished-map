@@ -4,7 +4,7 @@
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE);
+	align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
 	labelcolor(FL_WHITE);
 	labelsize(14);
 	labelfont(FL_COURIER_BOLD);
@@ -46,14 +46,15 @@ void Metatile_Button::draw() {
 		fl_push_clip(x(), y(), w(), h());
 		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
 	}
+	int p = mw->zoom() ? 2 : 1;
 	fl_font(labelfont(), labelsize());
 	fl_color(FL_BLACK);
-	fl_draw(label(), x()-6, y()-3, w(), h(), a);
-	fl_draw(label(), x()-6, y()-1, w(), h(), a);
-	fl_draw(label(), x()-4, y()-3, w(), h(), a);
-	fl_draw(label(), x()-4, y()-1, w(), h(), a);
+	fl_draw(label(), x()+p+1, y()+p-1, w(), h(), a);
+	fl_draw(label(), x()+p+1, y()+p+1, w(), h(), a);
+	fl_draw(label(), x()+p+3, y()+p-1, w(), h(), a);
+	fl_draw(label(), x()+p+3, y()+p+1, w(), h(), a);
 	fl_color(labelcolor());
-	fl_draw(label(), x()-5, y()-2, w(), h(), a);
+	fl_draw(label(), x()+p+2, y()+p, w(), h(), a);
 	if (align() & FL_ALIGN_CLIP) {
 		fl_pop_clip();
 	}
@@ -63,7 +64,7 @@ Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box
 	_row(row), _col(col), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
-	align(FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE);
+	align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
 	labelcolor(FL_WHITE);
 	labelsize(14);
 	labelfont(FL_COURIER_BOLD);
@@ -103,14 +104,15 @@ void Block::draw() {
 		fl_push_clip(x(), y(), w(), h());
 		a = (Fl_Align)(a & ~FL_ALIGN_CLIP);
 	}
+	int p = mw->zoom() ? 2 : 1;
 	fl_font(labelfont(), labelsize());
 	fl_color(FL_BLACK);
-	fl_draw(label(), x()-6, y()-3, w(), h(), a);
-	fl_draw(label(), x()-6, y()-1, w(), h(), a);
-	fl_draw(label(), x()-4, y()-3, w(), h(), a);
-	fl_draw(label(), x()-4, y()-1, w(), h(), a);
+	fl_draw(label(), x()+p+1, y()+p-1, w(), h(), a);
+	fl_draw(label(), x()+p+1, y()+p+1, w(), h(), a);
+	fl_draw(label(), x()+p+3, y()+p-1, w(), h(), a);
+	fl_draw(label(), x()+p+3, y()+p+1, w(), h(), a);
 	fl_color(Fl::belowmouse() == this ? FL_YELLOW : labelcolor());
-	fl_draw(label(), x()-5, y()-2, w(), h(), a);
+	fl_draw(label(), x()+p+2, y()+p, w(), h(), a);
 	if (align() & FL_ALIGN_CLIP) {
 		fl_pop_clip();
 	}
