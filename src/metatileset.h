@@ -20,7 +20,7 @@ private:
 public:
 	Metatileset();
 	~Metatileset();
-	size_t num_metatiles(void) const { return _num_metatiles; }
+	size_t size(void) const { return _num_metatiles; }
 	Tileset *tileset(void) { return &_tileset; }
 	Metatile *metatile(uint8_t id) { return _metatiles[id]; }
 	Result result(void) const { return _result; }

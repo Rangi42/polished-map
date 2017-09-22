@@ -303,7 +303,7 @@ void Main_Window::update_status(Block *b) {
 	}
 	char buffer[64] = {};
 	if (!b) {
-		sprintf(buffer, "Metatiles: %d", _metatileset.num_metatiles());
+		sprintf(buffer, "Metatiles: %d", _metatileset.size());
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %d x %d", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);
@@ -465,7 +465,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	// populate sidebar with metatile buttons
-	for (int i = 0; i < _metatileset.num_metatiles(); i++) {
+	for (int i = 0; i < _metatileset.size(); i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 		Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
 		mtb->callback((Fl_Callback *)select_metatile_cb, this);
@@ -474,7 +474,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	_sidebar->scroll_to(0, 0);
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
 	_metatile_buttons[0]->setonly();
 	_selected = _metatile_buttons[0];
@@ -578,6 +578,42 @@ void Main_Window::save_map() {
 	fclose(file);
 
 	_map.modified(false);
+
+	const char *basename = fl_filename_name(filename);
+	std::string msg = "Saved ";
+	msg = msg + basename + "!";
+	_success_dialog->message(msg);
+	_success_dialog->show(this);
+}
+
+void Main_Window::save_metatileset() {
+	char filename[FL_PATH_MAX] = {};
+	const char *directory = _directory.c_str();
+	const char *tileset_name = _metatileset.tileset()->name();
+	metatileset_path(filename, directory, tileset_name);
+
+	FILE *file = fl_fopen(filename, "wb");
+	if (!file) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
+	size_t n = _metatileset.size();
+	for (size_t i = 0; i < n; i++) {
+		Metatile *mt = _metatileset.metatile((uint8_t)i);
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				uint8_t id = mt->tile_id(x, y);
+				fputc(id, file);
+			}
+		}
+	}
+	fclose(file);
+
 	_metatileset.modified(false);
 
 	const char *basename = fl_filename_name(filename);
@@ -595,7 +631,10 @@ void Main_Window::edit_metatile(Metatile *mt) {
 		}
 	}
 	_metatileset.modified(true);
-	// TODO: save edited metatile (here or with the map?)
+
+	// TODO: consider saving the metatileset along with the map
+	save_metatileset();
+
 	redraw();
 }
 
@@ -605,12 +644,12 @@ void Main_Window::update_zoom() {
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
 	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map_group->init_sizes();
 	_map_scroll->init_sizes();
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
-	size_t n = _metatileset.num_metatiles();
+	size_t n = _metatileset.size();
 	for (int i = 0; i < n; i++) {
 		Metatile_Button *mt = _metatile_buttons[i];
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
@@ -627,7 +666,7 @@ void Main_Window::update_zoom() {
 }
 
 void Main_Window::update_labels() {
-	size_t n = _metatileset.num_metatiles();
+	size_t n = _metatileset.size();
 	for (int i = 0; i < n; i++) {
 		_metatile_buttons[i]->id(_metatile_buttons[i]->id());
 	}
@@ -978,7 +1017,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
 		uint8_t id = b->id();
-		if (id >= mw->_metatileset.num_metatiles()) { return; }
+		if (id >= mw->_metatileset.size()) { return; }
 		mw->_selected = mw->_metatile_buttons[id];
 		mw->_selected->setonly();
 		int ms = mw->metatile_size();
