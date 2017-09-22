@@ -20,7 +20,9 @@ private:
 public:
 	Tiled_Image(const char *f);
 	~Tiled_Image();
-	Tile::Hue tile_hue(size_t i, size_t x, size_t y) const { return _tile_hues[(i * TILE_SIZE + y) * TILE_SIZE + x]; }
+	Tile::Hue tile_hue(size_t i, size_t x, size_t y) const {
+		return i < _num_tiles ? _tile_hues[(i * TILE_SIZE + y) * TILE_SIZE + x] : Tile::Hue::WHITE;
+	}
 	size_t num_tiles(void) const { return _num_tiles; }
 	Result result(void) const { return _result; }
 private:

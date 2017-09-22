@@ -41,7 +41,7 @@ static const uchar tileset_colors[3][9][4][3] = {
 	},
 };
 
-Tileset::Tileset() : _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL) {
+Tileset::Tileset() : _name(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 	}
@@ -55,6 +55,7 @@ Tileset::~Tileset() {
 }
 
 void Tileset::clear() {
+	_name.clear();
 	_palette_map.clear();
 	_num_tiles = 0;
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
@@ -85,7 +86,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7
 	}
 
 	_num_tiles = ti.num_tiles();
-	for (int i = 0; i < _num_tiles; i++) {
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = skip_60_7f && i >= 0x60 ? i + 0x20 : i;
 		Tile *t = _tiles[j];
 		Palette_Map::Palette p = _palette_map.palette((uint8_t)i);

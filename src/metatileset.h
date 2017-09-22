@@ -16,16 +16,19 @@ private:
 	Metatile *_metatiles[MAX_NUM_METATILES];
 	size_t _num_metatiles;
 	Result _result;
+	bool _modified;
 public:
 	Metatileset();
 	~Metatileset();
 	size_t num_metatiles(void) const { return _num_metatiles; }
+	Tileset *tileset(void) { return &_tileset; }
+	Metatile *metatile(uint8_t id) { return _metatiles[id]; }
 	Result result(void) const { return _result; }
+	inline bool modified(void) const { return _modified; }
+	inline void modified(bool m) { _modified = m; }
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool z);
 	uchar *print_rgb(const Map &map) const;
-	Palette_Map::Result read_palette_map(const char *f);
-	Tileset::Result read_graphics(const char *f, Tileset::Lighting l, bool skip_60_7f = false);
 	Result read_metatiles(const char *f);
 	static const char *error_message(Result result);
 };

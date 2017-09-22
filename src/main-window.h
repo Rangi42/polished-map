@@ -15,9 +15,10 @@
 #include "metatileset.h"
 #include "map.h"
 #include "help-window.h"
+#include "tileset-window.h"
 
 #define METATILES_PER_ROW 4
-#define METATILE_PX_SIZE 32
+#define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
 
 class Main_Window : public Fl_Double_Window {
 private:
@@ -41,6 +42,7 @@ private:
 	Map_Options_Dialog *_map_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Help_Window *_help_window;
+	Tileset_Window *_tileset_window;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
@@ -56,11 +58,12 @@ public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
 	void show(void);
-	bool grid(void) const { return _grid_mi && _grid_mi->value(); }
-	bool zoom(void) const { return _zoom_mi && _zoom_mi->value(); }
-	bool ids(void) const { return _ids_mi && _ids_mi->value(); }
-	bool hex(void) const { return _hex_mi && _hex_mi->value(); }
+	inline bool grid(void) const { return _grid_mi && _grid_mi->value(); }
+	inline bool zoom(void) const { return _zoom_mi && _zoom_mi->value(); }
+	inline bool ids(void) const { return _ids_mi && _ids_mi->value(); }
+	inline bool hex(void) const { return _hex_mi && _hex_mi->value(); }
 	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
+	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
 	void draw_metatile(int x, int y, uint8_t id);
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
@@ -68,6 +71,7 @@ private:
 	void open_map(const char *directory, const char *filename);
 	void resize_map(int w, int h);
 	void save_map(void);
+	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
 	// File menu

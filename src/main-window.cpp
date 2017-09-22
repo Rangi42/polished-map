@@ -99,6 +99,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_help_window = new Help_Window(48, 48, 480, 360, PROGRAM_NAME " Help");
+	_tileset_window = new Tileset_Window(48, 48);
 
 	// Configure window
 	size_range(384, 256);
@@ -271,6 +272,7 @@ Main_Window::~Main_Window() {
 	delete _map_options_dialog;
 	delete _resize_dialog;
 	delete _help_window;
+	delete _tileset_window;
 }
 
 void Main_Window::show() {
@@ -363,6 +365,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	_map.modified(false);
+	_metatileset.modified(false);
 	close_cb(NULL, this);
 
 	_directory = directory;
@@ -372,8 +375,11 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	const char *tileset_name = _map_options_dialog->tileset();
 	char buffer[FL_PATH_MAX] = {};
 
+	Tileset *tileset = _metatileset.tileset();
+	tileset->name(tileset_name);
+
 	palette_map_path(buffer, directory, tileset_name);
-	if (Palette_Map::Result r = _metatileset.read_palette_map(buffer)) {
+	if (Palette_Map::Result r = tileset->read_palette_map(buffer)) {
 		std::string msg = "Error reading ";
 		palette_map_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
@@ -383,7 +389,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = _metatileset.read_graphics(buffer, _map_options_dialog->lighting(), _map_options_dialog->skip_60_7f())) {
+	if (Tileset::Result r = tileset->read_graphics(buffer, _map_options_dialog->lighting(), _map_options_dialog->skip_60_7f())) {
 		std::string msg = "Error reading ";
 		tileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
@@ -471,7 +477,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.num_metatiles() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
 	_metatile_buttons[0]->setonly();
-	select_metatile_cb(_metatile_buttons[0], this);
+	_selected = _metatile_buttons[0];
+
+	_tileset_window->tileset(tileset);
 
 	update_labels();
 	update_status(NULL);
@@ -547,7 +555,6 @@ void Main_Window::resize_map(int w, int h) {
 	}
 
 	_map.modified(true);
-
 	redraw();
 }
 
@@ -571,12 +578,25 @@ void Main_Window::save_map() {
 	fclose(file);
 
 	_map.modified(false);
+	_metatileset.modified(false);
 
 	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
+}
+
+void Main_Window::edit_metatile(Metatile *mt) {
+	for (int y = 0; y < METATILE_SIZE; y++) {
+		for (int x = 0; x < METATILE_SIZE; x++) {
+			uint8_t id = _tileset_window->tile_id(x, y);
+			mt->tile_id(x, y, id);
+		}
+	}
+	_metatileset.modified(true);
+	// TODO: save edited metatile (here or with the map?)
+	redraw();
 }
 
 void Main_Window::update_zoom() {
@@ -619,7 +639,7 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
-	if (mw->_map.modified()) {
+	if (mw->unsaved()) {
 		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = blk_name;
 		msg = msg + " has unsaved changes!\n\n"
@@ -646,7 +666,7 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
-	if (mw->_map.modified()) {
+	if (mw->unsaved()) {
 		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = blk_name;
 		msg = msg + " has unsaved changes!\n\n"
@@ -729,7 +749,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	if (mw->_map.modified()) {
+	if (mw->unsaved()) {
 		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = blk_name;
 		msg = msg + " has unsaved changes!\n\n"
@@ -754,6 +774,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_directory.clear();
 	mw->_blk_file.clear();
 	mw->_metatileset.clear();
+	mw->_tileset_window->tileset(NULL);
 	mw->redraw();
 }
 
@@ -793,7 +814,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	// Override default behavior of Esc to close main window
 	if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape) { return; }
 
-	if (mw->_map.modified()) {
+	if (mw->unsaved()) {
 		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = blk_name;
 		msg = msg + " has unsaved changes!\n\n"
@@ -919,22 +940,34 @@ void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_about_dialog->show(mw);
 }
 
-void Main_Window::select_metatile_cb(Metatile_Button *mt, Main_Window *mw) {
-	mw->_selected = mt;
+void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
+	if (Fl::event_button() == FL_LEFT_MOUSE) {
+		// Left-click to select
+		mw->_selected = mb;
+	}
+	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
+		// Right-click to edit
+		Metatile *mt = mw->_metatileset.metatile(mb->id());
+		mw->_tileset_window->metatile(mt);
+		mw->_tileset_window->show(mw);
+		if (!mw->_tileset_window->canceled()) {
+			mw->edit_metatile(mt);
+		}
+	}
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!mw->_selected) { return; }
 		if (Fl::event_shift()) {
-			// Shift+left click to flood fill
+			// Shift+left-click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
 			mw->_map.modified(true);
 			mw->update_status(b);
 		}
 		else {
-			// Left click/drag to edit
+			// Left-click/drag to edit
 			uint8_t id = mw->_selected->id();
 			b->id(id);
 			b->damage(1);

@@ -17,7 +17,7 @@ private:
 	Result _result;
 public:
 	Palette_Map(void);
-	Palette palette(uint8_t i) { return _palette[i]; }
+	Palette palette(uint8_t i) { return i < _palette_size ? _palette[i] : Palette::UNDEFINED; }
 	size_t size(void) const { return _palette_size; }
 	Result result(void) const { return _result; }
 	void clear(void);

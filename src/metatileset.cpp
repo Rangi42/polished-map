@@ -6,7 +6,7 @@
 
 #include "metatileset.h"
 
-Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(META_NULL) {
+Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(META_NULL), _modified(false) {
 	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
 		_metatiles[i] = new Metatile((uint8_t)i);
 	}
@@ -26,6 +26,7 @@ void Metatileset::clear() {
 	}
 	_num_metatiles = 0;
 	_result = META_NULL;
+	_modified = false;
 }
 
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
@@ -35,7 +36,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
 	int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
 	for (int ty = 0; ty < METATILE_SIZE; ty++) {
 		for (int tx = 0; tx < METATILE_SIZE; tx++) {
-			uint8_t tid = mt->tile_id(ty, tx);
+			uint8_t tid = mt->tile_id(tx, ty);
 			const Tile *t = _tileset.tile(tid);
 			const uchar *rgb = t->rgb();
 			fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
@@ -53,7 +54,7 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 			const Metatile *m = _metatiles[b->id()];
 			for (int ty = 0; ty < METATILE_SIZE; ty++) {
 				for (int tx = 0; tx < METATILE_SIZE; tx++) {
-					uint8_t tid = m->tile_id(ty, tx);
+					uint8_t tid = m->tile_id(tx, ty);
 					const Tile *t = _tileset.tile(tid);
 					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
 					for (int py = 0; py < TILE_SIZE; py++) {
@@ -72,14 +73,6 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 	return buffer;
 }
 
-Palette_Map::Result Metatileset::read_palette_map(const char *f) {
-	return _tileset.read_palette_map(f);
-}
-
-Tileset::Result Metatileset::read_graphics(const char *f, Tileset::Lighting l, bool skip_60_7f) {
-	return _tileset.read_graphics(f, l, skip_60_7f);
-}
-
 Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
 
@@ -94,7 +87,7 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 		Metatile *mt = _metatiles[_num_metatiles++];
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
-				mt->tile_id(y, x, data[y * METATILE_SIZE + x]);
+				mt->tile_id(x, y, data[y * METATILE_SIZE + x]);
 			}
 		}
 	}

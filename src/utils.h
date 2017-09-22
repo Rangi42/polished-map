@@ -7,17 +7,27 @@
 #include <cmath>
 #include <string>
 
-/* debug */
+#ifdef _DEBUG
+
 #include <iostream>
 #include <sstream>
 #include <windows.h>
 
-#define DEBUGPRINT(X) do { \
-	std::wstringstream wss_dbg_; \
-	wss_dbg_ << X; \
-	OutputDebugString(wss_dbg_.str().c_str()); \
-} while (0)
-/* end debug */
+#define DEBUGPRINT(X) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable:4127)) \
+	do { \
+		std::wstringstream wss_dbg_; \
+		wss_dbg_ << X; \
+		OutputDebugString(wss_dbg_.str().c_str()); \
+	} while (0) \
+	__pragma(warning(pop))
+
+#else
+
+#define DEBUGPRINT(X)
+
+#endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))

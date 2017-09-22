@@ -21,7 +21,7 @@ public:
 	enum Hue { WHITE, DARK, LIGHT, BLACK };
 private:
 	uint8_t _id;
-	uchar _rgb[(TILE_SIZE * ZOOM_FACTOR) * (TILE_SIZE * ZOOM_FACTOR) * NUM_CHANNELS];
+	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
 public:
 	Tile(uint8_t id);
 	uint8_t id(void) const { return _id; }
