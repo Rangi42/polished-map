@@ -64,14 +64,15 @@ public:
 	inline bool hex(void) const { return _hex_mi && _hex_mi->value(); }
 	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
+	const char *modified_filename(void);
 	void draw_metatile(int x, int y, uint8_t id);
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 private:
 	void open_map(const char *directory, const char *filename);
 	void resize_map(int w, int h);
-	void save_map(void);
-	void save_metatileset(void);
+	bool save_map(void);
+	bool save_metatileset(void);
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
@@ -80,6 +81,7 @@ private:
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);
+	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void print_cb(Fl_Widget *w, Main_Window *mw);
 	static void exit_cb(Fl_Widget *w, Main_Window *mw);

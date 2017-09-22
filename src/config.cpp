@@ -18,6 +18,11 @@ bool project_path_from_blk_path(const char *blk_path, char *project_path) {
 	return true;
 }
 
+void blk_path_from_project_path(const char *project_path, char *blk_path) {
+	strcpy(blk_path, project_path);
+	strcat(blk_path, "maps\\");
+}
+
 void palette_map_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%stilesets\\%s_palette_map.asm", root, tileset);
 }

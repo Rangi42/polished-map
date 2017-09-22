@@ -9,7 +9,6 @@
 
 ## 2.0
 
-* Metatile editor
 * Add/remove metatiles
 
 

@@ -6,7 +6,6 @@
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
-#include <FL/fl_ask.H>
 #pragma warning(pop)
 
 #include "version.h"
@@ -119,6 +118,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
+		OS_MENU_ITEM("Save &Metatiles", FL_COMMAND + 'm', (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
@@ -226,7 +226,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
-	_blk_save_chooser->preset_file("NewMap.blk");
+	_blk_save_chooser->preset_file(NEW_BLK_NAME);
 
 	_new_dir_chooser->title("Choose pokecrystal project directory:");
 
@@ -285,6 +285,15 @@ void Main_Window::show() {
 	HANDLE small_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
 		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CXSMICON), 0);
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
+}
+
+const char *Main_Window::modified_filename() {
+	if (_map.modified()) {
+		return fl_filename_name(_blk_file.c_str());
+	}
+	static char buffer[FL_PATH_MAX] = {};
+	metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+	return fl_filename_name(buffer);
 }
 
 void Main_Window::draw_metatile(int x, int y, uint8_t id) {
@@ -369,7 +378,15 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	close_cb(NULL, this);
 
 	_directory = directory;
-	_blk_file = filename ? filename : "";
+	if (filename) {
+		_blk_file = filename;
+	}
+	else {
+		char new_filename[FL_PATH_MAX] = {};
+		blk_path_from_project_path(directory, new_filename);
+		strcat(new_filename, NEW_BLK_NAME);
+		_blk_file = new_filename;
+	}
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
@@ -447,7 +464,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	else {
 		// new map
-		label(PROGRAM_NAME " - New Map");
+		label(PROGRAM_NAME " - " NEW_BLK_NAME);
 
 		_map_group->size(ms * (int)w, ms * (int)h);
 		for (uint8_t row = 0; row < h; row++) {
@@ -459,6 +476,8 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 				_map.block(col, row, block);
 			}
 		}
+
+		_map.modified(true);
 	}
 	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
@@ -562,69 +581,78 @@ void Main_Window::resize_map(int w, int h) {
 	redraw();
 }
 
-void Main_Window::save_map() {
+bool Main_Window::save_map() {
 	const char *filename = _blk_file.c_str();
-	FILE *file = fl_fopen(filename, "wb");
-	if (!file) {
-		const char *basename = fl_filename_name(filename);
-		std::string msg = "Could not write to ";
-		msg = msg + basename + "!";
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return;
-	}
 
-	size_t n = _map.size();
-	for (size_t i = 0; i < n; i++) {
-		uint8_t id = _map.block(i)->id();
-		fputc(id, file);
-	}
-	fclose(file);
+	if (_map.modified()) {
+		FILE *file = fl_fopen(filename, "wb");
+		if (!file) {
+			const char *basename = fl_filename_name(filename);
+			std::string msg = "Could not write to ";
+			msg = msg + basename + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+			return false;
+		}
 
-	_map.modified(false);
+		size_t n = _map.size();
+		for (size_t i = 0; i < n; i++) {
+			uint8_t id = _map.block(i)->id();
+			fputc(id, file);
+		}
+		fclose(file);
+
+		_map.modified(false);
+	}
 
 	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
+
+	return true;
 }
 
-void Main_Window::save_metatileset() {
+bool Main_Window::save_metatileset() {
 	char filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
 	const char *tileset_name = _metatileset.tileset()->name();
 	metatileset_path(filename, directory, tileset_name);
 
-	FILE *file = fl_fopen(filename, "wb");
-	if (!file) {
-		const char *basename = fl_filename_name(filename);
-		std::string msg = "Could not write to ";
-		msg = msg + basename + "!";
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return;
-	}
+	if (_metatileset.modified()) {
+		FILE *file = fl_fopen(filename, "wb");
+		if (!file) {
+			const char *basename = fl_filename_name(filename);
+			std::string msg = "Could not write to ";
+			msg = msg + basename + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+			return false;
+		}
 
-	size_t n = _metatileset.size();
-	for (size_t i = 0; i < n; i++) {
-		Metatile *mt = _metatileset.metatile((uint8_t)i);
-		for (int y = 0; y < METATILE_SIZE; y++) {
-			for (int x = 0; x < METATILE_SIZE; x++) {
-				uint8_t id = mt->tile_id(x, y);
-				fputc(id, file);
+		size_t n = _metatileset.size();
+		for (size_t i = 0; i < n; i++) {
+			Metatile *mt = _metatileset.metatile((uint8_t)i);
+			for (int y = 0; y < METATILE_SIZE; y++) {
+				for (int x = 0; x < METATILE_SIZE; x++) {
+					uint8_t id = mt->tile_id(x, y);
+					fputc(id, file);
+				}
 			}
 		}
-	}
-	fclose(file);
+		fclose(file);
 
-	_metatileset.modified(false);
+		_metatileset.modified(false);
+	}
 
 	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
+
+	return true;
 }
 
 void Main_Window::edit_metatile(Metatile *mt) {
@@ -635,10 +663,6 @@ void Main_Window::edit_metatile(Metatile *mt) {
 		}
 	}
 	_metatileset.modified(true);
-
-	// TODO: consider saving the metatileset along with the map
-	save_metatileset();
-
 	redraw();
 }
 
@@ -683,8 +707,7 @@ void Main_Window::update_labels() {
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	if (mw->unsaved()) {
-		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = blk_name;
+		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Create a new map anyway?";
 		mw->_unsaved_dialog->message(msg);
@@ -710,8 +733,7 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	if (mw->unsaved()) {
-		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = blk_name;
+		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Open another map anyway?";
 		mw->_unsaved_dialog->message(msg);
@@ -746,6 +768,10 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
+	if (mw->_metatileset.modified()) {
+		save_metatiles_cb(w, mw);
+		if (!mw->_map.modified()) { return; }
+	}
 	if (mw->_blk_file.empty()) {
 		save_as_cb(w, mw);
 		return;
@@ -789,12 +815,16 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	mw->save_map();
 }
 
+void Main_Window::save_metatiles_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	mw->save_metatileset();
+}
+
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
 	if (mw->unsaved()) {
-		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = blk_name;
+		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Close it anyway?";
 		mw->_unsaved_dialog->message(msg);
@@ -858,8 +888,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape) { return; }
 
 	if (mw->unsaved()) {
-		const char *blk_name = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = blk_name;
+		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Exit anyway?";
 		mw->_unsaved_dialog->message(msg);
