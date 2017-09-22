@@ -118,9 +118,22 @@ void Tileset_Window::draw_tile(int x, int y, uint8_t id, bool z) {
 	const Tile *t = _tileset->tile(id);
 	const uchar *rgb = t->rgb();
 	if (z) {
-		// TODO: draw tile at 3x zoom
-		fl_rectf(x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, FL_BACKGROUND_COLOR);
-		fl_draw_image(rgb, x+4, y+4, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
+		for (int ty = 0; ty < TILE_SIZE; ty++) {
+			for (int tx = 0; tx < TILE_SIZE; tx++) {
+				int ti = (ty * LINE_BYTES + tx * NUM_CHANNELS) * ZOOM_FACTOR;
+				int ci = (ty * CHIP_LINE_BYTES + tx * NUM_CHANNELS) * CHIP_ZOOM_FACTOR;
+				for (int c = 0; c < NUM_CHANNELS; c++) {
+					uchar v = rgb[ti + c];
+					for (int row = 0; row < CHIP_ZOOM_FACTOR; row++) {
+						for (int col = 0; col < CHIP_ZOOM_FACTOR; col++) {
+							chip[ci + CHIP_LINE_BYTES * row + NUM_CHANNELS * col + c] = v;
+						}
+					}
+				}
+			}
+		}
+		fl_draw_image(chip, x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, NUM_CHANNELS, CHIP_LINE_BYTES);
 	}
 	else {
 		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);

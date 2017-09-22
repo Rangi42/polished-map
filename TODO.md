@@ -1,15 +1,8 @@
 # To Do
 
-
-## 1.x
-
 * Undo + Redo
-* Save default settings to registry
-
-
-## 2.0
-
 * Add/remove metatiles
+* Save default settings to registry
 
 
 ## Maybe

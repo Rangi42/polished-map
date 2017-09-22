@@ -1013,11 +1013,9 @@ void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
-	if (Fl::event_button() == FL_LEFT_MOUSE) {
-		// Left-click to select
-		mw->_selected = mb;
-	}
-	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
+	// Click to select
+	mw->_selected = mb;
+	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to edit
 		Metatile *mt = mw->_metatileset.metatile(mb->id());
 		mw->_tileset_window->metatile(mt);
