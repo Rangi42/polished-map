@@ -87,7 +87,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7
 
 	_num_tiles = ti.num_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = skip_60_7f && i >= 0x60 ? i + 0x20 : i;
+		int j = skip_60_7f ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
 		Tile *t = _tiles[j];
 		Palette_Map::Palette p = _palette_map.palette((uint8_t)i);
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
