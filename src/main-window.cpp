@@ -554,6 +554,10 @@ void Main_Window::resize_map(int w, int h) {
 		}
 	}
 
+	_map_scroll->scroll_to(0, 0);
+	_map_scroll->init_sizes();
+	_map_scroll->contents(_map_group->w(), _map_group->h());
+
 	_map.modified(true);
 	redraw();
 }
