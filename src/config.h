@@ -1,7 +1,13 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#pragma warning(push, 0)
+#include <FL/Fl_Preferences.H>
+#pragma warning(pop)
+
 #define NEW_BLK_NAME "NewMap.blk"
+
+extern Fl_Preferences global_config;
 
 const char *gfx_tileset_dir(void);
 bool project_path_from_blk_path(const char *blk_path, char *project_path);

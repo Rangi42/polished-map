@@ -1,13 +1,15 @@
-#ifndef PROGRAM_VERSION
+#ifndef VERSION_H
+#define VERSION_H
+
 #define PROGRAM_VERSION 1,2,1
-#define PROGRAM_VERSION_DOTS 1,2,1
+#ifdef _DEBUG
 #define PROGRAM_VERSION_STRING "1.2.1"
+#else
+#define PROGRAM_VERSION_STRING "1.2.1 [DEBUG]"
 #endif
 
-#ifndef PROGRAM_NAME
-#ifdef _DEBUG
-#define PROGRAM_NAME "Polished Map [DEBUG]"
-#else
 #define PROGRAM_NAME "Polished Map"
-#endif
+
+#define PROGRAM_AUTHOR "Rangi"
+
 #endif

@@ -100,6 +100,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_help_window = new Help_Window(48, 48, 480, 360, PROGRAM_NAME " Help");
 	_tileset_window = new Tileset_Window(48, 48);
 
+	// Get global configs
+	int grid_config, zoom_config, ids_config, hex_config;
+	global_config.get("grid", grid_config, 1);
+	global_config.get("zoom", zoom_config, 1);
+	global_config.get("ids", ids_config, 1);
+	global_config.get("hex", hex_config, 1);
+
 	// Configure window
 	size_range(384, 256);
 	resizable(_map_scroll);
@@ -139,10 +146,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::DARK ? FL_MENU_VALUE : 0)),
 		{},
-		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this, FL_MENU_TOGGLE | FL_MENU_VALUE),
-		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this, FL_MENU_TOGGLE),
-		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this, FL_MENU_TOGGLE),
-		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this, FL_MENU_DIVIDER | FL_MENU_TOGGLE | FL_MENU_VALUE),
+		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this,
+			FL_MENU_TOGGLE | (grid_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this,
+			FL_MENU_TOGGLE | (zoom_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this,
+			FL_MENU_TOGGLE | (ids_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this,
+			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Help"),
@@ -895,6 +906,17 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 		mw->_unsaved_dialog->show(mw);
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
+
+	// Save global config
+	global_config.set("theme", OS::current_theme());
+	global_config.set("x", mw->x());
+	global_config.set("y", mw->y());
+	global_config.set("w", mw->w());
+	global_config.set("h", mw->h());
+	global_config.set("grid", mw->grid());
+	global_config.set("zoom", mw->zoom());
+	global_config.set("ids", mw->ids());
+	global_config.set("hex", mw->hex());
 
 	exit(EXIT_SUCCESS);
 }

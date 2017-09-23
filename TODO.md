@@ -2,15 +2,15 @@
 
 * Undo + Redo
 * Add/remove metatiles
-* Save default settings to registry
 
 
 ## Maybe
 
-* Cross-platform support
-* Swap tilesets for an already-open map
-* Change color schemes for an already-open map
 * More color schemes than just Day, Nite, and Indoor
+* Change color schemes for an already-open map
+* Swap tilesets for an already-open map
+* Use IFileOpenDialog, not SHBrowseForFolder, for new maps
+* Cross-platform support
 
 
 ## Never

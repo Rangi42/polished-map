@@ -3,10 +3,14 @@
 
 #pragma warning(push, 0)
 #include <FL/filename.H>
+#include <FL/Fl_Preferences.H>
 #pragma warning(pop)
 
+#include "version.h"
 #include "utils.h"
 #include "config.h"
+
+Fl_Preferences global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
 
 const char *gfx_tileset_dir() {
 	return "gfx\\tilesets\\";
@@ -39,3 +43,5 @@ void tileset_path(char *dest, const char *root, const char *tileset) {
 void metatileset_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%stilesets\\%s_metatiles.bin", root, tileset);
 }
+
+
