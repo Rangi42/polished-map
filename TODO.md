@@ -7,6 +7,7 @@
 
 ## Maybe
 
+* Cross-platform support
 * Swap tilesets for an already-open map
 * Change color schemes for an already-open map
 * More color schemes than just Day, Nite, and Indoor
