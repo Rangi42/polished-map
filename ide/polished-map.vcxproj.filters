@@ -199,9 +199,6 @@
     <None Include="..\res\undo.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\metatile.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\app.xpm">
       <Filter>Resource Files</Filter>
     </None>

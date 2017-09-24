@@ -159,7 +159,6 @@
     <None Include="..\res\help.html" />
     <None Include="..\res\hex.xpm" />
     <None Include="..\res\ids.xpm" />
-    <None Include="..\res\metatile.xpm" />
     <None Include="..\res\new.xpm" />
     <None Include="..\res\open.xpm" />
     <None Include="..\res\print.xpm" />
