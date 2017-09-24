@@ -44,4 +44,8 @@ void metatileset_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%stilesets\\%s_metatiles.bin", root, tileset);
 }
 
+void map_constants_path(char *dest, const char *root) {
+	sprintf(dest, "%sconstants\\map_constants.asm", root);
+}
+
 

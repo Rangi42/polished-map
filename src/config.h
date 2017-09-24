@@ -15,5 +15,6 @@ void blk_path_from_project_path(const char *project_path, char *blk_path);
 void palette_map_path(char *dest, const char *root, const char *tileset);
 void tileset_path(char *dest, const char *root, const char *tileset);
 void metatileset_path(char *dest, const char *root, const char *tileset);
+void map_constants_path(char *dest, const char *root);
 
 #endif

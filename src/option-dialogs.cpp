@@ -1,3 +1,7 @@
+#include <cctype>
+#include <fstream>
+#include <sstream>
+
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>
 #include <FL/Fl_Double_Window.H>
@@ -91,19 +95,70 @@ Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _skip_60_7f;
 }
 
-bool Map_Options_Dialog::limit_blk_options(const char *d) {
+static void guess_map_constant(const char *name, char *constant) {
+	char prev = *name;
+	*constant++ = (char)toupper(*name++);
+	size_t n = strlen(name) - 4; // ignore ".blk" extension
+	for (int i = 0; i < n; i++) {
+		char c = *name;
+		if ((islower(prev) && (isupper(c) || isdigit(c))) || // ...zA... -> ...Z_A...
+			(i < n - 1 && (isupper(prev) || isdigit(prev)) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...
+			*constant++ = '_';
+		}
+		prev = c;
+		*constant++ = (char)toupper(*name++);
+	}
+	*constant++ = ',';
+	*constant = '\0';
+}
+
+bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
+	char map_constants[FL_PATH_MAX] = {};
+	map_constants_path(map_constants, directory);
+
+	std::ifstream ifs(map_constants);
+	if (!ifs.good()) { return false; }
+
+	const char *name = fl_filename_name(filename);
+	char constant[FL_PATH_MAX] = {};
+	guess_map_constant(name, constant);
+
+	while (ifs.good()) {
+		std::string line;
+		std::getline(ifs, line);
+		trim(line);
+		if (!starts_with(line, "mapgroup ")) { continue; }
+		line.erase(0, 9); // remove leading "mapgroup "
+		if (!starts_with(line, constant)) { continue; }
+		line.erase(0, strlen(constant));
+		std::istringstream lss(line);
+		int w, h;
+		char comma;
+		lss >> h >> comma >> w;
+		if (1 <= w && w <= 255 && 1 <= h && h <= 255) {
+			_map_width->value(w);
+			_map_height->value(h);
+			return true;
+		}
+		return false;
+	}
+
+	return false;
+}
+
+bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory) {
 	initialize();
 
 	// Initialize map size
-	// TODO: use the correct size if possible
-
-	_map_width->value(1);
-	_map_height->value(1);
+	if (!guess_map_size(filename, directory)) {
+		_map_width->value(1);
+		_map_height->value(1);
+	}
 
 	// Initialize tileset choices
 
 	char tileset_directory[FL_PATH_MAX] = {};
-	strcpy(tileset_directory, d);
+	strcpy(tileset_directory, directory);
 	strcat(tileset_directory, gfx_tileset_dir());
 
 	dirent **list;
@@ -113,7 +168,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	_max_tileset_name_length = 0;
 	_tileset->clear();
 
-	std::string dir(d);
+	std::string dir(directory);
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
 		if (ends_with(name, ".2bpp.lz")) {

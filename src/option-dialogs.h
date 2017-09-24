@@ -47,12 +47,14 @@ private:
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
-	bool limit_blk_options(const char *f);
+	bool limit_blk_options(const char *filename, const char *directory);
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	inline const char *tileset(void) const { return _tileset->mvalue() ? _tileset->mvalue()->label() : NULL; }
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
 	inline bool skip_60_7f(void) const { return !!_skip_60_7f->value(); }
+private:
+	bool guess_map_size(const char *filename, const char *directory);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

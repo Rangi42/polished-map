@@ -393,7 +393,7 @@ void Main_Window::open_map(const char *filename) {
 
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
-	if (!_map_options_dialog->limit_blk_options(directory)) {
+	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
 		std::string msg = "Wrong project directory structure!";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
