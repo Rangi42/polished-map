@@ -110,8 +110,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Get global configs
 	int grid_config, zoom_config, ids_config, hex_config;
 	global_config.get("grid", grid_config, 1);
-	global_config.get("zoom", zoom_config, 1);
-	global_config.get("ids", ids_config, 1);
+	global_config.get("zoom", zoom_config, 0);
+	global_config.get("ids", ids_config, 0);
 	global_config.get("hex", hex_config, 1);
 
 	// Configure window
