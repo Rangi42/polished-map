@@ -150,8 +150,12 @@ void Map_Options_Dialog::initialize_content() {
 	_lighting->add("Day"); // DAY
 	_lighting->add("Nite"); // NITE
 	_lighting->add("Indoor"); // INDOOR
-	_lighting->value(Tileset::Lighting::DAY);
-	_skip_60_7f->value(0);
+	int lighting;
+	global_config.get("map-lighting", lighting, (int)Tileset::Lighting::DAY);
+	_lighting->value((Tileset::Lighting)lighting);
+	int skip;
+	global_config.get("map-skip", skip, 0);
+	_skip_60_7f->value(skip);
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
@@ -211,6 +215,33 @@ Resize_Dialog::Vert_Align Resize_Dialog::vertical_anchor() const {
 	return MIDDLE;
 }
 
+int Resize_Dialog::anchor() const {
+	if (_anchor_top_left->value())      { return 0; }
+	if (_anchor_top_center->value())    { return 1; }
+	if (_anchor_top_right->value())     { return 2; }
+	if (_anchor_middle_left->value())   { return 3; }
+	if (_anchor_middle_center->value()) { return 4; }
+	if (_anchor_middle_right->value())  { return 5; }
+	if (_anchor_bottom_left->value())   { return 6; }
+	if (_anchor_bottom_center->value()) { return 7; }
+	if (_anchor_bottom_right->value())  { return 8; }
+	return 4;
+}
+
+void Resize_Dialog::anchor(int a) {
+	switch (a) {
+	case 0: _anchor_top_left->setonly(); return;
+	case 1: _anchor_top_center->setonly(); return;
+	case 2: _anchor_top_right->setonly(); return;
+	case 3: _anchor_middle_left->setonly(); return;
+	case 4: default: _anchor_middle_center->setonly(); return;
+	case 5: _anchor_middle_right->setonly(); return;
+	case 6: _anchor_bottom_left->setonly(); return;
+	case 7: _anchor_bottom_center->setonly(); return;
+	case 8: _anchor_bottom_right->setonly(); return;
+	}
+}
+
 void Resize_Dialog::initialize_content() {
 	// Populate content group
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
@@ -247,7 +278,9 @@ void Resize_Dialog::initialize_content() {
 	_anchor_bottom_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	_anchor_bottom_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	_anchor_bottom_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_middle_center->setonly();
+	int anchor_config;
+	global_config.get("resize-anchor", anchor_config, 4);
+	anchor(anchor_config);
 }
 
 int Resize_Dialog::refresh_content(int ww, int dy) {

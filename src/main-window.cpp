@@ -942,6 +942,13 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	global_config.set("zoom", mw->zoom());
 	global_config.set("ids", mw->ids());
 	global_config.set("hex", mw->hex());
+	if (mw->_map_options_dialog->initialized()) {
+		global_config.set("map-lighting", mw->_map_options_dialog->lighting());
+		global_config.set("map-skip", mw->_map_options_dialog->skip_60_7f());
+	}
+	if (mw->_resize_dialog->initialized()) {
+		global_config.set("resize-anchor", mw->_resize_dialog->anchor());
+	}
 
 	exit(EXIT_SUCCESS);
 }
@@ -955,6 +962,7 @@ void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
 }
 
 void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
 	mw->_resize_dialog->map_size(mw->_map.width(), mw->_map.height());
 	mw->_resize_dialog->show(mw);
 	mw->resize_map(mw->_resize_dialog->map_width(), mw->_resize_dialog->map_height());

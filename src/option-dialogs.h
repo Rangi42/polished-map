@@ -31,6 +31,7 @@ protected:
 	virtual void initialize_content(void) = 0;
 	virtual int refresh_content(int ww, int dy) = 0;
 public:
+	inline bool initialized(void) const { return !!_dialog; }
 	void show(const Fl_Widget *p);
 private:
 	static void close_cb(Fl_Widget *, Option_Dialog *od);
@@ -74,6 +75,8 @@ public:
 	inline void map_size(uint8_t w, uint8_t h) { initialize(); _map_width->value(w); _map_height->value(h); }
 	Hor_Align horizontal_anchor(void) const;
 	Vert_Align vertical_anchor(void) const;
+	int anchor(void) const;
+	void anchor(int a);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
