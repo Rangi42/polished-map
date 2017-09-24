@@ -965,7 +965,9 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->_resize_dialog->map_size(mw->_map.width(), mw->_map.height());
 	mw->_resize_dialog->show(mw);
-	mw->resize_map(mw->_resize_dialog->map_width(), mw->_resize_dialog->map_height());
+	if (mw->_resize_dialog->map_width() != mw->_map.width() || mw->_resize_dialog->map_height() != mw->_map.height()) {
+		mw->resize_map(mw->_resize_dialog->map_width(), mw->_resize_dialog->map_height());
+	}
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {

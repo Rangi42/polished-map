@@ -94,17 +94,23 @@ Map_Options_Dialog::~Map_Options_Dialog() {
 bool Map_Options_Dialog::limit_blk_options(const char *d) {
 	initialize();
 
-	char td[FL_PATH_MAX] = {};
-	strcpy(td, d);
-	strcat(td, gfx_tileset_dir());
+	// Initialize map size
+	// TODO: use the correct size if possible
+
+	_map_width->value(1);
+	_map_height->value(1);
+
+	// Initialize tileset choices
+
+	char tileset_directory[FL_PATH_MAX] = {};
+	strcpy(tileset_directory, d);
+	strcat(tileset_directory, gfx_tileset_dir());
 
 	dirent **list;
-	int n = fl_filename_list(td, &list);
+	int n = fl_filename_list(tileset_directory, &list);
 	if (n < 0) { return false; }
 
 	_max_tileset_name_length = 0;
-	_map_width->value(1);
-	_map_height->value(1);
 	_tileset->clear();
 
 	std::string dir(d);
@@ -128,7 +134,6 @@ bool Map_Options_Dialog::limit_blk_options(const char *d) {
 		}
 	}
 	_tileset->value(0);
-	_skip_60_7f->value(0);
 
 	return true;
 }
