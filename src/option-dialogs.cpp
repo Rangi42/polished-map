@@ -95,18 +95,21 @@ Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _skip_60_7f;
 }
 
+inline static bool isupperordigit(int c) { return isupper(c) || isdigit(c); }
+inline static int toconstant(int c) { return isalnum(c) ? toupper(c) : '_'; }
+
 static void guess_map_constant(const char *name, char *constant) {
-	char prev = *name;
+	char prev = (char)toconstant(*name);
 	*constant++ = (char)toupper(*name++);
 	size_t n = strlen(name) - 4; // ignore ".blk" extension
 	for (int i = 0; i < n; i++) {
 		char c = *name;
-		if ((islower(prev) && (isupper(c) || isdigit(c))) || // ...zA... -> ...Z_A...
-			(i < n - 1 && (isupper(prev) || isdigit(prev)) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...
+		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
+			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...
 			*constant++ = '_';
 		}
 		prev = c;
-		*constant++ = (char)toupper(*name++);
+		*constant++ = (char)toconstant(*name++);
 	}
 	*constant++ = ',';
 	*constant = '\0';

@@ -1,6 +1,7 @@
 #pragma warning(push, 0)
 #include <FL/fl_utf8.H>
 #include <FL/Fl_PNG_Image.H>
+#include <FL/fl_ask.H> // debug
 #pragma warning(pop)
 
 #include "utils.h"
@@ -30,18 +31,19 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 	if (_num_tiles > MAX_NUM_TILES) { return (_result = IMG_TOO_LARGE); }
 
 	png.desaturate();
-	if (png.d() != 1 || png.count() != 1) { return (_result = IMG_NOT_GRAYSCALE); }
+	if (png.count() != 1) { return (_result = IMG_NOT_GRAYSCALE); }
 
 	delete [] _tile_hues;
 	_tile_hues = new Tile::Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
 
 	Tile::Hue png_hues[4] = {Tile::BLACK, Tile::DARK, Tile::LIGHT, Tile::WHITE};
 	size_t hi = 0;
+	int d = png.d();
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			for (int ty = 0; ty < TILE_SIZE; ty++) {
 				for (int tx = 0; tx < TILE_SIZE; tx++) {
-					long ti = (y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx);
+					long ti = ((y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx)) * d;
 					Tile::Hue h = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
 					_tile_hues[hi++] = h;
 				}

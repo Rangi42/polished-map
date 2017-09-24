@@ -28,7 +28,8 @@
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
-	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _prism_mi(NULL),
+	_unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
 
 	int wx = 0, wy = 0, ww = w, wh = h;
@@ -98,7 +99,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
-	_tileset_window = new Tileset_Window(48, 48);
+	_block_window = new Block_Window(48, 48);
 
 	// Drag-and-drop receiver
 	begin();
@@ -108,11 +109,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_dnd_receiver->user_data(this);
 
 	// Get global configs
-	int grid_config, zoom_config, ids_config, hex_config;
+	int grid_config, zoom_config, ids_config, hex_config, prism_config;
 	global_config.get("grid", grid_config, 1);
 	global_config.get("zoom", zoom_config, 0);
 	global_config.get("ids", ids_config, 0);
 	global_config.get("hex", hex_config, 1);
+	global_config.get("options-prism", prism_config, 0);
 
 	// Configure window
 	size_range(384, 256);
@@ -167,6 +169,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
+		OS_SUBMENU("&Options"),
+		OS_MENU_ITEM("&Prism Compatibility", 0, (Fl_Callback *)prism_cb, this,
+			FL_MENU_TOGGLE | (prism_config ? FL_MENU_VALUE : 0)),
+		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&About", FL_COMMAND + '/', (Fl_Callback *)about_cb, this, 0),
@@ -185,6 +191,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
+	_prism_mi = PM_FIND_MENU_ITEM_CB(prism_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
@@ -295,7 +302,7 @@ Main_Window::~Main_Window() {
 	delete _map_options_dialog;
 	delete _resize_dialog;
 	delete _help_window;
-	delete _tileset_window;
+	delete _block_window;
 }
 
 void Main_Window::show() {
@@ -380,7 +387,7 @@ void Main_Window::open_map(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
 	char directory[FL_PATH_MAX] = {};
-	if (!project_path_from_blk_path(filename, directory)) {
+	if (!project_path_from_blk_path(filename, directory, prism())) {
 		std::string msg = "Could not get project directory for ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -421,7 +428,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	else {
 		char new_filename[FL_PATH_MAX] = {};
-		blk_path_from_project_path(directory, new_filename);
+		blk_path_from_project_path(directory, new_filename, prism());
 		strcat(new_filename, NEW_BLK_NAME);
 		_blk_file = new_filename;
 	}
@@ -536,7 +543,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_metatile_buttons[0]->setonly();
 	_selected = _metatile_buttons[0];
 
-	_tileset_window->tileset(tileset);
+	_block_window->tileset(tileset);
 
 	update_labels();
 	update_status(NULL);
@@ -696,7 +703,7 @@ bool Main_Window::save_metatileset() {
 void Main_Window::edit_metatile(Metatile *mt) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
-			uint8_t id = _tileset_window->tile_id(x, y);
+			uint8_t id = _block_window->tile_id(x, y);
 			mt->tile_id(x, y, id);
 		}
 	}
@@ -833,7 +840,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	char directory[FL_PATH_MAX] = {};
-	if (!project_path_from_blk_path(filename, directory)) {
+	if (!project_path_from_blk_path(filename, directory, mw->prism())) {
 		std::string msg = "Could not get project directory for ";
 		msg = msg + basename + "!";
 		mw->_error_dialog->message(msg);
@@ -883,7 +890,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_directory.clear();
 	mw->_blk_file.clear();
 	mw->_metatileset.clear();
-	mw->_tileset_window->tileset(NULL);
+	mw->_block_window->tileset(NULL);
 	mw->redraw();
 }
 
@@ -942,6 +949,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	global_config.set("zoom", mw->zoom());
 	global_config.set("ids", mw->ids());
 	global_config.set("hex", mw->hex());
+	global_config.set("options-prism", mw->prism());
 	if (mw->_map_options_dialog->initialized()) {
 		global_config.set("map-lighting", mw->_map_options_dialog->lighting());
 		global_config.set("map-skip", mw->_map_options_dialog->skip_60_7f());
@@ -1031,6 +1039,8 @@ void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	}
 }
 
+void Main_Window::prism_cb(Fl_Menu_ *, Main_Window *) {}
+
 void Main_Window::grid_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	bool v = !!mw->_grid_tb->value();
 	if (v) { mw->_grid_mi->set(); }
@@ -1075,9 +1085,9 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to edit
 		Metatile *mt = mw->_metatileset.metatile(mb->id());
-		mw->_tileset_window->metatile(mt);
-		mw->_tileset_window->show(mw);
-		if (!mw->_tileset_window->canceled()) {
+		mw->_block_window->metatile(mt);
+		mw->_block_window->show(mw);
+		if (!mw->_block_window->canceled()) {
 			mw->edit_metatile(mt);
 		}
 	}

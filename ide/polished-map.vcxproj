@@ -119,7 +119,7 @@
     <ClCompile Include="..\src\themes.cpp" />
     <ClCompile Include="..\src\tile.cpp" />
     <ClCompile Include="..\src\tiled-image.cpp" />
-    <ClCompile Include="..\src\tileset-window.cpp" />
+    <ClCompile Include="..\src\block-window.cpp" />
     <ClCompile Include="..\src\tileset.cpp" />
     <ClCompile Include="..\src\utils.cpp" />
     <ClCompile Include="..\src\waiting-dialog.cpp" />
@@ -144,7 +144,7 @@
     <ClInclude Include="..\src\themes.h" />
     <ClInclude Include="..\src\tile.h" />
     <ClInclude Include="..\src\tiled-image.h" />
-    <ClInclude Include="..\src\tileset-window.h" />
+    <ClInclude Include="..\src\block-window.h" />
     <ClInclude Include="..\src\tileset.h" />
     <ClInclude Include="..\src\utils.h" />
     <ClInclude Include="..\src\version.h" />

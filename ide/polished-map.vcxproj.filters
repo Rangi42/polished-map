@@ -75,7 +75,7 @@
     <ClCompile Include="..\src\help-window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\tileset-window.cpp">
+    <ClCompile Include="..\src\block-window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,7 +149,7 @@
     <ClInclude Include="..\src\help-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\tileset-window.h">
+    <ClInclude Include="..\src\block-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

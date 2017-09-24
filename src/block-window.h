@@ -1,5 +1,5 @@
-#ifndef TILESET_WINDOW_H
-#define TILESET_WINDOW_H
+#ifndef BLOCK_WINDOW_H
+#define BLOCK_WINDOW_H
 
 #include <string>
 
@@ -22,7 +22,7 @@
 #define CHIP_PX_SIZE (TILE_SIZE * CHIP_ZOOM_FACTOR)
 #define CHIP_LINE_BYTES (CHIP_PX_SIZE * NUM_CHANNELS)
 
-class Tileset_Window {
+class Block_Window {
 private:
 	int _dx, _dy;
 	uint8_t _metatile_id;
@@ -36,8 +36,8 @@ private:
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 public:
-	Tileset_Window(int x, int y);
-	~Tileset_Window();
+	Block_Window(int x, int y);
+	~Block_Window();
 private:
 	void initialize(void);
 	void refresh(void);
@@ -50,10 +50,10 @@ public:
 	void show(const Fl_Widget *p);
 	void draw_tile(int x, int y, uint8_t id, bool z = false);
 private:
-	static void close_cb(Fl_Widget *w, Tileset_Window *tw);
-	static void cancel_cb(Fl_Widget *w, Tileset_Window *tw);
-	static void select_tile_cb(Tile_Button *tb, Tileset_Window *tw);
-	static void change_chip_cb(Chip *c, Tileset_Window *tw);
+	static void close_cb(Fl_Widget *w, Block_Window *bw);
+	static void cancel_cb(Fl_Widget *w, Block_Window *bw);
+	static void select_tile_cb(Tile_Button *tb, Block_Window *bw);
+	static void change_chip_cb(Chip *c, Block_Window *bw);
 };
 
 #endif

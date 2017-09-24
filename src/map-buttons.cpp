@@ -1,5 +1,5 @@
 #include "main-window.h"
-#include "tileset-window.h"
+#include "block-window.h"
 #include "map-buttons.h"
 
 static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool highlight) {
@@ -127,9 +127,9 @@ int Block::handle(int event) {
 }
 
 static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool highlight, bool zoom) {
-	Tileset_Window *tw = (Tileset_Window *)wgt->user_data();
+	Block_Window *bw = (Block_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y();
-	tw->draw_tile(x, y, id, zoom);
+	bw->draw_tile(x, y, id, zoom);
 	if (highlight) {
 		int rs = TILE_SIZE * (zoom ? 3 : 2);
 		fl_rect(x, y, rs, rs, FL_BLACK);

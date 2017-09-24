@@ -1,11 +1,11 @@
 #include "tile.h"
-#include "tileset-window.h"
+#include "block-window.h"
 
-Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _metatile_id(0), _tileset(NULL), _canceled(false),
+Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _metatile_id(0), _tileset(NULL), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tileset_group(NULL), _metatile_group(NULL),
 	_tile_buttons(), _chips(), _ok_button(NULL), _cancel_button(NULL), _selected(NULL) {}
 
-Tileset_Window::~Tileset_Window() {
+Block_Window::~Block_Window() {
 	delete _window;
 	delete _tileset_heading;
 	delete _metatile_heading;
@@ -15,12 +15,12 @@ Tileset_Window::~Tileset_Window() {
 	delete _ok_button;
 }
 
-void Tileset_Window::initialize() {
+void Block_Window::initialize() {
 	if (_window) { return; }
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 386, 304, "Edit Metatile");
+	_window = new Fl_Double_Window(_dx, _dy, 386, 304, "Edit Block");
 	_tileset_heading = new Label(10, 10, 258, 22);
 	_metatile_heading = new Label(278, 10, 98, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
@@ -70,13 +70,13 @@ void Tileset_Window::initialize() {
 	Fl_Group::current(prev_current);
 }
 
-void Tileset_Window::refresh() {
+void Block_Window::refresh() {
 	_canceled = false;
 	_selected = _tile_buttons[0];
 	_selected->setonly();
 }
 
-void Tileset_Window::tileset(const Tileset *t) {
+void Block_Window::tileset(const Tileset *t) {
 	initialize();
 	_tileset = t;
 	if (t) {
@@ -89,7 +89,7 @@ void Tileset_Window::tileset(const Tileset *t) {
 	}
 }
 
-void Tileset_Window::metatile(const Metatile *mt) {
+void Block_Window::metatile(const Metatile *mt) {
 	_metatile_id = mt->id();
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
@@ -103,7 +103,7 @@ void Tileset_Window::metatile(const Metatile *mt) {
 	_metatile_heading->copy_label(buffer);
 }
 
-void Tileset_Window::show(const Fl_Widget *p) {
+void Block_Window::show(const Fl_Widget *p) {
 	initialize();
 	refresh();
 	int x = p->x() + (p->w() - _window->w()) / 2;
@@ -114,7 +114,7 @@ void Tileset_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Tileset_Window::draw_tile(int x, int y, uint8_t id, bool z) {
+void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) {
 	const Tile *t = _tileset->tile(id);
 	const uchar *rgb = t->rgb();
 	if (z) {
@@ -140,31 +140,31 @@ void Tileset_Window::draw_tile(int x, int y, uint8_t id, bool z) {
 	}
 }
 
-void Tileset_Window::close_cb(Fl_Widget *, Tileset_Window *tw) {
-	tw->_window->hide();
+void Block_Window::close_cb(Fl_Widget *, Block_Window *bw) {
+	bw->_window->hide();
 }
 
-void Tileset_Window::cancel_cb(Fl_Widget *w, Tileset_Window *tw) {
-	tw->_canceled = true;
-	close_cb(w, tw);
+void Block_Window::cancel_cb(Fl_Widget *w, Block_Window *bw) {
+	bw->_canceled = true;
+	close_cb(w, bw);
 }
 
-void Tileset_Window::select_tile_cb(Tile_Button *tb, Tileset_Window *tw) {
+void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 	// Click to select
-	tw->_selected = tb;
+	bw->_selected = tb;
 }
 
-void Tileset_Window::change_chip_cb(Chip *c, Tileset_Window *tw) {
+void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		// Left-click to edit
-		uint8_t id = tw->_selected->id();
+		uint8_t id = bw->_selected->id();
 		c->id(id);
 		c->damage(1);
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
 		uint8_t id = c->id();
-		tw->_selected = tw->_tile_buttons[id];
-		tw->_selected->setonly();
+		bw->_selected = bw->_tile_buttons[id];
+		bw->_selected->setonly();
 	}
 }
