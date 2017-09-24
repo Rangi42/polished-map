@@ -706,13 +706,24 @@ OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y
 }
 
 Workspace::Workspace(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y, w, h, l),
-	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0) {
+	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0), _dnd_receiver(NULL) {
 	labeltype(FL_NO_LABEL);
 	box(FL_NO_BOX);
 	color(FL_INACTIVE_COLOR);
 }
 
 int Workspace::handle(int event) {
+	if (_dnd_receiver) {
+		switch (event) {
+		case FL_DND_ENTER:
+		case FL_DND_LEAVE:
+		case FL_DND_DRAG:
+		case FL_DND_RELEASE:
+			return 1;
+		case FL_PASTE:
+			return _dnd_receiver->handle(event);
+		}
+	}
 	switch (event) {
 	case FL_PUSH:
 		if (Fl::event_button() != FL_MIDDLE_MOUSE) { break; }

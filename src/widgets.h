@@ -241,9 +241,11 @@ class Workspace : public Fl_Scroll {
 private:
 	int _content_w, _content_h;
 	int _ox, _oy, _cx, _cy;
+	DnD_Receiver *_dnd_receiver;
 public:
 	Workspace(int x, int y, int w, int h, const char *l = NULL);
-	void contents(int w, int h) { _content_w = w; _content_h = h; }
+	inline void contents(int w, int h) { _content_w = w; _content_h = h; }
+	inline void dnd_receiver(DnD_Receiver *dndr) { _dnd_receiver = dndr; }
 	int handle(int event);
 };
 

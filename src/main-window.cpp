@@ -100,6 +100,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_tileset_window = new Tileset_Window(48, 48);
 
+	// Drag-and-drop receiver
+	begin();
+	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
+	end();
+	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
+	_dnd_receiver->user_data(this);
+
 	// Get global configs
 	int grid_config, zoom_config, ids_config, hex_config;
 	global_config.get("grid", grid_config, 1);
@@ -112,6 +119,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	resizable(_map_scroll);
 	callback((Fl_Callback *)exit_cb, this);
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
+
+	// Configure workspaces
+	_sidebar->dnd_receiver(_dnd_receiver);
+	_map_scroll->dnd_receiver(_dnd_receiver);
 
 	// Configure menu bar
 	_menu_bar->box(OS_PANEL_THIN_UP_BOX);
@@ -272,6 +283,7 @@ Main_Window::~Main_Window() {
 	delete _sidebar; // includes metatiles
 	delete _status_bar; // includes status bar fields
 	delete _map_scroll; // includes map and blocks
+	delete _dnd_receiver;
 	delete _blk_open_chooser;
 	delete _blk_save_chooser;
 	delete _png_chooser;
@@ -729,6 +741,13 @@ void Main_Window::update_labels() {
 		_map.block(i)->update_label();
 	}
 	redraw();
+}
+
+void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
+	Fl_Window *top = Fl::modal();
+	if (top && top != mw) { return; }
+	std::string filename = dndr->text().substr(0, dndr->text().find('\n'));
+	mw->open_map(filename.c_str());
 }
 
 void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {

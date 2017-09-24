@@ -25,11 +25,11 @@ private:
 	// GUI containers
 	Fl_Menu_Bar *_menu_bar;
 	Toolbar *_toolbar;
-	Workspace *_sidebar;
+	Workspace *_sidebar, *_map_scroll;
 	Toolbar *_status_bar;
-	Workspace *_map_scroll;
 	Fl_Group *_map_group;
 	// GUI inputs
+	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_full_screen_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_resize_tb;
@@ -77,6 +77,8 @@ private:
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
+	// Drag-and-drop
+	static void drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw);
 	// File menu
 	static void new_cb(Fl_Widget *w, Main_Window *mw);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
