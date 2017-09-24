@@ -9,6 +9,10 @@
 
 #ifdef _DEBUG
 
+#pragma warning(push, 0)
+#include <FL/fl_ask.H>
+#pragma warning(pop)
+
 #include <iostream>
 #include <sstream>
 #include <windows.h>

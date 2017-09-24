@@ -33,7 +33,7 @@ static void use_theme(OS::Theme theme) {
 	}
 }
 
-int main() {
+int main(int argc, char **argv) {
 	std::ios::sync_with_stdio(false);
 	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_NAME));
 	Fl::visual(FL_DOUBLE | FL_RGB);
@@ -49,6 +49,10 @@ int main() {
 	global_config.get("h", h, 480);
 	Main_Window window(x, y, w, h);
 	window.show();
+
+	if (argc > 1) {
+		window.open_map(argv[1]);
+	}
 
 	return Fl::run();
 }

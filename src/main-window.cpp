@@ -97,7 +97,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
-	_help_window = new Help_Window(48, 48, 480, 360, PROGRAM_NAME " Help");
+	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_tileset_window = new Tileset_Window(48, 48);
 
 	// Get global configs
@@ -362,6 +362,21 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (col < _map.width() - 1) { flood_fill(_map.block(i+1), f, t); } // right
 	if (row > 0) { flood_fill(_map.block(i-_map.width()), f, t); } // up
 	if (row < _map.height() - 1) { flood_fill(_map.block(i+_map.width()), f, t); } // down
+}
+
+void Main_Window::open_map(const char *filename) {
+	const char *basename = fl_filename_name(filename);
+
+	char directory[FL_PATH_MAX] = {};
+	if (!project_path_from_blk_path(filename, directory)) {
+		std::string msg = "Could not get project directory for ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
+	open_map(directory, filename);
 }
 
 void Main_Window::open_map(const char *directory, const char *filename) {
@@ -736,10 +751,10 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	const char *project_dir = mw->_new_dir_chooser->filename();
-	char buffer[FL_PATH_MAX] = {};
-	strcpy(buffer, project_dir);
-	strcat(buffer, "\\");
-	mw->open_map(buffer, NULL);
+	char directory[FL_PATH_MAX] = {};
+	strcpy(directory, project_dir);
+	strcat(directory, "\\");
+	mw->open_map(directory, NULL);
 }
 
 void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
@@ -765,16 +780,7 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	char directory[FL_PATH_MAX] = {};
-	if (!project_path_from_blk_path(filename, directory)) {
-		std::string msg = "Could not get project directory for ";
-		msg = msg + basename + "!";
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-
-	mw->open_map(directory, filename);
+	mw->open_map(filename);
 }
 
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
