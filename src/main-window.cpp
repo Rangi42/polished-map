@@ -401,7 +401,8 @@ void Main_Window::open_map(const char *filename) {
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
-		std::string msg = "Wrong project directory structure!";
+		std::string msg = "Wrong project directory structure!\n\n"
+			"Double-check Options->Prism Compatibility.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -1039,7 +1040,9 @@ void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	}
 }
 
-void Main_Window::prism_cb(Fl_Menu_ *, Main_Window *) {}
+void Main_Window::prism_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->redraw();
+}
 
 void Main_Window::grid_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	bool v = !!mw->_grid_tb->value();

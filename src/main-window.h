@@ -58,11 +58,11 @@ public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
 	void show(void);
-	inline bool grid(void) const { return _grid_mi && _grid_mi->value(); }
-	inline bool zoom(void) const { return _zoom_mi && _zoom_mi->value(); }
-	inline bool ids(void) const { return _ids_mi && _ids_mi->value(); }
-	inline bool hex(void) const { return _hex_mi && _hex_mi->value(); }
-	inline bool prism(void) const { return _prism_mi && _prism_mi->value(); }
+	inline bool grid(void) const { return _grid_mi && !!_grid_mi->value(); }
+	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
+	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
+	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
+	inline bool prism(void) const { return _prism_mi && !!_prism_mi->value(); }
 	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
 	const char *modified_filename(void);

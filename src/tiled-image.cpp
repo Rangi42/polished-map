@@ -1,7 +1,6 @@
 #pragma warning(push, 0)
 #include <FL/fl_utf8.H>
 #include <FL/Fl_PNG_Image.H>
-#include <FL/fl_ask.H> // debug
 #pragma warning(pop)
 
 #include "utils.h"
