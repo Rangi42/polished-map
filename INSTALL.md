@@ -27,5 +27,6 @@ cp lib/*.a ../linux
 
 cd ../..
 
-make install
+make
+sudo make install
 ```
