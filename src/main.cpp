@@ -49,12 +49,20 @@ int main(int argc, char **argv) {
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 	int theme;
+#ifdef _WIN32
 	global_config.get("theme", theme, (int)OS::Theme::BLUE);
+#else
+	global_config.get("theme", theme, (int)OS::Theme::GREYBIRD);
+#endif
 	use_theme((OS::Theme)theme);
 
 	int x, y, w, h;
 	global_config.get("x", x, 48);
+#ifdef _WIN32
 	global_config.get("y", y, 48 + GetSystemMetrics(SM_CYCAPTION));
+#else
+	global_config.get("y", y, 48);
+#endif
 	global_config.get("w", w, 640);
 	global_config.get("h", h, 480);
 	Main_Window window(x, y, w, h);

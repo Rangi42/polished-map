@@ -1,4 +1,8 @@
+#ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 #pragma warning(push, 0)
 #include <FL/fl_draw.H>
@@ -37,5 +41,9 @@ int text_width(const char *l, int pad) {
 }
 
 bool file_exists(const char *f) {
+#ifdef _WIN32
 	return !_access_s(f, 4);
+#else
+	return !access(f, 4);
+#endif
 }

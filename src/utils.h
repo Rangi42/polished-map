@@ -15,6 +15,9 @@
 
 #include <iostream>
 #include <sstream>
+
+#ifdef _WIN32
+
 #include <windows.h>
 
 #define DEBUGPRINT(X) \
@@ -27,10 +30,18 @@
 	} while (0) \
 	__pragma(warning(pop))
 
+#endif
+
 #else
 
 #define DEBUGPRINT(X)
 
+#endif
+
+#ifdef _WIN32
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
 #endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

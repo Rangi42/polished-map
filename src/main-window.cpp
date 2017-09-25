@@ -25,6 +25,7 @@
 #ifdef _WIN32
 #include "resource.h"
 #else
+#include <X11/xpm.h>
 #include "app-icon.xpm"
 #endif
 
@@ -802,7 +803,7 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 	const char *project_dir = mw->_new_dir_chooser->filename();
 	char directory[FL_PATH_MAX] = {};
 	strcpy(directory, project_dir);
-	strcat(directory, "\\");
+	strcat(directory, DIR_SEP);
 	mw->open_map(directory, NULL);
 }
 

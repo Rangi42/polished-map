@@ -1,5 +1,5 @@
 #pragma warning(push, 0)
-#include <FL/fl_utf8.H>
+#include <FL/fl_utf8.h>
 #include <FL/Fl_PNG_Image.H>
 #pragma warning(pop)
 

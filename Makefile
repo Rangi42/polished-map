@@ -14,11 +14,11 @@ DEBUGOBJDIR = tmp/$(OSDIRNAME)/debug
 LIBDIR = lib/$(OSDIRNAME)
 BINDIR = bin/$(OSDIRNAME)
 
-CXXFLAGS = -std=c++11 -isystem include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR) -Wall -Wno-unknown-pragmas
-LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm
+CXXFLAGS = -std=c++11 -isystem include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR)
+LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm -lXrender
 
 RELEASEFLAGS = -DNDEBUG -O2 -flto -march=native
-DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wextra -pedantic -Wsign-conversion
+DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wsign-conversion
 
 COMMON = $(wildcard $(SRCDIR)/*.h) $(wildcard $(RESDIR)/*.xpm)
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
@@ -70,18 +70,5 @@ clean:
 	-@ $(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
 	@ echo Done cleaning
 
-install:
-	sudo apt-get install make g++ git unzip
-
-	git clone https://github.com/roukaour/polished-map.git
-	cd polished-map/lib
-	unzip fltk-1.3.4.zip
-	cd fltk-1.3.4
-
-	./configure --with-abiversion=10304
-	make
-	sudo make install
-
-	cd ../..
-
-	make $(BINNAME)
+install: release
+	cp $(TARGET) /usr/local/bin/$(BINNAME)

@@ -1593,7 +1593,7 @@ void OS::use_native_font() {
 	use_font("Segoe UI", "Tahoma");
 
 #else
-	use_font("Droid Sans", "Sans");
+	use_font("Noto Sans", "Droid Sans");
 #endif
 }
 

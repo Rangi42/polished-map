@@ -2,6 +2,7 @@
 #define TILE_H
 
 #include <cstdlib>
+#include <cstring>
 
 #pragma warning(push, 0)
 #include <FL/fl_types.h>
