@@ -11,19 +11,27 @@
 #include "themes.h"
 #include "main-window.h"
 
+#ifdef _WIN32
+
 #include <shlobj.h>
 #include <tchar.h>
 
 #define MAKE_WSTR_HELPER(x) L ## x
 #define MAKE_WSTR(x) MAKE_WSTR_HELPER(x)
 
+#endif
+
 static void use_theme(OS::Theme theme) {
+	OS::use_native_font();
 	switch (theme) {
 	case OS::Theme::AERO:
 		OS::use_aero_theme();
 		return;
 	case OS::Theme::METRO:
 		OS::use_metro_theme();
+		return;
+	case OS::Theme::GREYBIRD:
+		OS::use_greybird_theme();
 		return;
 	case OS::Theme::BLUE:
 		OS::use_blue_theme();
@@ -35,7 +43,9 @@ static void use_theme(OS::Theme theme) {
 
 int main(int argc, char **argv) {
 	std::ios::sync_with_stdio(false);
+#ifdef _WIN32
 	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_NAME));
+#endif
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 	int theme;

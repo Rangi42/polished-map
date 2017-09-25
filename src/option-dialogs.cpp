@@ -56,8 +56,13 @@ void Option_Dialog::refresh() {
 	// Refresh widget positions and sizes
 	int dy = 10;
 	dy += refresh_content(_width - 20, dy) + 16;
+#ifdef _WIN32
 	_ok_button->resize(_width - 184, dy, 80, 22);
 	_cancel_button->resize(_width - 90, dy, 80, 22);
+#else
+	_cancel_button->resize(_width - 184, dy, 80, 22);
+	_ok_button->resize(_width - 90, dy, 80, 22);
+#endif
 	dy += _cancel_button->h() + 10;
 	_dialog->size_range(_width, dy, _width, dy);
 	_dialog->size(_width, dy);

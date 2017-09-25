@@ -146,6 +146,7 @@ void Modal_Dialog::show(const Fl_Widget *p) {
 	int y = p->y() + (p->h() - _dialog->h()) / 2;
 	_dialog->position(x, y);
 	_dialog->show();
+#ifdef _WIN32
 	// Flash taskbar button
 	// <http://blogs.msdn.com/b/oldnewthing/archive/2008/05/12/8490184.aspx>
 	HWND top_hwnd = fl_xid(_top_window);
@@ -159,6 +160,7 @@ void Modal_Dialog::show(const Fl_Widget *p) {
 		fwi.uCount = 3;
 		FlashWindowEx(&fwi);
 	}
+#endif
 	while (_dialog->shown()) { Fl::wait(); }
 }
 

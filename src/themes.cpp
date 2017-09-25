@@ -11,6 +11,7 @@
 #include "math.h"
 #include "themes.h"
 
+#ifdef _WIN32
 bool OS::is_modern_windows() {
 	// Return true for Windows 8 and above, false for Windows 7 and below
 	OSVERSIONINFOEX osvi;
@@ -29,6 +30,7 @@ bool OS::is_modern_windows() {
 	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION |
 		VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR, cm) != FALSE;
 }
+#endif
 
 static void use_font(const char *font, const char *alt_font) {
 	Fl::set_font(OS_FONT, FL_HELVETICA);
@@ -446,10 +448,6 @@ static void aero_swatch_box(int x, int y, int w, int h, Fl_Color c) {
 	aero_swatch_frame(x, y, w, h, c);
 }
 
-void use_aero_font() {
-	use_font("Segoe UI", "Tahoma");
-}
-
 static void use_aero_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, aero_button_up_box, 2, 2, 4, 4);
@@ -490,7 +488,6 @@ static void use_aero_colors() {
 }
 
 void OS::use_aero_theme() {
-	use_aero_font();
 	use_aero_scheme();
 	use_aero_colors();
 	use_native_settings();
@@ -599,10 +596,6 @@ static void metro_default_button_box(int x, int y, int w, int h, Fl_Color c) {
 	metro_default_button_frame(x, y, w, h, c);
 }
 
-void use_metro_font() {
-	use_aero_font();
-}
-
 static void use_metro_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, metro_button_up_box, 1, 1, 2, 2);
@@ -644,11 +637,371 @@ static void use_metro_colors() {
 }
 
 void OS::use_metro_theme() {
-	use_metro_font();
 	use_metro_scheme();
 	use_metro_colors();
 	use_native_settings();
 	global_current_theme = METRO;
+}
+
+/**************************** Greybird (Linux GTK+) ***************************/
+
+static void greybird_button_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0xA6, 0xA6, 0xA6)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x96, 0x96, 0x96)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0x87, 0x87, 0x87)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top inner border
+	fl_color(activated_color(fl_rgb_color(0xEE, 0xEE, 0xEE)));
+	fl_xyline(x+2, y+1, x+w-3);
+	// side inner borders
+	fl_color(activated_color(fl_rgb_color(0xE4, 0xE4, 0xE4)));
+	fl_yxline(x+1, y+2, y+h-3);
+	fl_yxline(x+w-2, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xB8, 0xB8, 0xB8)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xA0, 0xA0, 0xA0)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_button_up_box(int x, int y, int w, int h, Fl_Color c) {
+	vertical_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0xDB, 0xDB, 0xDB)),
+		activated_color(fl_rgb_color(0xCC, 0xCC, 0xCC)));
+	greybird_button_up_frame(x, y, w, h, c);
+}
+
+static void greybird_check_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// top border
+	fl_color(activated_color(fl_rgb_color(0x80, 0x80, 0x80)));
+	fl_xyline(x+2, y, x+w-3);
+	// side borders
+	fl_color(activated_color(fl_rgb_color(0x89, 0x89, 0x89)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom border
+	fl_color(activated_color(fl_rgb_color(0x90, 0x90, 0x90)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xA6, 0xA6, 0xA6)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xB0, 0xB0, 0xB0)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_panel_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// top and left borders
+	fl_color(activated_color(fl_rgb_color(0xDA, 0xDA, 0xDA)));
+	fl_yxline(x, y+h-2, y, x+w-2);
+	// bottom and right borders
+	fl_color(activated_color(fl_rgb_color(0xC1, 0xC1, 0xC1)));
+	fl_xyline(x, y+h-1, x+w-1, y);
+}
+
+static void greybird_check_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	greybird_check_down_frame(x, y, w, h, c);
+}
+
+static void greybird_panel_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	greybird_panel_thin_up_frame(x, y, w, h, c);
+}
+
+static void greybird_spacer_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// top and left borders
+	fl_color(activated_color(fl_rgb_color(0xBA, 0xBA, 0xBA)));
+	fl_yxline(x, y+h-2, y, x+w-2);
+	// bottom and right borders
+	fl_color(activated_color(fl_rgb_color(0xDA, 0xDA, 0xDA)));
+	fl_xyline(x, y+h-1, x+w-1, y);
+}
+
+static void greybird_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	greybird_spacer_thin_down_frame(x, y, w, h, c);
+}
+
+static void greybird_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
+	// border
+	fl_color(activated_color(devalued(c, 0.3f)));
+	fl_xyline(x+3, y, x+w-4);
+	fl_yxline(x, y+3, y+h-4);
+	fl_yxline(x+w-1, y+3, y+h-4);
+	fl_xyline(x+3, y+h-1, x+w-4);
+	// corners
+	fl_color(activated_color(devalued(c, 0.3f)));
+	fl_yxline(x+1, y+2, y+1, x+2);
+	fl_xyline(x+w-3, y+1, x+w-2, y+2);
+	fl_yxline(x+w-2, y+h-3, y+h-2, x+w-3);
+	fl_xyline(x+2, y+h-2, x+1, y+h-3);
+}
+
+static void greybird_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
+	vertical_gradient(x+1, y+1, x+w-2, y+h-2, activated_color(desaturated(c, 0.315789f)), activated_color(c));
+	greybird_progress_round_up_frame(x, y, w, h, c);
+}
+
+static void greybird_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
+	fl_color(activated_color(fl_rgb_color(0x80, 0x80, 0x80)));
+	fl_arc(x, y, w, h, 0.0, 360.0);
+}
+
+static void greybird_radio_round_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(c);
+	fl_pie(x+1, y+1, w-2, h-2, 0.0, 360.0);
+	greybird_radio_round_down_frame(x, y, w, h, c);
+}
+
+static void greybird_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0xAE, 0xAE, 0xAE)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x9E, 0x9E, 0x9E)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0x8E, 0x8E, 0x8E)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top inner border
+	fl_color(activated_color(fl_rgb_color(0xF3, 0xF3, 0xF3)));
+	fl_xyline(x+2, y+1, x+w-3);
+	// side inner borders
+	fl_color(activated_color(fl_rgb_color(0xED, 0xED, 0xED)));
+	fl_yxline(x+1, y+2, y+h-3);
+	fl_yxline(x+w-2, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xC0, 0xC0, 0xC0)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xA7, 0xA7, 0xA7)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_hovered_up_box(int x, int y, int w, int h, Fl_Color c) {
+	vertical_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0xE6, 0xE6, 0xE6)),
+		activated_color(fl_rgb_color(0xD6, 0xD6, 0xD6)));
+	greybird_hovered_up_frame(x, y, w, h, c);
+}
+
+static void greybird_depressed_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0x8A, 0x8A, 0x8A)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x7D, 0x7D, 0x7D)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0x71, 0x71, 0x71)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0x98, 0x98, 0x98)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0x88, 0x88, 0x88)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+1, y+1, x+w-2, y+4, activated_color(fl_rgb_color(0xAF, 0xAF, 0xAF)),
+		activated_color(fl_rgb_color(0xB4, 0xB4, 0xB4)));
+	vertical_gradient(x+1, y+5, x+w-2, y+h-1, activated_color(fl_rgb_color(0xB4, 0xB4, 0xB4)),
+		activated_color(fl_rgb_color(0xAA, 0xAA, 0xAA)));
+	greybird_depressed_down_frame(x, y, w, h, c);
+}
+
+static void greybird_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0xBA, 0xBA, 0xBA)));
+	fl_xyline(x+1, y, x+w-2);
+	fl_yxline(x, y+1, y+h-2);
+	fl_xyline(x+1, y+h-1, x+w-2);
+	fl_yxline(x+w-1, y+1, y+h-2);
+	// top and left inner borders
+	fl_color(activated_color(fl_rgb_color(0xC6, 0xC6, 0xC6)));
+	fl_yxline(x+1, y+h-2, y+1, x+w-2);
+	// bottom and right inner borders
+	fl_color(activated_color(fl_rgb_color(0xDA, 0xDA, 0xDA)));
+	fl_xyline(x+2, y+h-2, x+w-2, y+2);
+}
+
+static void greybird_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+2, y+2, w-4, h-4);
+	greybird_group_thin_up_frame(x, y, w, h, c);
+}
+
+static void greybird_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0x84, 0x84, 0x84)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x97, 0x97, 0x97)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0xAA, 0xAA, 0xAA)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// inner border
+	fl_color(activated_color(fl_rgb_color(0xEC, 0xEC, 0xEC)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_yxline(x+1, y+2, y+h-3);
+	fl_yxline(x+w-2, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xA4, 0xA4, 0xA4)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xBE, 0xBE, 0xBE)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_input_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+2, y+2, w-4, h-3);
+	greybird_input_thin_down_frame(x, y, w, h, c);
+}
+
+static void greybird_default_button_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0x69, 0x82, 0x9D)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x61, 0x77, 0x8E)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0x59, 0x6B, 0x7D)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top inner border
+	fl_color(activated_color(fl_rgb_color(0x88, 0xB7, 0xE9)));
+	fl_xyline(x+2, y+1, x+w-3);
+	// side inner borders
+	fl_color(activated_color(fl_rgb_color(0x79, 0xAC, 0xE1)));
+	fl_yxline(x+1, y+2, y+h-3);
+	fl_yxline(x+w-2, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0x76, 0x99, 0xBE)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0x5D, 0x81, 0xA6)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_default_button_box(int x, int y, int w, int h, Fl_Color c) {
+	vertical_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0x72, 0xA7, 0xDF)),
+		activated_color(fl_rgb_color(0x63, 0x9C, 0xD7)));
+	greybird_default_button_frame(x, y, w, h, c);
+}
+
+static void greybird_tabs_frame(int x, int y, int w, int h, Fl_Color) {
+	// top outer border
+	fl_color(activated_color(fl_rgb_color(0xA6, 0xA6, 0xA6)));
+	fl_xyline(x+2, y, x+w-3);
+	// side outer borders
+	fl_color(activated_color(fl_rgb_color(0x96, 0x96, 0x96)));
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// bottom outer border
+	fl_color(activated_color(fl_rgb_color(0x87, 0x87, 0x87)));
+	fl_xyline(x+2, y+h-1, x+w-3);
+	// top inner border
+	fl_color(activated_color(fl_rgb_color(0xEE, 0xEE, 0xEE)));
+	fl_xyline(x+2, y+1, x+w-3);
+	// side inner borders
+	fl_color(activated_color(fl_rgb_color(0xE4, 0xE4, 0xE4)));
+	fl_yxline(x+1, y+2, y+h-3);
+	fl_yxline(x+w-2, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xB8, 0xB8, 0xB8)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xA0, 0xA0, 0xA0)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void greybird_tabs_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(fl_rgb_color(0xD9, 0xD9, 0xD9)));
+	fl_rectf(x+2, y+2, w-3, h-2);
+	greybird_tabs_frame(x, y, w, h, c);
+}
+
+static void greybird_swatch_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	greybird_spacer_thin_down_frame(x, y, w, h, c);
+}
+
+static void use_greybird_scheme() {
+	Fl::scheme("gtk+");
+	Fl::set_boxtype(OS_BUTTON_UP_BOX, greybird_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, greybird_check_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_BUTTON_UP_FRAME, greybird_button_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, greybird_check_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, greybird_panel_thin_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, greybird_spacer_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, greybird_panel_thin_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, greybird_spacer_thin_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, greybird_progress_round_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, greybird_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, greybird_hovered_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, greybird_depressed_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, greybird_hovered_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, greybird_depressed_down_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, greybird_group_thin_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, greybird_input_thin_down_box, 2, 3, 4, 4);
+	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, greybird_group_thin_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, greybird_input_thin_down_frame, 2, 3, 4, 4);
+	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, greybird_default_button_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_SWATCH_BOX, greybird_swatch_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TABS_BOX, greybird_tabs_box, 2, 2, 4, 4);
+	Fl::set_boxtype(FL_UP_BOX, greybird_button_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(FL_DOWN_BOX, greybird_check_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, greybird_radio_round_down_box, 3, 3, 6, 6);
+}
+
+static void use_greybird_colors() {
+	Fl::background(0xCE, 0xCE, 0xCE);
+	Fl::background2(0xFC, 0xFC, 0xFC);
+	Fl::foreground(0x3C, 0x3C, 0x3C);
+	Fl::set_color(FL_SELECTION_COLOR, 0x50, 0xA0, 0xF4);
+	Fl::set_color(OS_PROGRESS_COLOR, 0x3D, 0x90, 0xE8);
+	Fl::set_color(OS_TAB_COLOR, 0xD9, 0xD9, 0xD9);
+	Fl_Tooltip::color(fl_rgb_color(0x0A, 0x0A, 0x0A));
+	Fl_Tooltip::textcolor(fl_rgb_color(0xFF, 0xFF, 0xFF));
+}
+
+void OS::use_greybird_theme() {
+	use_greybird_scheme();
+	use_greybird_colors();
+	use_native_settings();
+	global_current_theme = GREYBIRD;
 }
 
 /************************** Blue (Windows Calculator) *************************/
@@ -963,7 +1316,6 @@ static void use_blue_colors() {
 }
 
 void OS::use_blue_theme() {
-	use_aero_font();
 	use_blue_scheme();
 	use_blue_colors();
 	use_native_settings();
@@ -1182,10 +1534,6 @@ static void dark_swatch_box(int x, int y, int w, int h, Fl_Color c) {
 	dark_swatch_frame(x, y, w, h, c);
 }
 
-void use_dark_font() {
-	OS::use_native_font();
-}
-
 static void use_dark_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, dark_button_up_box, 1, 1, 2, 2);
@@ -1226,7 +1574,6 @@ static void use_dark_colors() {
 }
 
 void OS::use_dark_theme() {
-	use_dark_font();
 	use_dark_scheme();
 	use_dark_colors();
 	use_native_settings();
@@ -1235,33 +1582,45 @@ void OS::use_dark_theme() {
 
 /********************************** OS Native *********************************/
 
+#ifdef _WIN32
 OS::Theme OS::global_current_theme = is_modern_windows() ? METRO : AERO;
+#else
+OS::Theme OS::global_current_theme = GREYBIRD;
+#endif
 
 void OS::use_native_font() {
-	if (is_modern_windows()) {
-		use_metro_font();
-	}
-	else {
-		use_aero_font();
-	}
+#ifdef _WIN32
+	use_font("Segoe UI", "Tahoma");
+
+#else
+	use_font("Droid Sans", "Sans");
+#endif
 }
 
 void OS::use_native_scheme() {
+#ifdef _WIN32
 	if (is_modern_windows()) {
 		use_metro_scheme();
 	}
 	else {
 		use_aero_scheme();
 	}
+#else
+	use_greybird_scheme();
+#endif
 }
 
 void OS::use_native_colors() {
+#ifdef _WIN32
 	if (is_modern_windows()) {
 		use_metro_colors();
 	}
 	else {
 		use_aero_colors();
 	}
+#else
+	use_greybird_colors();
+#endif
 }
 
 void OS::use_native_settings() {
@@ -1273,10 +1632,14 @@ void OS::use_native_settings() {
 }
 
 void OS::use_native_theme() {
+#ifdef _WIN32
 	if (is_modern_windows()) {
 		use_metro_theme();
 	}
 	else {
 		use_aero_theme();
 	}
+#else
+	use_greybird_theme();
+#endif
 }

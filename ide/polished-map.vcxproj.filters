@@ -24,12 +24,6 @@
     <ClCompile Include="..\src\modal-dialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\progress-dialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\waiting-dialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,13 +80,7 @@
     <ClInclude Include="..\src\modal-dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\progress-dialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\waiting-dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\widgets.h">

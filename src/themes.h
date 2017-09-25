@@ -9,7 +9,11 @@
 
 #define OS_FONT FL_FREE_FONT
 
+#ifdef _WIN32
 #define OS_FONT_SIZE 12
+#else
+#define OS_FONT_SIZE 13
+#endif
 
 #define OS_BUTTON_UP_BOX FL_GTK_UP_BOX
 #define OS_CHECK_DOWN_BOX FL_GTK_DOWN_BOX
@@ -38,11 +42,13 @@
 
 class OS {
 public:
-	enum Theme { AERO, METRO, BLUE, DARK };
+	enum Theme { AERO, METRO, GREYBIRD, BLUE, DARK };
 private:
 	static Theme global_current_theme;
 public:
+#ifdef _WIN32
 	static bool is_modern_windows(void);
+#endif
 	inline static Theme current_theme(void) { return global_current_theme; }
 	static void use_native_font(void);
 	static void use_native_scheme(void);
@@ -51,6 +57,7 @@ public:
 	static void use_native_settings(void);
 	static void use_aero_theme(void);
 	static void use_metro_theme(void);
+	static void use_greybird_theme(void);
 	static void use_blue_theme(void);
 	static void use_dark_theme(void);
 };

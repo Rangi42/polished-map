@@ -14,8 +14,6 @@
 #include "image.h"
 #include "widgets.h"
 #include "modal-dialog.h"
-#include "progress-dialog.h"
-#include "waiting-dialog.h"
 #include "option-dialogs.h"
 #include "tileset.h"
 #include "metatileset.h"
@@ -24,7 +22,11 @@
 #include "image.h"
 #include "icons.h"
 
+#ifdef _WIN32
 #include "resource.h"
+#else
+#include "app-icon.xpm"
+#endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
@@ -120,7 +122,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	size_range(384, 256);
 	resizable(_map_scroll);
 	callback((Fl_Callback *)exit_cb, this);
+
+	// Configure window icon
+#ifdef _WIN32
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
+#else
+	fl_open_display();
+	XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display), (char **)&APP_ICON_XPM, &_icon_pixmap, &_icon_mask, NULL);
+	icon((const void *)_icon_pixmap);
+#endif
 
 	// Configure workspaces
 	_sidebar->dnd_receiver(_dnd_receiver);
@@ -154,6 +164,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (OS::current_theme() == OS::AERO ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Metro", 0, (Fl_Callback *)metro_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::METRO ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Greybird", 0, (Fl_Callback *)greybird_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::GREYBIRD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::BLUE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
@@ -185,6 +197,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 #define PM_FIND_MENU_ITEM_CB(c) (const_cast<Fl_Menu_Item *>(_menu_bar->find_item((Fl_Callback *)(c))))
 	_aero_theme_mi = PM_FIND_MENU_ITEM_CB(aero_theme_cb);
 	_metro_theme_mi = PM_FIND_MENU_ITEM_CB(metro_theme_cb);
+	_greybird_theme_mi = PM_FIND_MENU_ITEM_CB(greybird_theme_cb);
 	_blue_theme_mi = PM_FIND_MENU_ITEM_CB(blue_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
@@ -307,6 +320,7 @@ Main_Window::~Main_Window() {
 
 void Main_Window::show() {
 	Fl_Double_Window::show();
+#ifdef _WIN32
 	// Fix for 16x16 icon from <http://www.fltk.org/str.php?L925>
 	HWND hwnd = fl_xid(this);
 	HANDLE big_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
@@ -315,6 +329,14 @@ void Main_Window::show() {
 	HANDLE small_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
 		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CXSMICON), 0);
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
+#else
+	// Fix for X11 icon alpha mask <https://www.mail-archive.com/fltk@easysw.com/msg02863.html>
+	XWMHints *hints = XGetWMHints(fl_display, fl_xid(this));
+	hints->flags |= IconMaskHint;
+	hints->icon_mask = _icon_mask;
+	XSetWMHints(fl_display, fl_xid(this), hints);
+	XFree(hints);
+#endif
 }
 
 const char *Main_Window::modified_filename() {
@@ -988,6 +1010,12 @@ void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_metro_theme();
 	mw->_metro_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_greybird_theme();
+	mw->_greybird_theme_mi->setonly();
 	mw->redraw();
 }
 

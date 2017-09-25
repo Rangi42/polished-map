@@ -30,7 +30,7 @@ private:
 	Fl_Group *_map_group;
 	// GUI inputs
 	DnD_Receiver *_dnd_receiver;
-	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
+	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_full_screen_mi, *_prism_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_resize_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb;
@@ -54,6 +54,10 @@ private:
 	bool _unsaved;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
+#ifndef _WIN32
+	// Window icons
+	Pixmap _icon_pixmap, _icon_mask;
+#endif
 public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
@@ -96,6 +100,7 @@ private:
 	// View menu
 	static void aero_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void metro_theme_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void greybird_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void blue_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void dark_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void grid_cb(Fl_Menu_ *m, Main_Window *mw);
