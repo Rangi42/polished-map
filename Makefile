@@ -72,3 +72,5 @@ clean:
 
 install: release
 	cp $(TARGET) /usr/local/bin/$(BINNAME)
+	cp $(RESDIR)/app.xpm /usr/share/pixmaps/polishedmap48.xpm
+	cp $(RESDIR)/app-icon.xpm /usr/share/pixmaps/polishedmap16.xpm

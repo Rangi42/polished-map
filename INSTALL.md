@@ -22,51 +22,10 @@ chmod +x configure
 ./configure --with-abiversion=10304
 sudo make
 sudo make install
+mkdir ../linux
 cp lib/*.a ../linux
 
 cd ../..
 
 make install
-```
-
-To build **polishedcrystal.gbc**:
-
-```bash
-make
-```
-
-To build other versions:
-
-```bash
-make [faithful] [nortc] [monochrome] [debug]
-```
-
-
-## Mac OS X
-
-In **Terminal**, run:
-
-```bash
-xcode-select --install
-
-git clone https://github.com/rednex/rgbds.git
-cd rgbds
-git checkout v0.3.1
-sudo make install
-cd ..
-
-git clone https://github.com/roukaour/polishedcrystal.git
-cd polishedcrystal
-```
-
-To build **polishedcrystal.gbc**:
-
-```bash
-make
-```
-
-To build other versions:
-
-```bash
-make [faithful] [nortc] [monochrome] [debug]
 ```
