@@ -10,7 +10,6 @@
 * Change color schemes for an already-open map
 * Swap tilesets for an already-open map
 * Use IFileOpenDialog, not SHBrowseForFolder, for new maps
-* Cross-platform support
 
 
 ## Never
