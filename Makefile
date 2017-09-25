@@ -14,7 +14,7 @@ DEBUGOBJDIR = tmp/$(OSDIRNAME)/debug
 LIBDIR = lib/$(OSDIRNAME)
 BINDIR = bin/$(OSDIRNAME)
 
-CXXFLAGS = -std=c++11 -isystem include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR)
+CXXFLAGS = -std=c++11 -I include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR)
 LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm -lXrender
 
 RELEASEFLAGS = -DNDEBUG -O2 -flto -march=native
@@ -27,48 +27,39 @@ DEBUGOBJECTS = $(SOURCES:$(SRCDIR)/%.cpp=$(DEBUGOBJDIR)/%.o)
 TARGET = $(BINDIR)/$(BINNAME)
 DEBUGTARGET = $(BINDIR)/$(DEBUGBINNAME)
 
-.PHONY: all $(DEBUGBINNAME) $(BINNAME) debug release clean install
+.PHONY: all $(BINNAME) $(DEBUGBINNAME) release debug clean install
 
 .SUFFIXES: .o .cpp
 
 all: $(BINNAME)
 
-$(DEBUGBINNAME): debug
 $(BINNAME): release
-
-debug: CXXFLAGS += $(DEBUGFLAGS)
-debug: $(DEBUGTARGET)
+$(DEBUGBINNAME): debug
 
 release: CXXFLAGS += $(RELEASEFLAGS)
 release: $(TARGET)
 
-$(DEBUGTARGET): $(DEBUGOBJECTS)
-	@ mkdir -p $(BINDIR)
-	@ echo Linking $@ ...
-	@ $(LD) -o $@ $^ $(LDFLAGS)
-	@ echo Done building $(PROGNAME)
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: $(DEBUGTARGET)
 
 $(TARGET): $(OBJECTS)
-	@ echo Building $(PROGNAME) for release ...
-	@ mkdir -p $(BINDIR)
-	@ echo Linking $@ ...
-	@ $(LD) -o $@ $(OPTIMIZELDFLAGS) $^ $(LDFLAGS)
-	@ echo Done building $(PROGNAME)
+	@mkdir -p $(@D)
+	$(LD) -o $@ $(OPTIMIZELDFLAGS) $^ $(LDFLAGS)
 
-$(DEBUGOBJDIR)/%.o: $(SRCDIR)/%.cpp $(COMMON)
-	@ mkdir -p $(DEBUGOBJDIR)
-	@ echo Compiling $@ ...
-	@ $(CXX) -c $(CXXFLAGS) -o $@ $<
+$(DEBUGTARGET): $(DEBUGOBJECTS)
+	@mkdir -p $(@D)
+	$(LD) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(COMMON)
-	@ mkdir -p $(OBJDIR)
-	@ echo Compiling $@ ...
-	@ $(CXX) -c $(CXXFLAGS) -o $@ $<
+	@mkdir -p $(@D)
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+$(DEBUGOBJDIR)/%.o: $(SRCDIR)/%.cpp $(COMMON)
+	@mkdir -p $(@D)
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 clean:
-	@ echo Cleaning ...
-	-@ $(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
-	@ echo Done cleaning
+	$(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
 
 install: release
 	cp $(TARGET) /usr/local/bin/$(BINNAME)
