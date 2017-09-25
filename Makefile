@@ -71,4 +71,17 @@ clean:
 	@ echo Done cleaning
 
 install:
-	@ echo TODO
+	sudo apt-get install make g++ git unzip
+
+	git clone https://github.com/roukaour/polished-map.git
+	cd polished-map/lib
+	unzip fltk-1.3.4.zip
+	cd fltk-1.3.4
+
+	./configure --with-abiversion=10304
+	make
+	sudo make install
+
+	cd ../..
+
+	make $(BINNAME)
