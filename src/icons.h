@@ -11,6 +11,7 @@
 #include "print.xpm"
 #include "undo.xpm"
 #include "redo.xpm"
+#include "add-sub.xpm"
 #include "resize.xpm"
 #include "grid.xpm"
 #include "zoom.xpm"
@@ -23,6 +24,7 @@ static Fl_Pixmap SAVE_ICON(SAVE_XPM);
 static Fl_Pixmap PRINT_ICON(PRINT_XPM);
 static Fl_Pixmap UNDO_ICON(UNDO_XPM);
 static Fl_Pixmap REDO_ICON(REDO_XPM);
+static Fl_Pixmap ADD_SUB_ICON(ADD_SUB_XPM);
 static Fl_Pixmap RESIZE_ICON(RESIZE_XPM);
 static Fl_Pixmap GRID_ICON(GRID_XPM);
 static Fl_Pixmap ZOOM_ICON(ZOOM_XPM);

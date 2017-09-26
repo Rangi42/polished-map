@@ -32,7 +32,7 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_full_screen_mi, *_prism_mi;
-	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_resize_tb;
+	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_x, *_hover_y, *_hover_id;
@@ -41,6 +41,7 @@ private:
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Resize_Dialog *_resize_dialog;
+	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
 	Block_Window *_block_window;
 	// Data
@@ -76,6 +77,7 @@ public:
 	void open_map(const char *filename);
 private:
 	void open_map(const char *directory, const char *filename);
+	void add_sub_metatiles(int n);
 	void resize_map(int w, int h);
 	bool save_map(void);
 	bool save_metatileset(void);
@@ -96,6 +98,7 @@ private:
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);
+	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
 	// View menu
 	static void aero_theme_cb(Fl_Menu_ *m, Main_Window *mw);

@@ -53,6 +53,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
+	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -101,6 +102,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
+	_add_sub_dialog = new Add_Sub_Dialog("Add/Remove Blocks");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
 
@@ -157,7 +159,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Edit"),
 		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, FL_MENU_INACTIVE),
 		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
-		OS_MENU_ITEM("Re&size", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
+		OS_MENU_ITEM("Add/Remove &Blocks...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
+		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
 		{},
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -238,7 +241,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_redo_tb->image(REDO_ICON);
 	_redo_tb->deactivate(); // TODO: implement redo
 
-	_resize_tb->tooltip("Resize (Ctrl+E)");
+	_add_sub_tb->tooltip("Add/Remove Blocks (Ctrl+B)");
+	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
+	_add_sub_tb->image(ADD_SUB_ICON);
+
+	_resize_tb->tooltip("Resize Map... (Ctrl+E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
 
@@ -316,6 +323,7 @@ Main_Window::~Main_Window() {
 	delete _about_dialog;
 	delete _map_options_dialog;
 	delete _resize_dialog;
+	delete _add_sub_dialog;
 	delete _help_window;
 	delete _block_window;
 }
@@ -574,6 +582,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	update_status(NULL);
 
 	redraw();
+}
+
+void Main_Window::add_sub_metatiles(int n) {
+	// TODO: add/remove blocks
 }
 
 void Main_Window::resize_map(int w, int h) {
@@ -992,6 +1004,15 @@ void Main_Window::undo_cb(Fl_Widget *, Main_Window *) {
 
 void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
 	// TODO: redo
+}
+
+void Main_Window::add_sub_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	mw->_add_sub_dialog->num_metatiles((uint8_t)mw->_metatileset.size());
+	mw->_add_sub_dialog->show(mw);
+	if (mw->_add_sub_dialog->num_metatiles() != mw->_metatileset.size()) {
+		mw->add_sub_metatiles((int)mw->_add_sub_dialog->num_metatiles());
+	}
 }
 
 void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {

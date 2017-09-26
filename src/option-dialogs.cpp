@@ -378,3 +378,28 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 
 	return ch;
 }
+
+Add_Sub_Dialog::Add_Sub_Dialog(const char *t) : Option_Dialog(194, t), _num_metatiles(NULL) {}
+
+Add_Sub_Dialog::~Add_Sub_Dialog() {
+	delete _num_metatiles;
+}
+
+void Add_Sub_Dialog::initialize_content() {
+	// Populate content group
+	_num_metatiles = new OS_Spinner(0, 0, 0, 0, "Blocks:");
+	// Initialize content group's children
+	_num_metatiles->align(FL_ALIGN_LEFT);
+	_num_metatiles->range(1, 256);
+}
+
+int Add_Sub_Dialog::refresh_content(int ww, int dy) {
+	int wgt_h = 22, win_m = 10;
+	_content->resize(win_m, dy, ww, wgt_h);
+
+	int wgt_off = win_m + text_width(_num_metatiles->label(), 2);
+	int wgt_w = text_width("999", 2) + wgt_h;
+	_num_metatiles->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return wgt_h;
+}

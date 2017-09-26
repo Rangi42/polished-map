@@ -84,4 +84,17 @@ protected:
 	int refresh_content(int ww, int dy);
 };
 
+class Add_Sub_Dialog : public Option_Dialog {
+private:
+	OS_Spinner *_num_metatiles;
+public:
+	Add_Sub_Dialog(const char *t);
+	~Add_Sub_Dialog();
+	inline size_t num_metatiles(void) const { return (size_t)_num_metatiles->value(); }
+	inline void num_metatiles(size_t n) { initialize(); _num_metatiles->value((double)n); }
+protected:
+	void initialize_content(void);
+	int refresh_content(int ww, int dy);
+};
+
 #endif

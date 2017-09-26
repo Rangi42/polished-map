@@ -148,6 +148,7 @@
     <ClInclude Include="..\src\widgets.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\add-sub.xpm" />
     <None Include="..\res\app.ico" />
     <None Include="..\res\app.xpm" />
     <None Include="..\res\error.xpm" />
