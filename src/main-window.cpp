@@ -66,7 +66,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
-	_metatile_count = new Status_Bar_Field(0, 0, text_width("Metatiles: 9999", 3), 0, "");
+	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 9999", 3), 0, "");
 	new Spacer(0, 0, 2, 0);
 	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 9999 x 9999", 3), 0, "");
 	new Spacer(0, 0, 2, 0);
@@ -375,9 +375,9 @@ void Main_Window::update_status(Block *b) {
 	char buffer[64] = {};
 	if (!b) {
 #ifdef __GNUC__
-		sprintf(buffer, "Metatiles: %zu", _metatileset.size());
+		sprintf(buffer, "Blocks: %zu", _metatileset.size());
 #else
-		sprintf(buffer, "Metatiles: %llu", _metatileset.size());
+		sprintf(buffer, "Blocks: %llu", _metatileset.size());
 #endif
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %u x %u", _map.width(), _map.height());
