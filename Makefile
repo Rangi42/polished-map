@@ -6,13 +6,12 @@ CXX = g++
 LD = $(CXX)
 RM = rm -rf
 
-OSDIRNAME = linux
 SRCDIR = src
 RESDIR = res
-OBJDIR = tmp/$(OSDIRNAME)
-DEBUGOBJDIR = tmp/$(OSDIRNAME)/debug
-LIBDIR = lib/$(OSDIRNAME)
-BINDIR = bin/$(OSDIRNAME)
+OBJDIR = tmp
+DEBUGOBJDIR = tmp/debug
+LIBDIR = lib
+BINDIR = bin
 
 CXXFLAGS = -std=c++11 -I include -I /usr/include -I$(SRCDIR) -I$(RESDIR)
 LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm -lXrender

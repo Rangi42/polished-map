@@ -22,8 +22,7 @@ chmod +x configure
 ./configure --with-abiversion=10304
 sudo make
 sudo make install
-mkdir ../linux
-cp lib/*.a ../linux
+cp lib/*.a ..
 
 cd ../..
 
