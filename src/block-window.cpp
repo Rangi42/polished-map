@@ -2,13 +2,14 @@
 #include "block-window.h"
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _metatile_id(0), _tileset(NULL), _canceled(false),
-	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tileset_group(NULL), _metatile_group(NULL),
-	_tile_buttons(), _chips(), _ok_button(NULL), _cancel_button(NULL), _selected(NULL) {}
+	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tile_heading(NULL), _tileset_group(NULL),
+	_metatile_group(NULL), _tile_buttons(), _chips(), _ok_button(NULL), _cancel_button(NULL), _selected(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
 	delete _tileset_heading;
 	delete _metatile_heading;
+	delete _tile_heading;
 	delete _tileset_group;
 	delete _metatile_group;
 	delete _cancel_button;
@@ -23,6 +24,7 @@ void Block_Window::initialize() {
 	_window = new Fl_Double_Window(_dx, _dy, 386, 304, "Edit Block");
 	_tileset_heading = new Label(10, 10, 258, 22);
 	_metatile_heading = new Label(278, 10, 98, 22);
+	_tile_heading = new Label(278, 140, 98, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
 	_tileset_group->end();
 	_window->begin();
@@ -138,6 +140,18 @@ void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) {
 	else {
 		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	}
+}
+
+void Block_Window::update_status(Chip *c) {
+	if (!c) {
+		_tile_heading->label("");
+	}
+	else {
+		char buffer[16] = {};
+		sprintf(buffer, "Tile: $%02X", c->id());
+		_tile_heading->copy_label(buffer);
+	}
+	_tile_heading->redraw();
 }
 
 void Block_Window::close_cb(Fl_Widget *, Block_Window *bw) {

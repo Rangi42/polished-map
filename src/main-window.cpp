@@ -367,7 +367,7 @@ void Main_Window::update_status(Block *b) {
 	if (!b) {
 		sprintf(buffer, "Metatiles: %lu", _metatileset.size());
 		_metatile_count->copy_label(buffer);
-		sprintf(buffer, "Map: %d x %d", _map.width(), _map.height());
+		sprintf(buffer, "Map: %u x %u", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);
 		_hover_x->label("");
 		_hover_y->label("");
@@ -385,11 +385,11 @@ void Main_Window::update_status(Block *b) {
 		_hover_id->copy_label(buffer);
 	}
 	else {
-		sprintf(buffer, "X: %d", col);
+		sprintf(buffer, "X: %u", col);
 		_hover_x->copy_label(buffer);
-		sprintf(buffer, "Y: %d", row);
+		sprintf(buffer, "Y: %u", row);
 		_hover_y->copy_label(buffer);
-		sprintf(buffer, "ID: %d", id);
+		sprintf(buffer, "ID: %u", id);
 		_hover_id->copy_label(buffer);
 	}
 	_status_bar->redraw();

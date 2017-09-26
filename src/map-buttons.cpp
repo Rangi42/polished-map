@@ -48,7 +48,7 @@ void Metatile_Button::id(uint8_t id) {
 	_id = id;
 	Main_Window *mw = (Main_Window *)user_data();
 	char buffer[16];
-	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%d", _id);
+	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%u", _id);
 	copy_label(buffer);
 }
 
@@ -86,7 +86,7 @@ Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box
 void Block::update_label() {
 	Main_Window *mw = (Main_Window *)user_data();
 	char buffer[16];
-	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%d", _id);
+	sprintf(buffer, (mw && mw->hex()) ? "%02X" : "%u", _id);
 	copy_label(buffer);
 }
 
@@ -162,15 +162,18 @@ void Chip::draw() {
 }
 
 int Chip::handle(int event) {
+	Block_Window *bw = (Block_Window *)user_data();
 	switch (event) {
 	case FL_ENTER:
 		if (Fl::event_button1() && !Fl::pushed()) {
 			Fl::pushed(this);
 			do_callback();
 		}
+		bw->update_status(this);
 		redraw();
 		return 1;
 	case FL_LEAVE:
+		bw->update_status(NULL);
 		redraw();
 		return 1;
 	case FL_MOVE:

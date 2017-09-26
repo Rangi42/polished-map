@@ -29,7 +29,7 @@ private:
 	const Tileset *_tileset;
 	bool _canceled;
 	Fl_Double_Window *_window;
-	Label *_tileset_heading, *_metatile_heading;
+	Label *_tileset_heading, *_metatile_heading, *_tile_heading;
 	Fl_Group *_tileset_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
@@ -49,6 +49,7 @@ public:
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
 	void draw_tile(int x, int y, uint8_t id, bool z = false);
+	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);
 	static void cancel_cb(Fl_Widget *w, Block_Window *bw);
