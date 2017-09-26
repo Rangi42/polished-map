@@ -30,7 +30,8 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _prism_mi(NULL),
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL),
+	_pokecrystal_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL), _prism_project_mi(NULL),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
@@ -114,12 +115,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_dnd_receiver->user_data(this);
 
 	// Get global configs
-	int grid_config, zoom_config, ids_config, hex_config, prism_config;
-	global_config.get("grid", grid_config, 1);
-	global_config.get("zoom", zoom_config, 0);
-	global_config.get("ids", ids_config, 0);
-	global_config.get("hex", hex_config, 1);
-	global_config.get("options-prism", prism_config, 0);
+	int grid_config = Config::get("grid", 1);
+	int zoom_config = Config::get("zoom", 0);
+	int ids_config = Config::get("ids", 0);
+	int hex_config = Config::get("hex", 1);
 
 	// Configure window
 	size_range(384, 256);
@@ -186,8 +185,16 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
-		OS_MENU_ITEM("&Prism Compatibility", 0, (Fl_Callback *)prism_cb, this,
-			FL_MENU_TOGGLE | (prism_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU),
+		OS_MENU_ITEM("poke&crystal", 0, (Fl_Callback *)pokecrystal_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("poke&red", 0, (Fl_Callback *)pokered_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::POKERED ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Polished Crystal", 0, (Fl_Callback *)polished_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::POLISHED ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("P&rism", 0, (Fl_Callback *)prism_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
+		{},
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -208,8 +215,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
-	_prism_mi = PM_FIND_MENU_ITEM_CB(prism_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
+	_pokecrystal_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal_project_cb);
+	_pokered_project_mi = PM_FIND_MENU_ITEM_CB(pokered_project_cb);
+	_polished_project_mi = PM_FIND_MENU_ITEM_CB(polished_project_cb);
+	_prism_project_mi = PM_FIND_MENU_ITEM_CB(prism_project_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -278,7 +288,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
 	_blk_save_chooser->preset_file(NEW_BLK_NAME);
 
-	_new_dir_chooser->title("Choose pokecrystal project directory:");
+	_new_dir_chooser->title("Choose project directory:");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -354,7 +364,7 @@ const char *Main_Window::modified_filename() {
 		return fl_filename_name(_blk_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
-	metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+	Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
 	return fl_filename_name(buffer);
 }
 
@@ -423,9 +433,10 @@ void Main_Window::open_map(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
 	char directory[FL_PATH_MAX] = {};
-	if (!project_path_from_blk_path(filename, directory, prism())) {
+	if (!Config::project_path_from_blk_path(filename, directory)) {
 		std::string msg = "Could not get project directory for ";
-		msg = msg + basename + "!";
+		msg = msg + basename + "!\n\n"
+		"Make sure Options->Project Type is correct.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -438,7 +449,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
 		std::string msg = "Wrong project directory structure!\n\n"
-			"Double-check Options->Prism Compatibility.";
+		"Make sure Options->Project Type is correct.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -465,7 +476,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	else {
 		char new_filename[FL_PATH_MAX] = {};
-		blk_path_from_project_path(directory, new_filename, prism());
+		Config::blk_path_from_project_path(directory, new_filename);
 		strcat(new_filename, NEW_BLK_NAME);
 		_blk_file = new_filename;
 	}
@@ -477,30 +488,30 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	Tileset *tileset = _metatileset.tileset();
 	tileset->name(tileset_name);
 
-	palette_map_path(buffer, directory, tileset_name);
+	Config::palette_map_path(buffer, directory, tileset_name);
 	if (Palette_Map::Result r = tileset->read_palette_map(buffer)) {
 		std::string msg = "Error reading ";
-		palette_map_path(buffer, "", tileset_name);
+		Config::palette_map_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
 	}
 
-	tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = tileset->read_graphics(buffer, _map_options_dialog->lighting(), _map_options_dialog->skip_60_7f())) {
+	Config::tileset_path(buffer, directory, tileset_name);
+	if (Tileset::Result r = tileset->read_graphics(buffer, _map_options_dialog->lighting())) {
 		std::string msg = "Error reading ";
-		tileset_path(buffer, "", tileset_name);
+		Config::tileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
 	}
 
-	metatileset_path(buffer, directory, tileset_name);
+	Config::metatileset_path(buffer, directory, tileset_name);
 	if (Metatileset::Result r = _metatileset.read_metatiles(buffer)) {
 		std::string msg = "Error reading ";
-		metatileset_path(buffer, "", tileset_name);
+		Config::metatileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
@@ -743,7 +754,7 @@ bool Main_Window::save_metatileset() {
 	char filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
 	const char *tileset_name = _metatileset.tileset()->name();
-	metatileset_path(filename, directory, tileset_name);
+	Config::metatileset_path(filename, directory, tileset_name);
 
 	if (_metatileset.modified()) {
 		FILE *file = fl_fopen(filename, "wb");
@@ -920,7 +931,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	char directory[FL_PATH_MAX] = {};
-	if (!project_path_from_blk_path(filename, directory, mw->prism())) {
+	if (!Config::project_path_from_blk_path(filename, directory)) {
 		std::string msg = "Could not get project directory for ";
 		msg = msg + basename + "!";
 		mw->_error_dialog->message(msg);
@@ -1020,22 +1031,21 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	// Save global config
-	global_config.set("theme", OS::current_theme());
-	global_config.set("x", mw->x());
-	global_config.set("y", mw->y());
-	global_config.set("w", mw->w());
-	global_config.set("h", mw->h());
-	global_config.set("grid", mw->grid());
-	global_config.set("zoom", mw->zoom());
-	global_config.set("ids", mw->ids());
-	global_config.set("hex", mw->hex());
-	global_config.set("options-prism", mw->prism());
+	Config::set("theme", OS::current_theme());
+	Config::set("project", Config::project());
+	Config::set("x", mw->x());
+	Config::set("y", mw->y());
+	Config::set("w", mw->w());
+	Config::set("h", mw->h());
+	Config::set("grid", mw->grid());
+	Config::set("zoom", mw->zoom());
+	Config::set("ids", mw->ids());
+	Config::set("hex", mw->hex());
 	if (mw->_map_options_dialog->initialized()) {
-		global_config.set("map-lighting", mw->_map_options_dialog->lighting());
-		global_config.set("map-skip", mw->_map_options_dialog->skip_60_7f());
+		Config::set("map-lighting", mw->_map_options_dialog->lighting());
 	}
 	if (mw->_resize_dialog->initialized()) {
-		global_config.set("resize-anchor", mw->_resize_dialog->anchor());
+		Config::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
 
 	exit(EXIT_SUCCESS);
@@ -1136,7 +1146,27 @@ void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	}
 }
 
-void Main_Window::prism_cb(Fl_Menu_ *, Main_Window *mw) {
+void Main_Window::pokecrystal_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::POKECRYSTAL);
+	mw->_pokecrystal_project_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::pokered_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::POKERED);
+	mw->_pokered_project_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::polished_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::POLISHED);
+	mw->_polished_project_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::PRISM);
+	mw->_prism_project_mi->setonly();
 	mw->redraw();
 }
 

@@ -31,7 +31,7 @@ public:
 	inline Result result(void) const { return _result; }
 	void clear(void);
 	Palette_Map::Result read_palette_map(const char *f);
-	Result read_graphics(const char *f, Lighting l, bool skip_60_7f = false);
+	Result read_graphics(const char *f, Lighting l);
 	static const char *error_message(Result result);
 };
 

@@ -1,3 +1,4 @@
+#include "config.h"
 #include "tiled-image.h"
 #include "tileset.h"
 
@@ -70,7 +71,7 @@ Palette_Map::Result Tileset::read_palette_map(const char *f) {
 	return _palette_map.read_from(f);
 }
 
-Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7f) {
+Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
 	Tiled_Image ti(f);
@@ -88,8 +89,9 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l, bool skip_60_7
 	}
 
 	_num_tiles = ti.num_tiles();
+	bool skip = Config::skip_tiles_60_to_7f();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = skip_60_7f ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
+		int j = skip ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
 		Tile *t = _tiles[j];
 		Palette_Map::Palette p = _palette_map.palette((uint8_t)i);
 		for (int ty = 0; ty < TILE_SIZE; ty++) {

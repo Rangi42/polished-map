@@ -43,7 +43,6 @@ private:
 	int _max_tileset_name_length;
 	OS_Spinner *_map_width, *_map_height;
 	Dropdown *_tileset, *_lighting;
-	OS_Check_Button *_skip_60_7f;
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
@@ -52,7 +51,6 @@ public:
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	inline const char *tileset(void) const { return _tileset->mvalue() ? _tileset->mvalue()->label() : NULL; }
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
-	inline bool skip_60_7f(void) const { return !!_skip_60_7f->value(); }
 private:
 	bool guess_map_size(const char *filename, const char *directory);
 protected:

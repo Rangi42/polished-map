@@ -90,14 +90,13 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(290, t), _max_tileset_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL), _skip_60_7f(NULL) {}
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
 	delete _tileset;
 	delete _lighting;
-	delete _skip_60_7f;
 }
 
 inline static bool isupperordigit(int c) { return isupper(c) || isdigit(c); }
@@ -122,7 +121,7 @@ static void guess_map_constant(const char *name, char *constant) {
 
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
 	char map_constants[FL_PATH_MAX] = {};
-	map_constants_path(map_constants, directory);
+	Config::map_constants_path(map_constants, directory);
 
 	std::ifstream ifs(map_constants);
 	if (!ifs.good()) { return false; }
@@ -131,12 +130,14 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	char constant[FL_PATH_MAX] = {};
 	guess_map_constant(name, constant);
 
+	const char *macro = Config::map_macro();
+	size_t macro_len = strlen(macro) + 1; // include next whitespace character
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
 		trim(line);
-		if (!starts_with(line, "mapgroup ")) { continue; }
-		line.erase(0, 9); // remove leading "mapgroup "
+		if (!starts_with(line, macro)) { continue; }
+		line.erase(0, macro_len);
 		if (!starts_with(line, constant)) { continue; }
 		line.erase(0, strlen(constant));
 		std::istringstream lss(line);
@@ -167,7 +168,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	char tileset_directory[FL_PATH_MAX] = {};
 	strcpy(tileset_directory, directory);
-	strcat(tileset_directory, gfx_tileset_dir());
+	strcat(tileset_directory, Config::gfx_tileset_dir());
 
 	dirent **list;
 	int n = fl_filename_list(tileset_directory, &list);
@@ -207,7 +208,6 @@ void Map_Options_Dialog::initialize_content() {
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
-	_skip_60_7f = new OS_Check_Button(0, 0, 0, 0, "Skip tile IDs $60-$7F (pokecrystal)");
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
 	_map_width->range(1, 255);
@@ -218,17 +218,12 @@ void Map_Options_Dialog::initialize_content() {
 	_lighting->add("Day"); // DAY
 	_lighting->add("Nite"); // NITE
 	_lighting->add("Indoor"); // INDOOR
-	int lighting;
-	global_config.get("map-lighting", lighting, (int)Tileset::Lighting::DAY);
-	_lighting->value((Tileset::Lighting)lighting);
-	int skip;
-	global_config.get("map-skip", skip, 0);
-	_skip_60_7f->value(skip);
+	_lighting->value((Tileset::Lighting)Config::get("map-lighting", (int)Tileset::Lighting::DAY));
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = (wgt_h + wgt_m) * 3 + wgt_h;
+	int ch = (wgt_h + wgt_m) * 2 + wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
 	int wgt_off = win_m + MAX(MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2)), text_width(_lighting->label(), 2));
@@ -244,10 +239,6 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
 	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + wgt_m;
-
-	wgt_w = text_width("Skip tile IDs $60-$7F (pokecrystal)", 2) + wgt_h;
-	_skip_60_7f->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
 }
@@ -346,9 +337,7 @@ void Resize_Dialog::initialize_content() {
 	_anchor_bottom_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	_anchor_bottom_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	_anchor_bottom_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	int anchor_config;
-	global_config.get("resize-anchor", anchor_config, 4);
-	anchor(anchor_config);
+	anchor(Config::get("resize-anchor", 4));
 }
 
 int Resize_Dialog::refresh_content(int ww, int dy) {

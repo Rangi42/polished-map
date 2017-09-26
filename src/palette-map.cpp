@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "utils.h"
+#include "config.h"
 #include "palette-map.h"
 
 Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {
@@ -17,6 +18,13 @@ void Palette_Map::clear() {
 
 Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
+
+	if (Config::monochrome()) {
+		memset(_palette, Palette::GRAY, MAX_NUM_TILES);
+		_palette_size = 128;
+		return (_result = PALETTE_OK);
+	}
+
 	std::ifstream ifs(f);
 	if (!ifs.good()) { return (_result = BAD_PALETTE_FILE); }
 	std::string prefix("\ttilepal");

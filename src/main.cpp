@@ -48,23 +48,21 @@ int main(int argc, char **argv) {
 #endif
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
-	int theme;
 #ifdef _WIN32
-	global_config.get("theme", theme, (int)OS::Theme::BLUE);
+	OS::Theme theme = (OS::Theme)Config::get("theme", (int)OS::Theme::BLUE);
 #else
-	global_config.get("theme", theme, (int)OS::Theme::GREYBIRD);
+	OS::Theme theme = (OS::Theme)Config::get("theme", (int)OS::Theme::GREYBIRD);
 #endif
-	use_theme((OS::Theme)theme);
+	use_theme(theme);
 
-	int x, y, w, h;
-	global_config.get("x", x, 48);
+	Config::project((Config::Project)Config::get("project", Config::project()));
+
 #ifdef _WIN32
-	global_config.get("y", y, 48 + GetSystemMetrics(SM_CYCAPTION));
+	int x = Config::get("x", 48), y = Config::get("y", 48 + GetSystemMetrics(SM_CYCAPTION));
 #else
-	global_config.get("y", y, 48);
+	int x = Config::get("x", 48), y = Config::get("y", 48);
 #endif
-	global_config.get("w", w, 640);
-	global_config.get("h", h, 480);
+	int w = Config::get("w", 640), h = Config::get("h", 480);
 	Main_Window window(x, y, w, h);
 	window.show();
 
