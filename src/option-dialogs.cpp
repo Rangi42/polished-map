@@ -251,7 +251,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	return ch;
 }
 
-Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(240, t), _map_width(NULL), _map_height(NULL),
+Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(220, t), _map_width(NULL), _map_height(NULL),
 	_anchor_top_left(NULL), _anchor_top_center(NULL), _anchor_top_right(NULL),
 	_anchor_middle_left(NULL), _anchor_middle_center(NULL), _anchor_middle_right(NULL),
 	_anchor_bottom_left(NULL), _anchor_bottom_center(NULL), _anchor_bottom_right(NULL) {}
