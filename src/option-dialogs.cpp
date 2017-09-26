@@ -176,7 +176,6 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 	_tileset->clear();
 
-	std::string dir(directory);
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
 		if (ends_with(name, ".2bpp.lz")) {

@@ -30,8 +30,8 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _prism_mi(NULL),
+	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Populate window
 
@@ -282,8 +282,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_success_dialog->width_range(280, 700);
 	_unsaved_dialog->width_range(280, 700);
 
-	_about_dialog->subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING);
-	_about_dialog->message(
+	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
 		"Copyright \xc2\xa9 2017 Rangi.\n"
 		"\n"
 		"Source code is available at:\n"
@@ -291,6 +290,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		"\n"
 		"Some icons by Yusuke Kamiyamane."
 	);
+	_about_dialog->subject(subject);
+	_about_dialog->message(message);
 	_about_dialog->width_range(280, 700);
 
 	_help_window->content(
@@ -349,7 +350,7 @@ const char *Main_Window::modified_filename() {
 	return fl_filename_name(buffer);
 }
 
-void Main_Window::draw_metatile(int x, int y, uint8_t id) {
+void Main_Window::draw_metatile(int x, int y, uint8_t id) const {
 	_metatileset.draw_metatile(x, y, id, zoom());
 }
 
@@ -365,7 +366,7 @@ void Main_Window::update_status(Block *b) {
 	}
 	char buffer[64] = {};
 	if (!b) {
-		sprintf(buffer, "Metatiles: %lu", _metatileset.size());
+		sprintf(buffer, "Metatiles: %zu", _metatileset.size());
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %u x %u", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);

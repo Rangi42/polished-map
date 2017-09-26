@@ -21,11 +21,11 @@ private:
 public:
 	Tileset();
 	~Tileset();
-	const char *name(void) const { return _name.c_str(); }
-	void name(const char *name) { _name = name; }
-	const Tile *tile(uint8_t i) const { return _tiles[i]; }
-	size_t num_tiles(void) const { return _num_tiles; }
-	Result result(void) const { return _result; }
+	inline const char *name(void) const { return _name.c_str(); }
+	inline void name(const char *name) { _name = name; }
+	inline const Tile *tile(uint8_t i) const { return _tiles[i]; }
+	inline size_t num_tiles(void) const { return _num_tiles; }
+	inline Result result(void) const { return _result; }
 	void clear(void);
 	Palette_Map::Result read_palette_map(const char *f);
 	Result read_graphics(const char *f, Lighting l, bool skip_60_7f = false);

@@ -25,12 +25,12 @@ private:
 	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
 public:
 	Tile(uint8_t id);
-	uint8_t id(void) const { return _id; }
-	const uchar *rgb(void) const { return _rgb; }
-	uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
-	const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
+	inline uint8_t id(void) const { return _id; }
+	inline const uchar *rgb(void) const { return _rgb; }
+	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
+	inline const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	void pixel(int x, int y, const uchar *rgb);
-	void clear(void) { memset(_rgb, WHITE, sizeof(_rgb)); }
+	inline void clear(void) { memset(_rgb, WHITE, sizeof(_rgb)); }
 };
 
 #endif

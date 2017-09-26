@@ -17,9 +17,9 @@ private:
 	Result _result;
 public:
 	Tile_Colors(void);
-	Color color(uint8_t i) { return _colors[i]; }
-	size_t size(void) const { return _colors_size; }
-	Result result(void) const { return _result; }
+	inline Color color(uint8_t i) const { return _colors[i]; }
+	inline size_t size(void) const { return _colors_size; }
+	inline Result result(void) const { return _result; }
 	void clear(void);
 	Result read_from(const char *f);
 	static const char *error_message(Result result);

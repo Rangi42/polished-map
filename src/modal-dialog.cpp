@@ -25,7 +25,7 @@ Fl_Pixmap Modal_Dialog::ERROR_SHIELD_ICON(ERROR_XPM);
 Fl_Pixmap Modal_Dialog::PROGRAM_ICON(APP_XPM);
 
 Modal_Dialog::Modal_Dialog(Fl_Window *top, const char *t, Icon c, bool cancel) : _icon_type(c),
-	_title(t), _subject(), _message(), _canceled(cancel), _min_w(0), _max_w(1000),
+	_title(t), _subject(), _message(), _min_w(0), _max_w(1000), _canceled(cancel),
 	_top_window(top), _dialog(NULL), _icon(NULL), _heading(NULL), _body(NULL), _ok_button(NULL), _cancel_button(NULL) {}
 
 Modal_Dialog::~Modal_Dialog() {

@@ -67,10 +67,10 @@ public:
 	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool prism(void) const { return _prism_mi && !!_prism_mi->value(); }
-	int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
+	inline int metatile_size(void) const { return zoom() ? METATILE_PX_SIZE * 2 : METATILE_PX_SIZE; }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
 	const char *modified_filename(void);
-	void draw_metatile(int x, int y, uint8_t id);
+	void draw_metatile(int x, int y, uint8_t id) const;
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void open_map(const char *filename);
@@ -119,7 +119,7 @@ private:
 	static void help_cb(Fl_Widget *w, Main_Window *mw);
 	static void about_cb(Fl_Widget *w, Main_Window *mw);
 	// Metatiles sidebar
-	static void select_metatile_cb(Metatile_Button *mt, Main_Window *mw);
+	static void select_metatile_cb(Metatile_Button *mb, Main_Window *mw);
 	// Map
 	static void change_block_cb(Block *b, Main_Window *mw);
 };

@@ -29,7 +29,7 @@ void Metatileset::clear() {
 	_modified = false;
 }
 
-void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) {
+void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 	Metatile *mt = _metatiles[id];
 	int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
 	int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);

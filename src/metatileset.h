@@ -20,14 +20,14 @@ private:
 public:
 	Metatileset();
 	~Metatileset();
-	size_t size(void) const { return _num_metatiles; }
-	Tileset *tileset(void) { return &_tileset; }
-	Metatile *metatile(uint8_t id) { return _metatiles[id]; }
-	Result result(void) const { return _result; }
+	inline size_t size(void) const { return _num_metatiles; }
+	inline Tileset *tileset(void) { return &_tileset; }
+	inline Metatile *metatile(uint8_t id) { return _metatiles[id]; }
+	inline Result result(void) const { return _result; }
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
 	void clear(void);
-	void draw_metatile(int x, int y, uint8_t id, bool z);
+	void draw_metatile(int x, int y, uint8_t id, bool z) const;
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
 	static const char *error_message(Result result);

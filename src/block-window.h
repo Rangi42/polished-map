@@ -48,7 +48,7 @@ public:
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
-	void draw_tile(int x, int y, uint8_t id, bool z = false);
+	void draw_tile(int x, int y, uint8_t id, bool z = false) const;
 	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);

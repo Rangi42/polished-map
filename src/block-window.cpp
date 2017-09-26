@@ -3,7 +3,7 @@
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _metatile_id(0), _tileset(NULL), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tile_heading(NULL), _tileset_group(NULL),
-	_metatile_group(NULL), _tile_buttons(), _chips(), _ok_button(NULL), _cancel_button(NULL), _selected(NULL) {}
+	_metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
@@ -116,7 +116,7 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) {
+void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) const {
 	const Tile *t = _tileset->tile(id);
 	const uchar *rgb = t->rgb();
 	if (z) {
