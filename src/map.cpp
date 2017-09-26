@@ -36,7 +36,7 @@ Map::Result Map::read_blocks(const char *f) {
 	uint8_t *data = new uint8_t[size() + 1];
 	size_t c = fread(data, 1, size() + 1, file);
 	fclose(file);
-	if (c < size()) { delete data; return (_result = MAP_TOO_SHORT); } // too-short blk
+	if (c < size()) { delete [] data; return (_result = MAP_TOO_SHORT); } // too-short blk
 	if (c == size() + 1) { too_long = true; }
 
 	for (uint8_t y = 0; y < (size_t)_height; y++) {
@@ -47,7 +47,7 @@ Map::Result Map::read_blocks(const char *f) {
 		}
 	}
 
-	delete data;
+	delete [] data;
 	return (_result = too_long ? MAP_TOO_LONG : MAP_OK);
 }
 

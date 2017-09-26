@@ -18,7 +18,7 @@ CXXFLAGS = -std=c++11 -I include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR)
 LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm -lXrender
 
 RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native
-DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-reorder -Wno-unused-parameter -Wno-sign-compare
+DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare
 
 COMMON = $(wildcard $(SRCDIR)/*.h) $(wildcard $(RESDIR)/*.xpm)
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
