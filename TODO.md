@@ -1,7 +1,8 @@
 # To Do
 
 * **Add:** Undo + Redo
-* **Fix:** incorrect sidebar size when resizing window (sometimes)
+* **Fix:** Incorrect sidebar size when resizing window (sometimes)
+* **Fix:** Adding blocks to a scrolled sidebar has wrong coordinates
 
 
 ## Maybe
