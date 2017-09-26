@@ -34,6 +34,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_pokecrystal_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL), _prism_project_mi(NULL),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
+	// Get global configs
+	int grid_config = Config::get("grid", 1);
+	int zoom_config = Config::get("zoom", 0);
+	int ids_config = Config::get("ids", 0);
+	int hex_config = Config::get("hex", 1);
+
 	// Populate window
 
 	int wx = 0, wy = 0, ww = w, wh = h;
@@ -78,7 +84,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	begin();
 
 	// Sidebar
-	_sidebar = new Workspace(wx, wy, metatile_size() * METATILES_PER_ROW + Fl::scrollbar_size(), wh);
+	int sw = METATILE_PX_SIZE * (zoom_config ? ZOOM_FACTOR : 1) * METATILES_PER_ROW + Fl::scrollbar_size();
+	_sidebar = new Workspace(wx, wy, sw, wh);
 	wx += _sidebar->w();
 	ww -= _sidebar->w();
 	_sidebar->type(Fl_Scroll::VERTICAL_ALWAYS);
@@ -113,12 +120,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	end();
 	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
 	_dnd_receiver->user_data(this);
-
-	// Get global configs
-	int grid_config = Config::get("grid", 1);
-	int zoom_config = Config::get("zoom", 0);
-	int ids_config = Config::get("ids", 0);
-	int hex_config = Config::get("hex", 1);
 
 	// Configure window
 	size_range(384, 256);
