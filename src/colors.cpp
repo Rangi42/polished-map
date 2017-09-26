@@ -10,7 +10,7 @@ Tile_Colors::Tile_Colors() : _colors(), _colors_size(0), _result(COLORS_NULL) {
 }
 
 void Tile_Colors::clear() {
-	memset(_colors, Color::UNDEFINED, MAX_NUM_TILES);
+	FILL(_colors, Color::UNDEFINED, MAX_NUM_TILES);
 	_colors_size = 0;
 	_result = COLORS_NULL;
 }

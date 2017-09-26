@@ -970,7 +970,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->contents(0, 0);
-	memset(mw->_metatile_buttons, 0, sizeof(mw->_metatile_buttons));
+	FILL(mw->_metatile_buttons, 0, MAX_NUM_METATILES);
 	mw->_selected = NULL;
 	mw->_map_group->clear();
 	mw->_map_group->size(0, 0);

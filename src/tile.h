@@ -30,7 +30,7 @@ public:
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	inline const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	void pixel(int x, int y, const uchar *rgb);
-	inline void clear(void) { memset(_rgb, WHITE, sizeof(_rgb)); }
+	inline void clear(void) { FILL(_rgb, WHITE, sizeof(_rgb)); }
 };
 
 #endif

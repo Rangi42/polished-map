@@ -5,7 +5,7 @@
 const uchar empty_rgb[NUM_CHANNELS] = {EMPTY_RGB};
 
 // Tileset.Lighting x Palette_Map.Palette x Tile.Hue x RGB
-static const uchar tileset_colors[3][9][4][NUM_CHANNELS] = {
+static const uchar tileset_colors[3][10][4][NUM_CHANNELS] = {
 	{ // DAY
 		// WHITE, DARK, LIGHT, BLACK
 		{{8*27, 8*31, 8*27}, {8*13, 8*13, 8*13}, {8*21, 8*21, 8*21}, {8* 7, 8* 7, 8* 7}}, // GRAY
@@ -16,6 +16,7 @@ static const uchar tileset_colors[3][9][4][NUM_CHANNELS] = {
 		{{8*27, 8*31, 8*27}, {8*20, 8*15, 8* 3}, {8*24, 8*18, 8* 7}, {8* 7, 8* 7, 8* 7}}, // BROWN
 		{{8*27, 8*31, 8*27}, {8* 5, 8*17, 8*31}, {8*15, 8*31, 8*31}, {8* 7, 8* 7, 8* 7}}, // ROOF
 		{{8*31, 8*31, 8*16}, {8*14, 8* 9, 8* 0}, {8*31, 8*31, 8*16}, {8* 0, 8* 0, 8* 0}}, // TEXT
+		{{8*28, 8*31, 8*26}, {8* 6, 8*13, 8*10}, {8*17, 8*24, 8*14}, {8* 1, 8* 3, 8* 4}}, // MONOCHROME
 		{{EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB}       }, // UNDEFINED
 	},
 	{ // NITE
@@ -28,6 +29,7 @@ static const uchar tileset_colors[3][9][4][NUM_CHANNELS] = {
 		{{8*15, 8*14, 8*24}, {8* 8, 8* 4, 8* 5}, {8*12, 8* 9, 8*15}, {8* 0, 8* 0, 8* 0}}, // BROWN
 		{{8*15, 8*14, 8*24}, {8*11, 8* 9, 8*20}, {8*13, 8*12, 8*23}, {8* 0, 8* 0, 8* 0}}, // ROOF
 		{{8*31, 8*31, 8*16}, {8*14, 8* 9, 8* 0}, {8*31, 8*31, 8*16}, {8* 0, 8* 0, 8* 0}}, // TEXT
+		{{8*28, 8*31, 8*26}, {8* 6, 8*13, 8*10}, {8*17, 8*24, 8*14}, {8* 1, 8* 3, 8* 4}}, // MONOCHROME
 		{{EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB}       }, // UNDEFINED
 	},
 	{ // INDOOR
@@ -40,6 +42,7 @@ static const uchar tileset_colors[3][9][4][NUM_CHANNELS] = {
 		{{8*26, 8*24, 8*17}, {8*16, 8*13, 8* 3}, {8*21, 8*17, 8* 7}, {8* 7, 8* 7, 8* 7}}, // BROWN
 		{{8*30, 8*28, 8*26}, {8*14, 8*16, 8*31}, {8*17, 8*19, 8*31}, {8* 7, 8* 7, 8* 7}}, // ROOF
 		{{8*31, 8*31, 8*16}, {8*14, 8* 9, 8* 0}, {8*31, 8*31, 8*16}, {8* 0, 8* 0, 8* 0}}, // TEXT
+		{{8*28, 8*31, 8*26}, {8* 6, 8*13, 8*10}, {8*17, 8*24, 8*14}, {8* 1, 8* 3, 8* 4}}, // MONOCHROME
 		{{EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB},        {EMPTY_RGB}       }, // UNDEFINED
 	},
 };
