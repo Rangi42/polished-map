@@ -366,7 +366,7 @@ void Main_Window::update_status(Block *b) {
 	}
 	char buffer[64] = {};
 	if (!b) {
-		sprintf(buffer, "Metatiles: %zu", _metatileset.size());
+		sprintf(buffer, "Metatiles: %llu", _metatileset.size());
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %u x %u", _map.width(), _map.height());
 		_map_dimensions->copy_label(buffer);
