@@ -14,7 +14,7 @@ DEBUGOBJDIR = tmp/$(OSDIRNAME)/debug
 LIBDIR = lib/$(OSDIRNAME)
 BINDIR = bin/$(OSDIRNAME)
 
-CXXFLAGS = -std=c++11 -I include -isystem /usr/include -I$(SRCDIR) -I$(RESDIR)
+CXXFLAGS = -std=c++11 -I include -I /usr/include -I$(SRCDIR) -I$(RESDIR)
 LDFLAGS = $(wildcard $(LIBDIR)/*.a) -lm -lpng -lz -lXfixes -lXext -lXft -lfontconfig -lXinerama -lpthread -ldl -lX11 -lXpm -lXrender
 
 RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native

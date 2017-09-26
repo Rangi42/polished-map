@@ -77,7 +77,7 @@ public:
 	void open_map(const char *filename);
 private:
 	void open_map(const char *directory, const char *filename);
-	void add_sub_metatiles(int n);
+	void add_sub_metatiles(size_t n);
 	void resize_map(int w, int h);
 	bool save_map(void);
 	bool save_metatileset(void);

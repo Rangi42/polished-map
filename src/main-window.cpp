@@ -584,8 +584,43 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
-void Main_Window::add_sub_metatiles(int n) {
-	// TODO: add/remove blocks
+void Main_Window::add_sub_metatiles(size_t n) {
+	size_t s = _metatileset.size();
+	if (n == s) { return; }
+	_metatileset.size(n);
+	int ms = metatile_size();
+
+	if (n > s) {
+		// add metatiles
+		for (int i = (int)s; i < n; i++) {
+			int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
+			Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
+			mtb->callback((Fl_Callback *)select_metatile_cb, this);
+			_sidebar->add(mtb);
+			_metatile_buttons[i] = mtb;
+		}
+	}
+	else if (n < s) {
+		// remove metatiles
+		if (_selected->id() >= n) {
+			_selected = _metatile_buttons[0];
+			_selected->setonly();
+			_sidebar->scroll_to(0, 0);
+		}
+		for (int i = (int)n; i < s; i++) {
+			_sidebar->remove((int)n);
+			_metatile_buttons[i] = NULL;
+		}
+	}
+
+	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
+	_sidebar->init_sizes();
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+
+	update_labels();
+	update_status(NULL);
+
+	redraw();
 }
 
 void Main_Window::resize_map(int w, int h) {
@@ -1008,8 +1043,9 @@ void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
 
 void Main_Window::add_sub_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
-	mw->_add_sub_dialog->num_metatiles((uint8_t)mw->_metatileset.size());
+	mw->_add_sub_dialog->num_metatiles(mw->_metatileset.size());
 	mw->_add_sub_dialog->show(mw);
+	if (mw->_add_sub_dialog->canceled()) { return; }
 	if (mw->_add_sub_dialog->num_metatiles() != mw->_metatileset.size()) {
 		mw->add_sub_metatiles((int)mw->_add_sub_dialog->num_metatiles());
 	}
@@ -1019,6 +1055,7 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->_resize_dialog->map_size(mw->_map.width(), mw->_map.height());
 	mw->_resize_dialog->show(mw);
+	if (mw->_resize_dialog->canceled()) { return; }
 	if (mw->_resize_dialog->map_width() != mw->_map.width() || mw->_resize_dialog->map_height() != mw->_map.height()) {
 		mw->resize_map(mw->_resize_dialog->map_width(), mw->_resize_dialog->map_height());
 	}

@@ -21,6 +21,7 @@ public:
 	Metatileset();
 	~Metatileset();
 	inline size_t size(void) const { return _num_metatiles; }
+	void size(size_t n);
 	inline Tileset *tileset(void) { return &_tileset; }
 	inline Metatile *metatile(uint8_t id) { return _metatiles[id]; }
 	inline Result result(void) const { return _result; }

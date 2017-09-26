@@ -1,7 +1,6 @@
 # To Do
 
 * **Add:** Undo + Redo
-* **Add:** Add + remove metatiles
 * **Fix:** incorrect sidebar size when resizing window (sometimes)
 
 
@@ -10,7 +9,7 @@
 * More color schemes than just Day, Nite, and Indoor
 * Change color schemes for an already-open map
 * Swap tilesets for an already-open map
-* Use IFileOpenDialog, not SHBrowseForFolder, for new maps
+* Use IFileOpenDialog, not SHBrowseForFolder, for new maps (Windows only)
 
 
 ## Never

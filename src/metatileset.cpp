@@ -29,18 +29,34 @@ void Metatileset::clear() {
 	_modified = false;
 }
 
+void Metatileset::size(size_t n) {
+	size_t low = MIN(n, _num_metatiles), high = MAX(n, _num_metatiles);
+	for (size_t i = low; i < high; i++) {
+		_metatiles[i]->clear();
+	}
+	_num_metatiles = n;
+	_modified = true;
+}
+
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
-	Metatile *mt = _metatiles[id];
-	int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
-	int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);
-	int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
-	for (int ty = 0; ty < METATILE_SIZE; ty++) {
-		for (int tx = 0; tx < METATILE_SIZE; tx++) {
-			uint8_t tid = mt->tile_id(tx, ty);
-			const Tile *t = _tileset.tile(tid);
-			const uchar *rgb = t->rgb();
-			fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
+	if (id < size()) {
+		Metatile *mt = _metatiles[id];
+		int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
+		int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);
+		int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
+		for (int ty = 0; ty < METATILE_SIZE; ty++) {
+			for (int tx = 0; tx < METATILE_SIZE; tx++) {
+				uint8_t tid = mt->tile_id(tx, ty);
+				const Tile *t = _tileset.tile(tid);
+				const uchar *rgb = t->rgb();
+				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
+			}
 		}
+	}
+	else {
+		int s = TILE_SIZE * METATILE_SIZE * (z ? ZOOM_FACTOR : 1);
+		fl_color(EMPTY_RGB);
+		fl_rectf(x, y, s, s);
 	}
 }
 

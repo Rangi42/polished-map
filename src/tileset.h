@@ -7,11 +7,14 @@
 #include "palette-map.h"
 #include "utils.h"
 
+#define EMPTY_RGB 0xAB, 0xCD, 0xEF // intentionally leave out parentheses or brackets
+
 class Tileset {
 public:
 	enum Lighting { DAY, NITE, INDOOR };
 	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
 		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
+	static const uchar empty_rgb[NUM_CHANNELS];
 private:
 	std::string _name;
 	Palette_Map _palette_map;
