@@ -2,7 +2,6 @@
 
 * **Add:** Undo + Redo
 * **Fix:** Incorrect sidebar size when resizing window (sometimes)
-* **Fix:** Adding blocks to a scrolled sidebar has wrong coordinates
 
 
 ## Maybe

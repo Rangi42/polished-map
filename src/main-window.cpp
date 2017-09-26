@@ -241,7 +241,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_redo_tb->image(REDO_ICON);
 	_redo_tb->deactivate(); // TODO: implement redo
 
-	_add_sub_tb->tooltip("Add/Remove Blocks (Ctrl+B)");
+	_add_sub_tb->tooltip("Add/Remove Blocks... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
 	_add_sub_tb->image(ADD_SUB_ICON);
 
@@ -566,6 +566,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	// populate sidebar with metatile buttons
+	_sidebar->scroll_to(0, 0);
 	for (int i = 0; i < _metatileset.size(); i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 		Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
@@ -573,7 +574,6 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		_sidebar->add(mtb);
 		_metatile_buttons[i] = mtb;
 	}
-	_sidebar->scroll_to(0, 0);
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
@@ -598,7 +598,7 @@ void Main_Window::add_sub_metatiles(size_t n) {
 		// add metatiles
 		for (int i = (int)s; i < n; i++) {
 			int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
-			Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
+			Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() - _sidebar->yposition() + y, ms, (uint8_t)i);
 			mtb->callback((Fl_Callback *)select_metatile_cb, this);
 			_sidebar->add(mtb);
 			_metatile_buttons[i] = mtb;
@@ -614,6 +614,10 @@ void Main_Window::add_sub_metatiles(size_t n) {
 		for (int i = (int)n; i < s; i++) {
 			_sidebar->remove((int)n);
 			_metatile_buttons[i] = NULL;
+		}
+		int k = ms * ((int)(n - 1) / METATILES_PER_ROW + 1);
+		if (_sidebar->yposition() + _sidebar->h() > k) {
+			_sidebar->scroll_to(0, MAX(k - _sidebar->h(), 0));
 		}
 	}
 
