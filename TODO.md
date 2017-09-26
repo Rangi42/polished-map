@@ -1,7 +1,8 @@
 # To Do
 
-* Undo + Redo
-* Add/remove metatiles
+* **Add:** Undo + Redo
+* **Add:** Add + remove metatiles
+* **Fix:** incorrect sidebar size when resizing window (sometimes)
 
 
 ## Maybe
@@ -19,3 +20,5 @@
 * Edit associated event data
    * Even if a .blk had one associated map, the cost-benefit of writing an event editor program instead of using a text editor is not worth it.
    * I specifically dislike when Crowdmap messes up .asm files' formatting and creates spurious changelogs.
+* Edit associated collision data
+   * Polished Crystal's collision data is stored as assembly code, not binary, and does not need a GUI editor.
