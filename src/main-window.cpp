@@ -192,7 +192,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (Config::project() == Config::Project::POKERED ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Polished Crystal", 0, (Fl_Callback *)polished_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::POLISHED ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("P&rism", 0, (Fl_Callback *)prism_project_cb, this,
+		OS_MENU_ITEM("Pris&m", 0, (Fl_Callback *)prism_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
 		{},
 		{},
