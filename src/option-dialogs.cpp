@@ -179,7 +179,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
-		if (ends_with(name, "_colored.png")) { continue; } // ignore utils/metatiles.py renders
+		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
 		else if (ends_with(name, ".2bpp.lz")) {
 			std::string v(name);
 			v.erase(v.size() - 8, 8);
