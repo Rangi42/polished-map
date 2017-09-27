@@ -114,7 +114,7 @@ const char *Tileset::error_message(Result result) {
 	case GFX_OK:
 		return "OK.";
 	case GFX_NO_PALETTE:
-		return "No corresponding *_palette_map.asm file chosen.";
+		return "No corresponding palette file chosen.";
 	case GFX_BAD_FILE:
 		return "Cannot parse file format.";
 	case GFX_BAD_EXT:

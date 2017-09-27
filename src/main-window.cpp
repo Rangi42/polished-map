@@ -510,7 +510,15 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	Config::metatileset_path(buffer, directory, tileset_name);
-	if (Metatileset::Result r = _metatileset.read_metatiles(buffer)) {
+	Metatileset::Result r = _metatileset.read_metatiles(buffer);
+	if (r == Metatileset::Result::META_TOO_SHORT) {
+		Config::metatileset_path(buffer, "", tileset_name);
+		std::string msg = "Warning: ";
+		msg = msg + buffer + ":\n\n" + Metatileset::error_message(r);
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else if (r) {
 		std::string msg = "Error reading ";
 		Config::metatileset_path(buffer, "", tileset_name);
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
@@ -530,14 +538,14 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		Map::Result r = _map.read_blocks(filename);
 		if (r == Map::Result::MAP_TOO_LONG) {
 			std::string msg = "Warning: ";
-			msg = msg + basename + ":\n\n" + _map.error_message(r);
+			msg = msg + basename + ":\n\n" + Map::error_message(r);
 			_warning_dialog->message(msg);
 			_warning_dialog->show(this);
 		}
 		else if (r) {
 			_map.clear();
 			std::string msg = "Error reading ";
-			msg = msg + basename + "!\n\n" + _map.error_message(r);
+			msg = msg + basename + "!\n\n" + Map::error_message(r);
 			_error_dialog->message(msg);
 			_error_dialog->show(this);
 			return;

@@ -80,7 +80,7 @@ const char *Palette_Map::error_message(Result result) {
 	case BAD_PALETTE_NAME:
 		return "Invalid color name.";
 	case PALETTE_NULL:
-		return "No *_palette_map.asm file chosen.";
+		return "No palette file chosen.";
 	default:
 		return "Unspecified error.";
 	}
