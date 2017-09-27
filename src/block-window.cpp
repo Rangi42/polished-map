@@ -101,7 +101,7 @@ void Block_Window::metatile(const Metatile *mt) {
 		}
 	}
 	char buffer[32];
-	sprintf(buffer, "Metatile: $%02X", _metatile_id);
+	sprintf(buffer, "Block: $%02X", _metatile_id);
 	_metatile_heading->copy_label(buffer);
 }
 
