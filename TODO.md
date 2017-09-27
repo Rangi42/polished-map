@@ -1,7 +1,7 @@
 # To Do
 
 * **Add:** Undo + Redo
-* **Fix:** Incorrect sidebar size when resizing window (sometimes)
+* **Fix:** Resizing window resizes sidebar width to original zoom size (inconsistently)
 
 
 ## Maybe
