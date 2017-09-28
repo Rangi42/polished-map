@@ -120,7 +120,7 @@ const char *Metatileset::error_message(Result result) {
 	case META_BAD_FILE:
 		return "Cannot open file.";
 	case META_TOO_SHORT:
-		return "The final block is incomplete.";
+		return "The last block is incomplete.";
 	case META_NULL:
 		return "No blockset file chosen.";
 	default:
