@@ -157,8 +157,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
 		{},
 		OS_SUBMENU("&Edit"),
-		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, FL_MENU_INACTIVE),
-		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER | FL_MENU_INACTIVE),
+		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, 0),
+		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
 		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
 		{},
@@ -245,12 +245,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_undo_tb->tooltip("Undo (Ctrl+Z)");
 	_undo_tb->callback((Fl_Callback *)undo_cb, this);
 	_undo_tb->image(UNDO_ICON);
-	_undo_tb->deactivate(); // TODO: implement undo
 
 	_redo_tb->tooltip("Redo (Ctrl+Y)");
 	_redo_tb->callback((Fl_Callback *)redo_cb, this);
 	_redo_tb->image(REDO_ICON);
-	_redo_tb->deactivate(); // TODO: implement redo
 
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
@@ -1060,12 +1058,16 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	exit(EXIT_SUCCESS);
 }
 
-void Main_Window::undo_cb(Fl_Widget *, Main_Window *) {
-	// TODO: undo
+void Main_Window::undo_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	mw->_map.undo();
+	mw->redraw();
 }
 
-void Main_Window::redo_cb(Fl_Widget *, Main_Window *) {
-	// TODO: redo
+void Main_Window::redo_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	mw->_map.redo();
+	mw->redraw();
 }
 
 void Main_Window::add_sub_cb(Fl_Widget *, Main_Window *mw) {
@@ -1234,6 +1236,9 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!mw->_selected) { return; }
+		if (Fl::event_is_click()) {
+			mw->_map.remember();
+		}
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());

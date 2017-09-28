@@ -216,7 +216,7 @@ void Map_Options_Dialog::initialize_content() {
 	_tileset->align(FL_ALIGN_LEFT);
 	_lighting->align(FL_ALIGN_LEFT);
 	_lighting->add("Day"); // DAY
-	_lighting->add("Nite"); // NITE
+	_lighting->add("Night"); // NITE
 	_lighting->add("Indoor"); // INDOOR
 	_lighting->value((Tileset::Lighting)Config::get("map-lighting", (int)Tileset::Lighting::DAY));
 }
@@ -237,7 +237,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
 	dy += _tileset->h() + wgt_m;
 
-	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Nite", 2)), text_width("Indoor", 2));
+	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Night", 2)), text_width("Indoor", 2));
 	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;

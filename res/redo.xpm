@@ -2,9 +2,9 @@
 static const char *REDO_XPM[] = {
 "16 16 4 1",
 "  c None",
-"# c #9F9F9F",
-"+ c #AAAAAA",
-". c #C8C8C8",
+"# c #225D8D",
+"+ c #1C79C1",
+". c #38C5FF",
 "                ",
 "      ++        ",
 "    +#.+        ",

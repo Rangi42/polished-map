@@ -2,7 +2,8 @@
 
 #include "map.h"
 
-Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false) {}
+Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false),
+	_history(MAX_HISTORY_SIZE), _future(MAX_HISTORY_SIZE) {}
 
 Map::~Map() {
 	clear();
@@ -25,6 +26,53 @@ void Map::clear() {
 	_width = _height = 0;
 	_result = MAP_NULL;
 	_modified = false;
+	_history.clear();
+	_future.clear();
+}
+
+void Map::remember() {
+	_future.clear();
+	while (_history.size() >= MAX_HISTORY_SIZE) { _history.pop_front(); }
+
+	Map_State ms(size());
+	for (size_t i = 0; i < size(); i++) {
+		ms.ids[i] = block(i)->id();
+	}
+	_history.push_back(ms);
+}
+
+void Map::undo() {
+	if (_history.empty()) { return; }
+	while (_future.size() >= MAX_HISTORY_SIZE) { _future.pop_front(); }
+
+	Map_State ms(size());
+	for (size_t i = 0; i < size(); i++) {
+		ms.ids[i] = block(i)->id();
+	}
+	_future.push_back(ms);
+
+	const Map_State &prev = _history.back();
+	for (size_t i = 0; i < size(); i++) {
+		block(i)->id(prev.ids[i]);
+	}
+	_history.pop_back();
+}
+
+void Map::redo() {
+	if (_future.empty()) { return; }
+	while (_history.size() >= MAX_HISTORY_SIZE) { _history.pop_front(); }
+
+	Map_State ms(size());
+	for (size_t i = 0; i < size(); i++) {
+		ms.ids[i] = block(i)->id();
+	}
+	_history.push_back(ms);
+
+	const Map_State &next = _future.back();
+	for (size_t i = 0; i < size(); i++) {
+		block(i)->id(next.ids[i]);
+	}
+	_future.pop_back();
 }
 
 Map::Result Map::read_blocks(const char *f) {
