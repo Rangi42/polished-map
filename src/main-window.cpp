@@ -125,6 +125,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	size_range(384, 256);
 	resizable(_map_scroll);
 	callback((Fl_Callback *)exit_cb, this);
+	xclass(PROGRAM_NAME);
 
 	// Configure window icon
 #ifdef _WIN32

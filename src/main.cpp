@@ -44,7 +44,7 @@ static void use_theme(OS::Theme theme) {
 int main(int argc, char **argv) {
 	std::ios::sync_with_stdio(false);
 #ifdef _WIN32
-	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_NAME));
+	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_AUTHOR) L"." MAKE_WSTR(PROGRAM_NAME));
 #endif
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
