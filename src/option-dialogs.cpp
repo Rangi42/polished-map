@@ -120,6 +120,8 @@ static void guess_map_constant(const char *name, char *constant) {
 }
 
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
+	if (!filename) { return false; }
+
 	char map_constants[FL_PATH_MAX] = {};
 	Config::map_constants_path(map_constants, directory);
 

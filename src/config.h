@@ -5,7 +5,7 @@
 #include <FL/Fl_Preferences.H>
 #pragma warning(pop)
 
-#define NEW_BLK_NAME "NewMap.blk"
+#define NEW_MAP_NAME "NewMap"
 
 class Config {
 public:

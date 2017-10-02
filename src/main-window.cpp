@@ -286,13 +286,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
-	_blk_save_chooser->preset_file(NEW_BLK_NAME);
+	_blk_save_chooser->preset_file(NEW_MAP_NAME ".blk");
 
 	_new_dir_chooser->title("Choose project directory:");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
-	_png_chooser->preset_file("map.png");
+	_png_chooser->preset_file(NEW_MAP_NAME ".png");
 
 	_error_dialog->width_range(280, 700);
 	_warning_dialog->width_range(280, 700);
@@ -477,7 +477,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	else {
 		char new_filename[FL_PATH_MAX] = {};
 		Config::blk_path_from_project_path(directory, new_filename);
-		strcat(new_filename, NEW_BLK_NAME);
+		strcat(new_filename, NEW_MAP_NAME ".blk");
 		_blk_file = new_filename;
 	}
 
@@ -530,10 +530,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map.size(w, h);
 	int ms = metatile_size();
 
+	const char *basename = fl_filename_name(_blk_file.c_str());
+
 	// populate map with blocks
 	if (filename) {
-		const char *basename = fl_filename_name(filename);
-
 		Map::Result r = _map.read_blocks(filename);
 		if (r == Map::Result::MAP_TOO_LONG) {
 			std::string msg = "Warning: ";
@@ -550,9 +550,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 			return;
 		}
 
-		sprintf(buffer, PROGRAM_NAME " - %s", basename);
-		copy_label(buffer);
-
+		// map from file
 		_map_group->size(ms * (int)w, ms * (int)h);
 		for (uint8_t y = 0; y < h; y++) {
 			for (uint8_t x = 0; x < w; x++) {
@@ -564,9 +562,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		}
 	}
 	else {
-		// new map
-		label(PROGRAM_NAME " - " NEW_BLK_NAME);
+		_map.modified(true);
 
+		// new map
 		_map_group->size(ms * (int)w, ms * (int)h);
 		for (uint8_t row = 0; row < h; row++) {
 			for (uint8_t col = 0; col < w; col++) {
@@ -577,12 +575,24 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 				_map.block(col, row, block);
 			}
 		}
-
-		_map.modified(true);
 	}
 	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
 	_map_scroll->contents(_map_group->w(), _map_group->h());
+
+	// set filenames
+	sprintf(buffer, PROGRAM_NAME " - %s", basename);
+	copy_label(buffer);
+	if (ends_with(basename, ".blk")) {
+		sprintf(buffer, "%s", basename);
+		size_t n = strlen(buffer);
+		buffer[n-4] = '\0';
+		strcat(buffer, ".png");
+	}
+	else {
+		sprintf(buffer, "%s.png", basename);
+	}
+	_png_chooser->preset_file(buffer);
 
 	// populate sidebar with metatile buttons
 	_sidebar->scroll_to(0, 0);
