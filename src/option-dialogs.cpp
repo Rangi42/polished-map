@@ -99,6 +99,14 @@ Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _lighting;
 }
 
+const char *Map_Options_Dialog::tileset(void) const {
+	if (!_tileset->mvalue()) { return NULL; }
+	const char *t = _tileset->mvalue()->label();
+	Dictionary::const_iterator it = _original_names.find(t);
+	if (it == _original_names.end()) { return t; }
+	return it->second.c_str();
+}
+
 inline static bool isupperordigit(int c) { return isupper(c) || isdigit(c); }
 inline static int toconstant(int c) { return isalnum(c) ? toupper(c) : '_'; }
 
@@ -157,6 +165,53 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	return false;
 }
 
+Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
+	Dictionary pretty_names;
+
+	char tileset_constants[FL_PATH_MAX] = {};
+	Config::tileset_constants_path(tileset_constants, directory);
+
+	std::ifstream ifs(tileset_constants);
+	if (!ifs.good()) { return pretty_names; }
+
+	int id = 1;
+	char original[16] = {};
+	while (ifs.good()) {
+		std::string line;
+		std::getline(ifs, line);
+		std::istringstream lss(line);
+		std::string token;
+		lss >> token;
+		if (token != "const") { continue; }
+		lss >> token;
+		if (starts_with(token, "TILESET_")) { token.erase(0, 8); }
+		sprintf(original, "%02d", id++);
+		token = original + (": " + token);
+		pretty_names[original] = token;
+	}
+
+	return pretty_names;
+}
+
+void Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Dictionary &pretty_names) {
+	std::string v(t);
+	v.erase(v.size() - ext_len, ext_len);
+
+	if (v.length() == 2 && isdigit(v[0]) && isdigit(v[1])) {
+		Dictionary::const_iterator it = pretty_names.find(v);
+		if (it != pretty_names.end()) {
+			v = it->second;
+			_original_names[v] = it->first;
+		}
+	}
+
+	if (_tileset->find_index(v.c_str()) != -1) { return; }
+
+	_tileset->add(v.c_str());
+	int m = text_width(v.c_str(), 6);
+	_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+}
+
 bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory) {
 	initialize();
 
@@ -179,24 +234,15 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 	_tileset->clear();
 
+	Dictionary pretty_names = guess_tileset_names(directory);
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
 		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
 		else if (ends_with(name, ".2bpp.lz")) {
-			std::string v(name);
-			v.erase(v.size() - 8, 8);
-			_tileset->add(v.c_str());
-			int m = text_width(v.c_str(), 6);
-			_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+			add_tileset(name, 8, pretty_names);
 		}
 		else if (ends_with(name, ".png")) {
-			std::string v(name);
-			v.erase(v.size() - 4, 4);
-			if (_tileset->find_index(v.c_str()) == -1) {
-				_tileset->add(v.c_str());
-				int m = text_width(v.c_str(), 6);
-				_max_tileset_name_length = MAX(m, _max_tileset_name_length);
-			}
+			add_tileset(name, 4, pretty_names);
 		}
 	}
 	_tileset->value(0);
@@ -221,6 +267,8 @@ void Map_Options_Dialog::initialize_content() {
 	_lighting->add("Night"); // NITE
 	_lighting->add("Indoor"); // INDOOR
 	_lighting->value((Tileset::Lighting)Config::get("map-lighting", (int)Tileset::Lighting::DAY));
+	// Initialize data
+	_original_names.clear();
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {

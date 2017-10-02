@@ -1,6 +1,9 @@
 #ifndef OPTION_DIALOGS_H
 #define OPTION_DIALOGS_H
 
+#include <unordered_map>
+#include <string>
+
 #include "utils.h"
 #include "widgets.h"
 #include "tileset.h"
@@ -38,21 +41,26 @@ private:
 	static void cancel_cb(Fl_Widget *, Option_Dialog *od);
 };
 
+typedef std::unordered_map<std::string, std::string> Dictionary;
+
 class Map_Options_Dialog : public Option_Dialog {
 private:
 	int _max_tileset_name_length;
 	OS_Spinner *_map_width, *_map_height;
 	Dropdown *_tileset, *_lighting;
+	Dictionary _original_names;
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
 	bool limit_blk_options(const char *filename, const char *directory);
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
-	inline const char *tileset(void) const { return _tileset->mvalue() ? _tileset->mvalue()->label() : NULL; }
+	const char *tileset(void) const;
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
 private:
 	bool guess_map_size(const char *filename, const char *directory);
+	Dictionary guess_tileset_names(const char *directory);
+	void add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

@@ -27,6 +27,7 @@ public:
 	static void tileset_path(char *dest, const char *root, const char *tileset);
 	static void metatileset_path(char *dest, const char *root, const char *tileset);
 	static void map_constants_path(char *dest, const char *root);
+	static void tileset_constants_path(char *dest, const char *root);
 	static bool monochrome(void);
 	static bool skip_tiles_60_to_7f(void);
 };

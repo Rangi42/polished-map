@@ -30,7 +30,7 @@ public:
 	inline size_t num_tiles(void) const { return _num_tiles; }
 	inline Result result(void) const { return _result; }
 	void clear(void);
-	Palette_Map::Result read_palette_map(const char *f);
+	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
 	Result read_graphics(const char *f, Lighting l);
 	static const char *error_message(Result result);
 };

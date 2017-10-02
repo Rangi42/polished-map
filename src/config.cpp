@@ -75,6 +75,7 @@ void Config::blk_path_from_project_path(const char *project_path, char *blk_path
 }
 
 void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
+	if (monochrome()) { return; }
 	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
 }
 
@@ -110,6 +111,10 @@ void Config::map_constants_path(char *dest, const char *root) {
 	sprintf(dest, "%sconstants" DIR_SEP "map_dimension_constants.asm", root);
 	if (file_exists(dest)) { return; }
 	sprintf(dest, "%sconstants" DIR_SEP "map_constants.asm", root);
+}
+
+void Config::tileset_constants_path(char *dest, const char *root) {
+	sprintf(dest, "%sconstants" DIR_SEP "tilemap_constants.asm", root);
 }
 
 bool Config::monochrome() {

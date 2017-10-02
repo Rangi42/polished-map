@@ -70,10 +70,6 @@ void Tileset::clear() {
 	_result = GFX_NULL;
 }
 
-Palette_Map::Result Tileset::read_palette_map(const char *f) {
-	return _palette_map.read_from(f);
-}
-
 Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
