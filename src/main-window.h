@@ -75,6 +75,7 @@ public:
 	void draw_metatile(int x, int y, uint8_t id) const;
 	void update_status(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
+	void substitute(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
 private:
 	void open_map(const char *directory, const char *filename);

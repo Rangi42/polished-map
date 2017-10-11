@@ -429,6 +429,16 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (row < _map.height() - 1) { flood_fill(_map.block(i+_map.width()), f, t); } // down
 }
 
+void Main_Window::substitute(uint8_t f, uint8_t t) {
+	size_t n = _map.size();
+	for (size_t i = 0; i < n; i++) {
+		Block *b = _map.block(i);
+		if (b->id() == f) {
+			b->id(t);
+		}
+	}
+}
+
 void Main_Window::open_map(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
@@ -1253,6 +1263,13 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
+			mw->_map_group->redraw();
+			mw->_map.modified(true);
+			mw->update_status(b);
+		}
+		else if (Fl::event_ctrl()) {
+			// Ctrl+left-click to replace
+			mw->substitute(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
 			mw->_map.modified(true);
 			mw->update_status(b);
