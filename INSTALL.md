@@ -19,7 +19,7 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 8. Move the .lib files from lib/fltk-1.3.4/lib to lib.
 9. Open ide/polished-map.sln in Visual Studio 2012.
 10. If the Solution Configuration dropdown on the toolbar says Debug, set it to **Release**.
-11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polished-map.exe**.
+11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polishedmap.exe**.
 12. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
 
 
