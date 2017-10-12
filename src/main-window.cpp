@@ -606,7 +606,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// populate sidebar with metatile buttons
 	_sidebar->scroll_to(0, 0);
-	for (int i = 0; i < _metatileset.size(); i++) {
+	for (size_t i = 0; i < _metatileset.size(); i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 		Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
 		mtb->callback((Fl_Callback *)select_metatile_cb, this);
@@ -635,7 +635,7 @@ void Main_Window::add_sub_metatiles(size_t n) {
 
 	if (n > s) {
 		// add metatiles
-		for (int i = (int)s; i < n; i++) {
+		for (size_t i = (int)s; i < n; i++) {
 			int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 			Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() - _sidebar->yposition() + y, ms, (uint8_t)i);
 			mtb->callback((Fl_Callback *)select_metatile_cb, this);
@@ -650,7 +650,7 @@ void Main_Window::add_sub_metatiles(size_t n) {
 			_selected->setonly();
 			_sidebar->scroll_to(0, 0);
 		}
-		for (int i = (int)n; i < s; i++) {
+		for (size_t i = n; i < s; i++) {
 			_sidebar->remove((int)n);
 			_metatile_buttons[i] = NULL;
 		}
@@ -842,7 +842,7 @@ void Main_Window::update_zoom() {
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	size_t n = _metatileset.size();
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		Metatile_Button *mt = _metatile_buttons[i];
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
@@ -859,11 +859,11 @@ void Main_Window::update_zoom() {
 
 void Main_Window::update_labels() {
 	size_t n = _metatileset.size();
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		_metatile_buttons[i]->id(_metatile_buttons[i]->id());
 	}
 	n = _map.size();
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		_map.block(i)->update_label();
 	}
 	redraw();

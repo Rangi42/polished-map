@@ -65,7 +65,7 @@ Tiled_Image::Result Tiled_Image::read_2bpp_graphics(const char *f) {
 	uchar *data = new uchar[n];
 	size_t r = fread(data, 1, n, file);
 	fclose(file);
-	if (r != n) { delete [] data; return (_result = IMG_BAD_FILE); }
+	if (r != (size_t)n) { delete [] data; return (_result = IMG_BAD_FILE); }
 
 	return (_result = parse_2bpp_data(n, data));
 }
@@ -122,7 +122,7 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 	uchar *lz_data = new uchar[n];
 	size_t r = fread(lz_data, 1, n, file);
 	fclose(file);
-	if (r != n) { delete [] lz_data; return (_result = IMG_BAD_FILE); }
+	if (r != (size_t)n) { delete [] lz_data; return (_result = IMG_BAD_FILE); }
 
 	uchar *twobpp_data = new uchar[MAX_NUM_TILES * BYTES_PER_2BPP_TILE];
 	size_t address = 0, marker = 0;
@@ -229,7 +229,7 @@ Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 	delete [] _tile_hues;
 	_tile_hues = new Tile::Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
 
-	for (int i = 0; i < _num_tiles; i++) {
+	for (size_t i = 0; i < _num_tiles; i++) {
 		for (int j = 0; j < TILE_SIZE; j++) {
 			uchar b1 = data[i * BYTES_PER_2BPP_TILE + j * 2];
 			uchar b2 = data[i * BYTES_PER_2BPP_TILE + j * 2 + 1];

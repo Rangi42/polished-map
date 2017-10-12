@@ -7,14 +7,14 @@ Project("{A7D35FCC-7F27-48D4-B124-878CBB03FE15}") = "Polished Map", "polished-ma
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Release|x64 = Release|x64
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Debug|x64.ActiveCfg = Debug|x64
-		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Debug|x64.Build.0 = Debug|x64
-		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Release|x64.ActiveCfg = Release|x64
-		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Release|x64.Build.0 = Release|x64
+		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Debug|Win32.Build.0 = Debug|Win32
+		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Release|Win32.ActiveCfg = Release|Win32
+		{DCBF2AA4-7CB4-46B8-92B4-916E40E15BD8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

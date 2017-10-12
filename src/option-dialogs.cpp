@@ -114,7 +114,7 @@ static void guess_map_constant(const char *name, char *constant) {
 	char prev = (char)toconstant(*name);
 	*constant++ = (char)toupper(*name++);
 	size_t n = strlen(name) - 4; // ignore ".blk" extension
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		char c = *name;
 		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
 			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...

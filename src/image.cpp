@@ -30,8 +30,8 @@ Image::Result Image::write_image(const char *f, const Map &map, const Metatilese
 	png_set_compression_method(png, Z_DEFLATED);
 	png_set_compression_buffer_size(png, 8192);
 	// Write the PNG IHDR chunk
-	int w = map.width() * METATILE_SIZE * TILE_SIZE;
-	int h = map.height() * METATILE_SIZE * TILE_SIZE;
+	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
+	size_t h = map.height() * METATILE_SIZE * TILE_SIZE;
 	png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, PNG_COLOR_TYPE_RGB,
 		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	// Write the other PNG header chunks
