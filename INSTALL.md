@@ -6,6 +6,7 @@ To install Polished Map:
 
 1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/roukaour/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
+3. Now you can delete the two downloaded files.
 
 If you have Microsoft Visual Studio, you can build Polished Map yourself:
 
