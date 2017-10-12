@@ -35,6 +35,21 @@ const char *Config::map_macro() {
 	return global_project == POKERED ? "mapconst" : "mapgroup";
 }
 
+const char *Config::project_type() {
+	switch (global_project) {
+	case POKECRYSTAL:
+		return "pokecrystal";
+	case POKERED:
+		return "pokered";
+	case POLISHED:
+		return "Polished Crystal";
+	case PRISM:
+		return "Prism";
+	default:
+		return "unsupported";
+	}
+}
+
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
 #ifdef _WIN32
 	if (_splitpath_s(blk_path, NULL, 0, project_path, FL_PATH_MAX, NULL, 0, NULL, 0)) { return false; }

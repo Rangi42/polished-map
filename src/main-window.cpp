@@ -444,9 +444,10 @@ void Main_Window::open_map(const char *filename) {
 
 	char directory[FL_PATH_MAX] = {};
 	if (!Config::project_path_from_blk_path(filename, directory)) {
-		std::string msg = "Could not get project directory for ";
-		msg = msg + basename + "!\n\n"
-		"Make sure Options->Project Type is correct.";
+		const char *project_type = Config::project_type();
+		std::string msg = "Could not find the main ";
+		msg = msg + project_type + " directory!\n\n"
+			"Make sure Options->Project Type matches" + basename + ".";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -458,8 +459,11 @@ void Main_Window::open_map(const char *filename) {
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
-		std::string msg = "Wrong project directory structure!\n\n"
-		"Make sure Options->Project Type is correct.";
+		const char *project_type = Config::project_type();
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "This is not a ";
+		msg = msg + project_type + " project!\n\n"
+			"Make sure Options->Project Type matches" + basename + ".";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
