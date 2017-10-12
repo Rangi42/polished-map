@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <queue>
+#include <utility>
 
 #pragma warning(push, 0)
 #include <FL/Fl.H>
@@ -387,7 +389,7 @@ void Main_Window::update_status(Block *b) {
 #ifdef __GNUC__
 		sprintf(buffer, "Blocks: %zu", _metatileset.size());
 #else
-		sprintf(buffer, "Blocks: %llu", _metatileset.size());
+		sprintf(buffer, "Blocks: %u", (uint32_t)_metatileset.size());
 #endif
 		_metatile_count->copy_label(buffer);
 		sprintf(buffer, "Map: %u x %u", _map.width(), _map.height());
@@ -419,14 +421,24 @@ void Main_Window::update_status(Block *b) {
 }
 
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
-	if (f == t || b->id() != f) { return; }
-	b->id(t);
-	int row = b->row(), col = b->col();
-	size_t i = row * _map.width() + col;
-	if (col > 0) { flood_fill(_map.block(i-1), f, t); } // left
-	if (col < _map.width() - 1) { flood_fill(_map.block(i+1), f, t); } // right
-	if (row > 0) { flood_fill(_map.block(i-_map.width()), f, t); } // up
-	if (row < _map.height() - 1) { flood_fill(_map.block(i+_map.width()), f, t); } // down
+	if (f == t) { return; }
+	std::queue<size_t> queue;
+	uint8_t w = _map.width(), h = _map.height();
+	uint8_t row = b->row(), col = b->col();
+	size_t i = row * w + col;
+	queue.push(i);
+	while (!queue.empty()) {
+		size_t i = queue.front();
+		queue.pop();
+		Block *b = _map.block(i);
+		if (b->id() != f) { continue; }
+		b->id(t); // fill
+		uint8_t row = b->row(), col = b->col();
+		if (col > 0) { queue.push(i-1); } // left
+		if (col < w - 1) { queue.push(i+1); } // right
+		if (row > 0) { queue.push(i-w); } // up
+		if (row < h - 1) { queue.push(i+w); } // down
+	}
 }
 
 void Main_Window::substitute(uint8_t f, uint8_t t) {
