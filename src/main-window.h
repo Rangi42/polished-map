@@ -54,7 +54,8 @@ private:
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected;
 	// Work properties
-	bool _unsaved;
+	bool _unsaved, _copied;
+	Metatile _clipboard;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
 #ifndef _WIN32
@@ -100,6 +101,9 @@ private:
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);
+	static void copy_metatile_cb(Fl_Widget *w, Main_Window *mw);
+	static void paste_metatile_cb(Fl_Widget *w, Main_Window *mw);
+	static void swap_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
 	// View menu

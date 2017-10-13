@@ -35,7 +35,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL),
 	_pokecrystal_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL), _prism_project_mi(NULL),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
-	_unsaved(false), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	int grid_config = Config::get("grid", 1);
 	int zoom_config = Config::get("zoom", 0);
@@ -162,6 +162,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Edit"),
 		OS_MENU_ITEM("&Undo", FL_COMMAND + 'z', (Fl_Callback *)undo_cb, this, 0),
 		OS_MENU_ITEM("&Redo", FL_COMMAND + 'y', (Fl_Callback *)redo_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Copy Block", FL_COMMAND + 'c', (Fl_Callback *)copy_metatile_cb, this, 0),
+		OS_MENU_ITEM("&Paste Block", FL_COMMAND + 'v', (Fl_Callback *)paste_metatile_cb, this, 0),
+		OS_MENU_ITEM("S&wap Block", FL_COMMAND + 'x', (Fl_Callback *)swap_metatiles_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
 		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
 		{},
@@ -634,6 +637,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	_metatile_buttons[0]->setonly();
 	_selected = _metatile_buttons[0];
+	_copied = false;
 
 	_block_window->tileset(tileset);
 
@@ -661,6 +665,9 @@ void Main_Window::add_sub_metatiles(size_t n) {
 	}
 	else if (n < s) {
 		// remove metatiles
+		if (_clipboard.id() >= n) {
+			_copied = false;
+		}
 		if (_selected->id() >= n) {
 			_selected = _metatile_buttons[0];
 			_selected->setonly();
@@ -1016,6 +1023,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->contents(0, 0);
 	FILL(mw->_metatile_buttons, 0, MAX_NUM_METATILES);
 	mw->_selected = NULL;
+	mw->_copied = false;
 	mw->_map_group->clear();
 	mw->_map_group->size(0, 0);
 	mw->_map.clear();
@@ -1104,6 +1112,43 @@ void Main_Window::undo_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::redo_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->_map.redo();
+	mw->redraw();
+}
+
+void Main_Window::copy_metatile_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_selected) { return; }
+	uint8_t id = mw->_selected->id();
+	Metatile *src = mw->_metatileset.metatile(id);
+	mw->_clipboard = *src;
+	mw->_copied = true;
+}
+
+void Main_Window::paste_metatile_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_copied || !mw->_selected) { return; }
+	uint8_t id = mw->_selected->id();
+	Metatile *dest = mw->_metatileset.metatile(id);
+	for (int y = 0; y < METATILE_SIZE; y++) {
+		for (int x = 0; x < METATILE_SIZE; x++) {
+			uint8_t tid = mw->_clipboard.tile_id(x, y);
+			dest->tile_id(x, y, tid);
+		}
+	}
+	mw->_metatileset.modified(true);
+	mw->redraw();
+}
+
+void Main_Window::swap_metatiles_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_copied || !mw->_selected) { return; }
+	uint8_t id1 = mw->_clipboard.id(), id2 = mw->_selected->id();
+	Metatile *mt1 = mw->_metatileset.metatile(id1), *mt2 = mw->_metatileset.metatile(id2);
+	for (int y = 0; y < METATILE_SIZE; y++) {
+		for (int x = 0; x < METATILE_SIZE; x++) {
+			uint8_t tid1 = mt1->tile_id(x, y), tid2 = mt2->tile_id(x, y);
+			mt1->tile_id(x, y, tid2);
+			mt2->tile_id(x, y, tid1);
+		}
+	}
+	mw->_metatileset.modified(true);
 	mw->redraw();
 }
 

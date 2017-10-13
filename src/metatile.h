@@ -16,8 +16,9 @@ private:
 public:
 	Metatile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
-	inline void tile_id(int x, int y, uint8_t id) { _tile_ids[y][x] = id; }
+	inline void id(uint8_t id) { _id = id; }
 	inline uint8_t tile_id(int x, int y) const { return _tile_ids[y][x]; }
+	inline void tile_id(int x, int y, uint8_t id) { _tile_ids[y][x] = id; }
 	void clear(void);
 };
 
