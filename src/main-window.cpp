@@ -32,7 +32,7 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _highlight_event_mi(NULL),
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _event_cursor_mi(NULL),
 	_pokecrystal_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL), _prism_project_mi(NULL),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
 	_unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
@@ -41,7 +41,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int zoom_config = Config::get("zoom", 0);
 	int ids_config = Config::get("ids", 0);
 	int hex_config = Config::get("hex", 0);
-	int highlight_event_config = Config::get("event", 1);
+	int event_cursor_config = Config::get("event", 0);
 
 	// Populate window
 
@@ -70,22 +70,22 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	_highlight_event_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_toolbar->end();
 	begin();
 
 	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
-	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 3), 0, "");
+	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 8), 0, "");
 	new Spacer(0, 0, 2, 0);
-	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 3), 0, "");
+	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 8), 0, "");
 	new Spacer(0, 0, 2, 0);
-	_hover_id = new Status_Bar_Field(0, 0, text_width("Block: $99", 3), 0, "");
+	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $99", 8), 0, "");
 	new Spacer(0, 0, 2, 0);
-	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 3), 0, "");
+	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 8), 0, "");
 	new Spacer(0, 0, 2, 0);
-	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 3), 0, "");
+	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 8), 0, "");
 	_status_bar->end();
 	begin();
 
@@ -193,8 +193,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (ids_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this,
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Highlight &Event", FL_COMMAND + 'l', (Fl_Callback *)highlight_event_cb, this,
-			FL_MENU_TOGGLE | (highlight_event_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
+			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
@@ -228,7 +228,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
-	_highlight_event_mi = PM_FIND_MENU_ITEM_CB(highlight_event_cb);
+	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_pokecrystal_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal_project_cb);
 	_pokered_project_mi = PM_FIND_MENU_ITEM_CB(pokered_project_cb);
@@ -291,10 +291,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_tb->image(HEX_ICON);
 	_hex_tb->value(hex());
 
-	_highlight_event_tb->tooltip("Highlight Event (Ctrl+L)");
-	_highlight_event_tb->callback((Fl_Callback *)highlight_event_tb_cb, this);
-	_highlight_event_tb->image(EVENT_ICON);
-	_highlight_event_tb->value(highlight_event());
+	_event_cursor_tb->tooltip("Event Cursor (Ctrl+U)");
+	_event_cursor_tb->callback((Fl_Callback *)event_cursor_tb_cb, this);
+	_event_cursor_tb->image(EVENT_ICON);
+	_event_cursor_tb->value(event_cursor());
 
 	// Configure dialogs
 
@@ -417,15 +417,15 @@ void Main_Window::update_status(Block *b) {
 	}
 	uint8_t row = b->row(), col = b->col(), id = b->id();
 	bool hex_ = hex();
-	sprintf(buffer, (hex_ ? "Block: $%02X" : "Block: %u"), id);
+	sprintf(buffer, (hex_ ? "ID: $%02X" : "ID: %u"), id);
 	_hover_id->copy_label(buffer);
 	sprintf(buffer, (hex_ ? "X/Y ($%X, $%X)" : "X/Y (%u, %u)"), col, row);
 	_hover_xy->copy_label(buffer);
-	update_event_highlight(b);
+	update_event_cursor(b);
 }
 
-void Main_Window::update_event_highlight(Block *b) {
-	if (!highlight_event() || !b) {
+void Main_Window::update_event_cursor(Block *b) {
+	if (!event_cursor() || !b) {
 		_hover_event->label("");
 		_status_bar->redraw();
 		return;
@@ -458,7 +458,7 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	}
 }
 
-void Main_Window::substitute(uint8_t f, uint8_t t) {
+void Main_Window::substitute_block(uint8_t f, uint8_t t) {
 	size_t n = _map.size();
 	for (size_t i = 0; i < n; i++) {
 		Block *b = _map.block(i);
@@ -1107,7 +1107,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("zoom", mw->zoom());
 	Config::set("ids", mw->ids());
 	Config::set("hex", mw->hex());
-	Config::set("event", mw->highlight_event());
+	Config::set("event", mw->event_cursor());
 	if (mw->_map_options_dialog->initialized()) {
 		Config::set("map-lighting", mw->_map_options_dialog->lighting());
 	}
@@ -1217,38 +1217,37 @@ void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+#define SYNC_TB_WITH_M(tb, m) tb->value(m->mvalue()->value())
+
 void Main_Window::grid_cb(Fl_Menu_ *m, Main_Window *mw) {
-	int v = m->mvalue()->value();
-	mw->_grid_tb->value(v);
+	SYNC_TB_WITH_M(mw->_grid_tb, m);
 	mw->redraw();
 }
 
 void Main_Window::zoom_cb(Fl_Menu_ *m, Main_Window *mw) {
-	int v = m->mvalue()->value();
-	mw->_zoom_tb->value(v);
+	SYNC_TB_WITH_M(mw->_zoom_tb, m);
 	mw->update_zoom();
 	mw->redraw();
 }
 
 void Main_Window::ids_cb(Fl_Menu_ *m, Main_Window *mw) {
-	int v = m->mvalue()->value();
-	mw->_ids_tb->value(v);
+	SYNC_TB_WITH_M(mw->_ids_tb, m);
 	mw->redraw();
 }
 
 void Main_Window::hex_cb(Fl_Menu_ *m, Main_Window *mw) {
-	int v = m->mvalue()->value();
-	mw->_hex_tb->value(v);
+	SYNC_TB_WITH_M(mw->_hex_tb, m);
 	mw->update_labels();
 	mw->redraw();
 }
 
-void Main_Window::highlight_event_cb(Fl_Menu_ *m, Main_Window *mw) {
-	int v = m->mvalue()->value();
-	mw->_highlight_event_tb->value(v);
+void Main_Window::event_cursor_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_event_cursor_tb, m);
 	mw->update_labels();
 	mw->redraw();
 }
+
+#undef SYNC_TB_WITH_M
 
 void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	if (m->mvalue()->value()) {
@@ -1285,43 +1284,37 @@ void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+#define SYNC_MI_WITH_TB(tb, mi) if (tb->value()) mi->set(); else mi->clear()
+
 void Main_Window::grid_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	bool v = !!mw->_grid_tb->value();
-	if (v) { mw->_grid_mi->set(); }
-	else { mw->_grid_mi->clear(); }
+	SYNC_MI_WITH_TB(mw->_grid_tb, mw->_grid_mi);
 	mw->redraw();
 }
 
 void Main_Window::zoom_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	bool v = !!mw->_zoom_tb->value();
-	if (v) { mw->_zoom_mi->set(); }
-	else { mw->_zoom_mi->clear(); }
+	SYNC_MI_WITH_TB(mw->_zoom_tb, mw->_zoom_mi);
 	mw->update_zoom();
 	mw->redraw();
 }
 
 void Main_Window::ids_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	bool v = !!mw->_ids_tb->value();
-	if (v) { mw->_ids_mi->set(); }
-	else { mw->_ids_mi->clear(); }
+	SYNC_MI_WITH_TB(mw->_ids_tb, mw->_ids_mi);
 	mw->redraw();
 }
 
 void Main_Window::hex_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	bool v = !!mw->_hex_tb->value();
-	if (v) { mw->_hex_mi->set(); }
-	else { mw->_hex_mi->clear(); }
+	SYNC_MI_WITH_TB(mw->_hex_tb, mw->_hex_mi);
 	mw->update_labels();
 	mw->redraw();
 }
 
-void Main_Window::highlight_event_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	bool v = !!mw->_highlight_event_tb->value();
-	if (v) { mw->_highlight_event_mi->set(); }
-	else { mw->_highlight_event_mi->clear(); }
+void Main_Window::event_cursor_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_event_cursor_tb, mw->_event_cursor_mi);
 	mw->update_labels();
 	mw->redraw();
 }
+
+#undef SYNC_MI_WITH_TB
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_help_window->show(mw);
@@ -1360,7 +1353,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
-			mw->substitute(b->id(), mw->_selected->id());
+			mw->substitute_block(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
 			mw->_map.modified(true);
 			mw->update_status(b);

@@ -32,10 +32,10 @@ private:
 	// GUI inputs
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
-	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_highlight_event_mi, *_full_screen_mi,
+	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_event_cursor_mi, *_full_screen_mi,
 		*_pokecrystal_project_mi, *_pokered_project_mi, *_polished_project_mi, *_prism_project_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb;
-	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_highlight_event_tb;
+	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_event_cursor_tb;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Dialogs
@@ -70,15 +70,15 @@ public:
 	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
 	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
-	inline bool highlight_event(void) const { return _highlight_event_mi && !!_highlight_event_mi->value(); }
+	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
 	const char *modified_filename(void);
 	void draw_metatile(int x, int y, uint8_t id) const;
 	void update_status(Block *b);
-	void update_event_highlight(Block *b);
+	void update_event_cursor(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
-	void substitute(uint8_t f, uint8_t t);
+	void substitute_block(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
 private:
 	void open_map(const char *directory, const char *filename);
@@ -118,7 +118,7 @@ private:
 	static void zoom_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void ids_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void highlight_event_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void event_cursor_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Options menu
 	static void pokecrystal_project_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -130,7 +130,7 @@ private:
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void ids_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void hex_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
-	static void highlight_event_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void event_cursor_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	// Help menu
 	static void help_cb(Fl_Widget *w, Main_Window *mw);
 	static void about_cb(Fl_Widget *w, Main_Window *mw);

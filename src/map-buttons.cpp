@@ -7,7 +7,7 @@
 #include "map-buttons.h"
 
 // 32x32 translucent red highlight for the event quadrant of a block
-static uchar event_highlight_png_buffer[96] = {
+static uchar event_cursor_png_buffer[96] = {
 	0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
 	0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x01, 0x03, 0x00, 0x00, 0x00, 0x49, 0xB4, 0xE8,
 	0xB7, 0x00, 0x00, 0x00, 0x03, 0x50, 0x4C, 0x54, 0x45, 0xFF, 0x00, 0x00, 0x19, 0xE2, 0x09, 0x37,
@@ -16,9 +16,9 @@ static uchar event_highlight_png_buffer[96] = {
 	0x1C, 0x35, 0x43, 0x02, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
 };
 
-static Fl_PNG_Image event_highlight_png(NULL, event_highlight_png_buffer, 96);
+static Fl_PNG_Image event_cursor_png(NULL, event_cursor_png_buffer, 96);
 
-static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool highlight) {
+static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	Main_Window *mw = (Main_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y(), w = wgt->w(), h = wgt->h();
 	int ms = mw->metatile_size();
@@ -27,7 +27,7 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool highlight) {
 		fl_color(FL_INACTIVE_COLOR);
 		fl_xyline(x, y+ms-1, x+ms-1, y);
 	}
-	if (highlight) {
+	if (border) {
 		int rs = ms - (mw->grid() ? 1 : 0);
 		fl_rect(x, y, rs, rs, FL_BLACK);
 		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
@@ -49,7 +49,7 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool highlight) {
 	fl_draw(l, x+p+1, y+p+1, w, h, a);
 	fl_draw(l, x+p+3, y+p-1, w, h, a);
 	fl_draw(l, x+p+3, y+p+1, w, h, a);
-	fl_color(highlight ? wgt->labelcolor() : FL_WHITE);
+	fl_color(border ? wgt->labelcolor() : FL_WHITE);
 	fl_draw(l, x+p+2, y+p, w, h, a);
 }
 
@@ -107,14 +107,13 @@ void Block::update_label() {
 }
 
 void Block::draw() {
-	bool highlight = Fl::belowmouse() == this;
-	draw_map_button(this, _id, highlight);
-	if (!highlight) { return; }
 	Main_Window *mw = (Main_Window *)user_data();
-	if (!mw->highlight_event()) { return; }
+	bool below_mouse = Fl::belowmouse() == this, event_cursor = mw->event_cursor();
+	draw_map_button(this, _id, below_mouse && !event_cursor);
+	if (!below_mouse || !event_cursor) { return; }
 	int hw = w() / 2, hh = h() / 2;
-	int hx = x() + hw * right_half(), hy = y() + hh * bottom_half();
-	event_highlight_png.draw(hx, hy, hw, hh);
+	int hx = x() + right_half() * hw, hy = y() + bottom_half() * hh;
+	event_cursor_png.draw(hx, hy, hw, hh);
 }
 
 int Block::handle(int event) {
@@ -133,7 +132,7 @@ int Block::handle(int event) {
 		redraw();
 		return 1;
 	case FL_MOVE:
-		mw->update_event_highlight(this);
+		mw->update_event_cursor(this);
 		redraw();
 		return 1;
 	case FL_PUSH:
@@ -150,11 +149,11 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool highlight, bool zoom) {
+static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
 	Block_Window *bw = (Block_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y();
 	bw->draw_tile(x, y, id, zoom);
-	if (highlight) {
+	if (border) {
 		int rs = TILE_SIZE * (zoom ? 3 : 2);
 		fl_rect(x, y, rs, rs, FL_BLACK);
 		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
