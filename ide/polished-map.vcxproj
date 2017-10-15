@@ -154,6 +154,7 @@
     <None Include="..\res\app.ico" />
     <None Include="..\res\app.xpm" />
     <None Include="..\res\error.xpm" />
+    <None Include="..\res\event.xpm" />
     <None Include="..\res\grid.xpm" />
     <None Include="..\res\help.html" />
     <None Include="..\res\hex.xpm" />

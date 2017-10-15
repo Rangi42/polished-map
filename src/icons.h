@@ -17,6 +17,7 @@
 #include "zoom.xpm"
 #include "ids.xpm"
 #include "hex.xpm"
+#include "event.xpm"
 
 static Fl_Pixmap NEW_ICON(NEW_XPM);
 static Fl_Pixmap OPEN_ICON(OPEN_XPM);
@@ -30,5 +31,6 @@ static Fl_Pixmap GRID_ICON(GRID_XPM);
 static Fl_Pixmap ZOOM_ICON(ZOOM_XPM);
 static Fl_Pixmap IDS_ICON(IDS_XPM);
 static Fl_Pixmap HEX_ICON(HEX_XPM);
+static Fl_Pixmap EVENT_ICON(EVENT_XPM);
 
 #endif

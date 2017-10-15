@@ -31,6 +31,8 @@ public:
 	inline void coords(uint8_t row, uint8_t col) { _row = row; _col = col; }
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; update_label(); }
+	inline bool right_half(void) const { return Fl::event_x() >= x() + w() / 2; }
+	inline bool bottom_half(void) const { return Fl::event_y() >= y() + h() / 2; }
 	void update_label(void);
 	void draw(void);
 	int handle(int event);
