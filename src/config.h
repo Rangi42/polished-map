@@ -17,7 +17,7 @@ public:
 	inline static Fl_Preferences config(void) { return global_config; }
 	inline static Project project(void) { return global_project; }
 	inline static void project(Project p) { global_project =  p; }
-	static int get(const char *key, int default = 0);
+	static int get(const char *key, int default_ = 0);
 	static void set(const char *key, int value);
 	static const char *gfx_tileset_dir(void);
 	static const char *map_macro(void);

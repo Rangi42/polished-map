@@ -23,7 +23,7 @@ private:
 	Block **_blocks;
 	Result _result;
 	bool _modified;
-	std::deque<const Map_State> _history, _future;
+	std::deque<Map_State> _history, _future;
 public:
 	Map();
 	~Map();

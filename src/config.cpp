@@ -17,9 +17,9 @@
 Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
 Config::Project Config::global_project(Config::Project::POKECRYSTAL);
 
-int Config::get(const char *key, int default) {
+int Config::get(const char *key, int default_) {
 	int value;
-	global_config.get(key, value, default);
+	global_config.get(key, value, default_);
 	return value;
 }
 

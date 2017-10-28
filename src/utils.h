@@ -47,6 +47,7 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+#ifdef _WIN32
 #define FILL(a, v, n) \
 	__pragma(warning(push)) \
 	__pragma(warning(disable:4127)) \
@@ -56,6 +57,14 @@
 		} \
 	} while (0) \
 	__pragma(warning(pop))
+#else
+#define FILL(a, v, n) \
+	do { \
+		for (int __fill_i_ = 0; __fill_i_ < (n); __fill_i_++) { \
+			a[__fill_i_] = (v); \
+		} \
+	} while (0)
+#endif
 
 typedef uint8_t size8_t;
 typedef uint16_t size16_t;
