@@ -9,7 +9,8 @@ tmp/
 
 # no libraries
 *.lib
-lib/fltk-1.3.4
+lib/*
+!lib/fltk-1.3.4.zip
 
 # no IDE files
 *.sdf

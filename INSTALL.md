@@ -39,13 +39,13 @@ unzip fltk-1.3.4.zip
 cd fltk-1.3.4
 
 chmod +x configure
-./configure --with-abiversion=10304
-sudo make
-sudo make install
-cp lib/*.a ..
+./configure --prefix="$PWD/.." --with-abiversion=10304
+make
+make install
 
 cd ../..
 
+export PATH="$PWD/lib/bin:$PATH"
 make
 sudo make install
 ```
