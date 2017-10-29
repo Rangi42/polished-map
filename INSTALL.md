@@ -30,22 +30,26 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 Run the following commands:
 
 ```bash
+# Install dependencies
 sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
 
+# Clone Polished Map
 git clone https://github.com/roukaour/polished-map.git
-cd polished-map/lib
+cd polished-map
+
+# Build FLTK 1.3.4 if you don't have it installed already
+pushd lib
 unzip fltk-1.3.4.zip
 cd fltk-1.3.4
-
 chmod +x configure
 ./configure --prefix="$PWD/.." --with-abiversion=10304
 make
-make install
-
-cd ../..
-
+sudo make install
+popd
 export PATH="$PWD/lib/bin:$PATH"
+
+# Build Polished Map
 make
 sudo make install
 ```
