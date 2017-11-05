@@ -39,28 +39,28 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 		std::getline(lss, token, ','); // skip "tilepal 0/1"
 		while (std::getline(lss, token, ',')) {
 			trim(token);
-			if (token == "GRAY") {
+			if (token == "GRAY" || token == "PRIORITY_GRAY") {
 				_palette[_palette_size++] = Palette::GRAY;
 			}
-			else if (token == "RED") {
+			else if (token == "RED" || token == "PRIORITY_RED") {
 				_palette[_palette_size++] = Palette::RED;
 			}
-			else if (token == "GREEN") {
+			else if (token == "GREEN" || token == "PRIORITY_GREEN") {
 				_palette[_palette_size++] = Palette::GREEN;
 			}
-			else if (token == "WATER") {
+			else if (token == "WATER" || token == "PRIORITY_WATER" || token == "BLUE" || token == "PRIORITY_BLUE") {
 				_palette[_palette_size++] = Palette::WATER;
 			}
-			else if (token == "YELLOW") {
+			else if (token == "YELLOW" || token == "PRIORITY_YELLOW") {
 				_palette[_palette_size++] = Palette::YELLOW;
 			}
-			else if (token == "BROWN") {
+			else if (token == "BROWN" || token == "PRIORITY_BROWN") {
 				_palette[_palette_size++] = Palette::BROWN;
 			}
-			else if (token == "ROOF") {
+			else if (token == "ROOF" || token == "PRIORITY_ROOF") {
 				_palette[_palette_size++] = Palette::ROOF;
 			}
-			else if (token == "TEXT") {
+			else if (token == "TEXT" || token == "PRIORITY_TEXT") {
 				_palette[_palette_size++] = Palette::TEXT;
 			}
 			else {
