@@ -5,6 +5,7 @@
 
 ## Maybe
 
+* Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
 * Allow undo/redo for resize operations and/or block edits
 * Choose to put the sidebar on the left or right
 * Choose to display coordinates as X/Y and WxH or Y/X and HxW
