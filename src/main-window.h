@@ -1,6 +1,8 @@
 #ifndef VIZ_WINDOW_H
 #define VIZ_WINDOW_H
 
+#include <unordered_map>
+
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
@@ -56,6 +58,8 @@ private:
 	// Work properties
 	bool _unsaved, _copied;
 	Metatile _clipboard;
+	std::unordered_map<int, uint8_t> _hotkey_metatiles;
+	std::unordered_map<uint8_t, int> _metatile_hotkeys;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
 #ifndef _WIN32
@@ -73,7 +77,12 @@ public:
 	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
+	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
+	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }
+	inline std::unordered_map<int, uint8_t>::const_iterator hotkey_metatile(int key) const { return _hotkey_metatiles.find(key); }
+	inline std::unordered_map<int, uint8_t>::const_iterator no_metatile(void) const { return _hotkey_metatiles.end(); }
 	const char *modified_filename(void);
+	int handle(int event);
 	void draw_metatile(int x, int y, uint8_t id) const;
 	void update_status(Block *b);
 	void update_event_cursor(Block *b);
@@ -81,6 +90,7 @@ public:
 	void substitute_block(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
 private:
+	int handle_hotkey(int key);
 	void open_map(const char *directory, const char *filename);
 	void add_sub_metatiles(size_t n);
 	void resize_map(int w, int h);
@@ -89,6 +99,7 @@ private:
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
+	void select_metatile(Metatile_Button *mb);
 	// Drag-and-drop
 	static void drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw);
 	// File menu

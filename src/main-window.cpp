@@ -385,6 +385,66 @@ const char *Main_Window::modified_filename() {
 	return fl_filename_name(buffer);
 }
 
+int Main_Window::handle(int event) {
+	int key = 0;
+	switch (event) {
+	case FL_FOCUS:
+	case FL_UNFOCUS:
+		return 1;
+	case FL_SHORTCUT:
+		key = Fl::event_key();
+		//if (key & FL_KP == FL_KP) { key -= FL_KP; } // normalize numpad keys into digits
+		if (handle_hotkey(key)) { return 1; }
+	default:
+		return Fl_Double_Window::handle(event);
+	}
+}
+
+int Main_Window::handle_hotkey(int key) {
+	if (!_map.size()) { return 0; }
+	if ((key & FL_KP) == FL_KP) { key -= FL_KP; } // normalize numpad keys into digits
+	if (key < '0' || key > '9') { return 0; } // 0-9 keys only
+	if (Fl::event_ctrl() && Fl::event_shift()) {
+		// Ctrl+Shift+0-9 unassign the hotkey
+		auto s = hotkey_metatile(key);
+		if (s == no_metatile()) { return 0; }
+		uint8_t id = s->second;
+		_hotkey_metatiles.erase(key);
+		_metatile_hotkeys.erase(id);
+		redraw();
+	}
+	else if (Fl::event_ctrl()) {
+		// Ctrl+0-9 assign the selected metatile to the hotkey
+		if (!_selected) { return 0; }
+		uint8_t id = _selected->id();
+		auto sk = metatile_hotkey(id);
+		if (sk != no_hotkey()) {
+			// Unassign the metatile's previous key
+			int prev_key = sk->second;
+			_hotkey_metatiles.erase(prev_key);
+		}
+		auto sm = hotkey_metatile(key);
+		if (sm != no_metatile()) {
+			// Unassign the key from the previous metatile
+			uint8_t prev_id = sm->second;
+			_metatile_hotkeys.erase(prev_id);
+		}
+		_hotkey_metatiles[key] = id;
+		_metatile_hotkeys[id] = key;
+		redraw();
+	}
+	else {
+		// 0-9 select the metatile assigned to the hotkey
+		auto s = hotkey_metatile(key);
+		if (s == no_metatile()) { return 0; }
+		uint8_t id = s->second;
+		if (id >= _metatileset.size()) { return 0; }
+		select_metatile(_metatile_buttons[id]);
+		return 1;
+	}
+	return 0;
+}
+
 void Main_Window::draw_metatile(int x, int y, uint8_t id) const {
 	_metatileset.draw_metatile(x, y, id, zoom());
 }
@@ -682,6 +742,17 @@ void Main_Window::add_sub_metatiles(size_t n) {
 		if (_clipboard.id() >= n) {
 			_copied = false;
 		}
+		for (auto it = _metatile_hotkeys.begin(); it != _metatile_hotkeys.end();) {
+			uint8_t id = it->first;
+			if (id >= n) {
+				int key = it->second;
+				_hotkey_metatiles.erase(key);
+				_metatile_hotkeys.erase(it++);
+			}
+			else {
+				++it;
+			}
+		}
 		if (_selected->id() >= n) {
 			_selected = _metatile_buttons[0];
 			_selected->setonly();
@@ -906,6 +977,21 @@ void Main_Window::update_labels() {
 	redraw();
 }
 
+void Main_Window::select_metatile(Metatile_Button *mb) {
+	_selected = mb;
+	_selected->setonly();
+	uint8_t id = mb->id();
+	int ms = metatile_size();
+	if (ms * (id / METATILES_PER_ROW) >= _sidebar->yposition() + _sidebar->h() - ms / 2) {
+		_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW + 1) - _sidebar->h());
+		_sidebar->redraw();
+	}
+	else if (ms * (id / METATILES_PER_ROW + 1) <= _sidebar->yposition() + ms / 2) {
+		_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW));
+		_sidebar->redraw();
+	}
+}
+
 void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
 	Fl_Window *top = Fl::modal();
 	if (top && top != mw) { return; }
@@ -1038,6 +1124,8 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	FILL(mw->_metatile_buttons, 0, MAX_NUM_METATILES);
 	mw->_selected = NULL;
 	mw->_copied = false;
+	mw->_hotkey_metatiles.clear();
+	mw->_metatile_hotkeys.clear();
 	mw->_map_group->clear();
 	mw->_map_group->size(0, 0);
 	mw->_map.clear();
@@ -1371,16 +1459,6 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		// Right-click to select
 		uint8_t id = b->id();
 		if (id >= mw->_metatileset.size()) { return; }
-		mw->_selected = mw->_metatile_buttons[id];
-		mw->_selected->setonly();
-		int ms = mw->metatile_size();
-		if (ms * (id / METATILES_PER_ROW) >= mw->_sidebar->yposition() + mw->_sidebar->h() - ms / 2) {
-			mw->_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW + 1) - mw->_sidebar->h());
-			mw->_sidebar->redraw();
-		}
-		else if (ms * (id / METATILES_PER_ROW + 1) <= mw->_sidebar->yposition() + ms / 2) {
-			mw->_sidebar->scroll_to(0, ms * (id / METATILES_PER_ROW));
-			mw->_sidebar->redraw();
-		}
+		mw->select_metatile(mw->_metatile_buttons[id]);
 	}
 }

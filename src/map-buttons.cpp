@@ -1,5 +1,6 @@
 #pragma warning(push, 0)
 #include <FL/Fl_PNG_Image.H>
+#include <FL/fl_draw.H>
 #pragma warning(pop)
 
 #include "main-window.h"
@@ -18,9 +19,19 @@ static uchar event_cursor_png_buffer[96] = {
 
 static Fl_PNG_Image event_cursor_png(NULL, event_cursor_png_buffer, 96);
 
+static void draw_outlined_text(const char *l, int x, int y, int w, int h, Fl_Align a, Fl_Color c, Fl_Color s) {
+	fl_color(s);
+	fl_draw(l, x-1, y-1, w, h, a);
+	fl_draw(l, x-1, y+1, w, h, a);
+	fl_draw(l, x+1, y-1, w, h, a);
+	fl_draw(l, x+1, y+1, w, h, a);
+	fl_color(c);
+	fl_draw(l, x, y, w, h, a);
+}
+
 static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	Main_Window *mw = (Main_Window *)wgt->user_data();
-	int x = wgt->x(), y = wgt->y(), w = wgt->w(), h = wgt->h();
+	int x = wgt->x(), y = wgt->y();
 	int ms = mw->metatile_size();
 	mw->draw_metatile(x, y, id);
 	if (mw->grid()) {
@@ -41,16 +52,9 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	}
 	if (!mw->ids()) { return; }
 	const char *l = wgt->label();
-	Fl_Align a = FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE;
-	int p = mw->zoom() ? 2 : 1;
+	int cx = x + (mw->zoom() ? 2 : 1) + 2, cy = y + (mw->zoom() ? 2 : 1);
 	fl_font(FL_COURIER_BOLD, 14);
-	fl_color(FL_BLACK);
-	fl_draw(l, x+p+1, y+p-1, w, h, a);
-	fl_draw(l, x+p+1, y+p+1, w, h, a);
-	fl_draw(l, x+p+3, y+p-1, w, h, a);
-	fl_draw(l, x+p+3, y+p+1, w, h, a);
-	fl_color(border ? wgt->labelcolor() : FL_WHITE);
-	fl_draw(l, x+p+2, y+p, w, h, a);
+	draw_outlined_text(l, cx, cy, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE, border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
@@ -69,13 +73,21 @@ void Metatile_Button::id(uint8_t id) {
 }
 
 void Metatile_Button::draw() {
+	Main_Window *mw = (Main_Window *)user_data();
 	draw_map_button(this, _id, !!value());
+	auto s = mw->metatile_hotkey(_id);
+	if (s == mw->no_hotkey()) { return; }
+	int key = s->second;
+	const char *l = fl_shortcut_label(key);
+	int cx = x() - (mw->zoom() ? 2 : 1) - 2, cy = y() + (mw->zoom() ? 2 : 1);
+	if (!mw->zoom() && mw->ids() && !mw->hex() && _id >= 100) { cy += 14; } // don't overlap three-digit IDs
+	fl_font(FL_COURIER_BOLD, 14);
+	draw_outlined_text(l, cx, cy, w(), h(), FL_ALIGN_TOP_RIGHT | FL_ALIGN_INSIDE, FL_RED, FL_WHITE);
 }
 
 int Metatile_Button::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
-		return 1;
 	case FL_LEAVE:
 		return 1;
 	case FL_PUSH:
