@@ -536,7 +536,7 @@ void Main_Window::open_map(const char *filename) {
 		const char *project_type = Config::project_type();
 		std::string msg = "Could not find the main ";
 		msg = msg + project_type + " directory!\n\n"
-			"Make sure Options->Project Type matches" + basename + ".";
+			"Make sure Options->Project Type matches\n" + basename + ".";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -552,7 +552,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "This is not a ";
 		msg = msg + project_type + " project!\n\n"
-			"Make sure Options->Project Type matches" + basename + ".";
+			"Make sure Options->Project Type matches\n" + basename + ".";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
