@@ -38,7 +38,8 @@ sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libx
 git clone https://github.com/roukaour/polished-map.git
 cd polished-map
 
-# Build FLTK 1.3.4 if you don't have it installed already
+# Build FLTK 1.3.4 with the latest ABI enabled
+# (even if you have libfltk1.3-dev installed--it uses the 1.3.0 ABI)
 pushd lib
 unzip fltk-1.3.4.zip
 cd fltk-1.3.4
@@ -51,5 +52,10 @@ export PATH="$PWD/lib/bin:$PATH"
 
 # Build Polished Map
 make
-sudo make install
+
+# Install Polished Map
+# (for Ubuntu and Ubuntu derivatives only; it just copies bin/polishedmap and
+#  res/app.xpm to system directories)
+# (if it fails, then try sudo make install)
+make install
 ```
