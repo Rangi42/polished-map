@@ -6,6 +6,8 @@
 #include "map.h"
 #include "metatile.h"
 
+#define EMPTY_RGB 0xAB, 0xCD, 0xEF // intentionally leave out parentheses or brackets
+
 #define MAX_NUM_METATILES 256
 
 class Metatileset {

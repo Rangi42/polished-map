@@ -9,10 +9,10 @@
 * Allow undo/redo for resize operations and/or block edits
 * Choose to put the sidebar on the left or right
 * Choose to display coordinates as X/Y and WxH or Y/X and HxW
-* More color schemes than just Day, Nite, and Indoor
-* Change color schemes for an already-open map
-* Swap tilesets for an already-open map
-* Use IFileOpenDialog, not SHBrowseForFolder, for new maps (Windows only)
+* Reload tilesets for an already-open map
+* Reload color schemes for an already-open map
+* Load color schemes from a .pal file
+* Use IFileOpenDialog, not SHBrowseForFolder, for new maps (Windows only) (alternatively, pick a new .blk instead of the project root directory)
 
 
 ## Never
