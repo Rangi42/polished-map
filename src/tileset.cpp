@@ -2,7 +2,7 @@
 #include "tiled-image.h"
 #include "tileset.h"
 
-#define RGB5C(x) (uchar)((x) * 33 / 4)
+#define RGB5C(x) (uchar)((x) * 8) // (uchar)((x) * 33 / 4) for BGB instead of VBA
 #define RGB5(r, g, b) {RGB5C(r), RGB5C(g), RGB5C(b)}
 #define RGBX(rgb) {(((rgb) & 0xFF0000) >> 16), (((rgb) & 0xFF00) >> 8), ((rgb) & 0xFF)}
 
