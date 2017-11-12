@@ -189,9 +189,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (grid_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this,
 			FL_MENU_TOGGLE | (zoom_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this,
+		OS_MENU_ITEM("Block &IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this,
 			FL_MENU_TOGGLE | (ids_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Hex", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this,
+		OS_MENU_ITEM("&Hexadecimal", FL_COMMAND + 'h', (Fl_Callback *)hex_cb, this,
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
 			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
@@ -281,12 +281,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_tb->image(ZOOM_ICON);
 	_zoom_tb->value(zoom());
 
-	_ids_tb->tooltip("IDs (Ctrl+I)");
+	_ids_tb->tooltip("Block IDs (Ctrl+I)");
 	_ids_tb->callback((Fl_Callback *)ids_tb_cb, this);
 	_ids_tb->image(IDS_ICON);
 	_ids_tb->value(ids());
 
-	_hex_tb->tooltip("Hex (Ctrl+H)");
+	_hex_tb->tooltip("Hexadecimal (Ctrl+H)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
 	_hex_tb->value(hex());
