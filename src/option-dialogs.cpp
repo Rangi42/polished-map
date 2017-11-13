@@ -83,6 +83,7 @@ void Option_Dialog::show(const Fl_Widget *p) {
 }
 
 void Option_Dialog::close_cb(Fl_Widget *, Option_Dialog *od) {
+	od->finish();
 	od->_dialog->hide();
 }
 
@@ -104,8 +105,12 @@ Map_Options_Dialog::~Map_Options_Dialog() {
 const char *Map_Options_Dialog::tileset(void) const {
 	if (!_tileset->mvalue()) { return NULL; }
 	const char *t = _tileset->mvalue()->label();
-	Dictionary::const_iterator it = _original_names.find(t);
-	if (it == _original_names.end()) { return t; }
+	return original_name(t);
+}
+
+const char *Map_Options_Dialog::original_name(const char *pretty_name) const {
+	Dictionary::const_iterator it = _original_names.find(pretty_name);
+	if (it == _original_names.end()) { return pretty_name; }
 	return it->second.c_str();
 }
 
@@ -487,7 +492,8 @@ bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name)
 	for (int i = 0; i < n; i++) {
 		const Fl_Menu_Item &item = _map_options_dialog->_tileset->menu()[i];
 		const char *name = item.label();
-		if (!strcmp(old_tileset_name, name)) { v = i; }
+		const char *original_name = _map_options_dialog->original_name(name);
+		if (!strcmp(old_tileset_name, original_name)) { v = i; }
 		_tileset->add(name);
 	}
 	_tileset->value(v);
@@ -536,4 +542,8 @@ int Tileset_Options_Dialog::refresh_content(int ww, int dy) {
 	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
+}
+
+void Tileset_Options_Dialog::finish() {
+	_map_options_dialog->_lighting->value(_lighting->value());
 }

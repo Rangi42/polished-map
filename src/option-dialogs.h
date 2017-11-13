@@ -34,6 +34,7 @@ protected:
 	void refresh(void);
 	virtual void initialize_content(void) = 0;
 	virtual int refresh_content(int ww, int dy) = 0;
+	virtual void finish(void) {}
 public:
 	inline bool initialized(void) const { return !!_dialog; }
 	void show(const Fl_Widget *p);
@@ -61,6 +62,7 @@ public:
 	const char *tileset(void) const;
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
 private:
+	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, std::string &tileset_name);
 	Dictionary guess_tileset_names(const char *directory);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
@@ -119,6 +121,7 @@ public:
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
+	void finish(void);
 };
 
 #endif
