@@ -61,9 +61,9 @@ public:
 	const char *tileset(void) const;
 	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
 private:
-	bool guess_map_size(const char *filename, const char *directory);
+	bool guess_map_size(const char *filename, const char *directory, std::string &tileset_name);
 	Dictionary guess_tileset_names(const char *directory);
-	void add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
+	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

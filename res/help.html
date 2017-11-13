@@ -9,7 +9,7 @@ R"(<html>
 <p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and focused on graphics instead of script editing.</p>
 <p>Source code is available at <a href="https://github.com/roukaour/polished-map">https://github.com/roukaour/polished-map</a>.</p>
 <hr>
-<p>Polished Map displays and edits .blk files. There are a few ways to open a .blk file:</p>
+<p>Polished Map displays and edits .blk map files. It supports all the standard ways to open a file:</p>
 <ul>
 <li><b>Initial:</b> Double-click a .blk file in File Explorer. (Run install.bat to associate .blk files with Polished Map.)</li>
 <li><b>Menu bar:</b> Run polishedmap.exe and select the File&nbsp;→&nbsp;Open… menu item.</li>
@@ -19,6 +19,7 @@ R"(<html>
 <li><b>GUI:</b> Drag a .blk file onto an open Polished Map window.</li>
 <li><b>Command Prompt:</b> Pass the .blk filename as an argument to polishedmap.exe:<br><font size="2"><kbd>polishedmap.exe&nbsp;C:\pokecrystal\maps\SomeMap.blk</kbd></font></li>
 </ul>
+<p>Polished Map will try to guess a map's size and tileset. You can append them to the filename as <kbd>.<var>WIDTH</var>x<var>HEIGHT</var></kbd> or <kbd>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var></kbd>; for instance, NewBarkTown.10x9.blk or UnionCave1F.10x18.24.blk. Otherwise Polished Map will guess the map's constant ID from its filename and read its size from the assembly code; for instance, UnionCaveB2F.blk is guessed to be <code>UNION_CAVE_B2F</code>. This can fail, like when LakeofRage.blk is guessed as <code>LAKEOF_RAGE</code>. Then you'll just have to enter the size yourself.</p>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
 <p>The sidebar palette uses the mouse:</p>
 <ul>

@@ -1,6 +1,8 @@
 #include <cctype>
 #include <fstream>
 #include <sstream>
+#include <regex>
+#include <cstdlib>
 
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>
@@ -113,7 +115,9 @@ inline static int toconstant(int c) { return isalnum(c) ? toupper(c) : '_'; }
 static void guess_map_constant(const char *name, char *constant) {
 	char prev = (char)toconstant(*name);
 	*constant++ = (char)toupper(*name++);
-	size_t n = strlen(name) - 4; // ignore ".blk" extension
+
+	const char *p = strchr(name, '.');
+	size_t n = p ? p - name : strlen(name); // ignore extension and attribute data
 	for (size_t i = 0; i < n; i++) {
 		char c = *name;
 		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
@@ -127,8 +131,20 @@ static void guess_map_constant(const char *name, char *constant) {
 	*constant = '\0';
 }
 
-bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
+bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, std::string &tileset_name) {
 	if (!filename) { return false; }
+
+	std::cmatch cm;
+	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.([A-Za-z0-9_-]+))?\\.[Bb][Ll][Kk]");
+	std::regex_match(filename, cm, rx);
+	size_t n = cm.size();
+	if (n >= 3) {
+		std::string sw(cm[1]), sh(cm[2]);
+		_map_width->value(std::stoi(sw));
+		_map_height->value(std::stoi(sh));
+		if (n == 4) { tileset_name = cm[3].str(); }
+		return true;
+	}
 
 	char map_constants[FL_PATH_MAX] = {};
 	Config::map_constants_path(map_constants, directory);
@@ -193,30 +209,34 @@ Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
 	return pretty_names;
 }
 
-void Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Dictionary &pretty_names) {
+std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Dictionary &pretty_names) {
 	std::string v(t);
 	v.erase(v.size() - ext_len, ext_len);
+	std::string p(v);
 
-	if (v.length() == 2 && isdigit(v[0]) && isdigit(v[1])) {
-		Dictionary::const_iterator it = pretty_names.find(v);
+	if (p.length() == 2 && isdigit(p[0]) && isdigit(p[1])) {
+		Dictionary::const_iterator it = pretty_names.find(p);
 		if (it != pretty_names.end()) {
-			v = it->second;
-			_original_names[v] = it->first;
+			p = it->second;
+			_original_names[p] = it->first;
 		}
 	}
 
-	if (_tileset->find_index(v.c_str()) != -1) { return; }
+	if (_tileset->find_index(p.c_str()) == -1) {
+		_tileset->add(p.c_str());
+		int m = text_width(p.c_str(), 6);
+		_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+	}
 
-	_tileset->add(v.c_str());
-	int m = text_width(v.c_str(), 6);
-	_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+	return v;
 }
 
 bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory) {
 	initialize();
 
 	// Initialize map size
-	if (!guess_map_size(filename, directory)) {
+	std::string tileset_name;
+	if (!guess_map_size(filename, directory, tileset_name)) {
 		_map_width->value(1);
 		_map_height->value(1);
 	}
@@ -235,17 +255,17 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_tileset->clear();
 
 	Dictionary pretty_names = guess_tileset_names(directory);
+	int v = 0;
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
 		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
-		else if (ends_with(name, ".2bpp.lz")) {
-			add_tileset(name, 8, pretty_names);
-		}
-		else if (ends_with(name, ".png")) {
-			add_tileset(name, 4, pretty_names);
+		int ext_len = ends_with(name, ".2bpp.lz") ? 8 : ends_with(name, ".png") ? 4 : 0;
+		if (ext_len) {
+			std::string original_name(add_tileset(name, ext_len, pretty_names));
+			if (tileset_name == original_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 		}
 	}
-	_tileset->value(0);
+	_tileset->value(v);
 
 	_project_type = Config::project(); // store for later verification by Tileset_Options_Dialog
 

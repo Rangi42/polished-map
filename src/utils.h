@@ -25,7 +25,7 @@
 	__pragma(warning(disable:4127)) \
 	do { \
 		std::wstringstream wss_dbg_; \
-		wss_dbg_ << X; \
+		wss_dbg_ << X << std::endl; \
 		OutputDebugString(wss_dbg_.str().c_str()); \
 	} while (0) \
 	__pragma(warning(pop))
