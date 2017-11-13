@@ -5,6 +5,7 @@
 #include <string>
 
 #include "utils.h"
+#include "config.h"
 #include "widgets.h"
 #include "tileset.h"
 
@@ -49,6 +50,8 @@ private:
 	OS_Spinner *_map_width, *_map_height;
 	Dropdown *_tileset, *_lighting;
 	Dictionary _original_names;
+	friend class Tileset_Options_Dialog;
+	Config::Project _project_type;
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
@@ -98,6 +101,21 @@ public:
 	~Add_Sub_Dialog();
 	inline size_t num_metatiles(void) const { return (size_t)_num_metatiles->value(); }
 	inline void num_metatiles(size_t n) { initialize(); _num_metatiles->value((double)n); }
+protected:
+	void initialize_content(void);
+	int refresh_content(int ww, int dy);
+};
+
+class Tileset_Options_Dialog : public Option_Dialog {
+private:
+	Dropdown *_tileset, *_lighting;
+	Map_Options_Dialog *_map_options_dialog;
+public:
+	Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod);
+	~Tileset_Options_Dialog();
+	bool limit_tileset_options(const char *old_tileset_name);
+	const char *tileset(void) const;
+	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

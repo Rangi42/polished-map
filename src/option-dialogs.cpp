@@ -90,7 +90,7 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(290, t), _max_tileset_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL) {}
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL), _project_type(Config::project()) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
@@ -246,6 +246,8 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 		}
 	}
 	_tileset->value(0);
+
+	_project_type = Config::project(); // store for later verification by Tileset_Options_Dialog
 
 	return true;
 }
@@ -444,4 +446,74 @@ int Add_Sub_Dialog::refresh_content(int ww, int dy) {
 	_num_metatiles->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return wgt_h;
+}
+
+Tileset_Options_Dialog::Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(290, t),
+	_tileset(NULL), _lighting(NULL), _map_options_dialog(mod) {}
+
+Tileset_Options_Dialog::~Tileset_Options_Dialog() {
+	delete _tileset;
+	delete _lighting;
+}
+
+bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name) {
+	if (!_map_options_dialog) { return false; }
+	if (Config::project() != _map_options_dialog->_project_type) { return false; } // verify unchanged project type
+	initialize();
+	// Copy _map_options_dialog's tileset choices
+	_tileset->clear();
+	int n = _map_options_dialog->_tileset->size() - 1; // ignore terminating NULL
+	int v = 0;
+	for (int i = 0; i < n; i++) {
+		const Fl_Menu_Item &item = _map_options_dialog->_tileset->menu()[i];
+		const char *name = item.label();
+		if (!strcmp(old_tileset_name, name)) { v = i; }
+		_tileset->add(name);
+	}
+	_tileset->value(v);
+	// Copy _map_options_dialog's lighting choices
+	_lighting->clear();
+	n = _map_options_dialog->_lighting->size() - 1; // ignore terminating NULL
+	v = _map_options_dialog->_lighting->value();
+	for (int i = 0; i < n; i++) {
+		const Fl_Menu_Item &item = _map_options_dialog->_lighting->menu()[i];
+		const char *name = item.label();
+		_lighting->add(name);
+	}
+	_lighting->value(v);
+	return true;
+}
+
+const char *Tileset_Options_Dialog::tileset(void) const {
+	if (!_tileset->mvalue()) { return NULL; }
+	const char *t = _tileset->mvalue()->label();
+	Dictionary::const_iterator it = _map_options_dialog->_original_names.find(t);
+	if (it == _map_options_dialog->_original_names.end()) { return t; }
+	return it->second.c_str();
+}
+
+void Tileset_Options_Dialog::initialize_content() {
+	// Populate content group
+	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
+	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
+	// Initialize content group's children
+	_tileset->align(FL_ALIGN_LEFT);
+	_lighting->align(FL_ALIGN_LEFT);
+}
+
+int Tileset_Options_Dialog::refresh_content(int ww, int dy) {
+	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
+	int ch = wgt_h + wgt_m + wgt_h;
+	_content->resize(win_m, dy, ww, ch);
+
+	int wgt_off = win_m + MAX(text_width(_tileset->label(), 2), text_width(_lighting->label(), 2));
+
+	wgt_w = _map_options_dialog->_max_tileset_name_length + wgt_h;
+	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
+	dy += _tileset->h() + wgt_m;
+
+	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Night", 2)), text_width("Indoor", 2));
+	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
 }

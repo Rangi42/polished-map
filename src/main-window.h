@@ -44,6 +44,7 @@ private:
 	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_new_dir_chooser, *_png_chooser;
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
+	Tileset_Options_Dialog *_tileset_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
@@ -92,7 +93,9 @@ public:
 private:
 	int handle_hotkey(int key);
 	void open_map(const char *directory, const char *filename);
+	bool read_metatile_data(const char *tileset_name, Tileset::Lighting lighting);
 	void add_sub_metatiles(size_t n);
+	void force_add_sub_metatiles(size_t s, size_t n);
 	void resize_map(int w, int h);
 	bool save_map(void);
 	bool save_metatileset(void);
@@ -136,6 +139,7 @@ private:
 	static void pokered_project_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void polished_project_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void prism_project_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void change_tiles_cb(Fl_Widget *w, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

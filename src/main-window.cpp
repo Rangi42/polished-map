@@ -115,6 +115,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_unsaved_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON, true);
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
+	_tileset_options_dialog = new Tileset_Options_Dialog("Tileset Options", _map_options_dialog);
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
@@ -198,7 +199,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
-		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU),
+		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("poke&crystal", 0, (Fl_Callback *)pokecrystal_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("poke&red", 0, (Fl_Callback *)pokered_project_cb, this,
@@ -208,6 +209,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Pris&m", 0, (Fl_Callback *)prism_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
 		{},
+		OS_MENU_ITEM("Change &Tileset...", FL_COMMAND + 't', (Fl_Callback *)change_tiles_cb, this, 0),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -349,6 +351,7 @@ Main_Window::~Main_Window() {
 	delete _unsaved_dialog;
 	delete _about_dialog;
 	delete _map_options_dialog;
+	delete _tileset_options_dialog;
 	delete _resize_dialog;
 	delete _add_sub_dialog;
 	delete _help_window;
@@ -586,48 +589,8 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
-	char buffer[FL_PATH_MAX] = {};
-
-	Tileset *tileset = _metatileset.tileset();
-	tileset->name(tileset_name);
-
-	Config::palette_map_path(buffer, directory, tileset_name);
-	if (Palette_Map::Result r = tileset->read_palette_map(buffer)) {
-		std::string msg = "Error reading ";
-		Config::palette_map_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return;
-	}
-
-	Config::tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = tileset->read_graphics(buffer, _map_options_dialog->lighting())) {
-		std::string msg = "Error reading ";
-		Config::tileset_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return;
-	}
-
-	Config::metatileset_path(buffer, directory, tileset_name);
-	Metatileset::Result r = _metatileset.read_metatiles(buffer);
-	if (r == Metatileset::Result::META_TOO_SHORT) {
-		Config::metatileset_path(buffer, "", tileset_name);
-		std::string msg = "Warning: ";
-		msg = msg + buffer + ":\n\n" + Metatileset::error_message(r);
-		_warning_dialog->message(msg);
-		_warning_dialog->show(this);
-	}
-	else if (r) {
-		std::string msg = "Error reading ";
-		Config::metatileset_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return;
-	}
+	Tileset::Lighting lighting = _map_options_dialog->lighting();
+	if (!read_metatile_data(tileset_name, lighting)) { return; }
 
 	uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
 	_map.size(w, h);
@@ -684,6 +647,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	// set filenames
+	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	copy_label(buffer);
 	if (ends_with(basename, ".blk")) {
@@ -713,7 +677,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_selected = _metatile_buttons[0];
 	_copied = false;
 
-	_block_window->tileset(tileset);
+	_block_window->tileset(_metatileset.tileset());
 
 	update_labels();
 	update_status(NULL);
@@ -721,10 +685,63 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
+bool Main_Window::read_metatile_data(const char *tileset_name, Tileset::Lighting lighting) {
+	char buffer[FL_PATH_MAX] = {};
+
+	Tileset *tileset = _metatileset.tileset();
+	tileset->name(tileset_name);
+
+	const char *directory = _directory.c_str();
+
+	Config::palette_map_path(buffer, directory, tileset_name);
+	if (Palette_Map::Result r = tileset->read_palette_map(buffer)) {
+		std::string msg = "Error reading ";
+		Config::palette_map_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	Config::tileset_path(buffer, directory, tileset_name);
+	if (Tileset::Result r = tileset->read_graphics(buffer, lighting)) {
+		std::string msg = "Error reading ";
+		Config::tileset_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	Config::metatileset_path(buffer, directory, tileset_name);
+	Metatileset::Result r = _metatileset.read_metatiles(buffer);
+	if (r == Metatileset::Result::META_TOO_SHORT) {
+		Config::metatileset_path(buffer, "", tileset_name);
+		std::string msg = "Warning: ";
+		msg = msg + buffer + ":\n\n" + Metatileset::error_message(r);
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else if (r) {
+		std::string msg = "Error reading ";
+		Config::metatileset_path(buffer, "", tileset_name);
+		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	return true;
+}
+
 void Main_Window::add_sub_metatiles(size_t n) {
 	size_t s = _metatileset.size();
 	if (n == s) { return; }
 	_metatileset.size(n);
+	force_add_sub_metatiles(s, n);
+}
+
+void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 	int ms = metatile_size();
 
 	if (n > s) {
@@ -940,16 +957,16 @@ void Main_Window::edit_metatile(Metatile *mt) {
 
 void Main_Window::update_zoom() {
 	int ms = metatile_size();
+	size_t n = _metatileset.size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
 	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map_group->init_sizes();
 	_map_scroll->init_sizes();
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
-	size_t n = _metatileset.size();
 	for (size_t i = 0; i < n; i++) {
 		Metatile_Button *mt = _metatile_buttons[i];
 		int dx = ms * (i % METATILES_PER_ROW), dy = ms * (i / METATILES_PER_ROW);
@@ -1369,6 +1386,53 @@ void Main_Window::polished_project_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	Config::project(Config::Project::PRISM);
 	mw->_prism_project_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::change_tiles_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	if (mw->_metatileset.modified()) {
+		std::string msg = mw->modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Change the tileset anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	char old_name[FL_PATH_MAX] = {};
+	strcpy(old_name, mw->_metatileset.tileset()->name());
+	size_t old_size = mw->_metatileset.size();
+
+	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
+		const char *project_type = Config::project_type();
+		const char *basename = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = "This is not a ";
+		msg = msg + project_type + " project!\n\n"
+			"Make sure Options->Project Type matches\n" + basename + ".";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->_tileset_options_dialog->show(mw);
+	bool canceled = mw->_tileset_options_dialog->canceled();
+	if (canceled) { return; }
+
+	mw->_metatileset.clear();
+
+	const char *tileset_name = mw->_tileset_options_dialog->tileset();
+	const Tileset::Lighting lighting = mw->_tileset_options_dialog->lighting();
+	if (!mw->read_metatile_data(tileset_name, lighting)) {
+		mw->_map.modified(false);
+		mw->_metatileset.modified(false);
+		close_cb(NULL, mw);
+		return;
+	}
+
+	mw->force_add_sub_metatiles(old_size, mw->_metatileset.size());
+	mw->_metatileset.modified(false);
 	mw->redraw();
 }
 
