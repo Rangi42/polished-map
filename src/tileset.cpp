@@ -44,7 +44,7 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(26,24,17), RGB5(16,13, 3), RGB5(21,17, 7), RGB5( 7, 7, 7)}, // BROWN
 		{RGB5(30,28,26), RGB5(14,16,31), RGB5(17,19,31), RGB5( 7, 7, 7)}, // ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT
-		{RGB5(28,31,26), RGB5( 6,13,10), RGB5(17,24,14), RGB5( 1, 3, 4)}, // MONOCHROME
+		{RGB5(31,29,31), RGB5(20,26,31), RGB5(21,28,11), RGB5( 3, 2, 2)}, // MONOCHROME
 		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // ICE_PATH
@@ -56,7 +56,7 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(15,14,24), RGB5( 8, 4, 5), RGB5(12, 9,15), RGB5( 0, 0, 0)}, // BROWN
 		{RGB5(25,31,31), RGB5(16,11,31), RGB5( 9,28,31), RGB5( 5, 0, 9)}, // ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT
-		{RGB5(28,31,26), RGB5( 6,13,10), RGB5(17,24,14), RGB5( 1, 3, 4)}, // MONOCHROME
+		{RGB5(21,14, 9), RGB5( 3, 2, 2), RGB5(18,24,22), RGB5( 3, 2, 2)}, // MONOCHROME
 		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // ARTIFICIAL
