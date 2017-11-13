@@ -63,8 +63,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
+	_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -115,7 +117,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_unsaved_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON, true);
 	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
-	_tileset_options_dialog = new Tileset_Options_Dialog("Tileset Options", _map_options_dialog);
+	_tileset_options_dialog = new Tileset_Options_Dialog("Change Tileset", _map_options_dialog);
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
@@ -171,7 +173,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Paste Block", FL_COMMAND + 'v', (Fl_Callback *)paste_metatile_cb, this, 0),
 		OS_MENU_ITEM("S&wap Block", FL_COMMAND + 'x', (Fl_Callback *)swap_metatiles_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
-		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, 0),
+		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Change &Tileset...", FL_COMMAND + 't', (Fl_Callback *)change_tiles_cb, this, 0),
 		{},
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -209,7 +212,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Pris&m", 0, (Fl_Callback *)prism_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
 		{},
-		OS_MENU_ITEM("Change &Tileset...", FL_COMMAND + 't', (Fl_Callback *)change_tiles_cb, this, 0),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -272,6 +274,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_resize_tb->tooltip("Resize Map... (Ctrl+E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
+
+	_tileset_tb->tooltip("Change Tileset... (Ctrl+T)");
+	_tileset_tb->callback((Fl_Callback *)change_tiles_cb, this);
+	_tileset_tb->image(TILESET_ICON);
 
 	_grid_tb->tooltip("Grid (Ctrl+G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
@@ -1292,6 +1298,53 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	}
 }
 
+void Main_Window::change_tiles_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	if (mw->_metatileset.modified()) {
+		std::string msg = mw->modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Change the tileset anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	char old_name[FL_PATH_MAX] = {};
+	strcpy(old_name, mw->_metatileset.tileset()->name());
+	size_t old_size = mw->_metatileset.size();
+
+	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
+		const char *project_type = Config::project_type();
+		const char *basename = fl_filename_name(mw->_blk_file.c_str());
+		std::string msg = "This is not a ";
+		msg = msg + project_type + " project!\n\n"
+			"Make sure Options->Project Type matches\n" + basename + ".";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->_tileset_options_dialog->show(mw);
+	bool canceled = mw->_tileset_options_dialog->canceled();
+	if (canceled) { return; }
+
+	mw->_metatileset.clear();
+
+	const char *tileset_name = mw->_tileset_options_dialog->tileset();
+	const Tileset::Lighting lighting = mw->_tileset_options_dialog->lighting();
+	if (!mw->read_metatile_data(tileset_name, lighting)) {
+		mw->_map.modified(false);
+		mw->_metatileset.modified(false);
+		close_cb(NULL, mw);
+		return;
+	}
+
+	mw->force_add_sub_metatiles(old_size, mw->_metatileset.size());
+	mw->_metatileset.modified(false);
+	mw->redraw();
+}
+
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_aero_theme();
 	mw->_aero_theme_mi->setonly();
@@ -1386,53 +1439,6 @@ void Main_Window::polished_project_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	Config::project(Config::Project::PRISM);
 	mw->_prism_project_mi->setonly();
-	mw->redraw();
-}
-
-void Main_Window::change_tiles_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map.size()) { return; }
-
-	if (mw->_metatileset.modified()) {
-		std::string msg = mw->modified_filename();
-		msg = msg + " has unsaved changes!\n\n"
-			"Change the tileset anyway?";
-		mw->_unsaved_dialog->message(msg);
-		mw->_unsaved_dialog->show(mw);
-		if (mw->_unsaved_dialog->canceled()) { return; }
-	}
-
-	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, mw->_metatileset.tileset()->name());
-	size_t old_size = mw->_metatileset.size();
-
-	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
-		const char *project_type = Config::project_type();
-		const char *basename = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = "This is not a ";
-		msg = msg + project_type + " project!\n\n"
-			"Make sure Options->Project Type matches\n" + basename + ".";
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-
-	mw->_tileset_options_dialog->show(mw);
-	bool canceled = mw->_tileset_options_dialog->canceled();
-	if (canceled) { return; }
-
-	mw->_metatileset.clear();
-
-	const char *tileset_name = mw->_tileset_options_dialog->tileset();
-	const Tileset::Lighting lighting = mw->_tileset_options_dialog->lighting();
-	if (!mw->read_metatile_data(tileset_name, lighting)) {
-		mw->_map.modified(false);
-		mw->_metatileset.modified(false);
-		close_cb(NULL, mw);
-		return;
-	}
-
-	mw->force_add_sub_metatiles(old_size, mw->_metatileset.size());
-	mw->_metatileset.modified(false);
 	mw->redraw();
 }
 

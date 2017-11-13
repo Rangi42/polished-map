@@ -202,6 +202,9 @@
     <None Include="..\res\event.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\tileset.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">

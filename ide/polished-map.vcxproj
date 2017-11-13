@@ -166,6 +166,7 @@
     <None Include="..\res\resize.xpm" />
     <None Include="..\res\save.xpm" />
     <None Include="..\res\success.xpm" />
+    <None Include="..\res\tileset.xpm" />
     <None Include="..\res\undo.xpm" />
     <None Include="..\res\warning.xpm" />
     <None Include="..\res\zoom.xpm" />

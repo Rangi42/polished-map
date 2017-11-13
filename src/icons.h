@@ -13,6 +13,7 @@
 #include "redo.xpm"
 #include "add-sub.xpm"
 #include "resize.xpm"
+#include "tileset.xpm"
 #include "grid.xpm"
 #include "zoom.xpm"
 #include "ids.xpm"
@@ -27,6 +28,7 @@ static Fl_Pixmap UNDO_ICON(UNDO_XPM);
 static Fl_Pixmap REDO_ICON(REDO_XPM);
 static Fl_Pixmap ADD_SUB_ICON(ADD_SUB_XPM);
 static Fl_Pixmap RESIZE_ICON(RESIZE_XPM);
+static Fl_Pixmap TILESET_ICON(TILESET_XPM);
 static Fl_Pixmap GRID_ICON(GRID_XPM);
 static Fl_Pixmap ZOOM_ICON(ZOOM_XPM);
 static Fl_Pixmap IDS_ICON(IDS_XPM);
