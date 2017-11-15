@@ -669,7 +669,8 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// populate sidebar with metatile buttons
 	_sidebar->scroll_to(0, 0);
-	for (size_t i = 0; i < _metatileset.size(); i++) {
+	size_t n = _metatileset.size();
+	for (size_t i = 0; i < n; i++) {
 		int x = ms * (i % METATILES_PER_ROW), y = ms * (i / METATILES_PER_ROW);
 		Metatile_Button *mtb = new Metatile_Button(_sidebar->x() + x, _sidebar->y() + y, ms, (uint8_t)i);
 		mtb->callback((Fl_Callback *)select_metatile_cb, this);
@@ -677,9 +678,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		_metatile_buttons[i] = mtb;
 	}
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
-	if (_metatileset.size()) {
+	if (n) {
 		_metatile_buttons[0]->setonly();
 		_selected = _metatile_buttons[0];
 	}
