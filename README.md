@@ -8,6 +8,6 @@ Latest release: [**2.2.1**](https://github.com/roukaour/polished-map/releases/ta
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
 
-You can try opening example/maps/Kanto.180x135.03.blk as a pokecrystal project. It's a stitch of every Kanto overworld map from pokecrystal, since they use the same tileset.
+You can try opening example/maps/Kanto.180x135.03.blk as a pokecrystal project. It's a stitch of every Kanto overworld map from pokecrystal, since they use the same tileset. example/maps/Johto.235x135.01.blk is a stitch of every Johto overworld map; some of them use tileset 02, so try switching tilesets with Edit→Change Tileset… or pressing Ctrl+T.
 
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/). If you have questions or comments, please go there.

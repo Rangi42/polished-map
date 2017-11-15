@@ -202,7 +202,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
-		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU),
 		OS_MENU_ITEM("poke&crystal", 0, (Fl_Callback *)pokecrystal_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("poke&red", 0, (Fl_Callback *)pokered_project_cb, this,
