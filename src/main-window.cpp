@@ -679,8 +679,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
-	_metatile_buttons[0]->setonly();
-	_selected = _metatile_buttons[0];
+	if (_metatileset.size()) {
+		_metatile_buttons[0]->setonly();
+		_selected = _metatile_buttons[0];
+	}
 	_copied = false;
 
 	_block_window->tileset(_metatileset.tileset());
