@@ -38,6 +38,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 		std::string token;
 		std::getline(lss, token, ','); // skip "tilepal 0/1"
 		while (std::getline(lss, token, ',')) {
+			if (_palette_size == MAX_NUM_TILES) { return (_result = PALETTE_TOO_LONG); }
 			trim(token);
 			if (token == "GRAY" || token == "PRIORITY_GRAY") {
 				_palette[_palette_size++] = Palette::GRAY;
@@ -79,6 +80,8 @@ const char *Palette_Map::error_message(Result result) {
 		return "Cannot open file.";
 	case BAD_PALETTE_NAME:
 		return "Invalid color name.";
+	case PALETTE_TOO_LONG:
+		return "More than 256 colors defined.";
 	case PALETTE_NULL:
 		return "No palette file chosen.";
 	default:

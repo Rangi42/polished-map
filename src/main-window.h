@@ -36,7 +36,8 @@ private:
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_event_cursor_mi, *_full_screen_mi,
 		*_pokecrystal_project_mi, *_pokered_project_mi, *_polished_project_mi, *_prism_project_mi;
-	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_tileset_tb;
+	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb,
+		*_change_tileset_tb, *_edit_tileset_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_event_cursor_tb;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
@@ -122,7 +123,8 @@ private:
 	static void swap_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
-	static void change_tiles_cb(Fl_Widget *w, Main_Window *mw);
+	static void change_tileset_cb(Fl_Widget *w, Main_Window *mw);
+	static void edit_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	// View menu
 	static void aero_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void metro_theme_cb(Fl_Menu_ *m, Main_Window *mw);

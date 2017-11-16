@@ -66,7 +66,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
-	_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
+	_change_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
+	_edit_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -173,8 +174,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Paste Block", FL_COMMAND + 'v', (Fl_Callback *)paste_metatile_cb, this, 0),
 		OS_MENU_ITEM("S&wap Block", FL_COMMAND + 'x', (Fl_Callback *)swap_metatiles_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
-		OS_MENU_ITEM("Re&size Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Change &Tileset...", FL_COMMAND + 't', (Fl_Callback *)change_tiles_cb, this, 0),
+		OS_MENU_ITEM("Resize &Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
+		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, 0),
 		{},
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -275,9 +277,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
 
-	_tileset_tb->tooltip("Change Tileset... (Ctrl+T)");
-	_tileset_tb->callback((Fl_Callback *)change_tiles_cb, this);
-	_tileset_tb->image(TILESET_ICON);
+	_change_tileset_tb->tooltip("Change Tileset... (Ctrl+H)");
+	_change_tileset_tb->callback((Fl_Callback *)change_tileset_cb, this);
+	_change_tileset_tb->image(CHANGE_ICON);
+
+	_edit_tileset_tb->tooltip("Edit Tileset... (Ctrl+T)");
+	_edit_tileset_tb->callback((Fl_Callback *)edit_tileset_cb, this);
+	_edit_tileset_tb->image(TILESET_ICON);
 
 	_grid_tb->tooltip("Grid (Ctrl+G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
@@ -703,38 +709,47 @@ bool Main_Window::read_metatile_data(const char *tileset_name, Tileset::Lighting
 	const char *directory = _directory.c_str();
 
 	Config::palette_map_path(buffer, directory, tileset_name);
-	if (Palette_Map::Result r = tileset->read_palette_map(buffer)) {
-		std::string msg = "Error reading ";
+	Palette_Map::Result rp = tileset->read_palette_map(buffer);
+	if (rp == Palette_Map::Result::PALETTE_TOO_LONG) {
 		Config::palette_map_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(r);
+		std::string msg = "Warning: ";
+		msg = msg + buffer + ":\n\n" + Palette_Map::error_message(rp);
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else if (rp) {
+		Config::palette_map_path(buffer, "", tileset_name);
+		std::string msg = "Error reading ";
+		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(rp);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return false;
 	}
 
 	Config::tileset_path(buffer, directory, tileset_name);
-	if (Tileset::Result r = tileset->read_graphics(buffer, lighting)) {
-		std::string msg = "Error reading ";
+	Tileset::Result rt = tileset->read_graphics(buffer, lighting);
+	if (rt) {
 		Config::tileset_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Tileset::error_message(r);
+		std::string msg = "Error reading ";
+		msg = msg + buffer + "!\n\n" + Tileset::error_message(rt);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return false;
 	}
 
 	Config::metatileset_path(buffer, directory, tileset_name);
-	Metatileset::Result r = _metatileset.read_metatiles(buffer);
-	if (r == Metatileset::Result::META_TOO_SHORT) {
+	Metatileset::Result rm = _metatileset.read_metatiles(buffer);
+	if (rm == Metatileset::Result::META_TOO_SHORT || rm == Metatileset::Result::META_TOO_LONG) {
 		Config::metatileset_path(buffer, "", tileset_name);
 		std::string msg = "Warning: ";
-		msg = msg + buffer + ":\n\n" + Metatileset::error_message(r);
+		msg = msg + buffer + ":\n\n" + Metatileset::error_message(rm);
 		_warning_dialog->message(msg);
 		_warning_dialog->show(this);
 	}
-	else if (r) {
-		std::string msg = "Error reading ";
+	else if (rm) {
 		Config::metatileset_path(buffer, "", tileset_name);
-		msg = msg + buffer + "!\n\n" + Metatileset::error_message(r);
+		std::string msg = "Error reading ";
+		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return false;
@@ -919,8 +934,7 @@ bool Main_Window::save_metatileset() {
 	Config::metatileset_path(filename, directory, tileset_name);
 
 	if (_metatileset.modified()) {
-		FILE *file = fl_fopen(filename, "wb");
-		if (!file) {
+		if (!_metatileset.write_metatiles(filename)) {
 			const char *basename = fl_filename_name(filename);
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
@@ -928,19 +942,6 @@ bool Main_Window::save_metatileset() {
 			_error_dialog->show(this);
 			return false;
 		}
-
-		size_t n = _metatileset.size();
-		for (size_t i = 0; i < n; i++) {
-			Metatile *mt = _metatileset.metatile((uint8_t)i);
-			for (int y = 0; y < METATILE_SIZE; y++) {
-				for (int x = 0; x < METATILE_SIZE; x++) {
-					uint8_t id = mt->tile_id(x, y);
-					fputc(id, file);
-				}
-			}
-		}
-		fclose(file);
-
 		_metatileset.modified(false);
 	}
 
@@ -1301,7 +1302,7 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	}
 }
 
-void Main_Window::change_tiles_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
 	if (mw->_metatileset.modified()) {
@@ -1346,6 +1347,10 @@ void Main_Window::change_tiles_cb(Fl_Widget *, Main_Window *mw) {
 	mw->force_add_sub_metatiles(old_size, mw->_metatileset.size());
 	mw->_metatileset.modified(false);
 	mw->redraw();
+}
+
+void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {

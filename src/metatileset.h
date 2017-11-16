@@ -12,7 +12,7 @@
 
 class Metatileset {
 public:
-	enum Result { META_OK, META_NO_GFX, META_BAD_FILE, META_TOO_SHORT, META_NULL };
+	enum Result { META_OK, META_NO_GFX, META_BAD_FILE, META_TOO_SHORT, META_TOO_LONG, META_NULL };
 private:
 	Tileset _tileset;
 	Metatile *_metatiles[MAX_NUM_METATILES];
@@ -33,6 +33,7 @@ public:
 	void draw_metatile(int x, int y, uint8_t id, bool z) const;
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
+	bool write_metatiles(const char *f);
 	static const char *error_message(Result result);
 };
 

@@ -99,7 +99,8 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	while (!feof(file)) {
 		size_t c = fread(data, 1, METATILE_SIZE * METATILE_SIZE, file);
 		if (!c) { break; } // end of file
-		if (c < METATILE_SIZE * METATILE_SIZE) { return (_result = META_TOO_SHORT); } // too-short metatile
+		if (c < METATILE_SIZE * METATILE_SIZE) { return (_result = META_TOO_SHORT); }
+		if (_num_metatiles == MAX_NUM_METATILES) { return (_result = META_TOO_LONG); }
 		Metatile *mt = _metatiles[_num_metatiles++];
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
@@ -109,6 +110,22 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	}
 
 	return (_result = META_OK);
+}
+
+bool Metatileset::write_metatiles(const char *f) {
+	FILE *file = fl_fopen(f, "wb");
+	if (!file) { return false; }
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				uint8_t id = mt->tile_id(x, y);
+				fputc(id, file);
+			}
+		}
+	}
+	fclose(file);
+	return true;
 }
 
 const char *Metatileset::error_message(Result result) {
@@ -121,6 +138,8 @@ const char *Metatileset::error_message(Result result) {
 		return "Cannot open file.";
 	case META_TOO_SHORT:
 		return "The last block is incomplete.";
+	case META_TOO_LONG:
+		return "More than 256 blocks defined.";
 	case META_NULL:
 		return "No blockset file chosen.";
 	default:
