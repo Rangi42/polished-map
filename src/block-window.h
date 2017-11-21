@@ -25,8 +25,8 @@
 class Block_Window {
 private:
 	int _dx, _dy;
-	uint8_t _metatile_id;
 	const Tileset *_tileset;
+	uint8_t _metatile_id;
 	bool _canceled;
 	Fl_Double_Window *_window;
 	Label *_tileset_heading, *_metatile_heading, *_tile_heading;
@@ -48,7 +48,7 @@ public:
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
-	void draw_tile(int x, int y, uint8_t id, bool z = false) const;
+	void draw_tile(int x, int y, uint8_t id, bool border, bool zoom) const;
 	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);

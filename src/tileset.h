@@ -9,7 +9,6 @@
 
 class Tileset {
 public:
-	enum Lighting { DAY, NITE, INDOOR, ICE_PATH, ARTIFICIAL };
 	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
 		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:

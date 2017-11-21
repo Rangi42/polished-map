@@ -19,6 +19,7 @@
 #include "map.h"
 #include "help-window.h"
 #include "block-window.h"
+#include "tileset-window.h"
 
 #define METATILES_PER_ROW 4
 #define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
@@ -50,6 +51,7 @@ private:
 	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
 	Block_Window *_block_window;
+	Tileset_Window *_tileset_window;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
@@ -94,7 +96,7 @@ public:
 private:
 	int handle_hotkey(int key);
 	void open_map(const char *directory, const char *filename);
-	bool read_metatile_data(const char *tileset_name, Tileset::Lighting lighting);
+	bool read_metatile_data(const char *tileset_name, Lighting lighting);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
 	void resize_map(int w, int h);

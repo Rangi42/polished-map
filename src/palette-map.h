@@ -4,12 +4,12 @@
 #include <cstring>
 
 #include "utils.h"
+#include "colors.h"
 
 #define MAX_NUM_TILES 256
 
 class Palette_Map {
 public:
-	enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, MONOCHROME, UNDEFINED };
 	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_TOO_LONG, PALETTE_NULL };
 private:
 	Palette _palette[MAX_NUM_TILES];

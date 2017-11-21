@@ -1,28 +1,24 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-#include <cstring>
+#pragma warning(push, 0)
+#include <FL/Enumerations.H>
+#pragma warning(pop)
 
-#include "utils.h"
+#define NUM_CHANNELS 3
 
-#define MAX_NUM_TILES 256
+enum Lighting { DAY, NITE, INDOOR, ICE_PATH, ARTIFICIAL };
 
-class Tile_Colors {
+enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, MONOCHROME, UNDEFINED,
+	PRIORITY_GRAY = 0x80, PRIORITY_RED, PRIORITY_GREEN, PRIORITY_WATER,
+	PRIORITY_YELLOW, PRIORITY_BROWN, PRIORITY_ROOF, PRIORITY_TEXT };
+
+enum Hue { WHITE, DARK, LIGHT, BLACK };
+
+class Color {
 public:
-	enum Color { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, UNDEFINED };
-	enum Result { COLORS_OK, BAD_COLORS_FILE, BAD_COLOR_NAME, COLORS_NULL };
-private:
-	Color _colors[MAX_NUM_TILES];
-	size_t _colors_size;
-	Result _result;
-public:
-	Tile_Colors(void);
-	inline Color color(uint8_t i) const { return _colors[i]; }
-	inline size_t size(void) const { return _colors_size; }
-	inline Result result(void) const { return _result; }
-	void clear(void);
-	Result read_from(const char *f);
-	static const char *error_message(Result result);
+	static const uchar *color(Lighting l, Palette p, Hue h);
+	static Fl_Color fl_color(Lighting l, Palette p, Hue h);
 };
 
 #endif

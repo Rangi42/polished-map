@@ -40,33 +40,23 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 		while (std::getline(lss, token, ',')) {
 			if (_palette_size == MAX_NUM_TILES) { return (_result = PALETTE_TOO_LONG); }
 			trim(token);
-			if (token == "GRAY" || token == "PRIORITY_GRAY") {
-				_palette[_palette_size++] = Palette::GRAY;
-			}
-			else if (token == "RED" || token == "PRIORITY_RED") {
-				_palette[_palette_size++] = Palette::RED;
-			}
-			else if (token == "GREEN" || token == "PRIORITY_GREEN") {
-				_palette[_palette_size++] = Palette::GREEN;
-			}
-			else if (token == "WATER" || token == "PRIORITY_WATER" || token == "BLUE" || token == "PRIORITY_BLUE") {
-				_palette[_palette_size++] = Palette::WATER;
-			}
-			else if (token == "YELLOW" || token == "PRIORITY_YELLOW") {
-				_palette[_palette_size++] = Palette::YELLOW;
-			}
-			else if (token == "BROWN" || token == "PRIORITY_BROWN") {
-				_palette[_palette_size++] = Palette::BROWN;
-			}
-			else if (token == "ROOF" || token == "PRIORITY_ROOF") {
-				_palette[_palette_size++] = Palette::ROOF;
-			}
-			else if (token == "TEXT" || token == "PRIORITY_TEXT") {
-				_palette[_palette_size++] = Palette::TEXT;
-			}
-			else {
-				return (_result = BAD_PALETTE_NAME);
-			}
+			if      (token == "GRAY")            { _palette[_palette_size++] = Palette::GRAY; }
+			else if (token == "RED")             { _palette[_palette_size++] = Palette::RED; }
+			else if (token == "GREEN")           { _palette[_palette_size++] = Palette::GREEN; }
+			else if (token == "WATER")           { _palette[_palette_size++] = Palette::WATER; }
+			else if (token == "YELLOW")          { _palette[_palette_size++] = Palette::YELLOW; }
+			else if (token == "BROWN")           { _palette[_palette_size++] = Palette::BROWN; }
+			else if (token == "ROOF")            { _palette[_palette_size++] = Palette::ROOF; }
+			else if (token == "TEXT")            { _palette[_palette_size++] = Palette::TEXT; }
+			else if (token == "PRIORITY_GRAY")   { _palette[_palette_size++] = Palette::PRIORITY_GRAY; }
+			else if (token == "PRIORITY_RED")    { _palette[_palette_size++] = Palette::PRIORITY_RED; }
+			else if (token == "PRIORITY_GREEN")  { _palette[_palette_size++] = Palette::PRIORITY_GREEN; }
+			else if (token == "PRIORITY_WATER")  { _palette[_palette_size++] = Palette::PRIORITY_WATER; }
+			else if (token == "PRIORITY_YELLOW") { _palette[_palette_size++] = Palette::PRIORITY_YELLOW; }
+			else if (token == "PRIORITY_BROWN")  { _palette[_palette_size++] = Palette::PRIORITY_BROWN; }
+			else if (token == "PRIORITY_ROOF")   { _palette[_palette_size++] = Palette::PRIORITY_ROOF; }
+			else if (token == "PRIORITY_TEXT")   { _palette[_palette_size++] = Palette::PRIORITY_TEXT; }
+			else                                 { return (_result = BAD_PALETTE_NAME); }
 		}
 	}
 	return (_result = PALETTE_OK);

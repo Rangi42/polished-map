@@ -29,6 +29,18 @@ static void draw_outlined_text(const char *l, int x, int y, int w, int h, Fl_Ali
 	fl_draw(l, x, y, w, h, a);
 }
 
+static void draw_selection_border(int x, int y, int rs, bool zoom) {
+	fl_rect(x, y, rs, rs, FL_BLACK);
+	fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
+	if (zoom) {
+		fl_rect(x+2, y+2, rs-4, rs-4, FL_WHITE);
+		fl_rect(x+3, y+3, rs-6, rs-6, FL_BLACK);
+	}
+	else {
+		fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
+	}
+}
+
 static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	Main_Window *mw = (Main_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y();
@@ -40,15 +52,7 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	}
 	if (border) {
 		int rs = ms - (mw->grid() ? 1 : 0);
-		fl_rect(x, y, rs, rs, FL_BLACK);
-		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
-		if (mw->zoom()) {
-			fl_rect(x+2, y+2, rs-4, rs-4, FL_WHITE);
-			fl_rect(x+3, y+3, rs-6, rs-6, FL_BLACK);
-		}
-		else {
-			fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
-		}
+		draw_selection_border(x, y, rs, mw->zoom());
 	}
 	if (!mw->ids()) { return; }
 	const char *l = wgt->label();
@@ -161,18 +165,6 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
-	Block_Window *bw = (Block_Window *)wgt->user_data();
-	int x = wgt->x(), y = wgt->y();
-	bw->draw_tile(x, y, id, zoom);
-	if (border) {
-		int rs = TILE_SIZE * (zoom ? 3 : 2);
-		fl_rect(x, y, rs, rs, FL_BLACK);
-		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
-		fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
-	}
-}
-
 Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
@@ -181,7 +173,8 @@ Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y
 }
 
 void Tile_Button::draw() {
-	draw_tileset_button(this, _id, !!value(), false);
+	Block_Window *bw = (Block_Window *)user_data();
+	bw->draw_tile(x(), y(), _id, !!value(), false);
 }
 
 Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x, y, s, s),
@@ -193,7 +186,8 @@ Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x
 }
 
 void Chip::draw() {
-	draw_tileset_button(this, _id, Fl::belowmouse() == this, true);
+	Block_Window *bw = (Block_Window *)user_data();
+	bw->draw_tile(x(), y(), _id, Fl::belowmouse() == this, true);
 }
 
 int Chip::handle(int event) {
@@ -225,5 +219,69 @@ int Chip::handle(int event) {
 		}
 		return 1;
 	}
+	return Fl_Box::handle(event);
+}
+
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id),
+	_palette(Palette::UNDEFINED), _hues(), _rgb() {
+	user_data(NULL);
+	box(FL_NO_BOX);
+	labeltype(FL_NO_LABEL);
+	when(FL_WHEN_RELEASE);
+}
+
+void Deep_Tile_Button::copy_tile(const Tile *t) {
+	_palette = t->palette();
+	const Hue *hues = t->hues();
+	memcpy(_hues, hues, TILE_SIZE * TILE_SIZE);
+	const uchar *rgb = t->rgb();
+	memcpy(_rgb, rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
+}
+
+void Deep_Tile_Button::draw() {
+	int tx = x(), ty = y();
+	fl_draw_image(_rgb, tx, ty, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	if (value()) {
+		int rs = TILE_PX_SIZE;
+		fl_rect(tx, ty, rs, rs, FL_BLACK);
+		fl_rect(tx+1, ty+1, rs-2, rs-2, FL_WHITE);
+		fl_rect(tx+2, ty+2, rs-4, rs-4, FL_BLACK);
+	}
+}
+
+Pixel::Pixel(int x, int y, int s) : Fl_Box(x, y, s, s) {
+	user_data(NULL);
+	box(FL_NO_BOX);
+	labeltype(FL_NO_LABEL);
+	labelcolor(FL_WHITE);
+}
+
+void Pixel::draw() {
+	// TODO: Pixel::draw
+	fl_rectf(x(), y(), w(), h(), FL_RED);
+}
+
+int Pixel::handle(int event) {
+	//Tileset_Window *tw = (Tileset_Window *)user_data();
+	// TODO: Pixel::handle
+	return Fl_Box::handle(event);
+}
+
+Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Box(x, y, s, s, l) {
+	user_data(NULL);
+	box(FL_THIN_DOWN_BOX);
+	labeltype(FL_NORMAL_LABEL);
+	labelcolor(FL_WHITE);
+	align(FL_ALIGN_CENTER);
+}
+
+void Swatch::draw() {
+	// TODO: Swatch::draw
+	fl_rectf(x(), y(), w(), h(), FL_BLUE);
+}
+
+int Swatch::handle(int event) {
+	//Tileset_Window *tw = (Tileset_Window *)user_data();
+	// TODO: Swatch::handle
 	return Fl_Box::handle(event);
 }

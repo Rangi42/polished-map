@@ -60,7 +60,7 @@ public:
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	const char *tileset(void) const;
-	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
+	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, std::string &tileset_name);
@@ -117,7 +117,7 @@ public:
 	~Tileset_Options_Dialog();
 	bool limit_tileset_options(const char *old_tileset_name);
 	const char *tileset(void) const;
-	inline Tileset::Lighting lighting(void) const { return (Tileset::Lighting)_lighting->value(); }
+	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

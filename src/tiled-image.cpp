@@ -33,9 +33,9 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 	if (png.count() != 1) { return (_result = IMG_NOT_GRAYSCALE); }
 
 	delete [] _tile_hues;
-	_tile_hues = new Tile::Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
+	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
 
-	Tile::Hue png_hues[4] = {Tile::BLACK, Tile::DARK, Tile::LIGHT, Tile::WHITE};
+	Hue png_hues[4] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE};
 	size_t hi = 0;
 	int d = png.d();
 	for (int y = 0; y < h; y++) {
@@ -43,7 +43,7 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 			for (int ty = 0; ty < TILE_SIZE; ty++) {
 				for (int tx = 0; tx < TILE_SIZE; tx++) {
 					long ti = ((y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx)) * d;
-					Tile::Hue h = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
+					Hue h = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
 					_tile_hues[hi++] = h;
 				}
 			}
@@ -213,11 +213,11 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 	return (_result = parse_2bpp_data(marker, twobpp_data));
 }
 
-static void convert_2bytes_to_8hues(uchar b1, uchar b2, Tile::Hue *hues8) {
+static void convert_2bytes_to_8hues(uchar b1, uchar b2, Hue *hues8) {
 	// %ABCD_EFGH %abcd_efgh -> %Aa %Bb %Cc %Dd %Ee %Ff %GG %Hh
 	for (int i = 0; i < 8; i++) {
 		int j = 7 - i;
-		hues8[i] = (Tile::Hue)((b1 >> j & 1) * 2 + (b2 >> j & 1));
+		hues8[i] = (Hue)((b1 >> j & 1) * 2 + (b2 >> j & 1));
 	}
 }
 
@@ -227,7 +227,7 @@ Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 
 	_num_tiles = n;
 	delete [] _tile_hues;
-	_tile_hues = new Tile::Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
+	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
 
 	for (size_t i = 0; i < _num_tiles; i++) {
 		for (int j = 0; j < TILE_SIZE; j++) {

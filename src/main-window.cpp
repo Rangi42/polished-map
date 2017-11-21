@@ -123,6 +123,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
+	_tileset_window = new Tileset_Window(48, 48);
 
 	// Drag-and-drop receiver
 	begin();
@@ -368,6 +369,7 @@ Main_Window::~Main_Window() {
 	delete _add_sub_dialog;
 	delete _help_window;
 	delete _block_window;
+	delete _tileset_window;
 }
 
 void Main_Window::show() {
@@ -601,7 +603,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
-	Tileset::Lighting lighting = _map_options_dialog->lighting();
+	Lighting lighting = _map_options_dialog->lighting();
 	if (!read_metatile_data(tileset_name, lighting)) { return; }
 
 	uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
@@ -692,7 +694,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	_copied = false;
 
-	_block_window->tileset(_metatileset.tileset());
+	Tileset *tileset = _metatileset.tileset();
+	_block_window->tileset(tileset);
+	_tileset_window->tileset(tileset);
 
 	update_labels();
 	update_status(NULL);
@@ -700,7 +704,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
-bool Main_Window::read_metatile_data(const char *tileset_name, Tileset::Lighting lighting) {
+bool Main_Window::read_metatile_data(const char *tileset_name, Lighting lighting) {
 	char buffer[FL_PATH_MAX] = {};
 
 	Tileset *tileset = _metatileset.tileset();
@@ -812,6 +816,10 @@ void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+
+	Tileset *tileset = _metatileset.tileset();
+	_block_window->tileset(tileset);
+	_tileset_window->tileset(tileset);
 
 	update_labels();
 	update_status(NULL);
@@ -1163,6 +1171,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_blk_file.clear();
 	mw->_metatileset.clear();
 	mw->_block_window->tileset(NULL);
+	mw->_tileset_window->tileset(NULL);
 	mw->redraw();
 }
 
@@ -1336,7 +1345,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_metatileset.clear();
 
 	const char *tileset_name = mw->_tileset_options_dialog->tileset();
-	const Tileset::Lighting lighting = mw->_tileset_options_dialog->lighting();
+	const Lighting lighting = mw->_tileset_options_dialog->lighting();
 	if (!mw->read_metatile_data(tileset_name, lighting)) {
 		mw->_map.modified(false);
 		mw->_metatileset.modified(false);
@@ -1351,6 +1360,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
+	mw->_tileset_window->show(mw);
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {

@@ -9,27 +9,30 @@
 #pragma warning(pop)
 
 #include "utils.h"
+#include "colors.h"
 
 #define TILE_SIZE 8
-#define NUM_CHANNELS 3
 #define ZOOM_FACTOR 2
 
 #define LINE_PX (TILE_SIZE * ZOOM_FACTOR)
 #define LINE_BYTES (LINE_PX * NUM_CHANNELS)
 
 class Tile {
-public:
-	enum Hue { WHITE, DARK, LIGHT, BLACK };
 private:
 	uint8_t _id;
+	Palette _palette;
+	Hue _hues[TILE_SIZE * TILE_SIZE];
 	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
 public:
 	Tile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
+	inline const Palette palette(void) const { return _palette; }
+	inline void palette(Palette p) { _palette = p; }
+	inline const Hue *hues(void) const { return _hues; }
 	inline const uchar *rgb(void) const { return _rgb; }
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	inline const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
-	void pixel(int x, int y, const uchar *rgb);
+	void pixel(int x, int y, Hue h, const uchar *rgb);
 	inline void clear(void) { FILL(_rgb, WHITE, sizeof(_rgb)); }
 };
 

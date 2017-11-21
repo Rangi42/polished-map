@@ -1,7 +1,7 @@
 #include "tile.h"
 #include "block-window.h"
 
-Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _metatile_id(0), _tileset(NULL), _canceled(false),
+Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tile_heading(NULL), _tileset_group(NULL),
 	_metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _ok_button(NULL), _cancel_button(NULL) {}
 
@@ -116,10 +116,10 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) const {
+void Block_Window::draw_tile(int x, int y, uint8_t id, bool border, bool zoom) const {
 	const Tile *t = _tileset->tile(id);
 	const uchar *rgb = t->rgb();
-	if (z) {
+	if (zoom) {
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
 			for (int tx = 0; tx < TILE_SIZE; tx++) {
@@ -139,6 +139,12 @@ void Block_Window::draw_tile(int x, int y, uint8_t id, bool z) const {
 	}
 	else {
 		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	}
+	if (border) {
+		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
+		fl_rect(x, y, rs, rs, FL_BLACK);
+		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
+		fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
 	}
 }
 

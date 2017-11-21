@@ -1,9 +1,10 @@
 #include "utils.h"
 #include "tile.h"
 
-Tile::Tile(uint8_t id) : _id(id), _rgb() {}
+Tile::Tile(uint8_t id) : _id(id), _hues(), _rgb() {}
 
-void Tile::pixel(int x, int y, const uchar *rgb) {
+void Tile::pixel(int x, int y, Hue h, const uchar *rgb) {
+	_hues[y * TILE_SIZE + x] = h;
 	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
 	// red
 	uchar r = *rgb++;

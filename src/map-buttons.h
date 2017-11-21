@@ -8,6 +8,8 @@
 
 #include "utils.h"
 #include "widgets.h"
+#include "tile.h"
+#include "palette-map.h"
 
 class Metatile_Button : public Fl_Radio_Button {
 private:
@@ -59,6 +61,44 @@ public:
 	inline void coords(uint8_t row, uint8_t col) { _row = row; _col = col; }
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
+	void draw(void);
+	int handle(int event);
+};
+
+class Deep_Tile_Button : public Fl_Radio_Button {
+private:
+	uint8_t _id;
+	Palette _palette;
+	Hue _hues[TILE_SIZE * TILE_SIZE];
+	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
+public:
+	Deep_Tile_Button(int x, int y, int s, uint8_t id);
+	inline uint8_t id(void) const { return _id; }
+	inline void id(uint8_t id) { _id = id; }
+	void copy_tile(const Tile *t);
+	void draw(void);
+};
+
+class Pixel : public Fl_Box {
+private:
+	Hue _hue;
+	Palette _palette;
+	Fl_Color _color;
+public:
+	Pixel(int x = 0, int y = 0, int s = 0);
+	inline Hue hue(void) const { return _hue; }
+	inline void hue(Hue hue) { _hue = hue;}
+	void draw(void);
+	int handle(int event);
+};
+
+class Swatch : public Fl_Box {
+private:
+	Hue _hue;
+	Palette _palette;
+	Fl_Color _color;
+public:
+	Swatch(int x = 0, int y = 0, int s = 0, const char *l = NULL);
 	void draw(void);
 	int handle(int event);
 };

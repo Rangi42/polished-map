@@ -295,7 +295,7 @@ void Map_Options_Dialog::initialize_content() {
 	_lighting->add("Indoor"); // INDOOR
 	_lighting->add("Ice Path"); // ICE_PATH
 	_lighting->add("Artificial"); // ARTIFICIAL
-	_lighting->value((Tileset::Lighting)Config::get("map-lighting", (int)Tileset::Lighting::DAY));
+	_lighting->value((Lighting)Config::get("map-lighting", (int)Lighting::DAY));
 	// Initialize data
 	_original_names.clear();
 }
