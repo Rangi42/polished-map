@@ -61,6 +61,16 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	draw_outlined_text(l, cx, cy, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE, border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
+static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
+	Block_Window *bw = (Block_Window *)wgt->user_data();
+	int x = wgt->x(), y = wgt->y();
+	bw->draw_tile(x, y, id, zoom);
+	if (border) {
+		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
+		draw_selection_border(x, y, rs, false);
+	}
+}
+
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
@@ -173,8 +183,7 @@ Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y
 }
 
 void Tile_Button::draw() {
-	Block_Window *bw = (Block_Window *)user_data();
-	bw->draw_tile(x(), y(), _id, !!value(), false);
+	draw_tileset_button(this, _id, !!value(), false);
 }
 
 Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x, y, s, s),
@@ -186,8 +195,7 @@ Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x
 }
 
 void Chip::draw() {
-	Block_Window *bw = (Block_Window *)user_data();
-	bw->draw_tile(x(), y(), _id, Fl::belowmouse() == this, true);
+	draw_tileset_button(this, _id, Fl::belowmouse() == this, true);
 }
 
 int Chip::handle(int event) {

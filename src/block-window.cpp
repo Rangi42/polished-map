@@ -116,7 +116,7 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(int x, int y, uint8_t id, bool border, bool zoom) const {
+void Block_Window::draw_tile(int x, int y, uint8_t id, bool zoom) const {
 	const Tile *t = _tileset->tile(id);
 	const uchar *rgb = t->rgb();
 	if (zoom) {
@@ -139,12 +139,6 @@ void Block_Window::draw_tile(int x, int y, uint8_t id, bool border, bool zoom) c
 	}
 	else {
 		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
-	}
-	if (border) {
-		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
-		fl_rect(x, y, rs, rs, FL_BLACK);
-		fl_rect(x+1, y+1, rs-2, rs-2, FL_WHITE);
-		fl_rect(x+2, y+2, rs-4, rs-4, FL_BLACK);
 	}
 }
 
