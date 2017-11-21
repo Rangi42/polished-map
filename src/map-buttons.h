@@ -87,18 +87,18 @@ private:
 public:
 	Pixel(int x = 0, int y = 0, int s = 0);
 	inline Hue hue(void) const { return _hue; }
-	inline void hue(Hue hue) { _hue = hue;}
+	inline void hue(Hue hue) { _hue = hue; }
 	void draw(void);
 	int handle(int event);
 };
 
-class Swatch : public Fl_Box {
+class Swatch : public Fl_Radio_Button {
 private:
 	Hue _hue;
 	Palette _palette;
 	Fl_Color _color;
 public:
-	Swatch(int x = 0, int y = 0, int s = 0, const char *l = NULL);
+	Swatch(int x, int y, int s, const char *l = NULL);
 	void draw(void);
 	int handle(int event);
 };

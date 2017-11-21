@@ -470,6 +470,7 @@ static void use_aero_scheme() {
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, aero_default_button_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_TABS_BOX, aero_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, aero_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
@@ -618,6 +619,7 @@ static void use_metro_scheme() {
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, metro_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, metro_default_button_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_TABS_BOX, aero_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, metro_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, metro_check_down_box, 1, 1, 2, 2);
@@ -979,6 +981,7 @@ static void use_greybird_scheme() {
 	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, greybird_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, greybird_input_thin_down_frame, 2, 3, 4, 4);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, greybird_default_button_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_SWATCH_FRAME, greybird_spacer_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SWATCH_BOX, greybird_swatch_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_TABS_BOX, greybird_tabs_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, greybird_button_up_box, 1, 1, 2, 2);
@@ -1298,6 +1301,7 @@ static void use_blue_scheme() {
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, blue_default_button_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_TABS_BOX, blue_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, blue_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
@@ -1556,6 +1560,7 @@ static void use_dark_scheme() {
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, dark_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, dark_button_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_TABS_BOX, dark_tabs_box, 1, 2, 2, 4);
+	Fl::set_boxtype(OS_SWATCH_FRAME, dark_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, dark_swatch_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, dark_button_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(FL_DOWN_BOX, dark_button_up_box, 1, 1, 2, 2);

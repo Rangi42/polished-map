@@ -1,3 +1,4 @@
+#include "themes.h"
 #include "tileset-window.h"
 
 Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false),
@@ -73,8 +74,8 @@ void Tileset_Window::initialize() {
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
-	_tileset_group->box(FL_THIN_DOWN_BOX);
-	_tile_group->box(FL_THIN_DOWN_BOX);
+	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");

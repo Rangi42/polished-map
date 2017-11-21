@@ -3,6 +3,7 @@
 #include <FL/fl_draw.H>
 #pragma warning(pop)
 
+#include "themes.h"
 #include "main-window.h"
 #include "block-window.h"
 #include "map-buttons.h"
@@ -58,7 +59,8 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	const char *l = wgt->label();
 	int cx = x + (mw->zoom() ? 2 : 1) + 2, cy = y + (mw->zoom() ? 2 : 1);
 	fl_font(FL_COURIER_BOLD, 14);
-	draw_outlined_text(l, cx, cy, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE, border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
+	draw_outlined_text(l, cx, cy, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE,
+		border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
 static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
@@ -233,8 +235,6 @@ int Chip::handle(int event) {
 Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id),
 	_palette(Palette::UNDEFINED), _hues(), _rgb() {
 	user_data(NULL);
-	box(FL_NO_BOX);
-	labeltype(FL_NO_LABEL);
 	when(FL_WHEN_RELEASE);
 }
 
@@ -247,49 +247,70 @@ void Deep_Tile_Button::copy_tile(const Tile *t) {
 }
 
 void Deep_Tile_Button::draw() {
-	int tx = x(), ty = y();
-	fl_draw_image(_rgb, tx, ty, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	fl_draw_image(_rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
-		int rs = TILE_PX_SIZE;
-		fl_rect(tx, ty, rs, rs, FL_BLACK);
-		fl_rect(tx+1, ty+1, rs-2, rs-2, FL_WHITE);
-		fl_rect(tx+2, ty+2, rs-4, rs-4, FL_BLACK);
+		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
 }
 
 Pixel::Pixel(int x, int y, int s) : Fl_Box(x, y, s, s) {
 	user_data(NULL);
-	box(FL_NO_BOX);
-	labeltype(FL_NO_LABEL);
-	labelcolor(FL_WHITE);
 }
 
 void Pixel::draw() {
-	// TODO: Pixel::draw
-	fl_rectf(x(), y(), w(), h(), FL_RED);
+	fl_rectf(x(), y(), w(), h(), _color);
+	if (Fl::belowmouse() == this) {
+		draw_selection_border(x(), y(), w(), false);
+	}
 }
 
 int Pixel::handle(int event) {
 	//Tileset_Window *tw = (Tileset_Window *)user_data();
-	// TODO: Pixel::handle
+	switch (event) {
+	case FL_ENTER:
+		if (Fl::event_button1() && !Fl::pushed()) {
+			Fl::pushed(this);
+			do_callback();
+		}
+		redraw();
+		return 1;
+	case FL_LEAVE:
+		redraw();
+		return 1;
+	case FL_MOVE:
+		redraw();
+		return 1;
+	case FL_PUSH:
+		do_callback();
+		return 1;
+	case FL_RELEASE:
+		return 1;
+	case FL_DRAG:
+		if (!Fl::event_inside(x(), y(), w(), h())) {
+			Fl::pushed(NULL);
+		}
+		return 1;
+	}
 	return Fl_Box::handle(event);
 }
 
-Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Box(x, y, s, s, l) {
+Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s, l) {
 	user_data(NULL);
-	box(FL_THIN_DOWN_BOX);
-	labeltype(FL_NORMAL_LABEL);
-	labelcolor(FL_WHITE);
-	align(FL_ALIGN_CENTER);
+	box(OS_SWATCH_BOX);
+	color(_color);
 }
 
 void Swatch::draw() {
-	// TODO: Swatch::draw
-	fl_rectf(x(), y(), w(), h(), FL_BLUE);
+	draw_box();
+	fl_font(FL_COURIER_BOLD, 14);
+	draw_outlined_text(label(), x(), y(), w(), h(), FL_ALIGN_CENTER, value() ? FL_YELLOW : FL_WHITE, FL_BLACK);
+	if (value()) {
+		draw_selection_border(x(), y(), w(), false);
+	}
 }
 
 int Swatch::handle(int event) {
 	//Tileset_Window *tw = (Tileset_Window *)user_data();
 	// TODO: Swatch::handle
-	return Fl_Box::handle(event);
+	return Fl_Radio_Button::handle(event);
 }

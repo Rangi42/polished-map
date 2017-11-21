@@ -1,3 +1,4 @@
+#include "themes.h"
 #include "tile.h"
 #include "block-window.h"
 
@@ -62,8 +63,8 @@ void Block_Window::initialize() {
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
-	_tileset_group->box(FL_THIN_DOWN_BOX);
-	_metatile_group->box(FL_THIN_DOWN_BOX);
+	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_metatile_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
