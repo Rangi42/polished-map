@@ -47,7 +47,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 		for (int ty = 0; ty < METATILE_SIZE; ty++) {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
 				uint8_t tid = mt->tile_id(tx, ty);
-				const Tile *t = _tileset.tile(tid);
+				const Tile *t = _tileset.const_tile(tid);
 				const uchar *rgb = t->rgb();
 				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
 			}
@@ -71,7 +71,7 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 			for (int ty = 0; ty < METATILE_SIZE; ty++) {
 				for (int tx = 0; tx < METATILE_SIZE; tx++) {
 					uint8_t tid = m->tile_id(tx, ty);
-					const Tile *t = _tileset.tile(tid);
+					const Tile *t = _tileset.const_tile(tid);
 					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
 					for (int py = 0; py < TILE_SIZE; py++) {
 						for (int px = 0; px < TILE_SIZE; px++) {

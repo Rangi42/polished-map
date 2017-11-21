@@ -118,7 +118,7 @@ void Block_Window::show(const Fl_Widget *p) {
 }
 
 void Block_Window::draw_tile(int x, int y, uint8_t id, bool zoom) const {
-	const Tile *t = _tileset->tile(id);
+	const Tile *t = _tileset->const_tile(id);
 	const uchar *rgb = t->rgb();
 	if (zoom) {
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};

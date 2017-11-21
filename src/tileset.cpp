@@ -55,7 +55,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 			for (int tx = 0; tx < TILE_SIZE; tx++) {
 				Hue h = ti.tile_hue(i, tx, ty);
 				const uchar *rgb = Color::color(l, p, h);
-				t->pixel(tx, ty, h, rgb);
+				t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
 			}
 		}
 	}

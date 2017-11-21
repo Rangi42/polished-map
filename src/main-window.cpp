@@ -1362,8 +1362,14 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
+
 	mw->_tileset_window->tileset(mw->_metatileset.tileset());
 	mw->_tileset_window->show(mw);
+	bool canceled = mw->_tileset_window->canceled();
+	if (canceled) { return; }
+
+	mw->_tileset_window->apply_modifications();
+	mw->redraw();
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {

@@ -21,7 +21,7 @@
 class Tileset_Window {
 private:
 	int _dx, _dy;
-	const Tileset *_tileset;
+	Tileset *_tileset;
 	bool _canceled;
 	Fl_Double_Window *_window;
 	Label *_tileset_heading, *_tile_heading;
@@ -40,10 +40,11 @@ private:
 	void initialize(void);
 	void refresh(void);
 public:
-	void tileset(const Tileset *t);
+	void tileset(Tileset *t);
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
+	void apply_modifications(void);
 	void select(Deep_Tile_Button *dtb);
 	void choose(Swatch *swatch);
 	void flood_fill(Pixel *pxl, Hue f, Hue t);

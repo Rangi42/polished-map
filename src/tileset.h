@@ -26,7 +26,8 @@ public:
 	inline void name(const char *name) { _name = name; }
 	inline Lighting lighting(void) const { return _lighting; }
 	inline void lighting(Lighting l) { _lighting = l; }
-	inline const Tile *tile(uint8_t i) const { return _tiles[i]; }
+	inline Tile *tile(uint8_t i) { return _tiles[i]; }
+	inline const Tile *const_tile(uint8_t i) const { return _tiles[i]; }
 	inline size_t num_tiles(void) const { return _num_tiles; }
 	inline Result result(void) const { return _result; }
 	inline bool modified(void) const { return _modified; }

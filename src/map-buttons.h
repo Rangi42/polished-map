@@ -95,21 +95,9 @@ public:
 	void draw(void);
 };
 
-class Deep_Tile_Button : public Fl_Radio_Button {
-private:
-	uint8_t _id;
-	Palette _palette;
-	Hue _hues[TILE_SIZE * TILE_SIZE];
-	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
+class Deep_Tile_Button : public Fl_Radio_Button, public Tile {
 public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
-	inline uint8_t id(void) const { return _id; }
-	inline void id(uint8_t id) { _id = id; }
-	inline const Palette palette(void) const { return _palette; }
-	inline void palette(Palette p) { _palette = p; }
-	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
-	inline const uchar *rgb(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
-	void copy_tile(const Tile *t);
 	void copy_pixel(const Pixel *pxl);
 	void copy_pixels(Pixel **pxls);
 	void draw(void);

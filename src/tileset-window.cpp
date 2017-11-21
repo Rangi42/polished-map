@@ -115,7 +115,7 @@ void Tileset_Window::refresh() {
 	choose(_swatch1);
 }
 
-void Tileset_Window::tileset(const Tileset *t) {
+void Tileset_Window::tileset(Tileset *t) {
 	initialize();
 	_tileset = t;
 	if (!t) {
@@ -125,13 +125,9 @@ void Tileset_Window::tileset(const Tileset *t) {
 	std::string label("Tileset: ");
 	label = label + t->name();
 	_tileset_heading->copy_label(label.c_str());
-	for (int y = 0; y < TILES_PER_COL; y++) {
-		for (int x = 0; x < TILES_PER_ROW; x++) {
-			uint8_t id = (uint8_t)(y * TILES_PER_ROW + x);
-			Deep_Tile_Button *dtb = _deep_tile_buttons[id];
-			const Tile *t = _tileset->tile(id);
-			dtb->copy_tile(t);
-		}
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
+		const Tile *t = _tileset->const_tile((uint8_t)i);
+		_deep_tile_buttons[i]->copy(t);
 	}
 	for (int i = 0x00; i < 0x100; i++) {
 		_deep_tile_buttons[i]->activate();
@@ -168,6 +164,14 @@ void Tileset_Window::show(const Fl_Widget *p) {
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+}
+
+void Tileset_Window::apply_modifications() {
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
+		const Tile *t = _deep_tile_buttons[i];
+		_tileset->tile((uint8_t)i)->copy(t);
+	}
+	_tileset->modified(true);
 }
 
 void Tileset_Window::select(Deep_Tile_Button *dtb) {

@@ -232,44 +232,16 @@ int Chip::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id),
-	_palette(Palette::UNDEFINED), _hues(), _rgb() {
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);
 }
 
-void Deep_Tile_Button::copy_tile(const Tile *t) {
-	_palette = t->palette();
-	const Hue *hues = t->hues();
-	memcpy(_hues, hues, TILE_SIZE * TILE_SIZE * sizeof(Hue));
-	const uchar *rgb = t->rgb();
-	memcpy(_rgb, rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
-}
-
 void Deep_Tile_Button::copy_pixel(const Pixel *pxl) {
 	_palette = pxl->palette();
-	int y = pxl->row(), x = pxl->col();
-	_hues[y * TILE_SIZE + x] = pxl->hue();
-	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
 	uchar r, g, b;
 	Fl::get_color(pxl->color(), r, g, b);
-	// red
-	_rgb[i] = r;
-	_rgb[i + NUM_CHANNELS] = r;
-	_rgb[i + LINE_BYTES] = r;
-	_rgb[i + LINE_BYTES + NUM_CHANNELS] = r;
-	i++;
-	// green
-	_rgb[i] = g;
-	_rgb[i + NUM_CHANNELS] = g;
-	_rgb[i + LINE_BYTES] = g;
-	_rgb[i + LINE_BYTES + NUM_CHANNELS] = g;
-	i++;
-	// blue
-	_rgb[i] = b;
-	_rgb[i + NUM_CHANNELS] = b;
-	_rgb[i + LINE_BYTES] = b;
-	_rgb[i + LINE_BYTES + NUM_CHANNELS] = b;
+	pixel(pxl->col(), pxl->row(), pxl->hue(), r, g, b);
 }
 
 void Deep_Tile_Button::copy_pixels(Pixel **pxls) {

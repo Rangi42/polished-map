@@ -2,13 +2,15 @@
 
 * **Fix:** Resizing window resets sidebar width to original zoom size (sometimes)
 * Update Makefile with standard Linux variables
-* FInish tileset editor
+* Save changes to tilesets
+* Support Ctrl+C/V/X in tileset editor
 
 
 ## Maybe
 
-* Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
+* Change lighting from the Edit Tileset dialog
 * Allow undo/redo for resize operations
+* Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
 * Choose to put the sidebar on the left or right
 * Choose to display coordinates as X/Y and WxH or Y/X and HxW
 * Load color schemes from a .pal file
