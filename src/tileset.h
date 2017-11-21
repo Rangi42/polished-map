@@ -13,6 +13,7 @@ public:
 		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name;
+	Lighting _lighting;
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES];
 	size_t _num_tiles;
@@ -23,6 +24,8 @@ public:
 	~Tileset();
 	inline const char *name(void) const { return _name.c_str(); }
 	inline void name(const char *name) { _name = name; }
+	inline Lighting lighting(void) const { return _lighting; }
+	inline void lighting(Lighting l) { _lighting = l; }
 	inline const Tile *tile(uint8_t i) const { return _tiles[i]; }
 	inline size_t num_tiles(void) const { return _num_tiles; }
 	inline Result result(void) const { return _result; }

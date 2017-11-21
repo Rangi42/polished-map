@@ -241,9 +241,41 @@ Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_B
 void Deep_Tile_Button::copy_tile(const Tile *t) {
 	_palette = t->palette();
 	const Hue *hues = t->hues();
-	memcpy(_hues, hues, TILE_SIZE * TILE_SIZE);
+	memcpy(_hues, hues, TILE_SIZE * TILE_SIZE * sizeof(Hue));
 	const uchar *rgb = t->rgb();
 	memcpy(_rgb, rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
+}
+
+void Deep_Tile_Button::copy_pixel(const Pixel *pxl) {
+	_palette = pxl->palette();
+	int y = pxl->row(), x = pxl->col();
+	_hues[y * TILE_SIZE + x] = pxl->hue();
+	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
+	uchar r, g, b;
+	Fl::get_color(pxl->color(), r, g, b);
+	// red
+	_rgb[i] = r;
+	_rgb[i + NUM_CHANNELS] = r;
+	_rgb[i + LINE_BYTES] = r;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = r;
+	i++;
+	// green
+	_rgb[i] = g;
+	_rgb[i + NUM_CHANNELS] = g;
+	_rgb[i + LINE_BYTES] = g;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = g;
+	i++;
+	// blue
+	_rgb[i] = b;
+	_rgb[i + NUM_CHANNELS] = b;
+	_rgb[i + LINE_BYTES] = b;
+	_rgb[i + LINE_BYTES + NUM_CHANNELS] = b;
+}
+
+void Deep_Tile_Button::copy_pixels(Pixel **pxls) {
+	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+		copy_pixel(pxls[i]);
+	}
 }
 
 void Deep_Tile_Button::draw() {
@@ -253,12 +285,21 @@ void Deep_Tile_Button::draw() {
 	}
 }
 
-Pixel::Pixel(int x, int y, int s) : Fl_Box(x, y, s, s) {
+Pixel::Pixel(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _lighting(), _palette(), _hue() {
 	user_data(NULL);
+	box(FL_FLAT_BOX);
+}
+
+void Pixel::coloring(Lighting l, Palette p, Hue h) {
+	_lighting = l;
+	_palette = p;
+	_hue = h;
+	const uchar *rgb = Color::color(l, p, h);
+	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
 }
 
 void Pixel::draw() {
-	fl_rectf(x(), y(), w(), h(), _color);
+	draw_box();
 	if (Fl::belowmouse() == this) {
 		draw_selection_border(x(), y(), w(), false);
 	}
@@ -294,10 +335,15 @@ int Pixel::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s, l) {
+Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s, l), _hue() {
 	user_data(NULL);
 	box(OS_SWATCH_BOX);
-	color(_color);
+}
+
+void Swatch::coloring(Lighting l, Palette p, Hue h) {
+	_hue = h;
+	const uchar *rgb = Color::color(l, p, h);
+	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
 }
 
 void Swatch::draw() {
@@ -307,10 +353,4 @@ void Swatch::draw() {
 	if (value()) {
 		draw_selection_border(x(), y(), w(), false);
 	}
-}
-
-int Swatch::handle(int event) {
-	//Tileset_Window *tw = (Tileset_Window *)user_data();
-	// TODO: Swatch::handle
-	return Fl_Radio_Button::handle(event);
 }

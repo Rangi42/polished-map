@@ -1323,11 +1323,13 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
+	const Tileset *tileset = mw->_metatileset.tileset();
 	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, mw->_metatileset.tileset()->name());
+	strcpy(old_name, tileset->name());
+	Lighting old_lighting = tileset->lighting();
 	size_t old_size = mw->_metatileset.size();
 
-	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
+	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name, old_lighting)) {
 		const char *project_type = Config::project_type();
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = "This is not a ";
@@ -1360,6 +1362,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
+	mw->_tileset_window->tileset(mw->_metatileset.tileset());
 	mw->_tileset_window->show(mw);
 }
 

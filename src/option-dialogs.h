@@ -115,7 +115,7 @@ private:
 public:
 	Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod);
 	~Tileset_Options_Dialog();
-	bool limit_tileset_options(const char *old_tileset_name);
+	bool limit_tileset_options(const char *old_tileset_name, Lighting old_lighting);
 	const char *tileset(void) const;
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 protected:

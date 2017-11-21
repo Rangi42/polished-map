@@ -481,7 +481,7 @@ Tileset_Options_Dialog::~Tileset_Options_Dialog() {
 	delete _lighting;
 }
 
-bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name) {
+bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name, Lighting old_lighting) {
 	if (!_map_options_dialog) { return false; }
 	if (Config::project() != _map_options_dialog->_project_type) { return false; } // verify unchanged project type
 	initialize();
@@ -500,13 +500,12 @@ bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name)
 	// Copy _map_options_dialog's lighting choices
 	_lighting->clear();
 	n = _map_options_dialog->_lighting->size() - 1; // ignore terminating NULL
-	v = _map_options_dialog->_lighting->value();
 	for (int i = 0; i < n; i++) {
 		const Fl_Menu_Item &item = _map_options_dialog->_lighting->menu()[i];
 		const char *name = item.label();
 		_lighting->add(name);
 	}
-	_lighting->value(v);
+	_lighting->value(old_lighting);
 	return true;
 }
 

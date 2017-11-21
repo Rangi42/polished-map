@@ -65,6 +65,36 @@ public:
 	int handle(int event);
 };
 
+class Pixel : public Fl_Box {
+private:
+	int _x, _y;
+	Lighting _lighting;
+	Palette _palette;
+	Hue _hue;
+public:
+	Pixel(int x = 0, int y = 0, int s = 0);
+	inline int row(void) const { return _y; }
+	inline int col(void) const { return _x; }
+	inline void coords(int x, int y) { _x = x; _y = y; }
+	inline Palette palette(void) const { return _palette; }
+	inline void palette(Palette p) { coloring(_lighting, p, _hue); }
+	inline Hue hue(void) const { return _hue; }
+	inline void hue(Hue h) { coloring(_lighting, _palette, h); }
+	void coloring(Lighting l, Palette p, Hue h);
+	void draw(void);
+	int handle(int event);
+};
+
+class Swatch : public Fl_Radio_Button {
+private:
+	Hue _hue;
+public:
+	Swatch(int x, int y, int s, const char *l = NULL);
+	inline Hue hue(void) const { return _hue; }
+	void coloring(Lighting l, Palette p, Hue h);
+	void draw(void);
+};
+
 class Deep_Tile_Button : public Fl_Radio_Button {
 private:
 	uint8_t _id;
@@ -75,32 +105,14 @@ public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
+	inline const Palette palette(void) const { return _palette; }
+	inline void palette(Palette p) { _palette = p; }
+	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
+	inline const uchar *rgb(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	void copy_tile(const Tile *t);
+	void copy_pixel(const Pixel *pxl);
+	void copy_pixels(Pixel **pxls);
 	void draw(void);
-};
-
-class Pixel : public Fl_Box {
-private:
-	Hue _hue;
-	Palette _palette;
-	Fl_Color _color;
-public:
-	Pixel(int x = 0, int y = 0, int s = 0);
-	inline Hue hue(void) const { return _hue; }
-	inline void hue(Hue hue) { _hue = hue; }
-	void draw(void);
-	int handle(int event);
-};
-
-class Swatch : public Fl_Radio_Button {
-private:
-	Hue _hue;
-	Palette _palette;
-	Fl_Color _color;
-public:
-	Swatch(int x, int y, int s, const char *l = NULL);
-	void draw(void);
-	int handle(int event);
 };
 
 #endif

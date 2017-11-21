@@ -2,7 +2,7 @@
 #include "tiled-image.h"
 #include "tileset.h"
 
-Tileset::Tileset() : _name(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL) {
+Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 	}
@@ -41,6 +41,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	case Tiled_Image::IMG_BAD_CMD: return (_result = GFX_BAD_CMD);
 	default: return (_result = GFX_BAD_FILE);
 	}
+
+	_lighting = l;
 
 	_num_tiles = ti.num_tiles();
 	bool skip = Config::skip_tiles_60_to_7f();

@@ -22,7 +22,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 
 	if (Config::monochrome()) {
 		FILL(_palette, Palette::MONOCHROME, MAX_NUM_TILES);
-		_palette_size = 128;
+		_palette_size = 0x60;
 		return (_result = PALETTE_OK);
 	}
 
