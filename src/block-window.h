@@ -14,8 +14,6 @@
 #include "metatile.h"
 #include "widgets.h"
 
-#define TILES_PER_ROW 16
-#define TILES_PER_COL (MAX_NUM_TILES / TILES_PER_ROW)
 #define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
 
 #define CHIP_ZOOM_FACTOR 3

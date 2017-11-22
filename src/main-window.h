@@ -80,7 +80,7 @@ public:
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
-	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified(); }
+	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
 	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }
 	inline std::unordered_map<int, uint8_t>::const_iterator hotkey_metatile(int key) const { return _hotkey_metatiles.find(key); }
@@ -102,6 +102,7 @@ private:
 	void resize_map(int w, int h);
 	bool save_map(void);
 	bool save_metatileset(void);
+	bool save_tileset(void);
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
@@ -114,6 +115,7 @@ private:
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
+	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void print_cb(Fl_Widget *w, Main_Window *mw);
 	static void exit_cb(Fl_Widget *w, Main_Window *mw);

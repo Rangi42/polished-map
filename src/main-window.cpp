@@ -164,6 +164,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("&Save As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
 		OS_MENU_ITEM("Save &Blockset", FL_COMMAND + 'm', (Fl_Callback *)save_metatiles_cb, this, 0),
+		OS_MENU_ITEM("Save &Tileset", FL_COMMAND + 'T', (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
@@ -398,7 +399,13 @@ const char *Main_Window::modified_filename() {
 		return fl_filename_name(_blk_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
-	Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+	const Tileset *tileset = _metatileset.const_tileset();
+	if (tileset->modified()) {
+		Config::tileset_path(buffer, _directory.c_str(), tileset->name());
+	}
+	else {
+		Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+	}
 	return fl_filename_name(buffer);
 }
 
@@ -962,6 +969,59 @@ bool Main_Window::save_metatileset() {
 	return true;
 }
 
+bool Main_Window::save_tileset() {
+	Tileset *tileset = _metatileset.tileset();
+
+	char filename[FL_PATH_MAX] = {};
+	const char *directory = _directory.c_str();
+	const char *tileset_name = tileset->name();
+
+	if (!tileset->modified()) {
+		std::string msg = "Saved ";
+		msg = msg + tileset_name + "!";
+		_success_dialog->message(msg);
+		_success_dialog->show(this);
+		return true;
+	}
+
+	Config::tileset_png_path(filename, directory, tileset_name);
+	if (!tileset->write_graphics(filename)) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	const char *basename = fl_filename_name(filename);
+	std::string msg = "Saved ";
+	msg = msg + basename + "!";
+	_success_dialog->message(msg);
+	_success_dialog->show(this);
+
+	if (!Config::monochrome()) {
+		Config::palette_map_path(filename, directory, tileset_name);
+		if (!tileset->palette_map().write_palette_map(filename)) {
+			const char *basename = fl_filename_name(filename);
+			std::string msg = "Could not write to ";
+			msg = msg + basename + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+			return false;
+		}
+
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Saved ";
+		msg = msg + basename + "!";
+		_success_dialog->message(msg);
+		_success_dialog->show(this);
+	}
+
+	tileset->modified(false);
+	return true;
+}
+
 void Main_Window::edit_metatile(Metatile *mt) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
@@ -1088,10 +1148,14 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
+	bool other_modified = mw->_metatileset.modified() || mw->_metatileset.const_tileset()->modified();
+	if (mw->_metatileset.const_tileset()->modified()) {
+		save_tileset_cb(w, mw);
+	}
 	if (mw->_metatileset.modified()) {
 		save_metatiles_cb(w, mw);
-		if (!mw->_map.modified()) { return; }
 	}
+	if (other_modified && !mw->_map.modified()) { return; }
 	if (mw->_blk_file.empty()) {
 		save_as_cb(w, mw);
 		return;
@@ -1138,6 +1202,11 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::save_metatiles_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->save_metatileset();
+}
+
+void Main_Window::save_tileset_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+	mw->save_tileset();
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
@@ -1314,7 +1383,7 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	if (mw->_metatileset.modified()) {
+	if (mw->_metatileset.modified() || mw->_metatileset.const_tileset()->modified()) {
 		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the tileset anyway?";

@@ -167,9 +167,12 @@ void Tileset_Window::show(const Fl_Widget *p) {
 }
 
 void Tileset_Window::apply_modifications() {
+	Palette_Map &palette_map = _tileset->palette_map();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *t = _deep_tile_buttons[i];
-		_tileset->tile((uint8_t)i)->copy(t);
+		uint8_t id = (uint8_t)i;
+		_tileset->tile(id)->copy(t);
+		palette_map.palette(id, t->palette());
 	}
 	_tileset->modified(true);
 }

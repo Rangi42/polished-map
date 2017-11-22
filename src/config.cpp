@@ -103,6 +103,10 @@ void Config::tileset_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%s%s%s.2bpp.lz", root, gfx_tileset_dir(), tileset);
 }
 
+void Config::tileset_png_path(char *dest, const char *root, const char *tileset) {
+	sprintf(dest, "%s%s%s.png", root, gfx_tileset_dir(), tileset);
+}
+
 void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
 	if (global_project == Project::POKERED) {
 		// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
@@ -138,4 +142,8 @@ bool Config::monochrome() {
 
 bool Config::skip_tiles_60_to_7f() {
 	return global_project == Project::POKECRYSTAL || global_project == Project::PRISM;
+}
+
+bool Config::nybble_palettes() {
+	return global_project != Project::POLISHED;
 }

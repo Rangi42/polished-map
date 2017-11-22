@@ -1,8 +1,9 @@
 #include "config.h"
 #include "tiled-image.h"
 #include "tileset.h"
+#include "image.h"
 
-Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL) {
+Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL), _modified(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 	}
@@ -23,6 +24,33 @@ void Tileset::clear() {
 		_tiles[i]->clear();
 	}
 	_result = GFX_NULL;
+	_modified = false;
+}
+
+uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
+	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
+	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	for (size_t i = 0; i < n; i++) {
+		const Tile *t = _tiles[i];
+		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
+		for (int py = 0; py < TILE_SIZE; py++) {
+			for (int px = 0; px < TILE_SIZE; px++) {
+				Hue h = t->hue(px, py);
+				uchar c;
+				switch (h) {
+				case Hue::BLACK: c = 0x00; break;
+				case Hue::DARK:  c = 0x50; break;
+				case Hue::LIGHT: c = 0xa0; break;
+				case Hue::WHITE: default: c = 0xff;
+				}
+				size_t j = ((ty + py) * TILES_PER_ROW * TILE_SIZE + tx + px) * NUM_CHANNELS;
+				buffer[j++] = c;
+				buffer[j++] = c;
+				buffer[j] = c;
+			}
+		}
+	}
+	return buffer;
 }
 
 Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
@@ -60,6 +88,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 		}
 	}
 
+	_modified = false;
+
 	return (_result = GFX_OK);
 }
 
@@ -88,4 +118,9 @@ const char *Tileset::error_message(Result result) {
 	default:
 		return "Unspecified error.";
 	}
+}
+
+bool Tileset::write_graphics(const char *f) {
+	Image::Result result = Image::write_image(f, *this);
+	return !result;
 }

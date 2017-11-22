@@ -3,6 +3,10 @@
 #include <sstream>
 #include <array>
 
+#pragma warning(push, 0)
+#include <FL/fl_utf8.h>
+#pragma warning(pop)
+
 #include "utils.h"
 #include "config.h"
 #include "palette-map.h"
@@ -28,7 +32,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 
 	std::ifstream ifs(f);
 	if (!ifs.good()) { return (_result = BAD_PALETTE_FILE); }
-	std::string prefix("\ttilepal");
+	std::string prefix(TILEPAL_PREFIX);
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
@@ -77,4 +81,49 @@ const char *Palette_Map::error_message(Result result) {
 	default:
 		return "Unspecified error.";
 	}
+}
+
+bool Palette_Map::write_palette_map(const char *f) {
+	FILE *file = fl_fopen(f, "w");
+	if (!file) { return false; }
+	size_t n = MAX_NUM_TILES;
+	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
+	bool skip = Config::skip_tiles_60_to_7f();
+	for (size_t i = 0; i < n; i++) {
+		if (skip && (i == 0x60 || i == 0xe0)) {
+			fputs("\nrept 16\n\tdb $ff\nendr\n\n", file);
+			i += 0x1f;
+			continue;
+		}
+		if (i % PALETTES_PER_LINE == 0) {
+			fputs(TILEPAL_PREFIX " ", file);
+			fputc(i < 0x80 ? '0' : '1', file);
+		}
+		fputs(", ", file);
+		switch (_palette[i]) {
+		case GRAY:            fputs("GRAY", file); break;
+		case RED:             fputs("RED", file); break;
+		case GREEN:           fputs("GREEN", file); break;
+		case WATER:           fputs("WATER", file); break;
+		case YELLOW:          fputs("YELLOW", file); break;
+		case BROWN:           fputs("BROWN", file); break;
+		case ROOF:            fputs("ROOF", file); break;
+		case TEXT: default:   fputs("TEXT", file); break;
+		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); break;
+		case PRIORITY_RED:    fputs("PRIORITY_RED", file); break;
+		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); break;
+		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); break;
+		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); break;
+		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); break;
+		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); break;
+		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); break;
+		}
+		if (i % PALETTES_PER_LINE == PALETTES_PER_LINE - 1) {
+			fputc('\n', file);
+		}
+	}
+	if (Config::nybble_palettes() && n % 2) { fputs(", TEXT", file); }
+	if (n % PALETTES_PER_LINE) { fputc('\n', file); }
+	fclose(file);
+	return true;
 }

@@ -2,7 +2,6 @@
 
 * **Fix:** Resizing window resets sidebar width to original zoom size (sometimes)
 * Update Makefile with standard Linux variables
-* Save changes to tilesets
 * Support Ctrl+C/V/X in tileset editor
 
 

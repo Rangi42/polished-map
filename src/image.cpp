@@ -14,13 +14,30 @@
 #include "image.h"
 
 Image::Result Image::write_image(const char *f, const Map &map, const Metatileset &mt) {
+	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
+	size_t h = map.height() * METATILE_SIZE * TILE_SIZE;
+	uchar *buffer = mt.print_rgb(map);
+	return write_image(f, w, h, buffer);
+}
+
+Image::Result Image::write_image(const char *f, const Tileset &tileset) {
+	size_t n = MAX_NUM_TILES;
+	while (tileset.const_tile((uint8_t)(n-1))->palette() == Palette::UNDEFINED) { n--; }
+	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
+	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
+	uchar *buffer = tileset.print_rgb(w, h, n);
+	return write_image(f, w, h, buffer);
+}
+
+Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer) {
+	Result result = IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
-	if (!file) { return IMAGE_BAD_FILE; }
+	if (!file) { result = IMAGE_BAD_FILE; goto cleanup1; }
 	// Create the necessary PNG structures
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (!png) { fclose(file); return IMAGE_BAD_PNG; }
+	if (!png) { result = IMAGE_BAD_PNG; goto cleanup2; }
 	png_infop info = png_create_info_struct(png);
-	if (!info) { fclose(file); return IMAGE_BAD_PNG; }
+	if (!info) { result = IMAGE_BAD_PNG; goto cleanup2; }
 	png_init_io(png, file);
 	// Set compression options
 	png_set_compression_level(png, Z_BEST_COMPRESSION);
@@ -30,14 +47,11 @@ Image::Result Image::write_image(const char *f, const Map &map, const Metatilese
 	png_set_compression_method(png, Z_DEFLATED);
 	png_set_compression_buffer_size(png, 8192);
 	// Write the PNG IHDR chunk
-	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
-	size_t h = map.height() * METATILE_SIZE * TILE_SIZE;
 	png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, PNG_COLOR_TYPE_RGB,
 		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 	// Write the other PNG header chunks
 	png_write_info(png, info);
 	// Write the RGB pixels in row-major order from top to bottom
-	uchar *buffer = mt.print_rgb(map);
 	size_t row_size = NUM_CHANNELS * w;
 	png_bytep png_row = new png_byte[row_size];
 	for (size_t i = 0; i < h; i++) {
@@ -55,8 +69,11 @@ Image::Result Image::write_image(const char *f, const Map &map, const Metatilese
 	delete [] png_row;
 	png_destroy_write_struct(&png, &info);
 	png_free_data(png, info, PNG_FREE_ALL, -1);
+cleanup2:
 	fclose(file);
-	return IMAGE_OK;
+cleanup1:
+	delete [] buffer;
+	return result;
 }
 
 const char *Image::error_message(Result result) {

@@ -7,6 +7,9 @@
 #include "palette-map.h"
 #include "utils.h"
 
+#define TILES_PER_ROW 16
+#define TILES_PER_COL (MAX_NUM_TILES / TILES_PER_ROW)
+
 class Tileset {
 public:
 	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
@@ -26,6 +29,7 @@ public:
 	inline void name(const char *name) { _name = name; }
 	inline Lighting lighting(void) const { return _lighting; }
 	inline void lighting(Lighting l) { _lighting = l; }
+	inline Palette_Map &palette_map(void) { return _palette_map; }
 	inline Tile *tile(uint8_t i) { return _tiles[i]; }
 	inline const Tile *const_tile(uint8_t i) const { return _tiles[i]; }
 	inline size_t num_tiles(void) const { return _num_tiles; }
@@ -33,9 +37,11 @@ public:
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
 	void clear(void);
+	uchar *print_rgb(size_t w, size_t h, size_t n) const;
 	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
 	Result read_graphics(const char *f, Lighting l);
 	static const char *error_message(Result result);
+	bool write_graphics(const char *f);
 };
 
 #endif
