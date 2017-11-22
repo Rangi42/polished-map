@@ -11,7 +11,6 @@
 * Choose to put the sidebar on the left or right
 * Choose to display coordinates as X/Y and WxH or Y/X and HxW
 * Load color schemes from a .pal file
-* Use IFileOpenDialog, not SHBrowseForFolder, for new maps (Windows only) (alternatively, pick a new .blk instead of the project root directory)
 
 
 ## Never

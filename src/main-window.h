@@ -20,6 +20,7 @@
 #include "help-window.h"
 #include "block-window.h"
 #include "tileset-window.h"
+#include "directory-chooser.h"
 
 #define METATILES_PER_ROW 4
 #define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
@@ -43,7 +44,8 @@ private:
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Dialogs
-	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_new_dir_chooser, *_png_chooser;
+	Directory_Chooser *_new_dir_chooser;
+	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_png_chooser;
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Tileset_Options_Dialog *_tileset_options_dialog;

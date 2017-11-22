@@ -106,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\colors.cpp" />
     <ClCompile Include="..\src\config.cpp" />
+    <ClCompile Include="..\src\directory-chooser.cpp" />
     <ClCompile Include="..\src\help-window.cpp" />
     <ClCompile Include="..\src\image.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -129,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\colors.h" />
     <ClInclude Include="..\src\config.h" />
+    <ClInclude Include="..\src\directory-chooser.h" />
     <ClInclude Include="..\src\help-window.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
