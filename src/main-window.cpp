@@ -319,13 +319,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
-	_blk_save_chooser->preset_file(NEW_MAP_NAME ".blk");
+	_blk_save_chooser->preset_file("NewMap.blk");
 
-	_new_dir_chooser->title("Choose project directory:");
+	_new_dir_chooser->title("Choose Project Directory");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
-	_png_chooser->preset_file(NEW_MAP_NAME ".png");
+	_png_chooser->preset_file("screenshot.png");
 
 	_error_dialog->width_range(280, 700);
 	_warning_dialog->width_range(280, 700);
@@ -396,6 +396,7 @@ void Main_Window::show() {
 
 const char *Main_Window::modified_filename() {
 	if (_map.modified()) {
+		if (_blk_file.empty()) { return NEW_MAP_NAME; }
 		return fl_filename_name(_blk_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
@@ -602,10 +603,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		_blk_file = filename;
 	}
 	else {
-		char new_filename[FL_PATH_MAX] = {};
-		Config::blk_path_from_project_path(directory, new_filename);
-		strcat(new_filename, NEW_MAP_NAME ".blk");
-		_blk_file = new_filename;
+		_blk_file = "";
+		char blk_directory[FL_PATH_MAX] = {};
+		Config::blk_path_from_project_path(directory, blk_directory);
+		_blk_save_chooser->directory(blk_directory);
 	}
 
 	// read data
@@ -617,10 +618,11 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map.size(w, h);
 	int ms = metatile_size();
 
-	const char *basename = fl_filename_name(_blk_file.c_str());
+	const char *basename;
 
 	// populate map with blocks
 	if (filename) {
+		basename = fl_filename_name(_blk_file.c_str());
 		Map::Result r = _map.read_blocks(filename);
 		if (r == Map::Result::MAP_TOO_LONG) {
 			std::string msg = "Warning: ";
@@ -649,6 +651,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		}
 	}
 	else {
+		basename = NEW_MAP_NAME;
 		_map.modified(true);
 
 		// new map
@@ -1195,6 +1198,16 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	mw->copy_label(buffer);
+	if (ends_with(basename, ".blk")) {
+		sprintf(buffer, "%s", basename);
+		size_t n = strlen(buffer);
+		buffer[n-4] = '\0';
+		strcat(buffer, ".png");
+	}
+	else {
+		sprintf(buffer, "%s.png", basename);
+	}
+	mw->_png_chooser->preset_file(buffer);
 
 	mw->save_map();
 }
