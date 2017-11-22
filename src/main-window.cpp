@@ -574,10 +574,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
 		const char *project_type = Config::project_type();
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "This is not a ";
 		msg = msg + project_type + " project!\n\n"
-			"Make sure Options->Project Type matches\n" + basename + ".";
+			"Make sure Options->Project Type is correct.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
