@@ -27,7 +27,7 @@ private:
 	Label *_tileset_heading, *_tile_heading;
 	Fl_Group *_tileset_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[MAX_NUM_TILES], *_selected;
-	Pixel *_pixels[TILE_SIZE * TILE_SIZE];
+	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
 	Dropdown *_palette;
 	OS_Check_Button *_priority;
@@ -47,7 +47,7 @@ public:
 	void apply_modifications(void);
 	void select(Deep_Tile_Button *dtb);
 	void choose(Swatch *swatch);
-	void flood_fill(Pixel *pxl, Hue f, Hue t);
+	void flood_fill(Pixel_Button *pb, Hue f, Hue t);
 	void substitute_hue(Hue f, Hue t);
 	void palette(Palette p);
 private:
@@ -55,7 +55,7 @@ private:
 	static void cancel_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void select_tile_cb(Deep_Tile_Button *dtb, Tileset_Window *tw);
 	static void choose_swatch_cb(Swatch *s, Tileset_Window *tw);
-	static void change_pixel_cb(Pixel *pxl, Tileset_Window *tw);
+	static void change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw);
 	static void change_palette_cb(Fl_Widget *wgt, Tileset_Window *tw);
 };
 

@@ -67,10 +67,10 @@ void Tileset_Window::initialize() {
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
 			int px = _tile_group->x() + 1 + x * PIXEL_ZOOM_FACTOR, py = _tile_group->y() + 1 + y * PIXEL_ZOOM_FACTOR;
-			Pixel *pxl = new Pixel(px, py, PIXEL_ZOOM_FACTOR);
-			pxl->coords(x, y);
-			pxl->callback((Fl_Callback *)change_pixel_cb, this);
-			_pixels[y * TILE_SIZE + x] = pxl;
+			Pixel_Button *pb = new Pixel_Button(px, py, PIXEL_ZOOM_FACTOR);
+			pb->coords(x, y);
+			pb->callback((Fl_Callback *)change_pixel_cb, this);
+			_pixels[y * TILE_SIZE + x] = pb;
 		}
 	}
 	_tile_group->end();
@@ -189,9 +189,9 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 	Palette p = _selected->palette();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
-			Pixel *pxl = _pixels[y * TILE_SIZE + x];
+			Pixel_Button *pb = _pixels[y * TILE_SIZE + x];
 			Hue h = _selected->hue(x, y);
-			pxl->coloring(l, p, h);
+			pb->coloring(l, p, h);
 		}
 	}
 	_swatch1->coloring(l, p, Hue::WHITE);
@@ -213,19 +213,19 @@ void Tileset_Window::choose(Swatch *swatch) {
 	_chosen->setonly();
 }
 
-void Tileset_Window::flood_fill(Pixel *pxl, Hue f, Hue t) {
+void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
 	if (f == t) { return; }
 	std::queue<size_t> queue;
-	int row = pxl->row(), col = pxl->col();
+	int row = pb->row(), col = pb->col();
 	size_t i = row * TILE_SIZE + col;
 	queue.push(i);
 	while (!queue.empty()) {
 		size_t i = queue.front();
 		queue.pop();
-		Pixel *pxl = _pixels[i];
-		if (pxl->hue() != f) { continue; }
-		pxl->hue(t); // fill
-		int row = pxl->row(), col = pxl->col();
+		Pixel_Button *pb = _pixels[i];
+		if (pb->hue() != f) { continue; }
+		pb->hue(t); // fill
+		int row = pb->row(), col = pb->col();
 		if (col > 0) { queue.push(i-1); } // left
 		if (col < TILE_SIZE - 1) { queue.push(i+1); } // right
 		if (row > 0) { queue.push(i-TILE_SIZE); } // up
@@ -235,9 +235,9 @@ void Tileset_Window::flood_fill(Pixel *pxl, Hue f, Hue t) {
 
 void Tileset_Window::substitute_hue(Hue f, Hue t) {
 	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		Pixel *pxl = _pixels[i];
-		if (pxl->hue() == f) {
-			pxl->hue(t);
+		Pixel_Button *pb = _pixels[i];
+		if (pb->hue() == f) {
+			pb->hue(t);
 		}
 	}
 }
@@ -276,19 +276,19 @@ void Tileset_Window::choose_swatch_cb(Swatch *s, Tileset_Window *tw) {
 	tw->_window->redraw();
 }
 
-void Tileset_Window::change_pixel_cb(Pixel *pxl, Tileset_Window *tw) {
+void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!tw->_chosen) { return; }
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
-			tw->flood_fill(pxl, pxl->hue(), tw->_chosen->hue());
+			tw->flood_fill(pb, pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
 			tw->_selected->copy_pixels(tw->_pixels);
 			tw->_selected->redraw();
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
-			tw->substitute_hue(pxl->hue(), tw->_chosen->hue());
+			tw->substitute_hue(pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
 			tw->_selected->copy_pixels(tw->_pixels);
 			tw->_selected->redraw();
@@ -296,15 +296,15 @@ void Tileset_Window::change_pixel_cb(Pixel *pxl, Tileset_Window *tw) {
 		else {
 			// Left-click/drag to edit
 			Hue h = tw->_chosen->hue();
-			pxl->hue(h);
-			pxl->damage(1);
-			tw->_selected->copy_pixel(pxl);
+			pb->hue(h);
+			pb->damage(1);
+			tw->_selected->copy_pixel(pb);
 			tw->_selected->redraw();
 		}
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to choose
-		Hue h = pxl->hue();
+		Hue h = pb->hue();
 		switch (h) {
 		case Hue::WHITE:
 			tw->choose(tw->_swatch1);

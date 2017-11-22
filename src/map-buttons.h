@@ -65,14 +65,14 @@ public:
 	int handle(int event);
 };
 
-class Pixel : public Fl_Box {
+class Pixel_Button : public Fl_Box {
 private:
 	int _x, _y;
 	Lighting _lighting;
 	Palette _palette;
 	Hue _hue;
 public:
-	Pixel(int x = 0, int y = 0, int s = 0);
+	Pixel_Button(int x = 0, int y = 0, int s = 0);
 	inline int row(void) const { return _y; }
 	inline int col(void) const { return _x; }
 	inline void coords(int x, int y) { _x = x; _y = y; }
@@ -98,8 +98,8 @@ public:
 class Deep_Tile_Button : public Fl_Radio_Button, public Tile {
 public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
-	void copy_pixel(const Pixel *pxl);
-	void copy_pixels(Pixel **pxls);
+	void copy_pixel(const Pixel_Button *pb);
+	void copy_pixels(Pixel_Button **pbs);
 	void draw(void);
 };
 

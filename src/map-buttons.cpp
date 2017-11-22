@@ -237,16 +237,16 @@ Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_B
 	when(FL_WHEN_RELEASE);
 }
 
-void Deep_Tile_Button::copy_pixel(const Pixel *pxl) {
-	_palette = pxl->palette();
+void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb) {
+	_palette = pb->palette();
 	uchar r, g, b;
-	Fl::get_color(pxl->color(), r, g, b);
-	pixel(pxl->col(), pxl->row(), pxl->hue(), r, g, b);
+	Fl::get_color(pb->color(), r, g, b);
+	pixel(pb->col(), pb->row(), pb->hue(), r, g, b);
 }
 
-void Deep_Tile_Button::copy_pixels(Pixel **pxls) {
+void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs) {
 	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		copy_pixel(pxls[i]);
+		copy_pixel(pbs[i]);
 	}
 }
 
@@ -257,12 +257,12 @@ void Deep_Tile_Button::draw() {
 	}
 }
 
-Pixel::Pixel(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _lighting(), _palette(), _hue() {
+Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _lighting(), _palette(), _hue() {
 	user_data(NULL);
 	box(FL_FLAT_BOX);
 }
 
-void Pixel::coloring(Lighting l, Palette p, Hue h) {
+void Pixel_Button::coloring(Lighting l, Palette p, Hue h) {
 	_lighting = l;
 	_palette = p;
 	_hue = h;
@@ -270,14 +270,14 @@ void Pixel::coloring(Lighting l, Palette p, Hue h) {
 	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
 }
 
-void Pixel::draw() {
+void Pixel_Button::draw() {
 	draw_box();
 	if (Fl::belowmouse() == this) {
 		draw_selection_border(x(), y(), w(), false);
 	}
 }
 
-int Pixel::handle(int event) {
+int Pixel_Button::handle(int event) {
 	//Tileset_Window *tw = (Tileset_Window *)user_data();
 	switch (event) {
 	case FL_ENTER:
