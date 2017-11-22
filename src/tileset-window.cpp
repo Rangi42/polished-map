@@ -5,10 +5,29 @@
 #include "config.h"
 #include "tileset-window.h"
 
+Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
+
+int Tile_Window::handle(int event) {
+	Tileset_Window *tw = (Tileset_Window *)user_data();
+	if (Fl::test_shortcut(FL_COMMAND + 'c')) {
+		Tileset_Window::copy_tile_cb(NULL, tw);
+	}
+	else if (Fl::test_shortcut(FL_COMMAND + 'v')) {
+		Tileset_Window::paste_tile_cb(NULL, tw);
+	}
+	else if (Fl::test_shortcut(FL_COMMAND + 'x')) {
+		Tileset_Window::swap_tiles_cb(NULL, tw);
+	}
+	else if (Fl::test_shortcut(FL_Delete)) {
+		Tileset_Window::delete_tile_cb(NULL, tw);
+	}
+	return Fl_Double_Window::handle(event);
+}
+
 Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
 	_tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
 	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL) {}
+	_palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
 
 Tileset_Window::~Tileset_Window() {
 	delete _window;
@@ -31,7 +50,7 @@ void Tileset_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 466, 304, "Edit Tileset");
+	_window = new Tile_Window(_dx, _dy, 466, 304, "Edit Tileset");
 	_tileset_heading = new Label(10, 10, 258, 22);
 	_tile_heading = new Label(278, 10, 146, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
@@ -326,4 +345,42 @@ void Tileset_Window::change_palette_cb(Fl_Widget *, Tileset_Window *tw) {
 	int pv = tw->_palette->value();
 	if (tw->_priority->value()) { pv |= 0x80; }
 	tw->palette((Palette)pv);
+}
+
+void Tileset_Window::copy_tile_cb(Fl_Widget *, Tileset_Window *tw) {
+	if (!tw->_selected) { return; }
+	tw->_clipboard.id(tw->_selected->id());
+	tw->_clipboard.copy(tw->_selected);
+	tw->_copied = true;
+}
+
+void Tileset_Window::paste_tile_cb(Fl_Widget *, Tileset_Window *tw) {
+	if (!tw->_copied || !tw->_selected) { return; }
+	tw->_selected->copy(&tw->_clipboard);
+	tw->select(tw->_selected);
+	tw->_window->redraw();
+}
+
+void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
+	if (!tw->_copied || !tw->_selected) { return; }
+	uint8_t cid = tw->_clipboard.id();
+	Deep_Tile_Button *copied = tw->_deep_tile_buttons[cid];
+	Tile temp(0);
+	temp.copy(tw->_selected);
+	tw->_selected->copy(copied);
+	copied->copy(&temp);
+	tw->_window->redraw();
+}
+
+void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
+	if (!tw->_selected) { return; }
+	tw->_selected->palette(Palette::UNDEFINED);
+	const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), Hue::WHITE);
+	for (int y = 0; y < TILE_SIZE; y++) {
+		for (int x = 0; x < TILE_SIZE; x++) {
+			tw->_selected->pixel(x, y, Hue::WHITE, rgb[0], rgb[1], rgb[2]);
+		}
+	}
+	tw->select(tw->_selected);
+	tw->_window->redraw();
 }

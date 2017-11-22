@@ -1,7 +1,6 @@
 # To Do
 
 * **Fix:** Resizing window resets sidebar width to original zoom size (sometimes)
-* Support Ctrl+C/V/X in tileset editor
 
 
 ## Maybe
