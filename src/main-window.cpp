@@ -911,10 +911,10 @@ void Main_Window::resize_map(int w, int h) {
 	redraw();
 }
 
-bool Main_Window::save_map() {
+bool Main_Window::save_map(bool force) {
 	const char *filename = _blk_file.c_str();
 
-	if (_map.modified()) {
+	if (_map.modified() || force) {
 		FILE *file = fl_fopen(filename, "wb");
 		if (!file) {
 			const char *basename = fl_filename_name(filename);
@@ -1162,7 +1162,7 @@ void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 		save_as_cb(w, mw);
 		return;
 	}
-	mw->save_map();
+	mw->save_map(false);
 }
 
 void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
@@ -1208,7 +1208,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	}
 	mw->_png_chooser->preset_file(buffer);
 
-	mw->save_map();
+	mw->save_map(true);
 }
 
 void Main_Window::save_metatiles_cb(Fl_Widget *, Main_Window *mw) {

@@ -102,7 +102,7 @@ private:
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
 	void resize_map(int w, int h);
-	bool save_map(void);
+	bool save_map(bool force);
 	bool save_metatileset(void);
 	bool save_tileset(void);
 	void edit_metatile(Metatile *mt);

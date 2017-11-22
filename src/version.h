@@ -1,11 +1,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define PROGRAM_VERSION 3,0,3
+#define PROGRAM_VERSION 3,0,4
 #ifdef _DEBUG
-#define PROGRAM_VERSION_STRING "3.0.3 [DEBUG]"
+#define PROGRAM_VERSION_STRING "3.0.4 [DEBUG]"
 #else
-#define PROGRAM_VERSION_STRING "3.0.3"
+#define PROGRAM_VERSION_STRING "3.0.4"
 #endif
 
 #define PROGRAM_NAME "Polished Map"
