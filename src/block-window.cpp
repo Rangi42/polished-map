@@ -49,8 +49,8 @@ void Block_Window::initialize() {
 	_tileset_group->end();
 	// Populate metatile
 	_metatile_group->begin();
-	for (int y = 0; y < METATILE_SIZE; y++) {
-		for (int x = 0; x < METATILE_SIZE; x++) {
+	for (uint8_t y = 0; y < METATILE_SIZE; y++) {
+		for (uint8_t x = 0; x < METATILE_SIZE; x++) {
 			int cx = _metatile_group->x() + 1 + x * CHIP_PX_SIZE, cy = _metatile_group->y() + 1 + y * CHIP_PX_SIZE;
 			int id = y * METATILE_SIZE + x;
 			Chip *c = new Chip(cx, cy, CHIP_PX_SIZE, y, x);
@@ -172,29 +172,20 @@ void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		// Left-click to edit
+		// Ctrl+left-click to edit 2x2
+		// Ctrl+Shift+left-click to edit 4x4
 		uint8_t id = bw->_selected->id();
-		c->id(id);
-		c->damage(1);
-		if (Fl::event_ctrl()) {
-			// Ctrl+left-click to edit 2x2
-			int r1 = c->row(), c1 = c->col();
-			int r2 = r1 + 1, c2 = c1 + 1;
-			bool down_free = r2 < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW;
-			if (down_free) {
-				Chip *c_down = bw->chip(c1, r2);
-				c_down->id(id+TILES_PER_ROW);
-				c_down->damage(1);
-			}
-			bool right_free = c2 < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - 1;
-			if (right_free) {
-				Chip *c_right = bw->chip(c2, r1);
-				c_right->id(id+1);
-				c_right->damage(1);
-			}
-			if (down_free && right_free) {
-				Chip *c_dr = bw->chip(c2, r2);
-				c_dr->id(id+TILES_PER_ROW+1);
-				c_dr->damage(1);
+		uint8_t n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
+		for (uint8_t dy = 0; dy < n; dy++) {
+			for (uint8_t dx = 0; dx < n; dx++) {
+				uint8_t y = c->row() + dy, x = c->col() + dx;
+				bool row_free = y < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW * dy;
+				bool col_free = x < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - dx;
+				if (row_free && col_free) {
+					Chip *chip = bw->chip(x, y);
+					chip->id(id + TILES_PER_ROW * dy + dx);
+					chip->damage(1);
+				}
 			}
 		}
 	}

@@ -188,7 +188,7 @@ void Tile_Button::draw() {
 	draw_tileset_button(this, _id, !!value(), false);
 }
 
-Chip::Chip(int x, int y, int s, int row, int col) : Fl_Box(x, y, s, s), _row(row), _col(col), _id(0) {
+Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), _row(row), _col(col), _id(0) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
