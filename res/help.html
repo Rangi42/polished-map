@@ -20,6 +20,8 @@ R"(<html>
 <li><b>Command Prompt:</b> Pass the .blk filename as an argument to polishedmap.exe:<br><font size="2"><kbd>polishedmap.exe&nbsp;C:\pokecrystal\maps\SomeMap.blk</kbd></font></li>
 </ul>
 <p>Polished Map will try to guess a map's size and tileset. You can append them to the filename as <kbd>.<var>WIDTH</var>x<var>HEIGHT</var></kbd> or <kbd>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var></kbd>; for instance, NewBarkTown.10x9.blk or UnionCave1F.10x18.24.blk. Otherwise Polished Map will guess the map's constant ID from its filename and read its size from the assembly code; for instance, UnionCaveB2F.blk is guessed to be <code>UNION_CAVE_B2F</code>. This can fail, like when LakeofRage.blk is guessed as <code>LAKEOF_RAGE</code>. Then you'll just have to enter the size yourself.</p>
+<p>Be sure to set the correct project type before creating or opening a map. This is on the menu bar: Options&nbsp;→&nbsp;Project&nbsp;Type. pokecrystal is the default type, for <a href="https://github.com/pret/pokecrystal">pokecrystal</a>-based projects. These have 8 colors and up to 192 tiles. <a href="https://github.com/pret/pokered">pokered</a>-based projects for the original GameBoy are monochrome and can only have 128 tiles. Polished Crystal and similar hacks have <a href="https://hax.iimarckus.org/topic/7167/">expanded the tileset</a> to allow 255 tiles (tile $7F is reserved for the space character). Pokémon Prism is also supported.</p>
+<hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
 <p>The sidebar palette uses the mouse:</p>
 <ul>
@@ -35,17 +37,29 @@ R"(<html>
 <li>Hold Shift and left-click a group of blocks to flood-fill it.</li>
 <li>Hold Ctrl and left-click a block to replace every block of that type.</li>
 </ul>
-<p>The block editor window works more simply:</p>
-<ul>
-<li>Left-click the tileset palette to select a tile.</li>
-<li>Left-click or drag to place the selected tile in the block being edited.</li>
-<li>Right-click to select a tile from the block.</li>
-</ul>
 <p>The number keys 0-9 are hotkeys for the sidebar palette.</p>
 <ul>
 <li>Press Ctrl+0-9 to assign that key to the selected block.</li>
 <li>Press 0-9 to select the block assigned to that key.</li>
 <li>Press Ctrl+Shift+0-9 to unassign that key.</li>
 </ul>
+<hr>
+<p>The block editor window has some simple mouse controls:</p>
+<ul>
+<li>Left-click the tileset palette to select a tile.</li>
+<li>Left-click or drag in the block area to place the selected tile in the block being edited.</li>
+<li>Right-click to select a tile from the block.</li>
+</ul>
+<hr>
+<p>The tileset editor window has more mouse controls, similar to the map editor:</p>
+<ul>
+<li>Left-click the tileset palette to select a tile.</li>
+<li>Left-click a swatch, or press the 1/2/3/4 keys, to choose a hue.</li>
+<li>Left-click or drag the tile pixels to draw with the chosen hue in the selected tile.</li>
+<li>Right-click to choose a hue from the tile.</li>
+<li>Hold Shift and left-click a group of pixels to flood-fill it.</li>
+<li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
+</ul>
+<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "Priority" checkbox sets the priority bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://hax.iimarckus.org/topic/7268/">a feature</a> of Polished Crystal and similar hacks.</p>
 </body>
 </html>)"
