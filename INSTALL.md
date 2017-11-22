@@ -54,8 +54,8 @@ export PATH="$PWD/lib/bin:$PATH"
 make
 
 # Install Polished Map
-# (for Ubuntu and Ubuntu derivatives only; it just copies bin/polishedmap and
-#  res/app.xpm to system directories)
+# (tested on Ubuntu and Ubuntu derivatives only; it just copies bin/polishedmap
+#  and res/app.xpm to system directories)
 # (if it fails, then try sudo make install)
 make install
 ```
