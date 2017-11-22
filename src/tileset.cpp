@@ -30,9 +30,12 @@ void Tileset::clear() {
 uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	bool skip = Config::skip_tiles_60_to_7f();
 	for (size_t i = 0; i < n; i++) {
+		if (skip && i == 0x60) { i += 0x1f; continue; }
 		const Tile *t = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
+		if (skip && i >= 0x80) { ty -= 2 * TILE_SIZE; }
 		for (int py = 0; py < TILE_SIZE; py++) {
 			for (int px = 0; px < TILE_SIZE; px++) {
 				Hue h = t->hue(px, py);

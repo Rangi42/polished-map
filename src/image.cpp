@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "tile.h"
 #include "image.h"
+#include "config.h"
 
 Image::Result Image::write_image(const char *f, const Map &map, const Metatileset &mt) {
 	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
@@ -25,6 +26,8 @@ Image::Result Image::write_image(const char *f, const Tileset &tileset) {
 	while (tileset.const_tile((uint8_t)(n-1))->palette() == Palette::UNDEFINED) { n--; }
 	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
 	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
+	bool skip = Config::skip_tiles_60_to_7f();
+	if (skip && h > 6 * TILE_SIZE) { h -= 2 * TILE_SIZE; }
 	uchar *buffer = tileset.print_rgb(w, h, n);
 	return write_image(f, w, h, buffer);
 }
