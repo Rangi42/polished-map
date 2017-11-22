@@ -42,6 +42,7 @@ private:
 public:
 	void tileset(const Tileset *t);
 	void metatile(const Metatile *mt);
+	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
 	inline uint8_t tile_id(int x, int y) { return _chips[y * METATILE_SIZE + x]->id(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }

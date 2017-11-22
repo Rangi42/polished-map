@@ -53,7 +53,7 @@ void Block_Window::initialize() {
 		for (int x = 0; x < METATILE_SIZE; x++) {
 			int cx = _metatile_group->x() + 1 + x * CHIP_PX_SIZE, cy = _metatile_group->y() + 1 + y * CHIP_PX_SIZE;
 			int id = y * METATILE_SIZE + x;
-			Chip *c = new Chip(cx, cy, CHIP_PX_SIZE, 0, 0, 0);
+			Chip *c = new Chip(cx, cy, CHIP_PX_SIZE, y, x);
 			c->callback((Fl_Callback *)change_chip_cb, this);
 			_chips[id] = c;
 		}
@@ -175,6 +175,28 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 		uint8_t id = bw->_selected->id();
 		c->id(id);
 		c->damage(1);
+		if (Fl::event_ctrl()) {
+			// Ctrl+left-click to edit 2x2
+			int r1 = c->row(), c1 = c->col();
+			int r2 = r1 + 1, c2 = c1 + 1;
+			bool down_free = r2 < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW;
+			if (down_free) {
+				Chip *c_down = bw->chip(c1, r2);
+				c_down->id(id+TILES_PER_ROW);
+				c_down->damage(1);
+			}
+			bool right_free = c2 < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - 1;
+			if (right_free) {
+				Chip *c_right = bw->chip(c2, r1);
+				c_right->id(id+1);
+				c_right->damage(1);
+			}
+			if (down_free && right_free) {
+				Chip *c_dr = bw->chip(c2, r2);
+				c_dr->id(id+TILES_PER_ROW+1);
+				c_dr->damage(1);
+			}
+		}
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select

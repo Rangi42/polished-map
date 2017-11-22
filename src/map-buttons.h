@@ -52,12 +52,12 @@ public:
 
 class Chip : public Fl_Box {
 private:
-	uint8_t _row, _col;
+	int _row, _col;
 	uint8_t _id;
 public:
-	Chip(int x = 0, int y = 0, int s = 0, uint8_t row = 0, uint8_t col = 0, uint8_t id = 0);
-	inline uint8_t row(void) const { return _row; }
-	inline uint8_t col(void) const { return _col; }
+	Chip(int x, int y, int s, int row, int col);
+	inline int row(void) const { return _row; }
+	inline int col(void) const { return _col; }
 	inline void coords(uint8_t row, uint8_t col) { _row = row; _col = col; }
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
