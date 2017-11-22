@@ -33,42 +33,44 @@ Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffe
 	Result result = IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { result = IMAGE_BAD_FILE; goto cleanup1; }
-	// Create the necessary PNG structures
-	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (!png) { result = IMAGE_BAD_PNG; goto cleanup2; }
-	png_infop info = png_create_info_struct(png);
-	if (!info) { result = IMAGE_BAD_PNG; goto cleanup2; }
-	png_init_io(png, file);
-	// Set compression options
-	png_set_compression_level(png, Z_BEST_COMPRESSION);
-	png_set_compression_mem_level(png, Z_BEST_COMPRESSION);
-	png_set_compression_strategy(png, Z_DEFAULT_STRATEGY);
-	png_set_compression_window_bits(png, 15);
-	png_set_compression_method(png, Z_DEFLATED);
-	png_set_compression_buffer_size(png, 8192);
-	// Write the PNG IHDR chunk
-	png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, PNG_COLOR_TYPE_RGB,
-		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	// Write the other PNG header chunks
-	png_write_info(png, info);
-	// Write the RGB pixels in row-major order from top to bottom
-	size_t row_size = NUM_CHANNELS * w;
-	png_bytep png_row = new png_byte[row_size];
-	for (size_t i = 0; i < h; i++) {
-		size_t row = row_size * i;
-		for (size_t j = 0; j < w; j++) {
-			size_t col = NUM_CHANNELS * j;
-			size_t px = row + col;
-			png_row[col] = buffer[px];
-			png_row[col+1] = buffer[px+1];
-			png_row[col+2] = buffer[px+2];
+	{ // new scope avoids gcc "jump to label crosses initialization" error
+		// Create the necessary PNG structures
+		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+		if (!png) { result = IMAGE_BAD_PNG; goto cleanup2; }
+		png_infop info = png_create_info_struct(png);
+		if (!info) { result = IMAGE_BAD_PNG; goto cleanup2; }
+		png_init_io(png, file);
+		// Set compression options
+		png_set_compression_level(png, Z_BEST_COMPRESSION);
+		png_set_compression_mem_level(png, Z_BEST_COMPRESSION);
+		png_set_compression_strategy(png, Z_DEFAULT_STRATEGY);
+		png_set_compression_window_bits(png, 15);
+		png_set_compression_method(png, Z_DEFLATED);
+		png_set_compression_buffer_size(png, 8192);
+		// Write the PNG IHDR chunk
+		png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, PNG_COLOR_TYPE_RGB,
+			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+		// Write the other PNG header chunks
+		png_write_info(png, info);
+		// Write the RGB pixels in row-major order from top to bottom
+		size_t row_size = NUM_CHANNELS * w;
+		png_bytep png_row = new png_byte[row_size];
+		for (size_t i = 0; i < h; i++) {
+			size_t row = row_size * i;
+			for (size_t j = 0; j < w; j++) {
+				size_t col = NUM_CHANNELS * j;
+				size_t px = row + col;
+				png_row[col] = buffer[px];
+				png_row[col+1] = buffer[px+1];
+				png_row[col+2] = buffer[px+2];
+			}
+			png_write_row(png, png_row);
 		}
-		png_write_row(png, png_row);
+		png_write_end(png, NULL);
+		delete [] png_row;
+		png_destroy_write_struct(&png, &info);
+		png_free_data(png, info, PNG_FREE_ALL, -1);
 	}
-	png_write_end(png, NULL);
-	delete [] png_row;
-	png_destroy_write_struct(&png, &info);
-	png_free_data(png, info, PNG_FREE_ALL, -1);
 cleanup2:
 	fclose(file);
 cleanup1:

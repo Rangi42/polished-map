@@ -5,9 +5,9 @@
 #include "config.h"
 #include "tileset-window.h"
 
-Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false),
-	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL),
-	_deep_tile_buttons(), _selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL),
+Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
+	_tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
+	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
 	_palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL) {}
 
 Tileset_Window::~Tileset_Window() {

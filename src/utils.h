@@ -52,7 +52,7 @@
 	__pragma(warning(push)) \
 	__pragma(warning(disable:4127)) \
 	do { \
-		for (int __fill_i_ = 0; __fill_i_ < (int)(n); __fill_i_++) { \
+		for (size_t __fill_i_ = 0; __fill_i_ < (size_t)(n); __fill_i_++) { \
 			a[__fill_i_] = (v); \
 		} \
 	} while (0) \
@@ -60,7 +60,7 @@
 #else
 #define FILL(a, v, n) \
 	do { \
-		for (int __fill_i_ = 0; __fill_i_ < (int)(n); __fill_i_++) { \
+		for (size_t __fill_i_ = 0; __fill_i_ < (size_t)(n); __fill_i_++) { \
 			a[__fill_i_] = (v); \
 		} \
 	} while (0)
