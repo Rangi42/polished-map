@@ -11,12 +11,19 @@ if not %errorLevel% == 0 (
 cd /d %~dp0
 
 set "INSTALLDIR=%APPDATA%\Rangi\Polished Map"
-if exist polishedmap.exe (
-	set "SOURCEFILE=polishedmap.exe"
-) else (
+if exist bin\Release\polishedmap.exe (
 	set "SOURCEFILE=bin\Release\polishedmap.exe"
+) else (
+	set "SOURCEFILE=polishedmap.exe"
 )
 set "INSTALLPATH=%INSTALLDIR%\polishedmap.exe"
+
+if not exist %SOURCEFILE% (
+	echo polishedmap.exe does not exist.
+	echo Download it to the same location as install.bat and retry.
+	pause
+	exit /b
+)
 
 mkdir "%INSTALLDIR%" >nul 2>&1
 copy /b /y %SOURCEFILE% "%INSTALLPATH%" >nul
@@ -38,4 +45,5 @@ del %LNKSCRIPT%
 echo Installed Polished Map to:
 echo %INSTALLPATH%
 echo Shortcut created on Desktop.
+echo You may now delete the downloaded copy of polishedmap.exe.
 pause
