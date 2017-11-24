@@ -322,6 +322,22 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	return ch;
 }
 
+Resize_Button::Resize_Button(int x, int y, int w, int h, const char *l) : OS_Button(x, y, w, h, l) {
+	type(FL_RADIO_BUTTON);
+	align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+}
+
+#define ANCHOR_NORTHWEST "@7>"
+#define ANCHOR_NORTH     "@8>"
+#define ANCHOR_NORTHEAST "@9>"
+#define ANCHOR_WEST      "@4>"
+#define ANCHOR_CENTER    "@-2square"
+#define ANCHOR_EAST      "@>"
+#define ANCHOR_SOUTHWEST "@1>"
+#define ANCHOR_SOUTH     "@2>"
+#define ANCHOR_SOUTHEAST "@3>"
+#define ANCHOR_AWAY      NULL
+
 Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(220, t), _map_width(NULL), _map_height(NULL),
 	_anchor_top_left(NULL), _anchor_top_center(NULL), _anchor_top_right(NULL),
 	_anchor_middle_left(NULL), _anchor_middle_center(NULL), _anchor_middle_right(NULL),
@@ -368,15 +384,15 @@ int Resize_Dialog::anchor() const {
 
 void Resize_Dialog::anchor(int a) {
 	switch (a) {
-	case 0: _anchor_top_left->setonly(); return;
-	case 1: _anchor_top_center->setonly(); return;
-	case 2: _anchor_top_right->setonly(); return;
-	case 3: _anchor_middle_left->setonly(); return;
-	case 4: default: _anchor_middle_center->setonly(); return;
-	case 5: _anchor_middle_right->setonly(); return;
-	case 6: _anchor_bottom_left->setonly(); return;
-	case 7: _anchor_bottom_center->setonly(); return;
-	case 8: _anchor_bottom_right->setonly(); return;
+	case 0: _anchor_top_left->do_callback(); return;
+	case 1: _anchor_top_center->do_callback(); return;
+	case 2: _anchor_top_right->do_callback(); return;
+	case 3: _anchor_middle_left->do_callback(); return;
+	case 4: default: _anchor_middle_center->do_callback(); return;
+	case 5: _anchor_middle_right->do_callback(); return;
+	case 6: _anchor_bottom_left->do_callback(); return;
+	case 7: _anchor_bottom_center->do_callback(); return;
+	case 8: _anchor_bottom_right->do_callback(); return;
 	}
 }
 
@@ -384,38 +400,29 @@ void Resize_Dialog::initialize_content() {
 	// Populate content group
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
-	_anchor_top_left = new OS_Button(0, 0, 0, 0, "@7>");
-	_anchor_top_center = new OS_Button(0, 0, 0, 0, "@8>");
-	_anchor_top_right = new OS_Button(0, 0, 0, 0, "@9>");
-	_anchor_middle_left = new OS_Button(0, 0, 0, 0, "@4>");
-	_anchor_middle_center = new OS_Button(0, 0, 0, 0, "@-2square");
-	_anchor_middle_right = new OS_Button(0, 0, 0, 0, "@>");
-	_anchor_bottom_left = new OS_Button(0, 0, 0, 0, "@1>");
-	_anchor_bottom_center = new OS_Button(0, 0, 0, 0, "@2>");
-	_anchor_bottom_right = new OS_Button(0, 0, 0, 0, "@3>");
+	_anchor_top_left = new Resize_Button(0, 0, 0, 0);
+	_anchor_top_center = new Resize_Button(0, 0, 0, 0);
+	_anchor_top_right = new Resize_Button(0, 0, 0, 0);
+	_anchor_middle_left = new Resize_Button(0, 0, 0, 0);
+	_anchor_middle_center = new Resize_Button(0, 0, 0, 0);
+	_anchor_middle_right = new Resize_Button(0, 0, 0, 0);
+	_anchor_bottom_left = new Resize_Button(0, 0, 0, 0);
+	_anchor_bottom_center = new Resize_Button(0, 0, 0, 0);
+	_anchor_bottom_right = new Resize_Button(0, 0, 0, 0);
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
 	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(1, 255);
-	_anchor_top_left->type(FL_RADIO_BUTTON);
-	_anchor_top_center->type(FL_RADIO_BUTTON);
-	_anchor_top_right->type(FL_RADIO_BUTTON);
-	_anchor_middle_left->type(FL_RADIO_BUTTON);
-	_anchor_middle_center->type(FL_RADIO_BUTTON);
-	_anchor_middle_right->type(FL_RADIO_BUTTON);
-	_anchor_bottom_left->type(FL_RADIO_BUTTON);
-	_anchor_bottom_center->type(FL_RADIO_BUTTON);
-	_anchor_bottom_right->type(FL_RADIO_BUTTON);
-	_anchor_top_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_top_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_top_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_middle_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_middle_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_middle_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_bottom_left->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_bottom_center->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-	_anchor_bottom_right->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+	_anchor_top_left->callback((Fl_Callback *)anchor_top_left_cb, this);
+	_anchor_top_center->callback((Fl_Callback *)anchor_top_center_cb, this);
+	_anchor_top_right->callback((Fl_Callback *)anchor_top_right_cb, this);
+	_anchor_middle_left->callback((Fl_Callback *)anchor_middle_left_cb, this);
+	_anchor_middle_center->callback((Fl_Callback *)anchor_middle_center_cb, this);
+	_anchor_middle_right->callback((Fl_Callback *)anchor_middle_right_cb, this);
+	_anchor_bottom_left->callback((Fl_Callback *)anchor_bottom_left_cb, this);
+	_anchor_bottom_center->callback((Fl_Callback *)anchor_bottom_center_cb, this);
+	_anchor_bottom_right->callback((Fl_Callback *)anchor_bottom_right_cb, this);
 	anchor(Config::get("resize-anchor", 4));
 }
 
@@ -446,6 +453,132 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 	_anchor_bottom_right->resize(wgt_off + (wgt_w + wgt_m) * 2, dy, wgt_w, wgt_h);
 
 	return ch;
+}
+
+void Resize_Dialog::anchor_top_left_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_top_left->setonly();
+	rd->_anchor_top_left->label(ANCHOR_CENTER);
+	rd->_anchor_top_center->label(ANCHOR_EAST);
+	rd->_anchor_top_right->label(ANCHOR_AWAY);
+	rd->_anchor_middle_left->label(ANCHOR_SOUTH);
+	rd->_anchor_middle_center->label(ANCHOR_SOUTHEAST);
+	rd->_anchor_middle_right->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_left->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_center->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_right->label(ANCHOR_AWAY);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_top_center_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_top_center->setonly();
+	rd->_anchor_top_left->label(ANCHOR_WEST);
+	rd->_anchor_top_center->label(ANCHOR_CENTER);
+	rd->_anchor_top_right->label(ANCHOR_EAST);
+	rd->_anchor_middle_left->label(ANCHOR_SOUTHWEST);
+	rd->_anchor_middle_center->label(ANCHOR_SOUTH);
+	rd->_anchor_middle_right->label(ANCHOR_SOUTHEAST);
+	rd->_anchor_bottom_left->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_center->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_right->label(ANCHOR_AWAY);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_top_right_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_top_right->setonly();
+	rd->_anchor_top_left->label(ANCHOR_AWAY);
+	rd->_anchor_top_center->label(ANCHOR_WEST);
+	rd->_anchor_top_right->label(ANCHOR_CENTER);
+	rd->_anchor_middle_left->label(ANCHOR_AWAY);
+	rd->_anchor_middle_center->label(ANCHOR_SOUTHWEST);
+	rd->_anchor_middle_right->label(ANCHOR_SOUTH);
+	rd->_anchor_bottom_left->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_center->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_right->label(ANCHOR_AWAY);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_middle_left_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_middle_left->setonly();
+	rd->_anchor_top_left->label(ANCHOR_NORTH);
+	rd->_anchor_top_center->label(ANCHOR_NORTHEAST);
+	rd->_anchor_top_right->label(ANCHOR_AWAY);
+	rd->_anchor_middle_left->label(ANCHOR_CENTER);
+	rd->_anchor_middle_center->label(ANCHOR_EAST);
+	rd->_anchor_middle_right->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_left->label(ANCHOR_SOUTH);
+	rd->_anchor_bottom_center->label(ANCHOR_SOUTHEAST);
+	rd->_anchor_bottom_right->label(ANCHOR_AWAY);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_middle_center_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_middle_center->setonly();
+	rd->_anchor_top_left->label(ANCHOR_NORTHWEST);
+	rd->_anchor_top_center->label(ANCHOR_NORTH);
+	rd->_anchor_top_right->label(ANCHOR_NORTHEAST);
+	rd->_anchor_middle_left->label(ANCHOR_WEST);
+	rd->_anchor_middle_center->label(ANCHOR_CENTER);
+	rd->_anchor_middle_right->label(ANCHOR_EAST);
+	rd->_anchor_bottom_left->label(ANCHOR_SOUTHWEST);
+	rd->_anchor_bottom_center->label(ANCHOR_SOUTH);
+	rd->_anchor_bottom_right->label(ANCHOR_SOUTHEAST);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_middle_right_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_middle_right->setonly();
+	rd->_anchor_top_left->label(ANCHOR_AWAY);
+	rd->_anchor_top_center->label(ANCHOR_NORTHWEST);
+	rd->_anchor_top_right->label(ANCHOR_NORTH);
+	rd->_anchor_middle_left->label(ANCHOR_AWAY);
+	rd->_anchor_middle_center->label(ANCHOR_WEST);
+	rd->_anchor_middle_right->label(ANCHOR_CENTER);
+	rd->_anchor_bottom_left->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_center->label(ANCHOR_SOUTHWEST);
+	rd->_anchor_bottom_right->label(ANCHOR_SOUTH);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_bottom_left_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_bottom_left->setonly();
+	rd->_anchor_top_left->label(ANCHOR_AWAY);
+	rd->_anchor_top_center->label(ANCHOR_AWAY);
+	rd->_anchor_top_right->label(ANCHOR_AWAY);
+	rd->_anchor_middle_left->label(ANCHOR_NORTH);
+	rd->_anchor_middle_center->label(ANCHOR_NORTHEAST);
+	rd->_anchor_middle_right->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_left->label(ANCHOR_CENTER);
+	rd->_anchor_bottom_center->label(ANCHOR_EAST);
+	rd->_anchor_bottom_right->label(ANCHOR_AWAY);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_bottom_center_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_bottom_center->setonly();
+	rd->_anchor_top_left->label(ANCHOR_AWAY);
+	rd->_anchor_top_center->label(ANCHOR_AWAY);
+	rd->_anchor_top_right->label(ANCHOR_AWAY);
+	rd->_anchor_middle_left->label(ANCHOR_NORTHWEST);
+	rd->_anchor_middle_center->label(ANCHOR_NORTH);
+	rd->_anchor_middle_right->label(ANCHOR_NORTHEAST);
+	rd->_anchor_bottom_left->label(ANCHOR_WEST);
+	rd->_anchor_bottom_center->label(ANCHOR_CENTER);
+	rd->_anchor_bottom_right->label(ANCHOR_EAST);
+	rd->_dialog->redraw();
+}
+
+void Resize_Dialog::anchor_bottom_right_cb(Resize_Button *, Resize_Dialog *rd) {
+	rd->_anchor_bottom_right->setonly();
+	rd->_anchor_top_left->label(ANCHOR_AWAY);
+	rd->_anchor_top_center->label(ANCHOR_AWAY);
+	rd->_anchor_top_right->label(ANCHOR_AWAY);
+	rd->_anchor_middle_left->label(ANCHOR_AWAY);
+	rd->_anchor_middle_center->label(ANCHOR_NORTHWEST);
+	rd->_anchor_middle_right->label(ANCHOR_NORTH);
+	rd->_anchor_bottom_left->label(ANCHOR_AWAY);
+	rd->_anchor_bottom_center->label(ANCHOR_WEST);
+	rd->_anchor_bottom_right->label(ANCHOR_CENTER);
+	rd->_dialog->redraw();
 }
 
 Add_Sub_Dialog::Add_Sub_Dialog(const char *t) : Option_Dialog(194, t), _num_metatiles(NULL) {}

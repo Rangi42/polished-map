@@ -71,13 +71,18 @@ protected:
 	int refresh_content(int ww, int dy);
 };
 
+class Resize_Button : public OS_Button {
+public:
+	Resize_Button(int x, int y, int w, int h, const char *l = NULL);
+};
+
 class Resize_Dialog : public Option_Dialog {
 public:
 	enum Hor_Align { LEFT, CENTER, RIGHT };
 	enum Vert_Align { TOP, MIDDLE, BOTTOM };
 private:
 	OS_Spinner *_map_width, *_map_height;
-	OS_Button *_anchor_top_left, *_anchor_top_center, *_anchor_top_right,
+	Resize_Button *_anchor_top_left, *_anchor_top_center, *_anchor_top_right,
 		*_anchor_middle_left, *_anchor_middle_center, *_anchor_middle_right,
 		*_anchor_bottom_left, *_anchor_bottom_center, *_anchor_bottom_right;
 public:
@@ -93,6 +98,16 @@ public:
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
+private:
+	static void anchor_top_left_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_top_center_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_top_right_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_middle_left_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_middle_center_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_middle_right_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_bottom_left_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_bottom_center_cb(Resize_Button *rb, Resize_Dialog *rd);
+	static void anchor_bottom_right_cb(Resize_Button *rb, Resize_Dialog *rd);
 };
 
 class Add_Sub_Dialog : public Option_Dialog {
