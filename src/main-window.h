@@ -36,11 +36,13 @@ private:
 	// GUI inputs
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
+	Fl_Menu_Item *_day_mi, *_night_mi, *_indoor_mi, *_ice_path_mi, *_artificial_mi;
 	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_event_cursor_mi, *_full_screen_mi,
 		*_pokecrystal_project_mi, *_pokered_project_mi, *_polished_project_mi, *_prism_project_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb,
 		*_change_tileset_tb, *_edit_tileset_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_event_cursor_tb;
+	Dropdown *_lighting;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Dialogs
@@ -81,6 +83,7 @@ public:
 	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
+	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
@@ -98,7 +101,7 @@ public:
 private:
 	int handle_hotkey(int key);
 	void open_map(const char *directory, const char *filename);
-	bool read_metatile_data(const char *tileset_name, Lighting lighting);
+	bool read_metatile_data(const char *tileset_name);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
 	void resize_map(int w, int h);
@@ -108,6 +111,7 @@ private:
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
+	void update_lighting(void);
 	void select_metatile(Metatile_Button *mb);
 	// Drag-and-drop
 	static void drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw);
@@ -142,6 +146,11 @@ private:
 	static void ids_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void event_cursor_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void day_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void night_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void indoor_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void ice_path_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void artificial_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Options menu
 	static void pokecrystal_project_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -154,6 +163,7 @@ private:
 	static void ids_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void hex_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void event_cursor_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void lighting_cb(Dropdown *dd, Main_Window *mw);
 	// Help menu
 	static void help_cb(Fl_Widget *w, Main_Window *mw);
 	static void about_cb(Fl_Widget *w, Main_Window *mw);

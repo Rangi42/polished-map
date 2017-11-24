@@ -42,6 +42,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int ids_config = Config::get("ids", 0);
 	int hex_config = Config::get("hex", 0);
 	int event_cursor_config = Config::get("event", 0);
+	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
 
 	// Populate window
 
@@ -60,35 +61,38 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
 	_print_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
 	_change_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 0); new Spacer(0, 0, 2, 0); new Fl_Box(0, 0, 2, 0);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
+	_lighting = new Dropdown(0, 0, text_width("Artificial", 3) + 24, 22);
 	_toolbar->end();
 	begin();
 
 	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
-	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 8), 0, "");
-	new Spacer(0, 0, 2, 0);
-	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 8), 0, "");
-	new Spacer(0, 0, 2, 0);
-	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $99", 8), 0, "");
-	new Spacer(0, 0, 2, 0);
-	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 8), 0, "");
-	new Spacer(0, 0, 2, 0);
-	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 8), 0, "");
+	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 8), 21, "");
+	new Spacer(0, 0, 2, 21);
+	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 8), 21, "");
+	new Spacer(0, 0, 2, 21);
+	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $99", 8), 21, "");
+	new Spacer(0, 0, 2, 21);
+	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
+	new Spacer(0, 0, 2, 21);
+	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
 	_status_bar->end();
 	begin();
 
@@ -203,6 +207,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
 			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Day", 0, (Fl_Callback *)day_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::DAY ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::INDOOR ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Ice &Path", 0, (Fl_Callback *)ice_path_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::ICE_PATH ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Artificial", 0, (Fl_Callback *)artificial_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::ARTIFICIAL ? FL_MENU_VALUE : 0)),
+		{},
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
@@ -237,6 +253,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
 	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
+	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
+	_night_mi = PM_FIND_MENU_ITEM_CB(night_lighting_cb);
+	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_lighting_cb);
+	_ice_path_mi = PM_FIND_MENU_ITEM_CB(ice_path_lighting_cb);
+	_artificial_mi = PM_FIND_MENU_ITEM_CB(artificial_lighting_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_pokecrystal_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal_project_cb);
 	_pokered_project_mi = PM_FIND_MENU_ITEM_CB(pokered_project_cb);
@@ -311,6 +332,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_event_cursor_tb->callback((Fl_Callback *)event_cursor_tb_cb, this);
 	_event_cursor_tb->image(EVENT_ICON);
 	_event_cursor_tb->value(event_cursor());
+
+	_lighting->add("Day");        // Lighting::DAY
+	_lighting->add("Night");      // Lighting::NITE
+	_lighting->add("Indoor");     // Lighting::INDOOR
+	_lighting->add("Ice Path");   // Lighting::ICE_PATH
+	_lighting->add("Artificial"); // Lighting::ARTIFICIAL
+	_lighting->value(lighting_config);
+	_lighting->callback((Fl_Callback *)lighting_cb, this);
 
 	// Configure dialogs
 
@@ -610,8 +639,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
-	Lighting lighting = _map_options_dialog->lighting();
-	if (!read_metatile_data(tileset_name, lighting)) { return; }
+	if (!read_metatile_data(tileset_name)) { return; }
 
 	uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
 	_map.size(w, h);
@@ -713,7 +741,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
-bool Main_Window::read_metatile_data(const char *tileset_name, Lighting lighting) {
+bool Main_Window::read_metatile_data(const char *tileset_name) {
 	char buffer[FL_PATH_MAX] = {};
 
 	Tileset *tileset = _metatileset.tileset();
@@ -740,7 +768,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, Lighting lighting
 	}
 
 	Config::tileset_path(buffer, directory, tileset_name);
-	Tileset::Result rt = tileset->read_graphics(buffer, lighting);
+	Tileset::Result rt = tileset->read_graphics(buffer, lighting());
 	if (rt) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1074,6 +1102,12 @@ void Main_Window::update_labels() {
 	redraw();
 }
 
+void Main_Window::update_lighting() {
+	Tileset *tileset = _metatileset.tileset();
+	tileset->update_lighting(lighting());
+	redraw();
+}
+
 void Main_Window::select_metatile(Metatile_Button *mb) {
 	_selected = mb;
 	_selected->setonly();
@@ -1313,9 +1347,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("ids", mw->ids());
 	Config::set("hex", mw->hex());
 	Config::set("event", mw->event_cursor());
-	if (mw->_map_options_dialog->initialized()) {
-		Config::set("map-lighting", mw->_map_options_dialog->lighting());
-	}
+	Config::set("lighting", mw->lighting());
 	if (mw->_resize_dialog->initialized()) {
 		Config::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
@@ -1407,10 +1439,9 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	const Tileset *tileset = mw->_metatileset.tileset();
 	char old_name[FL_PATH_MAX] = {};
 	strcpy(old_name, tileset->name());
-	Lighting old_lighting = tileset->lighting();
 	size_t old_size = mw->_metatileset.size();
 
-	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name, old_lighting)) {
+	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
 		const char *project_type = Config::project_type();
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
 		std::string msg = "This is not a ";
@@ -1428,8 +1459,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_metatileset.clear();
 
 	const char *tileset_name = mw->_tileset_options_dialog->tileset();
-	const Lighting lighting = mw->_tileset_options_dialog->lighting();
-	if (!mw->read_metatile_data(tileset_name, lighting)) {
+	if (!mw->read_metatile_data(tileset_name)) {
 		mw->_map.modified(false);
 		mw->_metatileset.modified(false);
 		close_cb(NULL, mw);
@@ -1515,6 +1545,36 @@ void Main_Window::event_cursor_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 #undef SYNC_TB_WITH_M
 
+void Main_Window::day_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::DAY);
+	mw->update_lighting();
+	mw->redraw();
+}
+
+void Main_Window::night_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::NITE);
+	mw->update_lighting();
+	mw->redraw();
+}
+
+void Main_Window::indoor_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::INDOOR);
+	mw->update_lighting();
+	mw->redraw();
+}
+
+void Main_Window::ice_path_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::ICE_PATH);
+	mw->update_lighting();
+	mw->redraw();
+}
+
+void Main_Window::artificial_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::ARTIFICIAL);
+	mw->update_lighting();
+	mw->redraw();
+}
+
 void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	if (m->mvalue()->value()) {
 		mw->_wx = mw->x(); mw->_wy = mw->y();
@@ -1581,6 +1641,19 @@ void Main_Window::event_cursor_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 }
 
 #undef SYNC_MI_WITH_TB
+
+void Main_Window::lighting_cb(Dropdown *, Main_Window *mw) {
+	Lighting lighting = (Lighting)mw->_lighting->value();
+	switch (lighting) {
+	case Lighting::DAY:        mw->_day_mi->setonly(); break;
+	case Lighting::NITE:       mw->_night_mi->setonly(); break;
+	case Lighting::INDOOR:     mw->_indoor_mi->setonly(); break;
+	case Lighting::ICE_PATH:   mw->_ice_path_mi->setonly(); break;
+	case Lighting::ARTIFICIAL: mw->_artificial_mi->setonly(); break;
+	}
+	mw->update_lighting();
+	mw->redraw();
+}
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_help_window->show(mw);

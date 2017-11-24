@@ -8,7 +8,6 @@
 #include <FL/Fl_Spinner.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Group.H>
-#include <FL/Fl_Pack.H>
 #include <FL/Fl_Scroll.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Radio_Round_Button.H>
@@ -94,12 +93,13 @@ public:
 	int handle(int event);
 };
 
-class Toolbar : public Fl_Pack {
+class Toolbar : public Fl_Group {
 private:
 	Fl_Group _spacer;
 public:
 	Toolbar(int x, int y, int w, int h, const char *l = NULL);
 	void resize(int x, int y, int w, int h);
+	void draw(void);
 	void end(void) { resize(x(), y(), w(), h()); }
 };
 

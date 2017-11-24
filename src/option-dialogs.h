@@ -49,7 +49,7 @@ class Map_Options_Dialog : public Option_Dialog {
 private:
 	int _max_tileset_name_length;
 	OS_Spinner *_map_width, *_map_height;
-	Dropdown *_tileset, *_lighting;
+	Dropdown *_tileset;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
 	Config::Project _project_type;
@@ -60,7 +60,6 @@ public:
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	const char *tileset(void) const;
-	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, std::string &tileset_name);
@@ -113,18 +112,16 @@ protected:
 
 class Tileset_Options_Dialog : public Option_Dialog {
 private:
-	Dropdown *_tileset, *_lighting;
+	Dropdown *_tileset;
 	Map_Options_Dialog *_map_options_dialog;
 public:
 	Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod);
 	~Tileset_Options_Dialog();
-	bool limit_tileset_options(const char *old_tileset_name, Lighting old_lighting);
+	bool limit_tileset_options(const char *old_tileset_name);
 	const char *tileset(void) const;
-	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
-	void finish(void);
 };
 
 #endif

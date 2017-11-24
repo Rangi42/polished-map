@@ -27,6 +27,23 @@ void Tileset::clear() {
 	_modified = false;
 }
 
+void Tileset::update_lighting(Lighting l) {
+	_lighting = l;
+	bool skip = Config::skip_tiles_60_to_7f();
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
+		int j = skip ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
+		Tile *t = _tiles[j];
+		Palette p = t->palette();
+		for (int ty = 0; ty < TILE_SIZE; ty++) {
+			for (int tx = 0; tx < TILE_SIZE; tx++) {
+				Hue h = t->hue(tx, ty);
+				const uchar *rgb = Color::color(l, p, h);
+				t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
+			}
+		}
+	}
+}
+
 uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
@@ -73,9 +90,9 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	default: return (_result = GFX_BAD_FILE);
 	}
 
-	_lighting = l;
-
 	_num_tiles = ti.num_tiles();
+
+	_lighting = l;
 	bool skip = Config::skip_tiles_60_to_7f();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = skip ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;

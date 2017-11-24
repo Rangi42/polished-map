@@ -5,12 +5,11 @@
 
 ## Maybe
 
-* Change lighting from the Edit Tileset dialog
 * Allow undo/redo for resize operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
 * Choose to put the sidebar on the left or right
 * Choose to display coordinates as X/Y and WxH or Y/X and HxW
-* Load color schemes from a .pal file
+* Load cutsom lighting from a .pal file
 
 
 ## Never

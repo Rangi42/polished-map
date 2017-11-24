@@ -92,14 +92,13 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(290, t), _max_tileset_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _lighting(NULL), _project_type(Config::project()) {}
+Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0),
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _project_type(Config::project()) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
 	delete _tileset;
-	delete _lighting;
 }
 
 const char *Map_Options_Dialog::tileset(void) const {
@@ -282,30 +281,22 @@ void Map_Options_Dialog::initialize_content() {
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
-	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
 	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(1, 255);
 	_tileset->align(FL_ALIGN_LEFT);
-	_lighting->align(FL_ALIGN_LEFT);
-	_lighting->add("Day"); // DAY
-	_lighting->add("Night"); // NITE
-	_lighting->add("Indoor"); // INDOOR
-	_lighting->add("Ice Path"); // ICE_PATH
-	_lighting->add("Artificial"); // ARTIFICIAL
-	_lighting->value((Lighting)Config::get("map-lighting", (int)Lighting::DAY));
 	// Initialize data
 	_original_names.clear();
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = (wgt_h + wgt_m) * 2 + wgt_h;
+	int ch = wgt_h + wgt_m + wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
-	int wgt_off = win_m + MAX(MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2)), text_width(_lighting->label(), 2));
+	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
 
 	wgt_w = text_width("999", 2) + wgt_h;
 	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -314,10 +305,6 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = _max_tileset_name_length + wgt_h;
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + wgt_m;
-
-	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Night", 2)), text_width("Indoor", 2));
-	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
 }
@@ -455,15 +442,14 @@ int Add_Sub_Dialog::refresh_content(int ww, int dy) {
 	return wgt_h;
 }
 
-Tileset_Options_Dialog::Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(290, t),
-	_tileset(NULL), _lighting(NULL), _map_options_dialog(mod) {}
+Tileset_Options_Dialog::Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(280, t),
+	_tileset(NULL), _map_options_dialog(mod) {}
 
 Tileset_Options_Dialog::~Tileset_Options_Dialog() {
 	delete _tileset;
-	delete _lighting;
 }
 
-bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name, Lighting old_lighting) {
+bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name) {
 	if (!_map_options_dialog) { return false; }
 	if (Config::project() != _map_options_dialog->_project_type) { return false; } // verify unchanged project type
 	initialize();
@@ -479,15 +465,6 @@ bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name,
 		_tileset->add(name);
 	}
 	_tileset->value(v);
-	// Copy _map_options_dialog's lighting choices
-	_lighting->clear();
-	n = _map_options_dialog->_lighting->size() - 1; // ignore terminating NULL
-	for (int i = 0; i < n; i++) {
-		const Fl_Menu_Item &item = _map_options_dialog->_lighting->menu()[i];
-		const char *name = item.label();
-		_lighting->add(name);
-	}
-	_lighting->value(old_lighting);
 	return true;
 }
 
@@ -502,29 +479,19 @@ const char *Tileset_Options_Dialog::tileset(void) const {
 void Tileset_Options_Dialog::initialize_content() {
 	// Populate content group
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
-	_lighting = new Dropdown(0, 0, 0, 0, "Lighting:");
 	// Initialize content group's children
 	_tileset->align(FL_ALIGN_LEFT);
-	_lighting->align(FL_ALIGN_LEFT);
 }
 
 int Tileset_Options_Dialog::refresh_content(int ww, int dy) {
-	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h + wgt_m + wgt_h;
+	int wgt_w = 0, wgt_h = 22, win_m = 10;
+	int ch = wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
-	int wgt_off = win_m + MAX(text_width(_tileset->label(), 2), text_width(_lighting->label(), 2));
+	int wgt_off = win_m + text_width(_tileset->label(), 2);
 
 	wgt_w = _map_options_dialog->_max_tileset_name_length + wgt_h;
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
-	dy += _tileset->h() + wgt_m;
-
-	wgt_w = text_width(_lighting->label()) + MAX(MAX(text_width("Day", 2), text_width("Night", 2)), text_width("Indoor", 2));
-	_lighting->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
-}
-
-void Tileset_Options_Dialog::finish() {
-	_map_options_dialog->_lighting->value(_lighting->value());
 }
