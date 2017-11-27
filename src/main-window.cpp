@@ -110,6 +110,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_scroll->type(Fl_Scroll::BOTH);
 	_map_group = new Fl_Group(wx, wy, 0, 0);
 	_map_group->end();
+	begin();
 
 	// Dialogs
 	_new_dir_chooser = new Directory_Chooser(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
@@ -130,9 +131,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_tileset_window = new Tileset_Window(48, 48);
 
 	// Drag-and-drop receiver
-	begin();
 	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
-	end();
 	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
 	_dnd_receiver->user_data(this);
 
@@ -1064,6 +1063,7 @@ void Main_Window::edit_metatile(Metatile *mt) {
 }
 
 void Main_Window::update_zoom() {
+	// TODO: FIX: resizing window after this resets sidebar width to original zoom size
 	int ms = metatile_size();
 	size_t n = _metatileset.size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
