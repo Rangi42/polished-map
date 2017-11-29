@@ -9,8 +9,6 @@
 #define MAX_NUM_TILES 256
 #define PALETTES_PER_LINE 8
 
-#define TILEPAL_PREFIX "\ttilepal"
-
 class Palette_Map {
 public:
 	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_TOO_LONG, PALETTE_NULL };

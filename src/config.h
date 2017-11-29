@@ -9,7 +9,7 @@
 
 class Config {
 public:
-	enum Project { POKECRYSTAL, POKERED, POLISHED, PRISM };
+	enum Project { POKECRYSTAL, POKERED, POLISHED, RPP, PRISM };
 private:
 	static Fl_Preferences global_config;
 	static Project global_project;
@@ -21,6 +21,7 @@ public:
 	static void set(const char *key, int value);
 	static const char *gfx_tileset_dir(void);
 	static const char *map_macro(void);
+	static const char *palette_macro(void);
 	static const char *project_type(void);
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
 	static void blk_path_from_project_path(const char *project_path, char *blk_path);

@@ -14,6 +14,17 @@
 #include <libgen.h>
 #endif
 
+static char *trim_suffix(const char *s) {
+#ifdef _WIN32
+		char *t = _strdup(s);
+#else
+		char *t = strdup(s);
+#endif
+		char *dot = strchr(t, '.');
+		if (dot) { *dot = '\0'; }
+		return t;
+}
+
 Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
 Config::Project Config::global_project(Config::Project::POKECRYSTAL);
 
@@ -32,7 +43,11 @@ const char *Config::gfx_tileset_dir() {
 }
 
 const char *Config::map_macro() {
-	return global_project == POKERED ? "mapconst" : "mapgroup";
+	return (global_project == POKERED || global_project == RPP) ? "mapconst" : "mapgroup";
+}
+
+const char *Config::palette_macro() {
+	return "\ttilepal";
 }
 
 const char *Config::project_type() {
@@ -43,6 +58,8 @@ const char *Config::project_type() {
 		return "pokered";
 	case POLISHED:
 		return "Polished Crystal";
+	case RPP:
+		return "Red++";
 	case PRISM:
 		return "Prism";
 	default:
@@ -64,6 +81,7 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 	case POKECRYSTAL:
 	case POKERED:
 	case POLISHED:
+	case RPP:
 		strcat(project_path, ".." DIR_SEP); // go up from maps/
 		return true;
 	case PRISM:
@@ -81,6 +99,7 @@ void Config::blk_path_from_project_path(const char *project_path, char *blk_path
 		strcat(blk_path, "maps" DIR_SEP);
 		return;
 	case POKERED:
+	case RPP:
 		strcat(blk_path, "gfx" DIR_SEP "blocksets" DIR_SEP);
 		return;
 	case PRISM:
@@ -91,7 +110,14 @@ void Config::blk_path_from_project_path(const char *project_path, char *blk_path
 
 void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
 	if (monochrome()) { return; }
-	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
+	if (global_project == Project::RPP) {
+		char *name = trim_suffix(tileset);
+		sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
+		free(name);
+	}
+	else {
+		sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
+	}
 }
 
 void Config::tileset_path(char *dest, const char *root, const char *tileset) {
@@ -108,15 +134,9 @@ void Config::tileset_png_path(char *dest, const char *root, const char *tileset)
 }
 
 void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
-	if (global_project == Project::POKERED) {
+	if (global_project == Project::POKERED || global_project == Project::RPP) {
 		// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
-#ifdef _WIN32
-		char *name = _strdup(tileset);
-#else
-		char *name = strdup(tileset);
-#endif
-		char *dot = strchr(name, '.');
-		if (dot) { *dot = '\0'; }
+		char *name = trim_suffix(tileset);
 		sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
 		free(name);
 	}
@@ -145,5 +165,5 @@ bool Config::skip_tiles_60_to_7f() {
 }
 
 bool Config::nybble_palettes() {
-	return global_project != Project::POLISHED;
+	return global_project != Project::POLISHED && global_project != Project::RPP;
 }
