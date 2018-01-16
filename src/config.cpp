@@ -26,7 +26,7 @@ static char *trim_suffix(const char *s) {
 }
 
 Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
-Config::Project Config::global_project(Config::Project::POKECRYSTAL);
+Config::Project Config::global_project(Config::Project::POKECRYSTAL2018);
 
 int Config::get(const char *key, int default_) {
 	int value;
@@ -62,6 +62,8 @@ const char *Config::project_type() {
 		return "Red++";
 	case PRISM:
 		return "Prism";
+	case AXYLLIA:
+		return "Axyllia";
 	default:
 		return "unsupported";
 	}
@@ -87,6 +89,15 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 	case PRISM:
 		strcat(project_path, ".." DIR_SEP ".." DIR_SEP); // go up from maps/blk/
 		return true;
+	case AXYLLIA:
+		const char *basedir = fl_filename_name(project_path);
+		if (strcmp(basedir, "maps") == 0) {
+			strcat(project_path, ".." DIR_SEP); // go up from maps/
+		}
+		else {
+			strcat(project_path, ".." DIR_SEP ".." DIR_SEP); // go up from maps/<landmark>/
+		}
+		return true;
 	}
 }
 
@@ -96,6 +107,7 @@ void Config::blk_path_from_project_path(const char *project_path, char *blk_path
 	default:
 	case POKECRYSTAL:
 	case POLISHED:
+	case AXYLLIA:
 		strcat(blk_path, "maps" DIR_SEP);
 		return;
 	case POKERED:
@@ -114,6 +126,9 @@ void Config::palette_map_path(char *dest, const char *root, const char *tileset)
 		char *name = trim_suffix(tileset);
 		sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
 		free(name);
+	}
+	else if (global_project == Project::POKECRYSTAL2018) {
+		sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
 	}
 	else {
 		sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
@@ -140,6 +155,9 @@ void Config::metatileset_path(char *dest, const char *root, const char *tileset)
 		sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
 		free(name);
 	}
+	else if (global_project == Project::POKECRYSTAL2018) {
+		sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
+	}
 	else {
 		sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 	}
@@ -153,6 +171,9 @@ void Config::map_constants_path(char *dest, const char *root) {
 }
 
 void Config::tileset_constants_path(char *dest, const char *root) {
+	// prefer tileset_constants.asm to tilemap_constants.asm
+	sprintf(dest, "%sconstants" DIR_SEP "tileset_constants.asm", root);
+	if (file_exists(dest)) { return; }
 	sprintf(dest, "%sconstants" DIR_SEP "tilemap_constants.asm", root);
 }
 
@@ -161,7 +182,8 @@ bool Config::monochrome() {
 }
 
 bool Config::skip_tiles_60_to_7f() {
-	return global_project == Project::POKECRYSTAL || global_project == Project::PRISM;
+	return global_project == Project::POKECRYSTAL || global_project == Project::POKECRYSTAL2018 ||
+		global_project == Project::PRISM || global_project == Project::AXYLLIA;
 }
 
 bool Config::nybble_palettes() {

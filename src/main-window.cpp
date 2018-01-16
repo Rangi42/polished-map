@@ -33,9 +33,9 @@
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _event_cursor_mi(NULL),
-	_pokecrystal_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL), _rpp_project_mi(NULL),
-	_prism_project_mi(NULL), _directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _selected(NULL),
-	_unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_pokecrystal_project_mi(NULL), _pokecrystal2018_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL),
+	_rpp_project_mi(NULL), _prism_project_mi(NULL), _axyllia_project_mi(NULL), _directory(), _blk_file(), _metatileset(),
+	_map(), _metatile_buttons(), _selected(NULL), _unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	int grid_config = Config::get("grid", 1);
 	int zoom_config = Config::get("zoom", 0);
@@ -224,6 +224,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU),
 		OS_MENU_ITEM("poke&crystal", 0, (Fl_Callback *)pokecrystal_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("pokecrystal &2018", 0, (Fl_Callback *)pokecrystal2018_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL2018 ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("poke&red", 0, (Fl_Callback *)pokered_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::POKERED ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Polished Crystal", 0, (Fl_Callback *)polished_project_cb, this,
@@ -232,6 +234,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (Config::project() == Config::Project::RPP ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Pris&m", 0, (Fl_Callback *)prism_project_cb, this,
 			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Axyllia", 0, (Fl_Callback *)axyllia_project_cb, this,
+			FL_MENU_RADIO | (Config::project() == Config::Project::AXYLLIA ? FL_MENU_VALUE : 0)),
 		{},
 		{},
 		OS_SUBMENU("&Help"),
@@ -261,10 +265,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_artificial_mi = PM_FIND_MENU_ITEM_CB(artificial_lighting_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_pokecrystal_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal_project_cb);
+	_pokecrystal2018_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal2018_project_cb);
 	_pokered_project_mi = PM_FIND_MENU_ITEM_CB(pokered_project_cb);
 	_polished_project_mi = PM_FIND_MENU_ITEM_CB(polished_project_cb);
 	_rpp_project_mi = PM_FIND_MENU_ITEM_CB(rpp_project_cb);
 	_prism_project_mi = PM_FIND_MENU_ITEM_CB(prism_project_cb);
+	_axyllia_project_mi = PM_FIND_MENU_ITEM_CB(axyllia_project_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -1595,6 +1601,12 @@ void Main_Window::pokecrystal_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::pokecrystal2018_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::POKECRYSTAL2018);
+	mw->_pokecrystal2018_project_mi->setonly();
+	mw->redraw();
+}
+
 void Main_Window::pokered_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	Config::project(Config::Project::POKERED);
 	mw->_pokered_project_mi->setonly();
@@ -1616,6 +1628,12 @@ void Main_Window::rpp_project_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
 	Config::project(Config::Project::PRISM);
 	mw->_prism_project_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::axyllia_project_cb(Fl_Menu_ *, Main_Window *mw) {
+	Config::project(Config::Project::AXYLLIA);
+	mw->_axyllia_project_mi->setonly();
 	mw->redraw();
 }
 

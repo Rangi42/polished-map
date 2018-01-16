@@ -48,9 +48,10 @@ chmod +x configure
 make
 sudo make install
 popd
-export PATH="$PWD/lib/bin:$PATH"
 
 # Build Polished Map
+# ("export PATH" is needed if fltk-config is not already in your PATH)
+export PATH="$PWD/lib/bin:$PATH"
 make
 
 # Install Polished Map

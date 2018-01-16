@@ -9,7 +9,7 @@
 
 class Config {
 public:
-	enum Project { POKECRYSTAL, POKERED, POLISHED, RPP, PRISM };
+	enum Project { POKECRYSTAL, POKECRYSTAL2018, POKERED, POLISHED, RPP, PRISM, AXYLLIA };
 private:
 	static Fl_Preferences global_config;
 	static Project global_project;
