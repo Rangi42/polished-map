@@ -90,12 +90,13 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 		strcat(project_path, ".." DIR_SEP ".." DIR_SEP); // go up from maps/blk/
 		return true;
 	case AXYLLIA:
+		project_path[strlen(project_path)] = '\0'; // fl_filename_name fails with trailing DIR_SEP
 		const char *basedir = fl_filename_name(project_path);
 		if (strcmp(basedir, "maps") == 0) {
-			strcat(project_path, ".." DIR_SEP); // go up from maps/
+			strcat(project_path, DIR_SEP ".." DIR_SEP); // go up from maps/
 		}
 		else {
-			strcat(project_path, ".." DIR_SEP ".." DIR_SEP); // go up from maps/<landmark>/
+			strcat(project_path, DIR_SEP ".." DIR_SEP ".." DIR_SEP); // go up from maps/<landmark>/
 		}
 		return true;
 	}
