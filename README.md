@@ -8,6 +8,6 @@ Latest release: [**3.1.0**](https://github.com/roukaour/polished-map/releases/ta
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
 
-You can try opening [example/maps/Kanto.180x135.kanto.blk](example/maps/Kanto.180x135.kanto.blk) as a **pokecrystal 2018** project. It's a stitch of every Kanto overworld map from pokecrystal, since they use the same tileset. [example/maps/Johto.235x135.johto_1.blk](example/maps/Johto.235x135.johto_1.blk) is a stitch of every Johto overworld map; a few of them used tileset johto_2, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
+You can try opening [example/maps/Kanto.180x135.kanto.blk](example/maps/Kanto.180x135.kanto.blk). It's a stitch of every Kanto overworld map from pokecrystal, since they use the same tileset. [example/maps/Johto.235x135.johto.blk](example/maps/Johto.235x135.johto.blk) is a stitch of every Johto overworld map; a few of them used tileset johto_modern, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
 
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/). If you have questions or comments, please go there.
