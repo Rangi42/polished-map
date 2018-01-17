@@ -4,7 +4,7 @@ A map and tileset editor for [Pokémon Polished Crystal](https://github.com/rouk
 
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and focused on graphics instead of script editing.
 
-Latest release: [**3.0.8**](https://github.com/roukaour/polished-map/releases/tag/v3.0.8)
+Latest release: [**3.1.0**](https://github.com/roukaour/polished-map/releases/tag/v3.1.0)
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
 
