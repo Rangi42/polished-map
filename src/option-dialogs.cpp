@@ -160,14 +160,21 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	char constant[FL_PATH_MAX] = {};
 	guess_map_constant(name, constant);
 
-	const char *macro = Config::map_macro();
-	size_t macro_len = strlen(macro) + 1; // include next whitespace character
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
 		trim(line);
-		if (!starts_with(line, macro)) { continue; }
-		line.erase(0, macro_len);
+		if (starts_with(line, "mapgroup")) {
+			// "mapgroup": pokecrystal and derivations
+			line.erase(0, strlen("mapgroup") + 1); // include next whitespace character
+		}
+		else if (starts_with(line, "mapconst")) {
+			// "mapconst": pokecrystal 2018 and Red++
+			line.erase(0, strlen("mapconst") + 1); // include next whitespace character
+		}
+		else {
+			continue;
+		}
 		if (!starts_with(line, constant)) { continue; }
 		line.erase(0, strlen(constant));
 		std::istringstream lss(line);

@@ -15,14 +15,15 @@
 #endif
 
 static char *trim_suffix(const char *s) {
+	// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
 #ifdef _WIN32
-		char *t = _strdup(s);
+	char *t = _strdup(s);
 #else
-		char *t = strdup(s);
+	char *t = strdup(s);
 #endif
-		char *dot = strchr(t, '.');
-		if (dot) { *dot = '\0'; }
-		return t;
+	char *dot = strchr(t, '.');
+	if (dot) { *dot = '\0'; }
+	return t;
 }
 
 Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
@@ -38,12 +39,12 @@ void Config::set(const char *key, int value) {
 	global_config.set(key, value);
 }
 
-const char *Config::gfx_tileset_dir() {
-	return "gfx" DIR_SEP "tilesets" DIR_SEP;
+const char *Config::main_file() {
+	return "main.asm";
 }
 
-const char *Config::map_macro() {
-	return (global_project == POKERED || global_project == RPP) ? "mapconst" : "mapgroup";
+const char *Config::gfx_tileset_dir() {
+	return "gfx" DIR_SEP "tilesets" DIR_SEP;
 }
 
 const char *Config::palette_macro() {
@@ -65,7 +66,7 @@ const char *Config::project_type() {
 	case AXYLLIA:
 		return "Axyllia";
 	default:
-		return "unsupported";
+		return "supported";
 	}
 }
 
@@ -78,28 +79,21 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 	free(blk);
 	strcat(project_path, DIR_SEP);
 #endif
-	switch (global_project) {
-	default:
-	case POKECRYSTAL:
-	case POKERED:
-	case POLISHED:
-	case RPP:
-		strcat(project_path, ".." DIR_SEP); // go up from maps/
-		return true;
-	case PRISM:
-		strcat(project_path, ".." DIR_SEP ".." DIR_SEP); // go up from maps/blk/
-		return true;
-	case AXYLLIA:
-		project_path[strlen(project_path)] = '\0'; // fl_filename_name fails with trailing DIR_SEP
-		const char *basedir = fl_filename_name(project_path);
-		if (strcmp(basedir, "maps") == 0) {
-			strcat(project_path, DIR_SEP ".." DIR_SEP); // go up from maps/
-		}
-		else {
-			strcat(project_path, DIR_SEP ".." DIR_SEP ".." DIR_SEP); // go up from maps/<landmark>/
-		}
-		return true;
+	int depth = -1;
+	for (char *c = project_path; *c; c++) {
+		depth += *c == '/' || *c == '\\';
 	}
+	char main_asm[FL_PATH_MAX] = {};
+	const char *main_filename = main_file();
+	for (int i = 0; i < depth; i++) {
+		strcpy(main_asm, project_path);
+		strcat(main_asm, main_filename);
+		if (file_exists(main_asm)) { // the project directory contains main.asm
+			return true;
+		}
+		strcat(project_path, ".." DIR_SEP); // go up a level
+	}
+	return false;
 }
 
 void Config::blk_path_from_project_path(const char *project_path, char *blk_path) {
@@ -123,17 +117,16 @@ void Config::blk_path_from_project_path(const char *project_path, char *blk_path
 
 void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
 	if (monochrome()) { return; }
-	if (global_project == Project::RPP) {
-		char *name = trim_suffix(tileset);
-		sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
-		free(name);
-	}
-	else if (global_project == Project::POKECRYSTAL2018) {
-		sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
-	}
-	else {
-		sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
-	}
+	// try gfx/tilesets/*_palette_map.asm (POKECRYSTAL2018)
+	sprintf(dest, "%s%s%s_palette_map.asm", root, gfx_tileset_dir(), tileset);
+	if (file_exists(dest)) { return; }
+	// try color/tilesets/*.asm (RPP)
+	char *name = trim_suffix(tileset);
+	sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
+	free(name);
+	if (file_exists(dest)) { return; }
+	// last resort: tilesets/*_palette_map.asm
+	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
 }
 
 void Config::tileset_path(char *dest, const char *root, const char *tileset) {
@@ -150,18 +143,16 @@ void Config::tileset_png_path(char *dest, const char *root, const char *tileset)
 }
 
 void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
-	if (global_project == Project::POKERED || global_project == Project::RPP) {
-		// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
-		char *name = trim_suffix(tileset);
-		sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
-		free(name);
-	}
-	else if (global_project == Project::POKECRYSTAL2018) {
-		sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
-	}
-	else {
-		sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
-	}
+	// try data/tilesets/*_metatiles.bin (POKECRYSTAL2018)
+	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
+	if (file_exists(dest)) { return; }
+	// try gfx/blocksets/*.bst (RPP)
+	char *name = trim_suffix(tileset);
+	sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
+	free(name);
+	if (file_exists(dest)) { return; }
+	// last resort: tilesets/*_metatiles.bin
+	sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 }
 
 void Config::map_constants_path(char *dest, const char *root) {

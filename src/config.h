@@ -19,8 +19,8 @@ public:
 	inline static void project(Project p) { global_project =  p; }
 	static int get(const char *key, int default_ = 0);
 	static void set(const char *key, int value);
+	static const char *main_file(void);
 	static const char *gfx_tileset_dir(void);
-	static const char *map_macro(void);
 	static const char *palette_macro(void);
 	static const char *project_type(void);
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
