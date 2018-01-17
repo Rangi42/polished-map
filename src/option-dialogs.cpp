@@ -93,7 +93,7 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _project_type(Config::project()) {}
+	_map_width(NULL), _map_height(NULL), _tileset(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
@@ -278,8 +278,6 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	}
 	_tileset->value(v);
 
-	_project_type = Config::project(); // store for later verification by Tileset_Options_Dialog
-
 	return true;
 }
 
@@ -458,7 +456,6 @@ Tileset_Options_Dialog::~Tileset_Options_Dialog() {
 
 bool Tileset_Options_Dialog::limit_tileset_options(const char *old_tileset_name) {
 	if (!_map_options_dialog) { return false; }
-	if (Config::project() != _map_options_dialog->_project_type) { return false; } // verify unchanged project type
 	initialize();
 	// Copy _map_options_dialog's tileset choices
 	_tileset->clear();

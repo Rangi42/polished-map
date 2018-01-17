@@ -37,9 +37,8 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi, *_metro_theme_mi, *_greybird_theme_mi, *_blue_theme_mi, *_dark_theme_mi;
 	Fl_Menu_Item *_day_mi, *_night_mi, *_indoor_mi, *_ice_path_mi, *_artificial_mi;
-	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_event_cursor_mi, *_full_screen_mi,
-		*_pokecrystal_project_mi, *_pokecrystal2018_project_mi, *_pokered_project_mi,
-		*_polished_project_mi, *_rpp_project_mi, *_prism_project_mi, *_axyllia_project_mi;
+	Fl_Menu_Item *_grid_mi, *_zoom_mi, *_ids_mi, *_hex_mi, *_event_cursor_mi, *_full_screen_mi;
+	Fl_Menu_Item *_monochrome_mi, *_skip_60_to_7f_mi, *_tile_priority_mi;
 	Toolbar_Button *_new_tb, *_open_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb,
 		*_change_tileset_tb, *_edit_tileset_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_event_cursor_tb;
@@ -85,6 +84,9 @@ public:
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
+	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
+	inline bool skip_60_to_7f(void) const { return _skip_60_to_7f_mi && !!_skip_60_to_7f_mi->value(); }
+	inline bool tile_priority(void) const { return _tile_priority_mi && !!_tile_priority_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
@@ -154,13 +156,9 @@ private:
 	static void artificial_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Options menu
-	static void pokecrystal_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void pokecrystal2018_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void pokered_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void polished_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void rpp_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void prism_project_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void axyllia_project_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void skip_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void tile_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

@@ -55,8 +55,6 @@ int main(int argc, char **argv) {
 #endif
 	use_theme(theme);
 
-	Config::project((Config::Project)Config::get("project", Config::project()));
-
 #ifdef _WIN32
 	int x = Config::get("x", 48), y = Config::get("y", 48 + GetSystemMetrics(SM_CYCAPTION));
 #else

@@ -52,7 +52,6 @@ private:
 	Dropdown *_tileset;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
-	Config::Project _project_type;
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();

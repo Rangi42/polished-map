@@ -32,10 +32,9 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _event_cursor_mi(NULL),
-	_pokecrystal_project_mi(NULL), _pokecrystal2018_project_mi(NULL), _pokered_project_mi(NULL), _polished_project_mi(NULL),
-	_rpp_project_mi(NULL), _prism_project_mi(NULL), _axyllia_project_mi(NULL), _directory(), _blk_file(), _metatileset(),
-	_map(), _metatile_buttons(), _selected(NULL), _unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _event_cursor_mi(NULL), _monochrome_mi(NULL),
+	_skip_60_to_7f_mi(NULL), _tile_priority_mi(NULL), _directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(),
+	_selected(NULL), _unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	int grid_config = Config::get("grid", 1);
 	int zoom_config = Config::get("zoom", 0);
@@ -43,6 +42,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int hex_config = Config::get("hex", 0);
 	int event_cursor_config = Config::get("event", 0);
 	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
+	int monochrome_config = Config::get("monochrome", 0);
+	int skip_60_to_7f_config = Config::get("skip", 1);
+	int tile_priority_config = Config::get("priority", 0);
 
 	// Populate window
 
@@ -221,22 +223,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Options"),
-		OS_MENU_ITEM("&Project Type", 0, NULL, NULL, FL_SUBMENU),
-		OS_MENU_ITEM("poke&crystal", 0, (Fl_Callback *)pokecrystal_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("pokecrystal &2018", 0, (Fl_Callback *)pokecrystal2018_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::POKECRYSTAL2018 ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("poke&red", 0, (Fl_Callback *)pokered_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::POKERED ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Polished Crystal", 0, (Fl_Callback *)polished_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::POLISHED ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Re&d++", 0, (Fl_Callback *)rpp_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::RPP ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Pris&m", 0, (Fl_Callback *)prism_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::PRISM ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Axyllia", 0, (Fl_Callback *)axyllia_project_cb, this,
-			FL_MENU_RADIO | (Config::project() == Config::Project::AXYLLIA ? FL_MENU_VALUE : 0)),
-		{},
+		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
+			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Skip $60 to $7F", 0, (Fl_Callback *)skip_60_to_7f_cb, this,
+			FL_MENU_TOGGLE | (skip_60_to_7f_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)tile_priority_cb, this,
+			FL_MENU_TOGGLE | (tile_priority_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -264,13 +256,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_ice_path_mi = PM_FIND_MENU_ITEM_CB(ice_path_lighting_cb);
 	_artificial_mi = PM_FIND_MENU_ITEM_CB(artificial_lighting_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
-	_pokecrystal_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal_project_cb);
-	_pokecrystal2018_project_mi = PM_FIND_MENU_ITEM_CB(pokecrystal2018_project_cb);
-	_pokered_project_mi = PM_FIND_MENU_ITEM_CB(pokered_project_cb);
-	_polished_project_mi = PM_FIND_MENU_ITEM_CB(polished_project_cb);
-	_rpp_project_mi = PM_FIND_MENU_ITEM_CB(rpp_project_cb);
-	_prism_project_mi = PM_FIND_MENU_ITEM_CB(prism_project_cb);
-	_axyllia_project_mi = PM_FIND_MENU_ITEM_CB(axyllia_project_cb);
+	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
+	_skip_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_60_to_7f_cb);
+	_tile_priority_mi = PM_FIND_MENU_ITEM_CB(tile_priority_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -595,10 +583,8 @@ void Main_Window::open_map(const char *filename) {
 
 	char directory[FL_PATH_MAX] = {};
 	if (!Config::project_path_from_blk_path(filename, directory)) {
-		const char *project_type = Config::project_type();
-		std::string msg = "Could not find the main ";
-		msg = msg + project_type + " directory!\n\n"
-			"Make sure Options->Project Type matches\n" + basename + ".";
+		std::string msg = "Could not find the project directory for\n";
+		msg = msg + basename + "!\nMake sure it contains a main.asm file.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -610,10 +596,8 @@ void Main_Window::open_map(const char *filename) {
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
-		const char *project_type = Config::project_type();
-		std::string msg = "This is not a ";
-		msg = msg + project_type + " project!\n\n"
-			"Make sure Options->Project Type is correct.";
+		std::string msg = "This is not a valid project!\n\n"
+			"Make sure the Options are correct.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -640,9 +624,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	else {
 		_blk_file = "";
-		char blk_directory[FL_PATH_MAX] = {};
-		Config::blk_path_from_project_path(directory, blk_directory);
-		_blk_save_chooser->directory(blk_directory);
+		_blk_save_chooser->directory(directory);
 	}
 
 	// read data
@@ -1038,7 +1020,7 @@ bool Main_Window::save_tileset() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
-	if (!Config::monochrome()) {
+	if (!monochrome()) {
 		Config::palette_map_path(filename, directory, tileset_name);
 		if (!tileset->palette_map().write_palette_map(filename)) {
 			const char *basename = fl_filename_name(filename);
@@ -1346,7 +1328,6 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 
 	// Save global config
 	Config::set("theme", OS::current_theme());
-	Config::set("project", Config::project());
 	Config::set("x", mw->x());
 	Config::set("y", mw->y());
 	Config::set("w", mw->w());
@@ -1357,6 +1338,9 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("hex", mw->hex());
 	Config::set("event", mw->event_cursor());
 	Config::set("lighting", mw->lighting());
+	Config::set("monochrome", mw->monochrome());
+	Config::set("skip", mw->skip_60_to_7f());
+	Config::set("priority", mw->tile_priority());
 	if (mw->_resize_dialog->initialized()) {
 		Config::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
@@ -1451,11 +1435,9 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	size_t old_size = mw->_metatileset.size();
 
 	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
-		const char *project_type = Config::project_type();
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = "This is not a ";
-		msg = msg + project_type + " project!\n\n"
-			"Make sure Options->Project Type matches\n" + basename + ".";
+		std::string msg = "This is not a valid project!\n\n";
+		msg = msg + "Make sure the Options match\n" + basename + ".";
 		mw->_error_dialog->message(msg);
 		mw->_error_dialog->show(mw);
 		return;
@@ -1595,45 +1577,18 @@ void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	}
 }
 
-void Main_Window::pokecrystal_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::POKECRYSTAL);
-	mw->_pokecrystal_project_mi->setonly();
+void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::monochrome(!!m->mvalue()->value());
 	mw->redraw();
 }
 
-void Main_Window::pokecrystal2018_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::POKECRYSTAL2018);
-	mw->_pokecrystal2018_project_mi->setonly();
+void Main_Window::skip_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::skip_tiles_60_to_7f(!!m->mvalue()->value());
 	mw->redraw();
 }
 
-void Main_Window::pokered_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::POKERED);
-	mw->_pokered_project_mi->setonly();
-	mw->redraw();
-}
-
-void Main_Window::polished_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::POLISHED);
-	mw->_polished_project_mi->setonly();
-	mw->redraw();
-}
-
-void Main_Window::rpp_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::RPP);
-	mw->_rpp_project_mi->setonly();
-	mw->redraw();
-}
-
-void Main_Window::prism_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::PRISM);
-	mw->_prism_project_mi->setonly();
-	mw->redraw();
-}
-
-void Main_Window::axyllia_project_cb(Fl_Menu_ *, Main_Window *mw) {
-	Config::project(Config::Project::AXYLLIA);
-	mw->_axyllia_project_mi->setonly();
+void Main_Window::tile_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::nybble_palettes(!!m->mvalue()->value());
 	mw->redraw();
 }
 

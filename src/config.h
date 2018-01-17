@@ -8,32 +8,28 @@
 #define NEW_MAP_NAME "New Map"
 
 class Config {
-public:
-	enum Project { POKECRYSTAL, POKECRYSTAL2018, POKERED, POLISHED, RPP, PRISM, AXYLLIA };
 private:
 	static Fl_Preferences global_config;
-	static Project global_project;
+	static bool _monochrome, _skip_60_to_7f, _tile_priority;
 public:
 	inline static Fl_Preferences config(void) { return global_config; }
-	inline static Project project(void) { return global_project; }
-	inline static void project(Project p) { global_project =  p; }
 	static int get(const char *key, int default_ = 0);
 	static void set(const char *key, int value);
-	static const char *main_file(void);
 	static const char *gfx_tileset_dir(void);
 	static const char *palette_macro(void);
-	static const char *project_type(void);
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
-	static void blk_path_from_project_path(const char *project_path, char *blk_path);
 	static void palette_map_path(char *dest, const char *root, const char *tileset);
 	static void tileset_path(char *dest, const char *root, const char *tileset);
 	static void tileset_png_path(char *dest, const char *root, const char *tileset);
 	static void metatileset_path(char *dest, const char *root, const char *tileset);
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
-	static bool monochrome(void);
-	static bool skip_tiles_60_to_7f(void);
-	static bool nybble_palettes(void);
+	inline static bool monochrome(void) { return _monochrome; }
+	inline static void monochrome(bool m) { _monochrome = m; }
+	inline static bool skip_tiles_60_to_7f(void) { return _skip_60_to_7f; }
+	inline static void skip_tiles_60_to_7f(bool s) { _skip_60_to_7f = s; }
+	inline static bool nybble_palettes(void) { return _tile_priority; }
+	inline static void nybble_palettes(bool n) { _tile_priority = n; }
 };
 
 #endif
