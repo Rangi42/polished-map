@@ -166,11 +166,15 @@ void Tileset_Window::tileset(Tileset *t) {
 	}
 	if (Config::monochrome()) {
 		_palette->deactivate();
-		_priority->deactivate();
 	}
 	else {
 		_palette->activate();
+	}
+	if (Config::tile_priority()) {
 		_priority->activate();
+	}
+	else {
+		_priority->deactivate();
 	}
 }
 
