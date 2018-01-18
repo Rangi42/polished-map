@@ -22,9 +22,9 @@ R"(<html>
 <p>Polished Map will try to guess a map's size and tileset. You can append them to the filename as <kbd>.<var>WIDTH</var>x<var>HEIGHT</var></kbd> or <kbd>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var></kbd>; for instance, NewBarkTown.10x9.blk or UnionCave1F.10x18.24.blk. Otherwise Polished Map will guess the map's constant ID from its filename and read its size from the assembly code; for instance, UnionCaveB2F.blk is guessed to be <code>UNION_CAVE_B2F</code>. This can fail, like when LakeofRage.blk is guessed as <code>LAKEOF_RAGE</code>. Then you'll just have to enter the size yourself.</p>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
-<li>Monochrome: Palettes will not be read or written. This is appropriate for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
-<li>Skip Tiles $60 to $7F: Tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF. This is appropriate for <a href="https://github.com/pret/pokecrystal">pokecrystal</a>-based projects, including Prism and Axyllia. Polished Crystal and Orange support <a href="https://hax.iimarckus.org/topic/7167/">larger tilesets</a>, using any tile ID from $00 to $FF.</li>
-<li>Tile Priority: Palettes can use <samp>PRIORITY_*</samp> color constants to make tiles appear above sprites. This is appropriate for Polished Crystal, Orange, or any pokecrystal hack that <a href="https://hax.iimarckus.org/topic/7268/">enables tile priority</a>.</li>
+<li><b>Monochrome:</b> Palettes will not be read or written. This is appropriate for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
+<li><b>Skip Tiles $60 to $7F:</b> Tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF. This is appropriate for <a href="https://github.com/pret/pokecrystal">pokecrystal</a>-based projects, including Prism and Axyllia. Polished Crystal and Orange support <a href="https://hax.iimarckus.org/topic/7167/">larger tilesets</a>, using any tile ID from $00 to $FF.</li>
+<li><b>Tile Priority:</b> Palettes can prepend "PRIORITY_" to colors to make tiles appear above sprites. This is appropriate for Polished Crystal, Orange, or any pokecrystal hack that <a href="https://hax.iimarckus.org/topic/7268/">enables tile priority</a>.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
