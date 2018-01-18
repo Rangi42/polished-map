@@ -124,7 +124,7 @@ bool Palette_Map::write_palette_map(const char *f) {
 			fputc('\n', file);
 		}
 	}
-	if (Config::nybble_palettes() && n % 2) { fputs(", TEXT", file); }
+	if (Config::tile_priority() && n % 2) { fputs(", TEXT", file); }
 	if (n % PALETTES_PER_LINE) { fputc('\n', file); }
 	fclose(file);
 	return true;

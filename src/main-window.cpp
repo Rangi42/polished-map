@@ -225,7 +225,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Skip $60 to $7F", 0, (Fl_Callback *)skip_60_to_7f_cb, this,
+		OS_MENU_ITEM("&Skip Tiles $60 to $7F", 0, (Fl_Callback *)skip_60_to_7f_cb, this,
 			FL_MENU_TOGGLE | (skip_60_to_7f_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)tile_priority_cb, this,
 			FL_MENU_TOGGLE | (tile_priority_config ? FL_MENU_VALUE : 0)),
@@ -1588,7 +1588,7 @@ void Main_Window::skip_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
 }
 
 void Main_Window::tile_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::nybble_palettes(!!m->mvalue()->value());
+	Config::tile_priority(!!m->mvalue()->value());
 	mw->redraw();
 }
 

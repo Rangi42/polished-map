@@ -28,8 +28,8 @@ public:
 	inline static void monochrome(bool m) { _monochrome = m; }
 	inline static bool skip_tiles_60_to_7f(void) { return _skip_60_to_7f; }
 	inline static void skip_tiles_60_to_7f(bool s) { _skip_60_to_7f = s; }
-	inline static bool nybble_palettes(void) { return _tile_priority; }
-	inline static void nybble_palettes(bool n) { _tile_priority = n; }
+	inline static bool tile_priority(void) { return _tile_priority; }
+	inline static void tile_priority(bool n) { _tile_priority = n; }
 };
 
 #endif
