@@ -46,9 +46,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int monochrome_config = Config::get("monochrome", 0);
 	int skip_60_to_7f_config = Config::get("skip", 1);
 	int tile_priority_config = Config::get("priority", 0);
-	Config::monochrome(monochrome_config);
-	Config::skip_tiles_60_to_7f(skip_60_to_7f_config);
-	Config::tile_priority(tile_priority_config);
+	Config::monochrome(!!monochrome_config);
+	Config::skip_tiles_60_to_7f(!!skip_60_to_7f_config);
+	Config::tile_priority(!!tile_priority_config);
 
 	// Populate window
 
