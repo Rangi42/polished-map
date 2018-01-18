@@ -42,9 +42,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int hex_config = Config::get("hex", 0);
 	int event_cursor_config = Config::get("event", 0);
 	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
+
 	int monochrome_config = Config::get("monochrome", 0);
 	int skip_60_to_7f_config = Config::get("skip", 1);
 	int tile_priority_config = Config::get("priority", 0);
+	Config::monochrome(monochrome_config);
+	Config::skip_tiles_60_to_7f(skip_60_to_7f_config);
+	Config::tile_priority(tile_priority_config);
 
 	// Populate window
 
@@ -1020,7 +1024,7 @@ bool Main_Window::save_tileset() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
-	if (!monochrome()) {
+	if (!Config::monochrome()) {
 		Config::palette_map_path(filename, directory, tileset_name);
 		if (!tileset->palette_map().write_palette_map(filename)) {
 			const char *basename = fl_filename_name(filename);
