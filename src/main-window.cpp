@@ -33,7 +33,7 @@
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_grid_mi(NULL), _zoom_mi(NULL), _ids_mi(NULL), _hex_mi(NULL), _event_cursor_mi(NULL), _monochrome_mi(NULL),
-	_skip_60_to_7f_mi(NULL), _tile_priority_mi(NULL), _directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(),
+	_skip_tiles_60_to_7f_mi(NULL), _tile_priority_mi(NULL), _directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(),
 	_selected(NULL), _unsaved(false), _copied(false), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	int grid_config = Config::get("grid", 1);
@@ -44,10 +44,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
 
 	int monochrome_config = Config::get("monochrome", 0);
-	int skip_60_to_7f_config = Config::get("skip", 1);
+	int skip_tiles_60_to_7f_config = Config::get("skip", 1);
 	int tile_priority_config = Config::get("priority", 0);
 	Config::monochrome(!!monochrome_config);
-	Config::skip_tiles_60_to_7f(!!skip_60_to_7f_config);
+	Config::skip_tiles_60_to_7f(!!skip_tiles_60_to_7f_config);
 	Config::tile_priority(!!tile_priority_config);
 
 	// Populate window
@@ -229,8 +229,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Skip Tiles $60 to $7F", 0, (Fl_Callback *)skip_60_to_7f_cb, this,
-			FL_MENU_TOGGLE | (skip_60_to_7f_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Skip Tiles $60 to $7F", 0, (Fl_Callback *)skip_tiles_60_to_7f_cb, this,
+			FL_MENU_TOGGLE | (skip_tiles_60_to_7f_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)tile_priority_cb, this,
 			FL_MENU_TOGGLE | (tile_priority_config ? FL_MENU_VALUE : 0)),
 		{},
@@ -261,7 +261,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_artificial_mi = PM_FIND_MENU_ITEM_CB(artificial_lighting_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
-	_skip_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_60_to_7f_cb);
+	_skip_tiles_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_tiles_60_to_7f_cb);
 	_tile_priority_mi = PM_FIND_MENU_ITEM_CB(tile_priority_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
@@ -1343,7 +1343,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("event", mw->event_cursor());
 	Config::set("lighting", mw->lighting());
 	Config::set("monochrome", mw->monochrome());
-	Config::set("skip", mw->skip_60_to_7f());
+	Config::set("skip", mw->skip_tiles_60_to_7f());
 	Config::set("priority", mw->tile_priority());
 	if (mw->_resize_dialog->initialized()) {
 		Config::set("resize-anchor", mw->_resize_dialog->anchor());
@@ -1586,7 +1586,7 @@ void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::skip_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
+void Main_Window::skip_tiles_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::skip_tiles_60_to_7f(!!m->mvalue()->value());
 	mw->redraw();
 }
