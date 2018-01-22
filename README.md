@@ -11,3 +11,5 @@ Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Poli
 The [example/](example/) directory contains a minimal pokecrystal project with two test maps. **Kanto.180x135.kanto.blk** is a stitch of every Kanto overworld map (they all use the "kanto" tileset). **Johto.235x135.johto.blk** is a stitch of every Johto overworld map; Goldenrod and Azalea use the johto_modern tileset, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
 
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/). If you have questions or comments, please go there.
+
+![Screenshot](screenshot.png)
