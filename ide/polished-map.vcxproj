@@ -154,31 +154,51 @@
     <ClInclude Include="..\src\widgets.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\add-sub-disabled.xpm" />
     <None Include="..\res\add-sub.xpm" />
     <None Include="..\res\app.ico" />
     <None Include="..\res\app.xpm" />
+    <None Include="..\res\blocks-disabled.xpm" />
     <None Include="..\res\blocks.xpm" />
+    <None Include="..\res\change-disabled.xpm" />
     <None Include="..\res\change.xpm" />
+    <None Include="..\res\cursor-disabled.xpm" />
     <None Include="..\res\cursor.xpm" />
     <None Include="..\res\error.xpm" />
+    <None Include="..\res\events-disabled.xpm" />
     <None Include="..\res\events.xpm" />
+    <None Include="..\res\grid-disabled.xpm" />
     <None Include="..\res\grid.xpm" />
     <None Include="..\res\help.html" />
+    <None Include="..\res\hex-disabled.xpm" />
     <None Include="..\res\hex.xpm" />
+    <None Include="..\res\ids-disabled.xpm" />
     <None Include="..\res\ids.xpm" />
+    <None Include="..\res\lighting-disabled.xpm" />
     <None Include="..\res\lighting.xpm" />
+    <None Include="..\res\load-disabled.xpm" />
     <None Include="..\res\load.xpm" />
+    <None Include="..\res\new-disabled.xpm" />
     <None Include="..\res\new.xpm" />
+    <None Include="..\res\open-disabled.xpm" />
     <None Include="..\res\open.xpm" />
+    <None Include="..\res\print-disabled.xpm" />
     <None Include="..\res\print.xpm" />
+    <None Include="..\res\redo-disabled.xpm" />
     <None Include="..\res\redo.xpm" />
+    <None Include="..\res\resize-disabled.xpm" />
     <None Include="..\res\resize.xpm" />
+    <None Include="..\res\save-disabled.xpm" />
     <None Include="..\res\save.xpm" />
+    <None Include="..\res\show-disabled.xpm" />
     <None Include="..\res\show.xpm" />
     <None Include="..\res\success.xpm" />
+    <None Include="..\res\tileset-disabled.xpm" />
     <None Include="..\res\tileset.xpm" />
+    <None Include="..\res\undo-disabled.xpm" />
     <None Include="..\res\undo.xpm" />
     <None Include="..\res\warning.xpm" />
+    <None Include="..\res\zoom-disabled.xpm" />
     <None Include="..\res\zoom.xpm" />
   </ItemGroup>
   <ItemGroup>

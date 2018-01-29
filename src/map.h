@@ -37,6 +37,8 @@ public:
 	inline Result result(void) const { return _result; }
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
+	inline bool can_undo(void) const { return !_history.empty(); }
+	inline bool can_redo(void) const { return !_future.empty(); }
 	void clear();
 	void remember(void);
 	void undo(void);

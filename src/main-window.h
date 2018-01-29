@@ -39,9 +39,9 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_greybird_theme_mi = NULL, *_blue_theme_mi = NULL,
 		*_dark_theme_mi = NULL;
-	Fl_Menu_Item *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_ice_path_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_events_mi = NULL,
 		*_event_cursor_mi = NULL, *_full_screen_mi = NULL;
+	Fl_Menu_Item *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_ice_path_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_skip_tiles_60_to_7f_mi = NULL, *_tile_priority_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
@@ -118,7 +118,9 @@ public:
 	void substitute_block(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
 private:
+	inline void mode(Mode m) { _mode = m; }
 	int handle_hotkey(int key);
+	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
 	bool read_metatile_data(const char *tileset_name);
 	void add_sub_metatiles(size_t n);
@@ -173,9 +175,10 @@ private:
 	static void ice_path_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void custom_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
-	// Tools menu
+	// Mode menu
 	static void blocks_mode_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void events_mode_cb(Fl_Menu_ *m, Main_Window *mw);
+	// Tools menu
 	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
 	static void change_tileset_cb(Fl_Widget *w, Main_Window *mw);

@@ -34,10 +34,14 @@
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
+	Mode mode_config = (Mode)Config::get("mode", Mode::BLOCKS);
+	mode(mode_config);
+
 	int grid_config = Config::get("grid", 1);
 	int zoom_config = Config::get("zoom", 0);
 	int ids_config = Config::get("ids", 0);
 	int hex_config = Config::get("hex", 0);
+	int show_events_config = Config::get("show", 1);
 	int event_cursor_config = Config::get("event", 0);
 	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
 
@@ -217,7 +221,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Hexadecimal", FL_COMMAND + FL_SHIFT + '4', (Fl_Callback *)hex_cb, this,
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Events &Over Blocks", FL_COMMAND + 'r', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | 0 /*TODO: initialize setting*/),
+			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
 			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -234,18 +238,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		{},
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
-		OS_SUBMENU("Tools"),
-		OS_MENU_ITEM("Mo&de", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_SUBMENU("&Mode"),
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + '1', (Fl_Callback *)blocks_mode_cb, this,
-			FL_MENU_RADIO | (true ? FL_MENU_VALUE : 0 /*TODO: initialize setting*/)),
+			FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Events", FL_COMMAND + '2', (Fl_Callback *)events_mode_cb, this,
-			FL_MENU_RADIO | (false ? FL_MENU_VALUE : 0 /*TODO: initialize setting*/)),
+			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
 		{},
+		OS_SUBMENU("&Tools"),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
 		OS_MENU_ITEM("Resize &Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
 		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Edit Custom &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)NULL, this, 0),
+		OS_MENU_ITEM("Edit Custom &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)edit_custom_lighting_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
@@ -276,6 +280,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
+	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
 	_night_mi = PM_FIND_MENU_ITEM_CB(night_lighting_cb);
 	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_lighting_cb);
@@ -283,10 +288,31 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_lighting_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
-	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_skip_tiles_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_tiles_60_to_7f_cb);
 	_tile_priority_mi = PM_FIND_MENU_ITEM_CB(tile_priority_cb);
+	// Conditional menu items
+	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
+	_load_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(load_custom_lighting_cb);
+	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
+	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
+	_save_mi = PM_FIND_MENU_ITEM_CB(save_cb);
+	_save_as_mi = PM_FIND_MENU_ITEM_CB(save_as_cb);
+	_save_blockset_mi = PM_FIND_MENU_ITEM_CB(save_metatiles_cb);
+	_save_tileset_mi = PM_FIND_MENU_ITEM_CB(save_tileset_cb);
+	_save_event_script_mi = PM_FIND_MENU_ITEM_CB(save_event_script_cb);
+	_save_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(save_custom_lighting_cb);
+	_print_mi = PM_FIND_MENU_ITEM_CB(print_cb);
+	_undo_mi = PM_FIND_MENU_ITEM_CB(undo_cb);
+	_redo_mi = PM_FIND_MENU_ITEM_CB(redo_cb);
+	_copy_block_mi = PM_FIND_MENU_ITEM_CB(copy_metatile_cb);
+	_paste_block_mi = PM_FIND_MENU_ITEM_CB(paste_metatile_cb);
+	_swap_block_mi = PM_FIND_MENU_ITEM_CB(swap_metatiles_cb);
+	_resize_blockset_mi = PM_FIND_MENU_ITEM_CB(add_sub_cb);
+	_resize_map_mi = PM_FIND_MENU_ITEM_CB(resize_cb);
+	_change_tileset_mi = PM_FIND_MENU_ITEM_CB(change_tileset_cb);
+	_edit_tileset_mi = PM_FIND_MENU_ITEM_CB(edit_tileset_cb);
+	_edit_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(edit_custom_lighting_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -294,60 +320,73 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_tb->tooltip("New... (Ctrl+N)");
 	_new_tb->callback((Fl_Callback *)new_cb, this);
 	_new_tb->image(NEW_ICON);
+	_new_tb->deimage(NEW_DISABLED_ICON);
 	_new_tb->take_focus();
 
 	_open_tb->tooltip("Open... (Ctrl+O)");
 	_open_tb->callback((Fl_Callback *)open_cb, this);
 	_open_tb->image(OPEN_ICON);
+	_open_tb->deimage(OPEN_DISABLED_ICON);
 
 	_load_event_script_tb->tooltip("Load Event Script... (Ctrl+A)");
 	_load_event_script_tb->callback((Fl_Callback *)load_event_script_cb, this);
 	_load_event_script_tb->image(LOAD_ICON);
+	_load_event_script_tb->deimage(LOAD_DISABLED_ICON);
 
 	_save_tb->tooltip("Save (Ctrl+S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
 	_save_tb->image(SAVE_ICON);
+	_save_tb->deimage(SAVE_DISABLED_ICON);
 
 	_print_tb->tooltip("Print (Ctrl+P)");
 	_print_tb->callback((Fl_Callback *)print_cb, this);
 	_print_tb->image(PRINT_ICON);
+	_print_tb->deimage(PRINT_DISABLED_ICON);
 
 	_undo_tb->tooltip("Undo (Ctrl+Z)");
 	_undo_tb->callback((Fl_Callback *)undo_cb, this);
 	_undo_tb->image(UNDO_ICON);
+	_undo_tb->deimage(UNDO_DISABLED_ICON);
 
 	_redo_tb->tooltip("Redo (Ctrl+Y)");
 	_redo_tb->callback((Fl_Callback *)redo_cb, this);
 	_redo_tb->image(REDO_ICON);
+	_redo_tb->deimage(REDO_DISABLED_ICON);
 
 	_grid_tb->tooltip("Grid (Ctrl+G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
 	_grid_tb->image(GRID_ICON);
+	_grid_tb->deimage(GRID_DISABLED_ICON);
 	_grid_tb->value(grid());
 
 	_zoom_tb->tooltip("Zoom (Ctrl+=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
 	_zoom_tb->image(ZOOM_ICON);
+	_zoom_tb->deimage(ZOOM_DISABLED_ICON);
 	_zoom_tb->value(zoom());
 
 	_ids_tb->tooltip("Block IDs (Ctrl+I)");
 	_ids_tb->callback((Fl_Callback *)ids_tb_cb, this);
 	_ids_tb->image(IDS_ICON);
+	_ids_tb->deimage(IDS_DISABLED_ICON);
 	_ids_tb->value(ids());
 
 	_hex_tb->tooltip("Hexadecimal (Ctrl+$)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
+	_hex_tb->deimage(HEX_DISABLED_ICON);
 	_hex_tb->value(hex());
 
 	_show_events_tb->tooltip("Events Over Blocks (Ctrl+R)");
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
-	/* TODO: _show_events_tb->value */
+	_show_events_tb->deimage(SHOW_DISABLED_ICON);
+	_hex_tb->value(show_events());
 
 	_event_cursor_tb->tooltip("Event Cursor (Ctrl+U)");
 	_event_cursor_tb->callback((Fl_Callback *)event_cursor_tb_cb, this);
 	_event_cursor_tb->image(CURSOR_ICON);
+	_event_cursor_tb->deimage(CURSOR_DISABLED_ICON);
 	_event_cursor_tb->value(event_cursor());
 
 	_lighting->add("Day");      // Lighting::DAY
@@ -361,28 +400,34 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+1)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
 	_blocks_mode_tb->image(BLOCKS_ICON);
-	/* TODO: _blocks_mode_tb->value */
+	_blocks_mode_tb->deimage(BLOCKS_DISABLED_ICON);
+	_blocks_mode_tb->value(mode() == Mode::BLOCKS);
 
 	_events_mode_tb->tooltip("Events Mode (Ctrl+2)");
 	_events_mode_tb->callback((Fl_Callback *)events_mode_tb_cb, this);
 	_events_mode_tb->image(EVENTS_ICON);
-	/* TODO: _blocks_mode_tb->value */
+	_events_mode_tb->deimage(EVENTS_DISABLED_ICON);
+	_events_mode_tb->value(mode() == Mode::EVENTS);
 
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
 	_add_sub_tb->image(ADD_SUB_ICON);
+	_add_sub_tb->deimage(ADD_SUB_DISABLED_ICON);
 
 	_resize_tb->tooltip("Resize Map... (Ctrl+E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
+	_resize_tb->deimage(RESIZE_DISABLED_ICON);
 
 	_change_tileset_tb->tooltip("Change Tileset... (Ctrl+H)");
 	_change_tileset_tb->callback((Fl_Callback *)change_tileset_cb, this);
 	_change_tileset_tb->image(CHANGE_ICON);
+	_change_tileset_tb->deimage(CHANGE_DISABLED_ICON);
 
 	_edit_tileset_tb->tooltip("Edit Tileset... (Ctrl+T)");
 	_edit_tileset_tb->callback((Fl_Callback *)edit_tileset_cb, this);
 	_edit_tileset_tb->image(TILESET_ICON);
+	_edit_tileset_tb->deimage(TILESET_DISABLED_ICON);
 
 	// Configure dialogs
 
@@ -419,6 +464,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_help_window->content(
 #include "help.html" // a C++11 raw string literal
 		);
+
+	update_active_controls();
 }
 
 Main_Window::~Main_Window() {
@@ -592,6 +639,105 @@ void Main_Window::update_event_cursor(Block *b) {
 	sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), ex, ey);
 	_hover_event->copy_label(buffer);
 	_status_bar->redraw();
+}
+
+void Main_Window::update_active_controls() {
+	if (_map.size()) {
+		_load_event_script_mi->activate();
+		_load_event_script_tb->activate();
+		_load_custom_lighting_mi->activate();
+		_close_mi->activate();
+		_save_mi->activate();
+		_save_tb->activate();
+		_save_as_mi->activate();
+		_save_blockset_mi->activate();
+		_save_tileset_mi->activate();
+		_print_mi->activate();
+		_print_tb->activate();
+		if (false/* TODO: check for loaded event script */) {
+			_unload_event_script_mi->activate();
+			_save_event_script_mi->activate();
+		}
+		else {
+			_unload_event_script_mi->deactivate();
+			_save_event_script_mi->deactivate();
+		}
+		if (false/* TODO: check for loaded custom lighting */) {
+			_save_custom_lighting_mi->activate();
+			_edit_custom_lighting_mi->activate();
+			_edit_custom_lighting_tb->activate();
+		}
+		else {
+			_save_custom_lighting_mi->deactivate();
+			_edit_custom_lighting_mi->deactivate();
+			_edit_custom_lighting_tb->deactivate();
+		}
+		if (_map.can_undo()) {
+			_undo_mi->activate();
+			_undo_tb->activate();
+		}
+		else {
+			_undo_mi->deactivate();
+			_undo_tb->deactivate();
+		}
+		if (_map.can_redo()) {
+			_redo_mi->activate();
+			_redo_tb->activate();
+		}
+		else {
+			_redo_mi->deactivate();
+			_redo_tb->deactivate();
+		}
+		_copy_block_mi->activate();
+		if (_copied && _selected) {
+			_paste_block_mi->activate();
+			_swap_block_mi->activate();
+		}
+		else {
+			_paste_block_mi->deactivate();
+			_swap_block_mi->deactivate();
+		}
+		_resize_blockset_mi->activate();
+		_add_sub_tb->activate();
+		_resize_map_mi->activate();
+		_resize_tb->activate();
+		_change_tileset_mi->activate();
+		_change_tileset_tb->activate();
+		_edit_tileset_mi->activate();
+		_edit_tileset_tb->activate();
+	}
+	else {
+		_load_event_script_mi->deactivate();
+		_load_event_script_tb->deactivate();
+		_load_custom_lighting_mi->deactivate();
+		_close_mi->deactivate();
+		_unload_event_script_mi->deactivate();
+		_save_mi->deactivate();
+		_save_tb->deactivate();
+		_save_as_mi->deactivate();
+		_save_blockset_mi->deactivate();
+		_save_tileset_mi->deactivate();
+		_save_event_script_mi->deactivate();
+		_save_custom_lighting_mi->deactivate();
+		_print_mi->deactivate();
+		_print_tb->deactivate();
+		_undo_mi->deactivate();
+		_undo_tb->deactivate();
+		_redo_mi->deactivate();
+		_redo_tb->deactivate();
+		_copy_block_mi->deactivate();
+		_paste_block_mi->deactivate();
+		_swap_block_mi->deactivate();
+		_resize_blockset_mi->deactivate();
+		_add_sub_tb->deactivate();
+		_resize_map_mi->deactivate();
+		_resize_tb->deactivate();
+		_change_tileset_mi->deactivate();
+		_edit_tileset_mi->deactivate();
+		_change_tileset_tb->deactivate();
+		_edit_custom_lighting_mi->deactivate();
+		_edit_tileset_tb->deactivate();
+	}
 }
 
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
@@ -772,6 +918,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_block_window->tileset(tileset);
 	_tileset_window->tileset(tileset);
 
+	update_active_controls();
 	update_labels();
 	update_status(NULL);
 
@@ -1220,12 +1367,16 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->open_map(filename);
 }
 
-void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *) {
+void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
 	// TODO: load_event_script_cb
+	mw->update_active_controls();
+	mw->redraw();
 }
 
-void Main_Window::load_custom_lighting_cb(Fl_Widget *, Main_Window *) {
+void Main_Window::load_custom_lighting_cb(Fl_Widget *, Main_Window *mw) {
 	// TODO: load_custom_lighting_cb
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
@@ -1260,6 +1411,8 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_metatileset.clear();
 	mw->_block_window->tileset(NULL);
 	mw->_tileset_window->tileset(NULL);
+
+	mw->update_active_controls();
 	mw->redraw();
 }
 
@@ -1399,10 +1552,12 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("y", mw->y());
 	Config::set("w", mw->w());
 	Config::set("h", mw->h());
+	Config::set("mode", (int)mw->mode());
 	Config::set("grid", mw->grid());
 	Config::set("zoom", mw->zoom());
 	Config::set("ids", mw->ids());
 	Config::set("hex", mw->hex());
+	Config::set("show", mw->show_events());
 	Config::set("event", mw->event_cursor());
 	Config::set("lighting", mw->lighting());
 	Config::set("monochrome", mw->monochrome());
@@ -1418,12 +1573,14 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::undo_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->_map.undo();
+	mw->update_active_controls();
 	mw->redraw();
 }
 
 void Main_Window::redo_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	mw->_map.redo();
+	mw->update_active_controls();
 	mw->redraw();
 }
 
@@ -1433,6 +1590,8 @@ void Main_Window::copy_metatile_cb(Fl_Widget *, Main_Window *mw) {
 	Metatile *src = mw->_metatileset.metatile(id);
 	mw->_clipboard = *src;
 	mw->_copied = true;
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::paste_metatile_cb(Fl_Widget *, Main_Window *mw) {
@@ -1624,20 +1783,28 @@ void Main_Window::lighting_cb(Dropdown *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::blocks_mode_cb(Fl_Menu_ *, Main_Window *) {
-	// TODO: events_mode_cb
+void Main_Window::blocks_mode_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_blocks_mode_tb->setonly();
+	mw->mode(Mode::BLOCKS);
+	mw->redraw();
 }
 
-void Main_Window::events_mode_cb(Fl_Menu_ *, Main_Window *) {
-	// TODO: events_mode_cb
+void Main_Window::events_mode_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_events_mode_tb->setonly();
+	mw->mode(Mode::EVENTS);
+	mw->redraw();
 }
 
-void Main_Window::blocks_mode_tb_cb(Toolbar_Radio_Button *, Main_Window *) {
-	// TODO: blocks_mode_tb_cb
+void Main_Window::blocks_mode_tb_cb(Toolbar_Radio_Button *, Main_Window *mw) {
+	mw->_blocks_mode_mi->setonly();
+	mw->mode(Mode::BLOCKS);
+	mw->redraw();
 }
 
-void Main_Window::events_mode_tb_cb(Toolbar_Radio_Button *, Main_Window *) {
-	// TODO: events_mode_tb_cb
+void Main_Window::events_mode_tb_cb(Toolbar_Radio_Button *, Main_Window *mw) {
+	mw->_events_mode_mi->setonly();
+	mw->mode(Mode::EVENTS);
+	mw->redraw();
 }
 
 void Main_Window::add_sub_cb(Fl_Widget *, Main_Window *mw) {
@@ -1717,6 +1884,10 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::edit_custom_lighting_cb(Fl_Widget *, Main_Window *) {
+	// TODO: edit_custom_lighting_cb
+}
+
 void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::monochrome(!!m->mvalue()->value());
 	mw->redraw();
@@ -1759,6 +1930,7 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		if (!mw->_selected) { return; }
 		if (Fl::event_is_click()) {
 			mw->_map.remember();
+			mw->update_active_controls();
 		}
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
