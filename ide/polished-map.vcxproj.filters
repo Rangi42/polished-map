@@ -211,13 +211,28 @@
     <None Include="..\res\add-sub.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\event.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\tileset.xpm">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\change.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\cursor.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\events.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\lighting.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\show.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\blocks.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

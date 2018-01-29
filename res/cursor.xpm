@@ -1,5 +1,5 @@
 /* XPM */
-static const char *EVENT_XPM[] = {
+static const char *CURSOR_XPM[] = {
 "16 16 3 1",
 "  c None",
 ". c #FF8080",

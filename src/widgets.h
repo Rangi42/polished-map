@@ -116,6 +116,11 @@ public:
 	Toolbar_Toggle_Button(int x, int y, int w, int h, const char *l = NULL);
 };
 
+class Toolbar_Radio_Button : public Toolbar_Button {
+public:
+	Toolbar_Radio_Button(int x, int y, int w, int h, const char *l = NULL);
+};
+
 class Status_Bar_Field : public Fl_Box {
 private:
 	const char *_default_label;
