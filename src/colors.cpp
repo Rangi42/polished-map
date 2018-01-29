@@ -5,7 +5,7 @@
 #define RGBX(rgb) {(((rgb) & 0xFF0000) >> 16), (((rgb) & 0xFF00) >> 8), ((rgb) & 0xFF)}
 
 // Lighting x Palette x Hue x RGB
-static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
+static const uchar tileset_colors[5][9][4][NUM_CHANNELS] = {
 	{ // DAY
 		// WHITE, DARK, LIGHT, BLACK
 		{RGB5(27,31,27), RGB5(13,13,13), RGB5(21,21,21), RGB5( 7, 7, 7)}, // GRAY, PRIORITY_GRAY
@@ -17,7 +17,6 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(27,31,27), RGB5( 5,17,31), RGB5(15,31,31), RGB5( 7, 7, 7)}, // ROOF, PRIORITY_ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT, PRIORITY_TEXT
 		{RGB5(28,31,26), RGB5( 6,13,10), RGB5(17,24,14), RGB5( 1, 3, 4)}, // MONOCHROME
-		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // NITE
 		// WHITE, DARK, LIGHT, BLACK
@@ -30,7 +29,6 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(15,14,24), RGB5(11, 9,20), RGB5(13,12,23), RGB5( 0, 0, 0)}, // ROOF, PRIORITY_ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT, PRIORITY_TEXT
 		{RGB5(17,24,14), RGB5( 6,13,10), RGB5( 6,13,10), RGB5( 1, 3, 4)}, // MONOCHROME
-		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // INDOOR
 		// WHITE, DARK, LIGHT, BLACK
@@ -43,7 +41,6 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(30,28,26), RGB5(14,16,31), RGB5(17,19,31), RGB5( 7, 7, 7)}, // ROOF, PRIORITY_ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT, PRIORITY_TEXT
 		{RGB5(31,29,31), RGB5(20,26,31), RGB5(21,28,11), RGB5( 3, 2, 2)}, // MONOCHROME
-		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // ICE_PATH
 		// WHITE, DARK, LIGHT, BLACK
@@ -56,7 +53,6 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGB5(25,31,31), RGB5(16,11,31), RGB5( 9,28,31), RGB5( 5, 0, 9)}, // ROOF, PRIORITY_ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT, PRIORITY_TEXT
 		{RGB5(31,29,31), RGB5(18,24,22), RGB5(21,14, 9), RGB5( 3, 2, 2)}, // MONOCHROME
-		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
 	{ // CUSTOM
 		// WHITE, DARK, LIGHT, BLACK
@@ -69,13 +65,17 @@ static const uchar tileset_colors[5][10][4][NUM_CHANNELS] = {
 		{RGBX(0xC0FFFF), RGBX(0x008080), RGBX(0x00FFFF), RGBX(0x003030)}, // ROOF, PRIORITY_ROOF
 		{RGBX(0xFFC0FF), RGBX(0x800080), RGBX(0xFF00FF), RGBX(0x300030)}, // TEXT, PRIORITY_TEXT
 		{RGBX(0xFFFFFF), RGBX(0x555555), RGBX(0xAAAAAA), RGBX(0x000000)}, // MONOCHROME
-		{RGBX(0xABCDEF), RGBX(0x56789A), RGBX(0xABCDEF), RGBX(0x123456)}, // UNDEFINED
 	},
+};
+
+static const uchar undefined_colors[4][NUM_CHANNELS] = {
+	// WHITE, DARK, LIGHT, BLACK
+	RGBX(0xABCDEF), RGBX(0x456789), RGBX(0x789ABC), RGBX(0x123456) // UNDEFINED
 };
 
 const uchar *Color::color(Lighting l, Palette p, Hue h) {
 	int i = (int)p & 0xf;
-	return tileset_colors[l][i][h];
+	return p == Palette::UNDEFINED ? undefined_colors[h] : tileset_colors[l][i][h];
 }
 
 Fl_Color Color::fl_color(Lighting l, Palette p, Hue h) {
