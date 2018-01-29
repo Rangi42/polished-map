@@ -429,6 +429,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_edit_tileset_tb->image(TILESET_ICON);
 	_edit_tileset_tb->deimage(TILESET_DISABLED_ICON);
 
+	_edit_custom_lighting_tb->tooltip("Edit Custom Lighting... (Ctrl+L)");
+	_edit_custom_lighting_tb->callback((Fl_Callback *)edit_custom_lighting_cb, this);
+	_edit_custom_lighting_tb->image(LIGHTING_ICON);
+	_edit_custom_lighting_tb->deimage(LIGHTING_DISABLED_ICON);
+
 	// Configure dialogs
 
 	_blk_open_chooser->title("Open Map");
@@ -737,6 +742,7 @@ void Main_Window::update_active_controls() {
 		_change_tileset_tb->deactivate();
 		_edit_custom_lighting_mi->deactivate();
 		_edit_tileset_tb->deactivate();
+		_edit_custom_lighting_tb->deactivate();
 	}
 }
 
