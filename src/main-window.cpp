@@ -47,10 +47,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	int monochrome_config = Config::get("monochrome", 0);
 	int skip_tiles_60_to_7f_config = Config::get("skip", 1);
-	int tile_priority_config = Config::get("priority", 0);
 	Config::monochrome(!!monochrome_config);
 	Config::skip_tiles_60_to_7f(!!skip_tiles_60_to_7f_config);
-	Config::tile_priority(!!tile_priority_config);
 
 	// Populate window
 
@@ -131,6 +129,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_dir_chooser = new Directory_Chooser(Fl_Native_File_Chooser::BROWSE_DIRECTORY);
 	_blk_open_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_blk_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+	_pal_load_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
+	_pal_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
@@ -256,8 +256,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Skip Tiles $60 to $7F", 0, (Fl_Callback *)skip_tiles_60_to_7f_cb, this,
 			FL_MENU_TOGGLE | (skip_tiles_60_to_7f_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)tile_priority_cb, this,
-			FL_MENU_TOGGLE | (tile_priority_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -290,7 +288,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_skip_tiles_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_tiles_60_to_7f_cb);
-	_tile_priority_mi = PM_FIND_MENU_ITEM_CB(tile_priority_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
 	_load_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(load_custom_lighting_cb);
@@ -436,6 +433,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	// Configure dialogs
 
+	_new_dir_chooser->title("Choose Project Directory");
+
 	_blk_open_chooser->title("Open Map");
 	_blk_open_chooser->filter("BLK Files\t*.blk\n");
 
@@ -443,7 +442,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
 	_blk_save_chooser->preset_file("NewMap.blk");
 
-	_new_dir_chooser->title("Choose Project Directory");
+	_pal_load_chooser->title("Open Custom Lighting");
+	_pal_load_chooser->filter("PAL Files\t*.pal\n");
+
+	_pal_save_chooser->title("Save Custom Lighting");
+	_pal_save_chooser->filter("PAL Files\t*.pal\n");
+	_pal_save_chooser->preset_file("custom.pal");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -455,7 +459,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_unsaved_dialog->width_range(280, 700);
 
 	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
-		"Copyright \xc2\xa9 2017 Rangi.\n"
+		"Copyright \xc2\xa9 2018 Rangi.\n"
 		"\n"
 		"Source code is available at:\n"
 		"https://github.com/roukaour/polished-map\n"
@@ -482,6 +486,8 @@ Main_Window::~Main_Window() {
 	delete _dnd_receiver;
 	delete _blk_open_chooser;
 	delete _blk_save_chooser;
+	delete _pal_load_chooser;
+	delete _pal_save_chooser;
 	delete _png_chooser;
 	delete _error_dialog;
 	delete _warning_dialog;
@@ -1380,7 +1386,32 @@ void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::load_custom_lighting_cb(Fl_Widget *, Main_Window *mw) {
-	// TODO: load_custom_lighting_cb
+	if (!mw->_map.size()) { return; }
+
+	if (false/*TODO: check for already-loaded lighting*/) {
+		std::string msg = mw->modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Open another map anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	int status = mw->_pal_load_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_pal_load_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+	if (status == -1) {
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_pal_load_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	// TODO: load custom lighting
+
 	mw->update_active_controls();
 	mw->redraw();
 }
@@ -1568,7 +1599,6 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("lighting", mw->lighting());
 	Config::set("monochrome", mw->monochrome());
 	Config::set("skip", mw->skip_tiles_60_to_7f());
-	Config::set("priority", mw->tile_priority());
 	if (mw->_resize_dialog->initialized()) {
 		Config::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
@@ -1901,11 +1931,6 @@ void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::skip_tiles_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::skip_tiles_60_to_7f(!!m->mvalue()->value());
-	mw->redraw();
-}
-
-void Main_Window::tile_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::tile_priority(!!m->mvalue()->value());
 	mw->redraw();
 }
 

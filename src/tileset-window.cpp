@@ -170,12 +170,7 @@ void Tileset_Window::tileset(Tileset *t) {
 	}
 	else {
 		_palette->activate();
-		if (Config::tile_priority()) {
-			_priority->activate();
-		}
-		else {
-			_priority->deactivate();
-		}
+		_priority->activate();
 	}
 }
 

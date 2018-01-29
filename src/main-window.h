@@ -43,7 +43,7 @@ private:
 		*_event_cursor_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_ice_path_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
-	Fl_Menu_Item *_monochrome_mi = NULL, *_skip_tiles_60_to_7f_mi = NULL, *_tile_priority_mi = NULL;
+	Fl_Menu_Item *_monochrome_mi = NULL, *_skip_tiles_60_to_7f_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
 		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_edit_custom_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_event_cursor_tb;
@@ -60,7 +60,7 @@ private:
 		*_edit_custom_lighting_mi = NULL;
 	// Dialogs
 	Directory_Chooser *_new_dir_chooser;
-	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_png_chooser;
+	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_pal_load_chooser, *_pal_save_chooser, *_png_chooser;
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Tileset_Options_Dialog *_tileset_options_dialog;
@@ -102,7 +102,6 @@ public:
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
 	inline bool skip_tiles_60_to_7f(void) const { return _skip_tiles_60_to_7f_mi && !!_skip_tiles_60_to_7f_mi->value(); }
-	inline bool tile_priority(void) const { return _tile_priority_mi && !!_tile_priority_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
@@ -187,7 +186,6 @@ private:
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void skip_tiles_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void tile_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

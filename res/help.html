@@ -4,10 +4,10 @@ R"(<html>
 </head>
 <body>
 <h1>Polished Map</h1>
-<p>Copyright © 2017 Rangi</p>
-<p>A map and tileset editor for <a href="https://github.com/roukaour/polishedcrystal">Pokémon Polished Crystal</a>.</p>
+<p>Copyright © 2018 Rangi</p>
+<p>A map and tileset editor for <a href="https://github.com/Rangi42/polishedcrystal">Pokémon Polished Crystal</a>.</p>
 <p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and focused on graphics instead of script editing.</p>
-<p>Source code is available at <a href="https://github.com/roukaour/polished-map">https://github.com/roukaour/polished-map</a>.</p>
+<p>Source code is available at <a href="https://github.com/Rangi42/polished-map">https://github.com/Rangi42/polished-map</a>.</p>
 <hr>
 <p>Polished Map displays and edits .blk map files. It supports all the standard ways to open a file:</p>
 <ul>
@@ -24,7 +24,6 @@ R"(<html>
 <ul>
 <li><b>Monochrome:</b> Palettes will not be read or written. This is appropriate for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
 <li><b>Skip Tiles $60 to $7F:</b> Tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF. This is appropriate for <a href="https://github.com/pret/pokecrystal">pokecrystal</a>-based projects, including Prism and Axyllia. Polished Crystal and Orange support <a href="https://hax.iimarckus.org/topic/7167/">larger tilesets</a>, using any tile ID from $00 to $FF.</li>
-<li><b>Tile Priority:</b> Palettes can prepend "PRIORITY_" to colors to make tiles appear above sprites. This is appropriate for Polished Crystal, Orange, or any pokecrystal hack that <a href="https://hax.iimarckus.org/topic/7268/">enables tile priority</a>.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
@@ -68,6 +67,6 @@ R"(<html>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
 </ul>
 <p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar palette. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
-<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "Priority" checkbox sets the priority bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://hax.iimarckus.org/topic/7268/">a feature</a> of Polished Crystal and similar hacks.</p>
+<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites">a feature</a> of Polished Crystal and similar hacks.</p>
 </body>
 </html>)"

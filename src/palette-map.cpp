@@ -90,6 +90,7 @@ bool Palette_Map::write_palette_map(const char *f) {
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
 	const char *prefix = Config::palette_macro();
 	bool skip = Config::skip_tiles_60_to_7f();
+	bool seen_priority = false;
 	for (size_t i = 0; i < n; i++) {
 		if (skip && (i == 0x60 || i == 0xe0)) {
 			fputs("\nrept 16\n\tdb $ff\nendr\n\n", file);
@@ -111,21 +112,21 @@ bool Palette_Map::write_palette_map(const char *f) {
 		case BROWN:           fputs("BROWN", file); break;
 		case ROOF:            fputs("ROOF", file); break;
 		case TEXT: default:   fputs("TEXT", file); break;
-		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); break;
-		case PRIORITY_RED:    fputs("PRIORITY_RED", file); break;
-		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); break;
-		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); break;
-		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); break;
-		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); break;
-		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); break;
-		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); break;
+		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); seen_priority = true; break;
+		case PRIORITY_RED:    fputs("PRIORITY_RED", file); seen_priority = true; break;
+		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); seen_priority = true; break;
+		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); seen_priority = true; break;
+		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); seen_priority = true; break;
+		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); seen_priority = true; break;
+		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); seen_priority = true; break;
+		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); seen_priority = true; break;
 		}
 		if (i % PALETTES_PER_LINE == PALETTES_PER_LINE - 1) {
 			fputc('\n', file);
 		}
 	}
-	if (Config::tile_priority() && n % 2) { fputs(", TEXT", file); }
-	if (n % PALETTES_PER_LINE) { fputc('\n', file); }
+	if (n % 2) { fputs(", TEXT", file); }
+	if (!seen_priority && n % PALETTES_PER_LINE) { fputc('\n', file); }
 	fclose(file);
 	return true;
 }
