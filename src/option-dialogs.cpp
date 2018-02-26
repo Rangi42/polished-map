@@ -161,15 +161,21 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	guess_map_constant(name, constant);
 
 	while (ifs.good()) {
+		bool w_x_h = false;
 		std::string line;
 		std::getline(ifs, line);
 		trim(line);
-		if (starts_with(line, "mapgroup")) {
-			// "mapgroup": pokecrystal and derivations
+		if (starts_with(line, "map_const")) {
+			// "map_const": pokecrystal
+			line.erase(0, strlen("map_const") + 1); // include next whitespace character
+			w_x_h = true;
+		}
+		else if (starts_with(line, "mapgroup")) {
+			// "mapgroup": pokecrystal pre-2018
 			line.erase(0, strlen("mapgroup") + 1); // include next whitespace character
 		}
 		else if (starts_with(line, "mapconst")) {
-			// "mapconst": pokecrystal 2018 and Red++
+			// "mapconst": pokered
 			line.erase(0, strlen("mapconst") + 1); // include next whitespace character
 		}
 		else {
@@ -180,7 +186,12 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 		std::istringstream lss(line);
 		int w, h;
 		char comma;
-		lss >> h >> comma >> w;
+		if (w_x_h) {
+			lss >> w >> comma >> h;
+		}
+		else {
+			lss >> h >> comma >> w;
+		}
 		if (1 <= w && w <= 255 && 1 <= h && h <= 255) {
 			_map_width->value(w);
 			_map_height->value(h);
