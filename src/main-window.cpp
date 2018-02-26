@@ -82,7 +82,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
 	_lighting = new Dropdown(0, 0, text_width("Ice Path", 3) + 24, 22);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	// TODO: new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
@@ -150,6 +150,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
 	_dnd_receiver->user_data(this);
 
+	// TEMPORARY: hide not-yet-implemented features
+	_load_event_script_tb->hide();
+	_show_events_tb->hide();
+	_blocks_mode_tb->hide();
+	_events_mode_tb->hide();
+	_show_events_tb->hide();
+	_edit_custom_lighting_tb->hide();
+
 	// Configure window
 	size_range(384, 256);
 	resizable(_map_scroll);
@@ -178,17 +186,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		// label, shortcut, callback, data, flags
 		OS_SUBMENU("&File"),
 		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
-		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
-		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
-		OS_MENU_ITEM("Load Custom &Lighting...", 0, (Fl_Callback *)load_custom_lighting_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, 0),
-		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, FL_MENU_DIVIDER/*0*/),
+		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
+		OS_MENU_ITEM("Load Custom &Lighting...", 0, (Fl_Callback *)load_custom_lighting_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER/*0*/),
+		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("Save &As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
-		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
-		OS_MENU_ITEM("Save Event &Script", 0, (Fl_Callback *)save_event_script_cb, this, 0),
-		OS_MENU_ITEM("Save Custo&m Lighting", 0, (Fl_Callback *)save_custom_lighting_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, FL_MENU_DIVIDER/*0*/),
+		OS_MENU_ITEM("Save Event &Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
+		OS_MENU_ITEM("Save Custo&m Lighting", 0, (Fl_Callback *)save_custom_lighting_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
 		{},
@@ -221,7 +229,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Hexadecimal", FL_COMMAND + FL_SHIFT + '4', (Fl_Callback *)hex_cb, this,
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Events &Over Blocks", FL_COMMAND + 'r', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
+			FL_MENU_INVISIBLE | FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
 			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
@@ -237,19 +245,19 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (lighting_config == Lighting::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
-		{},
-		OS_SUBMENU("&Mode"),
+		/*{},
+		OS_SUBMENU("&Mode"),*/
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + '1', (Fl_Callback *)blocks_mode_cb, this,
-			FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
+			FL_MENU_INVISIBLE | FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Events", FL_COMMAND + '2', (Fl_Callback *)events_mode_cb, this,
-			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
+			FL_MENU_INVISIBLE | FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Tools"),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
 		OS_MENU_ITEM("Resize &Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
-		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Edit Custom &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)edit_custom_lighting_cb, this, 0),
+		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, 0/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("Edit Custom &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)edit_custom_lighting_cb, this, FL_MENU_INVISIBLE/*0*/),
 		{},
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
