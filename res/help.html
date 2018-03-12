@@ -19,7 +19,7 @@ R"(<html>
 <li><b>GUI:</b> Drag a .blk file onto an open Polished Map window.</li>
 <li><b>Command Prompt:</b> Pass the .blk filename as an argument to polishedmap.exe:<br><font size="2"><kbd>polishedmap.exe&nbsp;C:\pokecrystal\maps\SomeMap.blk</kbd></font></li>
 </ul>
-<p>Polished Map will try to guess a map's size and tileset. You can append them to the filename as <kbd>.<var>WIDTH</var>x<var>HEIGHT</var></kbd> or <kbd>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var></kbd>; for instance, NewBarkTown.10x9.blk or UnionCave1F.10x18.24.blk. Otherwise Polished Map will guess the map's constant ID from its filename and read its size from the assembly code; for instance, UnionCaveB2F.blk is guessed to be <code>UNION_CAVE_B2F</code>. This can fail, like when LakeofRage.blk is guessed as <code>LAKEOF_RAGE</code>. Then you'll just have to enter the size yourself.</p>
+<p>Polished Map will try to guess a map's size and tileset. You can append them to the filename as <kbd>.<var>WIDTH</var>x<var>HEIGHT</var></kbd> or <kbd>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var></kbd>; for instance, NewBarkTown.10x9.blk or UnionCave1F.10x18.cave.blk. Otherwise Polished Map will guess the map's constant ID from its filename and read its size from the assembly code; for instance, UnionCaveB2F.blk is guessed to be <code>UNION_CAVE_B2F</code>. This can fail, like when LakeofRage.blk is guessed as <code>LAKEOF_RAGE</code>. Then you'll just have to enter the size yourself.</p>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
 <li><b>Monochrome:</b> Palettes will not be read or written. This is appropriate for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
@@ -67,6 +67,6 @@ R"(<html>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
 </ul>
 <p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar palette. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
-<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites">a feature</a> of Polished Crystal and similar hacks.</p>
+<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">a feature</a> of Polished Crystal and similar hacks.</p>
 </body>
 </html>)"

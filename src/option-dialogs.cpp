@@ -281,7 +281,9 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
 		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
-		int ext_len = ends_with(name, ".2bpp.lz") ? 8 : ends_with(name, ".png") ? 4 : 0;
+		int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
+			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
+			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
 			std::string original_name(add_tileset(name, ext_len, pretty_names));
 			if (tileset_name == original_name) { v = _tileset->size() - 2; } // ignore terminating NULL
