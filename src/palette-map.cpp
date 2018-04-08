@@ -25,8 +25,8 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
 
 	if (Config::monochrome()) {
-		FILL(_palette, Palette::MONOCHROME, MAX_NUM_TILES);
-		_palette_size = 0x60;
+		_palette_size = Config::allow_256_tiles() ? MAX_NUM_TILES : 0x60;
+		FILL(_palette, Palette::MONOCHROME, _palette_size);
 		return (_result = PALETTE_OK);
 	}
 
@@ -89,10 +89,10 @@ bool Palette_Map::write_palette_map(const char *f) {
 	size_t n = MAX_NUM_TILES;
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
 	const char *prefix = Config::palette_macro();
-	bool skip = Config::skip_tiles_60_to_7f();
+	bool allow_256_tiles = Config::allow_256_tiles();
 	bool seen_priority = false;
 	for (size_t i = 0; i < n; i++) {
-		if (skip && (i == 0x60 || i == 0xe0)) {
+		if (!allow_256_tiles && (i == 0x60 || i == 0xe0)) {
 			fputs("\nrept 16\n\tdb $ff\nendr\n\n", file);
 			i += 0x1f;
 			continue;

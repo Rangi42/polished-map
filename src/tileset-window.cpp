@@ -151,17 +151,17 @@ void Tileset_Window::tileset(Tileset *t) {
 	for (int i = 0x00; i < 0x100; i++) {
 		_deep_tile_buttons[i]->activate();
 	}
-	if (Config::skip_tiles_60_to_7f()) {
+	if (!Config::allow_256_tiles()) {
 		for (int i = 0x60; i < 0x80; i++) {
 			_deep_tile_buttons[i]->deactivate();
 		}
 		for (int i = 0xe0; i < 0x100; i++) {
 			_deep_tile_buttons[i]->deactivate();
 		}
-	}
-	else if (Config::monochrome()) {
-		for (int i = 0x60; i < 0x100; i++) {
-			_deep_tile_buttons[i]->deactivate();
+		if (Config::monochrome()) { // assume pokered's tileset size
+			for (int i = 0x80; i < 0xe0; i++) {
+				_deep_tile_buttons[i]->deactivate();
+			}
 		}
 	}
 	if (Config::monochrome()) {

@@ -10,7 +10,7 @@
 class Config {
 private:
 	static Fl_Preferences global_config;
-	static bool _monochrome, _skip_tiles_60_to_7f;
+	static bool _monochrome, _256_tiles;
 public:
 	inline static Fl_Preferences config(void) { return global_config; }
 	static int get(const char *key, int default_ = 0);
@@ -26,8 +26,8 @@ public:
 	static void tileset_constants_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
-	inline static bool skip_tiles_60_to_7f(void) { return _skip_tiles_60_to_7f; }
-	inline static void skip_tiles_60_to_7f(bool s) { _skip_tiles_60_to_7f = s; }
+	inline static bool allow_256_tiles(void) { return _256_tiles; }
+	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
 };
 
 #endif

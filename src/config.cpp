@@ -28,7 +28,7 @@ static char *trim_suffix(const char *s) {
 
 Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
 
-bool Config::_monochrome = false, Config::_skip_tiles_60_to_7f = true;
+bool Config::_monochrome = false, Config::_256_tiles = false;
 
 int Config::get(const char *key, int default_) {
 	int value;

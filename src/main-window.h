@@ -43,7 +43,7 @@ private:
 		*_event_cursor_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_ice_path_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
-	Fl_Menu_Item *_monochrome_mi = NULL, *_skip_tiles_60_to_7f_mi = NULL;
+	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
 		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_edit_custom_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_event_cursor_tb;
@@ -101,7 +101,7 @@ public:
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
-	inline bool skip_tiles_60_to_7f(void) const { return _skip_tiles_60_to_7f_mi && !!_skip_tiles_60_to_7f_mi->value(); }
+	inline bool allow_256_tiles(void) const { return _allow_256_tiles_mi && !!_allow_256_tiles_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
@@ -185,7 +185,7 @@ private:
 	static void edit_custom_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void skip_tiles_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

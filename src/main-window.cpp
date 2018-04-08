@@ -46,9 +46,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
 
 	int monochrome_config = Config::get("monochrome", 0);
-	int skip_tiles_60_to_7f_config = Config::get("skip", 1);
+	int allow_256_tiles_config = Config::get("all256", 0);
 	Config::monochrome(!!monochrome_config);
-	Config::skip_tiles_60_to_7f(!!skip_tiles_60_to_7f_config);
+	Config::allow_256_tiles(!!allow_256_tiles_config);
 
 	// Populate window
 
@@ -262,8 +262,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Skip Tiles $60 to $7F", 0, (Fl_Callback *)skip_tiles_60_to_7f_cb, this,
-			FL_MENU_TOGGLE | (skip_tiles_60_to_7f_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
+			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -295,7 +295,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
-	_skip_tiles_60_to_7f_mi = PM_FIND_MENU_ITEM_CB(skip_tiles_60_to_7f_cb);
+	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
 	_load_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(load_custom_lighting_cb);
@@ -386,7 +386,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->deimage(SHOW_DISABLED_ICON);
-	_hex_tb->value(show_events());
+	_show_events_tb->value(show_events());
 
 	_event_cursor_tb->tooltip("Event Cursor (Ctrl+U)");
 	_event_cursor_tb->callback((Fl_Callback *)event_cursor_tb_cb, this);
@@ -1606,7 +1606,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Config::set("event", mw->event_cursor());
 	Config::set("lighting", mw->lighting());
 	Config::set("monochrome", mw->monochrome());
-	Config::set("skip", mw->skip_tiles_60_to_7f());
+	Config::set("all256", mw->allow_256_tiles());
 	if (mw->_resize_dialog->initialized()) {
 		Config::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
@@ -1937,8 +1937,8 @@ void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::skip_tiles_60_to_7f_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::skip_tiles_60_to_7f(!!m->mvalue()->value());
+void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::allow_256_tiles(!!m->mvalue()->value());
 	mw->redraw();
 }
 

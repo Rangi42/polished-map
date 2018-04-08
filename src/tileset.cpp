@@ -29,9 +29,9 @@ void Tileset::clear() {
 
 void Tileset::update_lighting(Lighting l) {
 	_lighting = l;
-	bool skip = Config::skip_tiles_60_to_7f();
+	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = skip ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
+		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
 		Tile *t = _tiles[j];
 		Palette p = t->palette();
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
@@ -47,12 +47,12 @@ void Tileset::update_lighting(Lighting l) {
 uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
-	bool skip = Config::skip_tiles_60_to_7f();
+	bool allow_256_tiles = Config::allow_256_tiles();
 	for (size_t i = 0; i < n; i++) {
-		if (skip && i == 0x60) { i += 0x1f; continue; }
+		if (!allow_256_tiles && i == 0x60) { i += 0x1f; continue; }
 		const Tile *t = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
-		if (skip && i >= 0x80) { ty -= 2 * TILE_SIZE; }
+		if (!allow_256_tiles && i >= 0x80) { ty -= 2 * TILE_SIZE; }
 		for (int py = 0; py < TILE_SIZE; py++) {
 			for (int px = 0; px < TILE_SIZE; px++) {
 				Hue h = t->hue(px, py);
@@ -93,9 +93,9 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	_num_tiles = ti.num_tiles();
 
 	_lighting = l;
-	bool skip = Config::skip_tiles_60_to_7f();
+	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = skip ? (i >= 0x60 ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i) : i;
+		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
 		Tile *t = _tiles[j];
 		Palette p = _palette_map.palette((uint8_t)i);
 		t->palette(p);
