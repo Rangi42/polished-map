@@ -1,5 +1,5 @@
-#ifndef VIZ_WINDOW_H
-#define VIZ_WINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <unordered_map>
 

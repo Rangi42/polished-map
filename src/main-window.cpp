@@ -470,7 +470,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		"Copyright \xc2\xa9 2018 Rangi.\n"
 		"\n"
 		"Source code is available at:\n"
-		"https://github.com/roukaour/polished-map\n"
+		"https://github.com/Rangi42/polished-map\n"
 		"\n"
 		"Some icons by Yusuke Kamiyamane."
 	);
