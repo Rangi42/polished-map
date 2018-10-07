@@ -78,7 +78,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _unsaved = false, _copied = false;
+	bool _unsaved = false, _copied = false, _custom_lighting = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
@@ -121,6 +121,7 @@ private:
 	int handle_hotkey(int key);
 	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
+	void load_custom_lighting(const char *filename);
 	bool read_metatile_data(const char *tileset_name);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);

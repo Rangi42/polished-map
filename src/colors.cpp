@@ -1,11 +1,15 @@
+#include <fstream>
+#include <sstream>
+
 #include "colors.h"
+#include "utils.h"
 
 #define RGB5C(x) (uchar)((x) * 8) // (uchar)((x) * 33 / 4) for BGB instead of VBA
 #define RGB5(r, g, b) {RGB5C(r), RGB5C(g), RGB5C(b)}
 #define RGBX(rgb) {(((rgb) & 0xFF0000) >> 16), (((rgb) & 0xFF00) >> 8), ((rgb) & 0xFF)}
 
 // Lighting x Palette x Hue x RGB
-static const uchar tileset_colors[5][9][4][NUM_CHANNELS] = {
+uchar tileset_colors[5][9][4][NUM_CHANNELS] = {
 	{ // DAY
 		// WHITE, DARK, LIGHT, BLACK
 		{RGB5(27,31,27), RGB5(13,13,13), RGB5(21,21,21), RGB5( 7, 7, 7)}, // GRAY, PRIORITY_GRAY
@@ -56,15 +60,15 @@ static const uchar tileset_colors[5][9][4][NUM_CHANNELS] = {
 	},
 	{ // CUSTOM
 		// WHITE, DARK, LIGHT, BLACK
-		{RGBX(0xE0E0E0), RGBX(0x606060), RGBX(0xB0B0B0), RGBX(0x303030)}, // GRAY, PRIORITY_GRAY
-		{RGBX(0xFFC0C0), RGBX(0x802020), RGBX(0xFF4040), RGBX(0x301010)}, // RED, PRIORITY_RED
-		{RGBX(0xC0FFC0), RGBX(0x008000), RGBX(0x00FF00), RGBX(0x003000)}, // GREEN, PRIORITY_GREEN
-		{RGBX(0xC0D8FF), RGBX(0x0040C0), RGBX(0x0080FF), RGBX(0x002040)}, // WATER, PRIORITY_WATER
-		{RGBX(0xFFFFC0), RGBX(0x808000), RGBX(0xFFFF00), RGBX(0x303000)}, // YELLOW, PRIORITY_YELLOW
-		{RGBX(0xF8D8C8), RGBX(0x704010), RGBX(0xD08020), RGBX(0x281808)}, // BROWN, PRIORITY_BROWN
-		{RGBX(0xC0FFFF), RGBX(0x008080), RGBX(0x00FFFF), RGBX(0x003030)}, // ROOF, PRIORITY_ROOF
-		{RGBX(0xFFC0FF), RGBX(0x800080), RGBX(0xFF00FF), RGBX(0x300030)}, // TEXT, PRIORITY_TEXT
-		{RGBX(0xFFFFFF), RGBX(0x555555), RGBX(0xAAAAAA), RGBX(0x000000)}, // MONOCHROME
+		{RGB5(28,31,28), RGB5(13,13,13), RGB5(21,21,21), RGB5( 7, 7, 7)}, // GRAY, PRIORITY_GRAY
+		{RGB5(28,31,28), RGB5(24, 6, 8), RGB5(29,16,13), RGB5( 7, 7, 7)}, // RED, PRIORITY_RED
+		{RGB5(14,25,20), RGB5( 5,14,10), RGB5( 9,19, 5), RGB5( 7, 7, 7)}, // GREEN, PRIORITY_GREEN
+		{RGB5(28,31,28), RGB5( 1,12,19), RGB5( 8,20,27), RGB5( 7, 7, 7)}, // WATER, PRIORITY_WATER
+		{RGB5(28,31,28), RGB5(12,20,27), RGB5(19,26,31), RGB5( 7, 7, 7)}, // YELLOW, PRIORITY_YELLOW
+		{RGB5(28,31,28), RGB5(17,13,10), RGB5(22,18,15), RGB5( 7, 7, 7)}, // BROWN, PRIORITY_BROWN
+		{RGB5(28,31,28), RGB5( 5,17,31), RGB5(15,31,31), RGB5( 7, 7, 7)}, // ROOF, PRIORITY_ROOF
+		{RGB5(28,31,28), RGB5(26, 8, 5), RGB5(31,31,31), RGB5( 0, 0, 0)}, // TEXT, PRIORITY_TEXT
+		{RGB5(31,31,31), RGB5(10,10,10), RGB5(20,20,20), RGB5( 0, 0, 0)}, // MONOCHROME
 	},
 };
 
@@ -74,11 +78,64 @@ static const uchar undefined_colors[4][NUM_CHANNELS] = {
 };
 
 const uchar *Color::color(Lighting l, Palette p, Hue h) {
-	int i = (int)p & 0xf;
-	return p == Palette::UNDEFINED ? undefined_colors[h] : tileset_colors[l][i][h];
+	int c = (int)p & 0xf;
+	return p == Palette::UNDEFINED ? undefined_colors[h] : tileset_colors[l][c][h];
+}
+
+void Color::color(Lighting l, Palette p, Hue h, uchar v[3]) {
+	int c = (int)p & 0xf;
+	for (int i = 0; i < 3; i++) {
+		tileset_colors[l][c][h][i] = RGB5C(v[i]);
+	}
+}
+
+void Color::color(Lighting l, Palette p, uchar v[4][3]) {
+	for (int i = 0; i < 4; i++) {
+		color(l, p, (Hue)i, v[i]);
+	}
 }
 
 Fl_Color Color::fl_color(Lighting l, Palette p, Hue h) {
 	const uchar *rgb = color(l, p, h);
 	return fl_rgb_color(rgb[0], rgb[1], rgb[2]);
+}
+
+void Color::read_custom_lighting(const char *f) {
+	static const Hue hue_order[4] = {Hue::WHITE, Hue::LIGHT, Hue::DARK, Hue::BLACK};
+	uchar custom_colors[8][4][NUM_CHANNELS] = {};
+	int palette = 0, hue = 0, channel = 0;
+	std::ifstream ifs(f);
+	while (ifs.good() && palette < 8) {
+		std::string line;
+		std::getline(ifs, line);
+		trim(line);
+		if (!starts_with(line, "RGB")) { continue; }
+		line.erase(0, strlen("RGB") + 1); // include next whitespace character
+		line += ";"; // ensure trailing separator
+		std::istringstream lss(line);
+		while (lss.good()) {
+			unsigned int v;
+			char sep;
+			lss >> v >> sep;
+			custom_colors[palette][hue_order[hue]][channel] = (uchar)v;
+			channel++;
+			if (channel == NUM_CHANNELS) {
+				channel = 0;
+				hue++;
+				if (hue == 4) {
+					hue = 0;
+					palette++;
+					if (palette == 8) { break; }
+				}
+			}
+			if (sep == ';') { break; }
+		}
+	}
+	if (palette == 1) {
+		color(Lighting::CUSTOM, Palette::MONOCHROME, custom_colors[0]);
+		return;
+	}
+	for (int p = 0; p < palette; p++) {
+		color(Lighting::CUSTOM, (Palette)p, custom_colors[p]);
+	}
 }

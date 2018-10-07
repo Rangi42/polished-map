@@ -18,7 +18,10 @@ enum Hue { WHITE, DARK, LIGHT, BLACK };
 class Color {
 public:
 	static const uchar *color(Lighting l, Palette p, Hue h);
+	static void color(Lighting l, Palette p, Hue h, uchar v[3]);
+	static void color(Lighting l, Palette p, uchar v[4][3]);
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);
+	static void read_custom_lighting(const char *f);
 };
 
 #endif
