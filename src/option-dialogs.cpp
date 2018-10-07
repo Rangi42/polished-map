@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <algorithm>
 #include <cstdlib>
 
 #pragma warning(push, 0)
@@ -135,18 +136,17 @@ static void guess_map_constant(const char *name, char *constant) {
 	*constant = '\0';
 }
 
-bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, std::string &tileset_name) {
+bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
 	if (!filename) { return false; }
 
 	std::cmatch cm;
-	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.([A-Za-z0-9_-]+))?\\.[Bb][Ll][Kk]");
+	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.[A-Za-z0-9_-]+)?\\.[Bb][Ll][Kk]");
 	std::regex_match(filename, cm, rx);
 	size_t n = cm.size();
-	if (n >= 3) {
+	if (n == 3) {
 		std::string sw(cm[1]), sh(cm[2]);
 		_map_width->value(std::stoi(sw));
 		_map_height->value(std::stoi(sh));
-		if (n == 4) { tileset_name = cm[3].str(); }
 		return true;
 	}
 
@@ -203,6 +203,64 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	return false;
 }
 
+std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const char *directory) {
+	if (!filename) { return ""; }
+
+	std::cmatch cm;
+	std::regex rx(".+\\.([A-Za-z0-9_-]+)\\.[Bb][Ll][Kk]");
+	std::regex_match(filename, cm, rx);
+	size_t n = cm.size();
+	if (n == 2) {
+		return cm[1].str();
+	}
+
+	char map_headers[FL_PATH_MAX] = {};
+	Config::map_headers_path(map_headers, directory);
+
+	std::ifstream ifs(map_headers);
+	if (!ifs.good()) { return ""; }
+
+	const char *name = fl_filename_name(filename);
+	char map_name[FL_PATH_MAX] = {};
+	strcpy(map_name, name);
+	char *dot = strchr(map_name, '.');
+	if (dot) { *dot = '\0'; }
+	while (ifs.good()) {
+		std::string line;
+		std::getline(ifs, line);
+		trim(line);
+		if (starts_with(line, "map_header")) {
+			// "map_header": pokecrystal pre-2018
+			line.erase(0, strlen("map_header") + 1); // include next whitespace character
+		}
+		else if (starts_with(line, "map")) {
+			// "map": pokecrystal
+			line.erase(0, strlen("map") + 1); // include next whitespace character
+		}
+		else {
+			continue;
+		}
+		if (!starts_with(line, map_name)) { continue; }
+		line.erase(0, strlen(map_name));
+		std::istringstream lss(line);
+		char comma1;
+		std::string tileset_name;
+		lss >> comma1;
+		if (comma1 != ',') { continue; }
+		lss >> tileset_name;
+		if (!starts_with(tileset_name, "TILESET_")) { return ""; }
+		tileset_name.erase(0, strlen("TILESET_"));
+		size_t comma2 = tileset_name.find(',');
+		if (comma2 != std::string::npos) {
+			tileset_name.erase(comma2);
+		}
+		std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
+		return tileset_name;
+	}
+
+	return "";
+}
+
 Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
 	Dictionary pretty_names;
 
@@ -222,7 +280,7 @@ Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
 		lss >> token;
 		if (token != "const") { continue; }
 		lss >> token;
-		if (starts_with(token, "TILESET_")) { token.erase(0, 8); }
+		if (starts_with(token, "TILESET_")) { token.erase(0, strlen("TILESET_")); }
 		sprintf(original, "%02d", id++);
 		token = original + (": " + token);
 		pretty_names[original] = token;
@@ -257,8 +315,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	initialize();
 
 	// Initialize map size
-	std::string tileset_name;
-	if (!guess_map_size(filename, directory, tileset_name)) {
+	if (!guess_map_size(filename, directory)) {
 		_map_width->value(1);
 		_map_height->value(1);
 	}
@@ -276,6 +333,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 	_tileset->clear();
 
+	std::string guessed_tileset_name = guess_map_tileset(filename, directory);
 	Dictionary pretty_names = guess_tileset_names(directory);
 	int v = 0;
 	for (int i = 0; i < n; i++) {
@@ -286,7 +344,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
 			std::string original_name(add_tileset(name, ext_len, pretty_names));
-			if (tileset_name == original_name) { v = _tileset->size() - 2; } // ignore terminating NULL
+			if (guessed_tileset_name == original_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 		}
 	}
 	_tileset->value(v);

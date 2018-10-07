@@ -24,6 +24,7 @@ public:
 	static void metatileset_path(char *dest, const char *root, const char *tileset);
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
+	static void map_headers_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }

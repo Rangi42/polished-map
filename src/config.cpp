@@ -123,10 +123,18 @@ void Config::map_constants_path(char *dest, const char *root) {
 	sprintf(dest, "%sconstants" DIR_SEP "map_constants.asm", root);
 }
 
+void Config::map_headers_path(char *dest, const char *root) {
+	// try data/maps/maps.asm (POKECRYSTAL2018)
+	sprintf(dest, "%sdata" DIR_SEP "maps" DIR_SEP "maps.asm", root);
+	if (file_exists(dest)) { return; }
+	// last resort: maps/map_headers.asm
+	sprintf(dest, "%smaps" DIR_SEP "map_headers.asm", root);
+}
+
 void Config::tileset_constants_path(char *dest, const char *root) {
 	// try constants/tileset_constants.asm
 	sprintf(dest, "%sconstants" DIR_SEP "tileset_constants.asm", root);
 	if (file_exists(dest)) { return; }
-	// try constants/tilemap_constants.asm
+	// last resort: constants/tilemap_constants.asm
 	sprintf(dest, "%sconstants" DIR_SEP "tilemap_constants.asm", root);
 }
