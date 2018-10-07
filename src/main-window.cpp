@@ -82,7 +82,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
-	_lighting = new Dropdown(0, 0, text_width("Ice Path", 3) + 24, 22);
+	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
 	// TODO: new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
@@ -234,14 +234,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
 			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
+			FL_MENU_RADIO | (lighting_config == Lighting::MORN ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Day", 0, (Fl_Callback *)day_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::DAY ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::NITE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::INDOOR ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Ice &Path", 0, (Fl_Callback *)ice_path_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::ICE_PATH ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
@@ -288,10 +288,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
+	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_lighting_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
 	_night_mi = PM_FIND_MENU_ITEM_CB(night_lighting_cb);
 	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_lighting_cb);
-	_ice_path_mi = PM_FIND_MENU_ITEM_CB(ice_path_lighting_cb);
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_lighting_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
@@ -395,11 +395,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_event_cursor_tb->deimage(CURSOR_DISABLED_ICON);
 	_event_cursor_tb->value(event_cursor());
 
-	_lighting->add("Day");      // Lighting::DAY
-	_lighting->add("Night");    // Lighting::NITE
-	_lighting->add("Indoor");   // Lighting::INDOOR
-	_lighting->add("Ice Path"); // Lighting::ICE_PATH
-	_lighting->add("Custom");   // Lighting::CUSTOM
+	_lighting->add("Morn");   // Lighting::MORN
+	_lighting->add("Day");    // Lighting::DAY
+	_lighting->add("Night");  // Lighting::NITE
+	_lighting->add("Indoor"); // Lighting::INDOOR
+	_lighting->add("Custom"); // Lighting::CUSTOM
 	_lighting->value(lighting_config);
 	_lighting->callback((Fl_Callback *)lighting_cb, this);
 
@@ -1791,6 +1791,12 @@ void Main_Window::event_cursor_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 
 #undef SYNC_MI_WITH_TB
 
+void Main_Window::morn_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_lighting->value(Lighting::MORN);
+	mw->update_lighting();
+	mw->redraw();
+}
+
 void Main_Window::day_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_lighting->value(Lighting::DAY);
 	mw->update_lighting();
@@ -1809,12 +1815,6 @@ void Main_Window::indoor_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::ice_path_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::ICE_PATH);
-	mw->update_lighting();
-	mw->redraw();
-}
-
 void Main_Window::custom_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_lighting->value(Lighting::CUSTOM);
 	mw->update_lighting();
@@ -1824,11 +1824,11 @@ void Main_Window::custom_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::lighting_cb(Dropdown *, Main_Window *mw) {
 	Lighting lighting = (Lighting)mw->_lighting->value();
 	switch (lighting) {
-	case Lighting::DAY:      mw->_day_mi->setonly(); break;
-	case Lighting::NITE:     mw->_night_mi->setonly(); break;
-	case Lighting::INDOOR:   mw->_indoor_mi->setonly(); break;
-	case Lighting::ICE_PATH: mw->_ice_path_mi->setonly(); break;
-	case Lighting::CUSTOM:   mw->_custom_mi->setonly(); break;
+	case Lighting::MORN:   mw->_morn_mi->setonly(); break;
+	case Lighting::DAY:    mw->_day_mi->setonly(); break;
+	case Lighting::NITE:   mw->_night_mi->setonly(); break;
+	case Lighting::INDOOR: mw->_indoor_mi->setonly(); break;
+	case Lighting::CUSTOM: mw->_custom_mi->setonly(); break;
 	}
 	mw->update_lighting();
 	mw->redraw();

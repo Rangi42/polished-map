@@ -41,7 +41,7 @@ private:
 		*_dark_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_events_mi = NULL,
 		*_event_cursor_mi = NULL, *_full_screen_mi = NULL;
-	Fl_Menu_Item *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_ice_path_mi = NULL, *_custom_mi = NULL;
+	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
@@ -169,10 +169,10 @@ private:
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void event_cursor_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void morn_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void indoor_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void ice_path_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void custom_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Mode menu
