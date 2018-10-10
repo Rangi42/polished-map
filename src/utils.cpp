@@ -2,10 +2,12 @@
 #include <io.h>
 #else
 #include <unistd.h>
+#include <libgen.h>
 #endif
 
 #pragma warning(push, 0)
 #include <FL/fl_draw.H>
+#include <FL/filename.H>
 #pragma warning(pop)
 
 #include "utils.h"
@@ -46,4 +48,18 @@ bool file_exists(const char *f) {
 #else
 	return !access(f, 4);
 #endif
+}
+
+bool dir_name(const char *f, char *d) {
+#ifdef _WIN32
+	if (_splitpath_s(f, NULL, 0, d, FL_PATH_MAX, NULL, 0, NULL, 0)) {
+		return false;
+	}
+#else
+	char *f2 = strdup(f);
+	strcpy(d, dirname(f2));
+	free(f2);
+	strcat(d, DIR_SEP);
+#endif
+	return true;
 }

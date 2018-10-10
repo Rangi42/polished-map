@@ -325,3 +325,16 @@ void Swatch::draw() {
 		draw_selection_border(x(), y(), w(), false);
 	}
 }
+
+Color_Button::Color_Button(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s, l) {
+	user_data(NULL);
+	box(FL_FLAT_BOX);
+	down_box(FL_FLAT_BOX);
+}
+
+void Color_Button::draw() {
+	draw_box();
+	if (value()) {
+		draw_selection_border(x(), y(), w(), false);
+	}
+}

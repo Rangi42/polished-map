@@ -43,6 +43,8 @@
 #include "change-disabled.xpm"
 #include "tileset.xpm"
 #include "tileset-disabled.xpm"
+#include "load-lighting.xpm"
+#include "load-lighting-disabled.xpm"
 #include "lighting.xpm"
 #include "lighting-disabled.xpm"
 
@@ -86,5 +88,7 @@ static Fl_Pixmap TILESET_ICON(TILESET_XPM);
 static Fl_Pixmap TILESET_DISABLED_ICON(TILESET_DISABLED_XPM);
 static Fl_Pixmap LIGHTING_ICON(LIGHTING_XPM);
 static Fl_Pixmap LIGHTING_DISABLED_ICON(LIGHTING_DISABLED_XPM);
+static Fl_Pixmap LOAD_LIGHTING_ICON(LOAD_LIGHTING_XPM);
+static Fl_Pixmap LOAD_LIGHTING_DISABLED_ICON(LOAD_LIGHTING_DISABLED_XPM);
 
 #endif

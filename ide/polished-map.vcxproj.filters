@@ -81,6 +81,9 @@
     <ClCompile Include="..\src\directory-chooser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\lighting-window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\image.h">
@@ -153,6 +156,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\directory-chooser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lighting-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -293,6 +299,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\print-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load-lighting.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load-lighting-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
