@@ -20,6 +20,7 @@
 #include "help-window.h"
 #include "block-window.h"
 #include "tileset-window.h"
+#include "lighting-window.h"
 #include "directory-chooser.h"
 
 #define METATILES_PER_ROW 4
@@ -45,19 +46,18 @@ private:
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
-		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_edit_custom_lighting_tb;
+		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_event_cursor_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_load_custom_lighting_mi = NULL, *_close_mi = NULL,
-		*_unload_event_script_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL,
-		*_save_tileset_mi = NULL, *_save_event_script_mi = NULL, *_save_custom_lighting_mi = NULL, *_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_close_mi = NULL, *_unload_event_script_mi = NULL, *_save_mi = NULL,
+		*_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_edit_tileset_mi = NULL,
-		*_edit_custom_lighting_mi = NULL;
+		*_edit_current_lighting_mi = NULL;
 	// Dialogs
 	Directory_Chooser *_new_dir_chooser;
 	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_pal_load_chooser, *_pal_save_chooser, *_png_chooser;
@@ -69,6 +69,8 @@ private:
 	Help_Window *_help_window;
 	Block_Window *_block_window;
 	Tileset_Window *_tileset_window;
+	Lighting_Window *_lighting_window;
+	Monochrome_Lighting_Window *_monochrome_lighting_window;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
@@ -78,7 +80,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _unsaved = false, _copied = false, _custom_lighting = false;
+	bool _unsaved = false, _edited_lighting = false, _copied = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
@@ -121,7 +123,7 @@ private:
 	int handle_hotkey(int key);
 	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
-	void load_custom_lighting(const char *filename);
+	void load_lighting(const char *filename);
 	bool read_metatile_data(const char *tileset_name);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
@@ -129,6 +131,7 @@ private:
 	bool save_map(bool force);
 	bool save_metatileset(void);
 	bool save_tileset(void);
+	bool export_lighting(const char *filename, Lighting l);
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
 	void update_labels(void);
@@ -139,16 +142,16 @@ private:
 	// File menu
 	static void new_cb(Fl_Widget *w, Main_Window *mw);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
-	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
-	static void load_custom_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
-	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
+	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
+	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
-	static void save_custom_lighting_cb(Fl_Widget *w, Main_Window *mw);
+	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
+	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void print_cb(Fl_Widget *w, Main_Window *mw);
 	static void exit_cb(Fl_Widget *w, Main_Window *mw);
 	// Edit menu
@@ -183,7 +186,7 @@ private:
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
 	static void change_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_tileset_cb(Fl_Widget *w, Main_Window *mw);
-	static void edit_custom_lighting_cb(Fl_Widget *w, Main_Window *mw);
+	static void edit_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);

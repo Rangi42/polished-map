@@ -83,15 +83,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
 	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
+	_load_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
+	_edit_current_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
 	// TODO: new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_change_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
-	_edit_custom_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
 	_toolbar->end();
 	begin();
 
@@ -145,6 +147,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
 	_tileset_window = new Tileset_Window(48, 48);
+	_lighting_window = new Lighting_Window(48, 48);
+	_monochrome_lighting_window = new Monochrome_Lighting_Window(48, 48);
 
 	// Drag-and-drop receiver
 	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
@@ -157,7 +161,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blocks_mode_tb->hide();
 	_events_mode_tb->hide();
 	_show_events_tb->hide();
-	_edit_custom_lighting_tb->hide();
 
 	// Configure window
 	size_range(384, 256);
@@ -187,17 +190,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		// label, shortcut, callback, data, flags
 		OS_SUBMENU("&File"),
 		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
-		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, FL_MENU_DIVIDER/*0*/),
-		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
-		OS_MENU_ITEM("Load Custom &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_custom_lighting_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER/*0*/),
-		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("Save &As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
-		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, FL_MENU_DIVIDER/*0*/),
+		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
 		OS_MENU_ITEM("Save Event &Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
-		OS_MENU_ITEM("Save Custo&m Lighting", 0, (Fl_Callback *)save_custom_lighting_cb, this, FL_MENU_INACTIVE | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
+		OS_MENU_ITEM("&Export Current Lighting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
 		{},
@@ -258,7 +261,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Resize &Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
 		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Edit Custom &Lighting...", FL_COMMAND + 'L', (Fl_Callback *)edit_custom_lighting_cb, this, FL_MENU_INACTIVE),
+		OS_MENU_ITEM("Edit Current &Lighting...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_lighting_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
@@ -299,7 +302,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
-	_load_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(load_custom_lighting_cb);
 	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
 	_save_mi = PM_FIND_MENU_ITEM_CB(save_cb);
@@ -307,7 +309,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_save_blockset_mi = PM_FIND_MENU_ITEM_CB(save_metatiles_cb);
 	_save_tileset_mi = PM_FIND_MENU_ITEM_CB(save_tileset_cb);
 	_save_event_script_mi = PM_FIND_MENU_ITEM_CB(save_event_script_cb);
-	_save_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(save_custom_lighting_cb);
 	_print_mi = PM_FIND_MENU_ITEM_CB(print_cb);
 	_undo_mi = PM_FIND_MENU_ITEM_CB(undo_cb);
 	_redo_mi = PM_FIND_MENU_ITEM_CB(redo_cb);
@@ -318,7 +319,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_resize_map_mi = PM_FIND_MENU_ITEM_CB(resize_cb);
 	_change_tileset_mi = PM_FIND_MENU_ITEM_CB(change_tileset_cb);
 	_edit_tileset_mi = PM_FIND_MENU_ITEM_CB(edit_tileset_cb);
-	_edit_custom_lighting_mi = PM_FIND_MENU_ITEM_CB(edit_custom_lighting_cb);
+	_edit_current_lighting_mi = PM_FIND_MENU_ITEM_CB(edit_current_lighting_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -435,10 +436,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_edit_tileset_tb->image(TILESET_ICON);
 	_edit_tileset_tb->deimage(TILESET_DISABLED_ICON);
 
-	_edit_custom_lighting_tb->tooltip("Edit Custom Lighting... (Ctrl+L)");
-	_edit_custom_lighting_tb->callback((Fl_Callback *)edit_custom_lighting_cb, this);
-	_edit_custom_lighting_tb->image(LIGHTING_ICON);
-	_edit_custom_lighting_tb->deimage(LIGHTING_DISABLED_ICON);
+	_load_lighting_tb->tooltip("Load Lighting... (Ctrl+L)");
+	_load_lighting_tb->callback((Fl_Callback *)load_lighting_cb, this);
+	_load_lighting_tb->image(LOAD_LIGHTING_ICON);
+	_load_lighting_tb->deimage(LOAD_LIGHTING_DISABLED_ICON);
+
+	_edit_current_lighting_tb->tooltip("Edit Current Lighting... (Ctrl+Shift+L)");
+	_edit_current_lighting_tb->callback((Fl_Callback *)edit_current_lighting_cb, this);
+	_edit_current_lighting_tb->image(LIGHTING_ICON);
+	_edit_current_lighting_tb->deimage(LIGHTING_DISABLED_ICON);
 
 	// Configure dialogs
 
@@ -451,12 +457,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
 	_blk_save_chooser->preset_file("NewMap.blk");
 
-	_pal_load_chooser->title("Open Custom Lighting");
+	_pal_load_chooser->title("Open Lighting");
 	_pal_load_chooser->filter("PAL Files\t*.pal\n");
 
-	_pal_save_chooser->title("Save Custom Lighting");
+	_pal_save_chooser->title("Save Lighting");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
-	_pal_save_chooser->preset_file("custom.pal");
+	_pal_save_chooser->preset_file("lighting.pal");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -510,6 +516,8 @@ Main_Window::~Main_Window() {
 	delete _help_window;
 	delete _block_window;
 	delete _tileset_window;
+	delete _lighting_window;
+	delete _monochrome_lighting_window;
 }
 
 void Main_Window::show() {
@@ -665,7 +673,6 @@ void Main_Window::update_active_controls() {
 	if (_map.size()) {
 		_load_event_script_mi->activate();
 		_load_event_script_tb->activate();
-		_load_custom_lighting_mi->activate();
 		_close_mi->activate();
 		_save_mi->activate();
 		_save_tb->activate();
@@ -681,16 +688,6 @@ void Main_Window::update_active_controls() {
 		else {
 			_unload_event_script_mi->deactivate();
 			_save_event_script_mi->deactivate();
-		}
-		if (false/*TODO: !_custom_lighting*/) {
-			_save_custom_lighting_mi->activate();
-			_edit_custom_lighting_mi->activate();
-			_edit_custom_lighting_tb->activate();
-		}
-		else {
-			_save_custom_lighting_mi->deactivate();
-			_edit_custom_lighting_mi->deactivate();
-			_edit_custom_lighting_tb->deactivate();
 		}
 		if (_map.can_undo()) {
 			_undo_mi->activate();
@@ -724,12 +721,12 @@ void Main_Window::update_active_controls() {
 		_change_tileset_mi->activate();
 		_change_tileset_tb->activate();
 		_edit_tileset_mi->activate();
+		_edit_current_lighting_mi->activate();
 		_edit_tileset_tb->activate();
 	}
 	else {
 		_load_event_script_mi->deactivate();
 		_load_event_script_tb->deactivate();
-		_load_custom_lighting_mi->deactivate();
 		_close_mi->deactivate();
 		_unload_event_script_mi->deactivate();
 		_save_mi->deactivate();
@@ -738,7 +735,6 @@ void Main_Window::update_active_controls() {
 		_save_blockset_mi->deactivate();
 		_save_tileset_mi->deactivate();
 		_save_event_script_mi->deactivate();
-		_save_custom_lighting_mi->deactivate();
 		_print_mi->deactivate();
 		_print_tb->deactivate();
 		_undo_mi->deactivate();
@@ -755,9 +751,8 @@ void Main_Window::update_active_controls() {
 		_change_tileset_mi->deactivate();
 		_edit_tileset_mi->deactivate();
 		_change_tileset_tb->deactivate();
-		_edit_custom_lighting_mi->deactivate();
+		_edit_current_lighting_mi->deactivate();
 		_edit_tileset_tb->deactivate();
-		_edit_custom_lighting_tb->deactivate();
 	}
 }
 
@@ -939,6 +934,20 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_block_window->tileset(tileset);
 	_tileset_window->tileset(tileset);
 
+	// load default palettes
+	Config::bg_tiles_pal_path(buffer, directory);
+	load_lighting(buffer);
+
+	// load unique tileset palettes if they exist
+	Config::tileset_path(buffer, directory, tileset_name);
+	fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
+	load_lighting(buffer);
+
+	// load unique map palettes if they exist
+	strcpy(buffer, filename);
+	fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
+	load_lighting(buffer);
+
 	update_active_controls();
 	update_labels();
 	update_status(NULL);
@@ -946,8 +955,22 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
-void Main_Window::load_custom_lighting(const char *filename) {
-	Color::read_custom_lighting(filename);
+void Main_Window::load_lighting(const char *filename) {
+	if (_edited_lighting) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "The lighting has been edited!\n\n";
+		msg = msg + "Load " + basename + " anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return; }
+	}
+
+	Lighting new_lighting = Color::read_lighting(filename, lighting());
+	_edited_lighting = false;
+	if (new_lighting != lighting()) {
+		_lighting->value(new_lighting);
+		lighting_cb(NULL, this);
+	}
 	update_lighting();
 	redraw();
 }
@@ -1152,11 +1175,11 @@ void Main_Window::resize_map(int w, int h) {
 
 bool Main_Window::save_map(bool force) {
 	const char *filename = _blk_file.c_str();
+	const char *basename = fl_filename_name(filename);
 
 	if (_map.modified() || force) {
 		FILE *file = fl_fopen(filename, "wb");
 		if (!file) {
-			const char *basename = fl_filename_name(filename);
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -1174,7 +1197,6 @@ bool Main_Window::save_map(bool force) {
 		_map.modified(false);
 	}
 
-	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
@@ -1188,10 +1210,10 @@ bool Main_Window::save_metatileset() {
 	const char *directory = _directory.c_str();
 	const char *tileset_name = _metatileset.tileset()->name();
 	Config::metatileset_path(filename, directory, tileset_name);
+	const char *basename = fl_filename_name(filename);
 
 	if (_metatileset.modified()) {
 		if (!_metatileset.write_metatiles(filename)) {
-			const char *basename = fl_filename_name(filename);
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -1201,7 +1223,6 @@ bool Main_Window::save_metatileset() {
 		_metatileset.modified(false);
 	}
 
-	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
@@ -1226,8 +1247,9 @@ bool Main_Window::save_tileset() {
 	}
 
 	Config::tileset_png_path(filename, directory, tileset_name);
+	const char *basename = fl_filename_name(filename);
+
 	if (!tileset->write_graphics(filename)) {
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -1235,7 +1257,6 @@ bool Main_Window::save_tileset() {
 		return false;
 	}
 
-	const char *basename = fl_filename_name(filename);
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
@@ -1243,8 +1264,9 @@ bool Main_Window::save_tileset() {
 
 	if (!Config::monochrome()) {
 		Config::palette_map_path(filename, directory, tileset_name);
+		const char *basename = fl_filename_name(filename);
+
 		if (!tileset->palette_map().write_palette_map(filename)) {
-			const char *basename = fl_filename_name(filename);
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -1252,7 +1274,6 @@ bool Main_Window::save_tileset() {
 			return false;
 		}
 
-		const char *basename = fl_filename_name(filename);
 		std::string msg = "Saved ";
 		msg = msg + basename + "!";
 		_success_dialog->message(msg);
@@ -1260,6 +1281,26 @@ bool Main_Window::save_tileset() {
 	}
 
 	tileset->modified(false);
+	return true;
+}
+
+bool Main_Window::export_lighting(const char *filename, Lighting l) {
+	const char *basename = fl_filename_name(filename);
+
+	if (!Color::write_lighting(filename, l)) {
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	std::string msg = "Exported ";
+	msg = msg + basename + "!";
+	_success_dialog->message(msg);
+	_success_dialog->show(this);
+
+	_edited_lighting = false;
 	return true;
 }
 
@@ -1394,43 +1435,6 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	mw->open_map(filename);
 }
 
-void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
-	// TODO: load_event_script_cb
-	mw->update_active_controls();
-	mw->redraw();
-}
-
-void Main_Window::load_custom_lighting_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map.size()) { return; }
-
-	if (mw->_custom_lighting) {
-		std::string msg = mw->modified_filename();
-		msg = msg + " has unsaved changes!\n\n"
-			"Open another map anyway?";
-		mw->_unsaved_dialog->message(msg);
-		mw->_unsaved_dialog->show(mw);
-		if (mw->_unsaved_dialog->canceled()) { return; }
-	}
-
-	int status = mw->_pal_load_chooser->show();
-	if (status == 1) { return; }
-
-	const char *filename = mw->_pal_load_chooser->filename();
-	const char *basename = fl_filename_name(filename);
-	if (status == -1) {
-		std::string msg = "Could not open ";
-		msg = msg + basename + "!\n\n" + mw->_pal_load_chooser->errmsg();
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-
-	mw->load_custom_lighting(filename);
-
-	mw->update_active_controls();
-	mw->redraw();
-}
-
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
@@ -1466,10 +1470,6 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 
 	mw->update_active_controls();
 	mw->redraw();
-}
-
-void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *) {
-	// TODO: unload_event_script_cb
 }
 
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
@@ -1545,12 +1545,54 @@ void Main_Window::save_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	mw->save_tileset();
 }
 
+void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *) {
+	// TODO: load_event_script_cb
+}
+
 void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *) {
 	// TODO: save_event_script_cb
 }
 
-void Main_Window::save_custom_lighting_cb(Fl_Widget *, Main_Window *) {
-	// TODO: save_custom_lighting_cb
+void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *) {
+	// TODO: unload_event_script_cb
+}
+
+void Main_Window::load_lighting_cb(Fl_Widget *, Main_Window *mw) {
+	int status = mw->_pal_load_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_pal_load_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+	if (status == -1) {
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_pal_load_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->load_lighting(filename);
+
+	mw->update_active_controls();
+	mw->redraw();
+}
+
+void Main_Window::export_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
+	int status = mw->_pal_save_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_pal_save_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+
+	if (status == -1) {
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_pal_save_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->export_lighting(filename, mw->lighting());
 }
 
 void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
@@ -1597,6 +1639,14 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 		mw->_unsaved_dialog->show(mw);
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
+
+	/*if (mw->_edited_lighting) {
+		std::string msg = "The lighting has been edited!\n\n"
+			"Exit anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}*/
 
 	// Save global config
 	Config::set("theme", OS::current_theme());
@@ -1935,8 +1985,18 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::edit_custom_lighting_cb(Fl_Widget *, Main_Window *) {
-	// TODO: edit_custom_lighting_cb
+void Main_Window::edit_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
+	Abstract_Lighting_Window *alw = mw->monochrome() ? (Abstract_Lighting_Window *)mw->_monochrome_lighting_window
+		                                             : (Abstract_Lighting_Window *)mw->_lighting_window;
+	alw->current_lighting(mw->lighting());
+	alw->show(mw);
+	bool canceled = alw->canceled();
+	if (canceled) { return; }
+
+	mw->_edited_lighting = true;
+	alw->apply_modifications();
+	mw->update_lighting();
+	mw->redraw();
 }
 
 void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {

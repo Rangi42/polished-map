@@ -25,6 +25,7 @@ public:
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
 	static void map_headers_path(char *dest, const char *root);
+	static void bg_tiles_pal_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }

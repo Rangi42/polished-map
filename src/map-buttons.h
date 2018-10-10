@@ -103,4 +103,10 @@ public:
 	void draw(void);
 };
 
+class Color_Button : public Fl_Radio_Button {
+public:
+	Color_Button(int x, int y, int s, const char *l = NULL);
+	void draw(void);
+};
+
 #endif

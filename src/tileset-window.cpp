@@ -130,6 +130,7 @@ void Tileset_Window::initialize() {
 
 void Tileset_Window::refresh() {
 	_canceled = false;
+	_copied = false;
 	select(_deep_tile_buttons[0]);
 	choose(_swatch1);
 }
