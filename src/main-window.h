@@ -80,7 +80,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _unsaved = false, _edited_lighting = false, _copied = false;
+	bool _unsaved = false, _edited_lighting = false, _copied = false, _map_editable = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
@@ -110,6 +110,7 @@ public:
 	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }
 	inline std::unordered_map<int, uint8_t>::const_iterator hotkey_metatile(int key) const { return _hotkey_metatiles.find(key); }
 	inline std::unordered_map<int, uint8_t>::const_iterator no_metatile(void) const { return _hotkey_metatiles.end(); }
+	inline void map_editable(bool e) { _map_editable = e; }
 	const char *modified_filename(void);
 	int handle(int event);
 	void draw_metatile(int x, int y, uint8_t id) const;

@@ -2031,6 +2031,7 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
+	if (!mw->_map_editable) { return; }
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!mw->_selected) { return; }
 		if (Fl::event_is_click()) {

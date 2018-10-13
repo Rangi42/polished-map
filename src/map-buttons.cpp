@@ -164,9 +164,11 @@ int Block::handle(int event) {
 		redraw();
 		return 1;
 	case FL_PUSH:
+		mw->map_editable(true);
 		do_callback();
 		return 1;
 	case FL_RELEASE:
+		mw->map_editable(false);
 		return 1;
 	case FL_DRAG:
 		if (!Fl::event_inside(x(), y(), w(), h())) {
