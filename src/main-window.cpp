@@ -939,8 +939,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	load_lighting(buffer);
 
 	// load unique tileset palettes if they exist
-	Config::tileset_path(buffer, directory, tileset_name);
-	fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
+	sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
 	load_lighting(buffer);
 
 	// load unique map palettes if they exist
