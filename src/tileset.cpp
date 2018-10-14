@@ -59,9 +59,9 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 				uchar c;
 				switch (h) {
 				case Hue::BLACK: c = 0x00; break;
-				case Hue::DARK:  c = 0x50; break;
-				case Hue::LIGHT: c = 0xa0; break;
-				case Hue::WHITE: default: c = 0xff;
+				case Hue::DARK:  c = 0x55; break;
+				case Hue::LIGHT: c = 0xAA; break;
+				case Hue::WHITE: default: c = 0xFF;
 				}
 				size_t j = ((ty + py) * TILES_PER_ROW * TILE_SIZE + tx + px) * NUM_CHANNELS;
 				buffer[j++] = c;
