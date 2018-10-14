@@ -1,6 +1,7 @@
 #include "themes.h"
 #include "tile.h"
 #include "block-window.h"
+#include "icons.h"
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
@@ -36,11 +37,10 @@ void Block_Window::initialize() {
 	_metatile_group = new Fl_Group(278, 36, 98, 98);
 	_metatile_group->end();
 	_window->begin();
-	int clw = text_width("<>", 2);
-	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(278+clw, 144, 178-clw, 22, "@7>");
-	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(278+clw, 170, 178-clw, 22, "@9>");
-	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(278+clw, 196, 178-clw, 22, "@1>");
-	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(278+clw, 222, 178-clw, 22, "@3>");
+	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(300, 144, 156, 22);
+	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
+	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
+	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
 	_window->end();
@@ -74,6 +74,14 @@ void Block_Window::initialize() {
 	// Initialize window's children
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_metatile_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_collision_inputs[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
+	_collision_inputs[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
+	_collision_inputs[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
+	_collision_inputs[Quadrant::TOP_RIGHT]->deimage(COLL_TOP_RIGHT_DISABLED_ICON);
+	_collision_inputs[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
+	_collision_inputs[Quadrant::BOTTOM_LEFT]->deimage(COLL_BOTTOM_LEFT_DISABLED_ICON);
+	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
+	_collision_inputs[Quadrant::BOTTOM_RIGHT]->deimage(COLL_BOTTOM_RIGHT_DISABLED_ICON);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");

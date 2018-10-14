@@ -164,6 +164,14 @@
     <None Include="..\res\blocks.xpm" />
     <None Include="..\res\change-disabled.xpm" />
     <None Include="..\res\change.xpm" />
+    <None Include="..\res\coll-bottom-left-disabled.xpm" />
+    <None Include="..\res\coll-bottom-left.xpm" />
+    <None Include="..\res\coll-bottom-right-disabled.xpm" />
+    <None Include="..\res\coll-bottom-right.xpm" />
+    <None Include="..\res\coll-top-left-disabled.xpm" />
+    <None Include="..\res\coll-top-left.xpm" />
+    <None Include="..\res\coll-top-right-disabled.xpm" />
+    <None Include="..\res\coll-top-right.xpm" />
     <None Include="..\res\cursor-disabled.xpm" />
     <None Include="..\res\cursor.xpm" />
     <None Include="..\res\error.xpm" />

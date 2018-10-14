@@ -47,6 +47,14 @@
 #include "load-lighting-disabled.xpm"
 #include "lighting.xpm"
 #include "lighting-disabled.xpm"
+#include "coll-top-left.xpm"
+#include "coll-top-left-disabled.xpm"
+#include "coll-top-right.xpm"
+#include "coll-top-right-disabled.xpm"
+#include "coll-bottom-left.xpm"
+#include "coll-bottom-left-disabled.xpm"
+#include "coll-bottom-right.xpm"
+#include "coll-bottom-right-disabled.xpm"
 
 static Fl_Pixmap NEW_ICON(NEW_XPM);
 static Fl_Pixmap NEW_DISABLED_ICON(NEW_DISABLED_XPM);
@@ -90,5 +98,13 @@ static Fl_Pixmap LIGHTING_ICON(LIGHTING_XPM);
 static Fl_Pixmap LIGHTING_DISABLED_ICON(LIGHTING_DISABLED_XPM);
 static Fl_Pixmap LOAD_LIGHTING_ICON(LOAD_LIGHTING_XPM);
 static Fl_Pixmap LOAD_LIGHTING_DISABLED_ICON(LOAD_LIGHTING_DISABLED_XPM);
+static Fl_Pixmap COLL_TOP_LEFT_ICON(COLL_TOP_LEFT_XPM);
+static Fl_Pixmap COLL_TOP_LEFT_DISABLED_ICON(COLL_TOP_LEFT_DISABLED_XPM);
+static Fl_Pixmap COLL_TOP_RIGHT_ICON(COLL_TOP_RIGHT_XPM);
+static Fl_Pixmap COLL_TOP_RIGHT_DISABLED_ICON(COLL_TOP_RIGHT_DISABLED_XPM);
+static Fl_Pixmap COLL_BOTTOM_LEFT_ICON(COLL_BOTTOM_LEFT_XPM);
+static Fl_Pixmap COLL_BOTTOM_LEFT_DISABLED_ICON(COLL_BOTTOM_LEFT_DISABLED_XPM);
+static Fl_Pixmap COLL_BOTTOM_RIGHT_ICON(COLL_BOTTOM_RIGHT_XPM);
+static Fl_Pixmap COLL_BOTTOM_RIGHT_DISABLED_ICON(COLL_BOTTOM_RIGHT_DISABLED_XPM);
 
 #endif

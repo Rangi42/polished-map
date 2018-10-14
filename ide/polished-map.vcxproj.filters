@@ -307,6 +307,30 @@
     <None Include="..\res\load-lighting-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\coll-bottom-left.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-bottom-right.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-top-left.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-top-right.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-bottom-left-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-bottom-right-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-top-left-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\coll-top-right-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">
