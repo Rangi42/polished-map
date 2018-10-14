@@ -22,7 +22,7 @@ public:
 	static void tileset_path(char *dest, const char *root, const char *tileset);
 	static void tileset_png_path(char *dest, const char *root, const char *tileset);
 	static void metatileset_path(char *dest, const char *root, const char *tileset);
-	static void collisions_path(char *dest, const char *root, const char *tileset);
+	static bool collisions_path(char *dest, const char *root, const char *tileset);
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
 	static void map_headers_path(char *dest, const char *root);

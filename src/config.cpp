@@ -106,12 +106,16 @@ void Config::metatileset_path(char *dest, const char *root, const char *tileset)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 }
 
-void Config::collisions_path(char *dest, const char *root, const char *tileset) {
+bool Config::collisions_path(char *dest, const char *root, const char *tileset) {
 	// try data/tilesets/*_collision.asm (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.asm", root, tileset);
-	if (file_exists(dest)) { return; }
-	// last resort: tilesets/*_collision.asm (old pokecrystal, converted from .bin)
+	if (file_exists(dest)) { return false; }
+	// try tilesets/*_collision.asm (old pokecrystal, converted from .bin)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.asm", root, tileset);
+	if (file_exists(dest)) { return false; }
+	// last resort: tilesets/*_collision.bin (old pokecrystal)
+	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.bin", root, tileset);
+	return true;
 }
 
 void Config::map_constants_path(char *dest, const char *root) {

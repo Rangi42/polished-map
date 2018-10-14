@@ -1029,9 +1029,17 @@ bool Main_Window::read_metatile_data(const char *tileset_name) {
 		return false;
 	}
 
-	Config::collisions_path(buffer, directory, tileset_name);
-	rm = _metatileset.read_collisions(buffer);
-	_has_collisions = (rm == Metatileset::Result::META_OK);
+	if (Config::collisions_path(buffer, directory, tileset_name)) {
+		std::string msg = "Warning: ";
+		msg = msg + buffer + ":\n\n"
+			"Binary collision data is not supported.";
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else {
+		rm = _metatileset.read_collisions(buffer);
+		_has_collisions = (rm == Metatileset::Result::META_OK);
+	}
 
 	return true;
 }
@@ -1215,7 +1223,7 @@ bool Main_Window::save_metatileset() {
 	Config::metatileset_path(filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 	char filename_coll[FL_PATH_MAX] = {};
-	Config::collisions_path(filename_coll, directory, tileset_name);
+	bool bin_coll = Config::collisions_path(filename_coll, directory, tileset_name);
 	const char *basename_coll = fl_filename_name(filename_coll);
 
 	if (_metatileset.modified()) {
@@ -1227,7 +1235,7 @@ bool Main_Window::save_metatileset() {
 			return false;
 		}
 
-		if (_has_collisions && !_metatileset.write_collisions(filename_coll)) {
+		if (_has_collisions && !bin_coll && !_metatileset.write_collisions(filename_coll)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename_coll + "!";
 			_error_dialog->message(msg);
