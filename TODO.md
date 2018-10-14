@@ -2,8 +2,8 @@
 
 ## Features
 
-* Support for Mac OS X (issue #8; involves publishing an app bundle release, and using the system menu bar)
-* Generate map images from the command-line (issue #10)
+* Support for Mac OS X (issue [#8](https://github.com/Rangi42/polished-map/issues/8); involves publishing an app bundle release, and using the system menu bar)
+* Generate map images from the command-line (issue [#10](https://github.com/Rangi42/polished-map/issues/10))
 * Support event scripts (only editing the coordinates) (see: [view/edit UI concept](https://i.imgur.com/YwtFzlZ.png))
 
 ## Bug Fixes
@@ -15,7 +15,7 @@
 
 * Allow undo/redo for resize operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
-* File → Open Recent → the last few opened .blk files (issue #11)
+* File → Open Recent → the last few opened .blk files (issue [#11](https://github.com/Rangi42/polished-map/issues/11))
 * Load `ROOF` palettes from roofs.pal for `TOWN` or `ROUTE` environments; based on the map group in map_constants.asm and environment in maps.asm
 * Guess the Morn/Day/Nite/Indoor lighting from the palette constant in maps.asm
 
