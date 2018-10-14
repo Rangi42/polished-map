@@ -5,6 +5,7 @@
 
 #pragma warning(push, 0)
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Spinner.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Group.H>
@@ -36,6 +37,11 @@ public:
 class Spacer : public Fl_Box {
 public:
 	Spacer(int x, int y, int w, int h, const char *l = NULL);
+};
+
+class OS_Input : public Fl_Input {
+public:
+	OS_Input(int x, int y, int w, int h, const char *l = NULL);
 };
 
 class OS_Button : public Fl_Button {

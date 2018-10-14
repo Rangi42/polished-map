@@ -27,10 +27,11 @@ private:
 	uint8_t _metatile_id;
 	bool _canceled;
 	Fl_Double_Window *_window;
-	Label *_tileset_heading, *_metatile_heading, *_tile_heading;
+	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading;
 	Fl_Group *_tileset_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
+	OS_Input *_collision_inputs[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 public:
@@ -41,9 +42,10 @@ private:
 	void refresh(void);
 public:
 	void tileset(const Tileset *t);
-	void metatile(const Metatile *mt);
+	void metatile(const Metatile *mt, bool has_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
 	inline uint8_t tile_id(int x, int y) { return _chips[y * METATILE_SIZE + x]->id(); }
+	inline const char *collision(Quadrant q) { return _collision_inputs[q]->value(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);

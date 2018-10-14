@@ -122,7 +122,7 @@ Fl_Color Color::fl_color(Lighting l, Palette p, Hue h) {
 }
 
 PalVec Color::parse_lighting(const char *f) {
-	PalVec colors{};
+	PalVec colors;
 	int palette = 0, hue = 0, channel = 0;
 	std::ifstream ifs(f);
 	while (ifs.good()) {

@@ -1029,6 +1029,10 @@ bool Main_Window::read_metatile_data(const char *tileset_name) {
 		return false;
 	}
 
+	Config::collisions_path(buffer, directory, tileset_name);
+	rm = _metatileset.read_collisions(buffer);
+	_has_collisions = (rm == Metatileset::Result::META_OK);
+
 	return true;
 }
 
@@ -1210,6 +1214,9 @@ bool Main_Window::save_metatileset() {
 	const char *tileset_name = _metatileset.tileset()->name();
 	Config::metatileset_path(filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
+	char filename_coll[FL_PATH_MAX] = {};
+	Config::collisions_path(filename_coll, directory, tileset_name);
+	const char *basename_coll = fl_filename_name(filename_coll);
 
 	if (_metatileset.modified()) {
 		if (!_metatileset.write_metatiles(filename)) {
@@ -1219,11 +1226,23 @@ bool Main_Window::save_metatileset() {
 			_error_dialog->show(this);
 			return false;
 		}
+
+		if (_has_collisions && !_metatileset.write_collisions(filename_coll)) {
+			std::string msg = "Could not write to ";
+			msg = msg + basename_coll + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+		}
+
 		_metatileset.modified(false);
 	}
 
 	std::string msg = "Saved ";
-	msg = msg + basename + "!";
+	msg = msg + basename;
+	if (_has_collisions) {
+		msg = msg + "\nand " + basename_coll;
+	}
+	msg = msg + "!";
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
@@ -1308,6 +1327,11 @@ void Main_Window::edit_metatile(Metatile *mt) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
 			uint8_t id = _block_window->tile_id(x, y);
 			mt->tile_id(x, y, id);
+			for (int i = 0; i < NUM_QUADRANTS; i++) {
+				Quadrant q = (Quadrant)i;
+				const char *c = _block_window->collision(q);
+				mt->collision(q, c);
+			}
 		}
 	}
 	_metatileset.modified(true);
@@ -2022,7 +2046,7 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to edit
 		Metatile *mt = mw->_metatileset.metatile(mb->id());
-		mw->_block_window->metatile(mt);
+		mw->_block_window->metatile(mt, mw->_has_collisions);
 		mw->_block_window->show(mw);
 		if (!mw->_block_window->canceled()) {
 			mw->edit_metatile(mt);

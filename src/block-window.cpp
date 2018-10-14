@@ -3,14 +3,16 @@
 #include "block-window.h"
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
-	_window(NULL), _tileset_heading(NULL), _metatile_heading(NULL), _tile_heading(NULL), _tileset_group(NULL),
-	_metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _ok_button(NULL), _cancel_button(NULL) {}
+	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
+	_tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _collision_inputs(),
+	_ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
 	delete _tileset_heading;
-	delete _metatile_heading;
 	delete _tile_heading;
+	delete _metatile_heading;
+	delete _hover_tile_heading;
 	delete _tileset_group;
 	delete _metatile_group;
 	delete _cancel_button;
@@ -22,18 +24,25 @@ void Block_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 386, 304, "Edit Block");
-	_tileset_heading = new Label(10, 10, 258, 22);
+	_window = new Fl_Double_Window(_dx, _dy, 466, 304, "Edit Block");
+	int thw = text_width("Tile: $FFF", 2);
+	_tile_heading = new Label(268-thw, 10, thw, 22);
+	_tileset_heading = new Label(10, 10, 258-thw, 22);
 	_metatile_heading = new Label(278, 10, 98, 22);
-	_tile_heading = new Label(278, 140, 98, 22);
+	_hover_tile_heading = new Label(376, 10, thw, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
 	_tileset_group->end();
 	_window->begin();
 	_metatile_group = new Fl_Group(278, 36, 98, 98);
 	_metatile_group->end();
 	_window->begin();
-	_ok_button = new Default_Button(296, 233, 80, 22, "OK");
-	_cancel_button = new OS_Button(296, 272, 80, 22, "Cancel");
+	int clw = text_width("<>", 2);
+	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(278+clw, 144, 178-clw, 22, "@7>");
+	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(278+clw, 170, 178-clw, 22, "@9>");
+	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(278+clw, 196, 178-clw, 22, "@1>");
+	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(278+clw, 222, 178-clw, 22, "@3>");
+	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
+	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
@@ -92,7 +101,7 @@ void Block_Window::tileset(const Tileset *t) {
 	}
 }
 
-void Block_Window::metatile(const Metatile *mt) {
+void Block_Window::metatile(const Metatile *mt, bool has_collisions) {
 	_metatile_id = mt->id();
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
@@ -100,6 +109,18 @@ void Block_Window::metatile(const Metatile *mt) {
 			uint8_t id = mt->tile_id(x, y);
 			_chips[i]->id(id);
 		}
+	}
+	for (int i = 0; i < NUM_QUADRANTS; i++) {
+		OS_Input *cin = _collision_inputs[i];
+		if (has_collisions) {
+			cin->value(mt->collision((Quadrant)i).c_str());
+			cin->activate();
+		}
+		else {
+			cin->value(NULL);
+			cin->deactivate();
+		}
+		cin->position(0);
 	}
 	char buffer[32];
 	sprintf(buffer, "Block: $%02X", _metatile_id);
@@ -145,14 +166,14 @@ void Block_Window::draw_tile(int x, int y, uint8_t id, bool zoom) const {
 
 void Block_Window::update_status(Chip *c) {
 	if (!c) {
-		_tile_heading->label("");
+		_hover_tile_heading->label("");
 	}
 	else {
 		char buffer[16] = {};
 		sprintf(buffer, "Tile: $%02X", c->id());
-		_tile_heading->copy_label(buffer);
+		_hover_tile_heading->copy_label(buffer);
 	}
-	_tile_heading->redraw();
+	_hover_tile_heading->redraw();
 }
 
 void Block_Window::close_cb(Fl_Widget *, Block_Window *bw) {
@@ -167,6 +188,9 @@ void Block_Window::cancel_cb(Fl_Widget *w, Block_Window *bw) {
 void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 	// Click to select
 	bw->_selected = tb;
+	char buffer[16] = {};
+	sprintf(buffer, "Tile: $%02X", tb->id());
+	bw->_tile_heading->copy_label(buffer);
 }
 
 void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {

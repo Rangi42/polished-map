@@ -80,7 +80,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _unsaved = false, _edited_lighting = false, _copied = false, _map_editable = false;
+	bool _unsaved = false, _has_collisions = false, _edited_lighting = false, _copied = false, _map_editable = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;

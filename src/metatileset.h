@@ -35,6 +35,8 @@ public:
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
 	bool write_metatiles(const char *f);
+	Result read_collisions(const char *f);
+	bool write_collisions(const char *f);
 	static const char *error_message(Result result);
 };
 
