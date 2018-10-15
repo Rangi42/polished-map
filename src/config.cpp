@@ -101,7 +101,7 @@ bool Config::collisions_path(char *dest, const char *root, const char *tileset) 
 	if (file_exists(dest)) { return false; }
 	// last resort: tilesets/*_collision.bin (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.bin", root, tileset);
-	return true;
+	return file_exists(dest);
 }
 
 void Config::map_constants_path(char *dest, const char *root) {
