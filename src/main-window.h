@@ -28,6 +28,8 @@
 
 enum Mode { BLOCKS, EVENTS };
 
+#define NEW_MAP_NAME "New Map"
+
 class Main_Window : public Fl_Double_Window {
 private:
 	// GUI containers

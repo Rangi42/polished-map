@@ -7,7 +7,7 @@
 #pragma warning(pop)
 
 #include "version.h"
-#include "config.h"
+#include "preferences.h"
 #include "themes.h"
 #include "main-window.h"
 
@@ -49,18 +49,18 @@ int main(int argc, char **argv) {
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 #ifdef _WIN32
-	OS::Theme theme = (OS::Theme)Config::get("theme", (int)OS::Theme::BLUE);
+	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::BLUE);
 #else
-	OS::Theme theme = (OS::Theme)Config::get("theme", (int)OS::Theme::GREYBIRD);
+	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::GREYBIRD);
 #endif
 	use_theme(theme);
 
 #ifdef _WIN32
-	int x = Config::get("x", 48), y = Config::get("y", 48 + GetSystemMetrics(SM_CYCAPTION));
+	int x = Preferences::get("x", 48), y = Preferences::get("y", 48 + GetSystemMetrics(SM_CYCAPTION));
 #else
-	int x = Config::get("x", 48), y = Config::get("y", 48);
+	int x = Preferences::get("x", 48), y = Preferences::get("y", 48);
 #endif
-	int w = Config::get("w", 640), h = Config::get("h", 480);
+	int w = Preferences::get("w", 640), h = Preferences::get("h", 480);
 	Main_Window window(x, y, w, h);
 	window.show();
 

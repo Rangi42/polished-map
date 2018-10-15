@@ -3,10 +3,8 @@
 
 #pragma warning(push, 0)
 #include <FL/filename.H>
-#include <FL/Fl_Preferences.H>
 #pragma warning(pop)
 
-#include "version.h"
 #include "utils.h"
 #include "config.h"
 
@@ -22,19 +20,7 @@ static char *trim_suffix(const char *s) {
 	return t;
 }
 
-Fl_Preferences Config::global_config(Fl_Preferences::USER, PROGRAM_AUTHOR, PROGRAM_NAME);
-
 bool Config::_monochrome = false, Config::_256_tiles = false;
-
-int Config::get(const char *key, int default_) {
-	int value;
-	global_config.get(key, value, default_);
-	return value;
-}
-
-void Config::set(const char *key, int value) {
-	global_config.set(key, value);
-}
 
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;

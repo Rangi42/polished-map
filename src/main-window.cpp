@@ -19,6 +19,7 @@
 #include "option-dialogs.h"
 #include "tileset.h"
 #include "metatileset.h"
+#include "preferences.h"
 #include "config.h"
 #include "main-window.h"
 #include "image.h"
@@ -35,19 +36,19 @@
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
-	Mode mode_config = (Mode)Config::get("mode", Mode::BLOCKS);
+	Mode mode_config = (Mode)Preferences::get("mode", Mode::BLOCKS);
 	mode(mode_config);
 
-	int grid_config = Config::get("grid", 1);
-	int zoom_config = Config::get("zoom", 0);
-	int ids_config = Config::get("ids", 0);
-	int hex_config = Config::get("hex", 0);
-	int show_events_config = Config::get("show", 1);
-	int event_cursor_config = Config::get("event", 0);
-	Lighting lighting_config = (Lighting)Config::get("lighting", Lighting::DAY);
+	int grid_config = Preferences::get("grid", 1);
+	int zoom_config = Preferences::get("zoom", 0);
+	int ids_config = Preferences::get("ids", 0);
+	int hex_config = Preferences::get("hex", 0);
+	int show_events_config = Preferences::get("show", 1);
+	int event_cursor_config = Preferences::get("event", 0);
+	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
 
-	int monochrome_config = Config::get("monochrome", 0);
-	int allow_256_tiles_config = Config::get("all256", 0);
+	int monochrome_config = Preferences::get("monochrome", 0);
+	int allow_256_tiles_config = Preferences::get("all256", 0);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
 
@@ -1680,23 +1681,23 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	}*/
 
 	// Save global config
-	Config::set("theme", OS::current_theme());
-	Config::set("x", mw->x());
-	Config::set("y", mw->y());
-	Config::set("w", mw->w());
-	Config::set("h", mw->h());
-	Config::set("mode", (int)mw->mode());
-	Config::set("grid", mw->grid());
-	Config::set("zoom", mw->zoom());
-	Config::set("ids", mw->ids());
-	Config::set("hex", mw->hex());
-	Config::set("show", mw->show_events());
-	Config::set("event", mw->event_cursor());
-	Config::set("lighting", mw->lighting());
-	Config::set("monochrome", mw->monochrome());
-	Config::set("all256", mw->allow_256_tiles());
+	Preferences::set("theme", OS::current_theme());
+	Preferences::set("x", mw->x());
+	Preferences::set("y", mw->y());
+	Preferences::set("w", mw->w());
+	Preferences::set("h", mw->h());
+	Preferences::set("mode", (int)mw->mode());
+	Preferences::set("grid", mw->grid());
+	Preferences::set("zoom", mw->zoom());
+	Preferences::set("ids", mw->ids());
+	Preferences::set("hex", mw->hex());
+	Preferences::set("show", mw->show_events());
+	Preferences::set("event", mw->event_cursor());
+	Preferences::set("lighting", mw->lighting());
+	Preferences::set("monochrome", mw->monochrome());
+	Preferences::set("all256", mw->allow_256_tiles());
 	if (mw->_resize_dialog->initialized()) {
-		Config::set("resize-anchor", mw->_resize_dialog->anchor());
+		Preferences::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
 
 	exit(EXIT_SUCCESS);

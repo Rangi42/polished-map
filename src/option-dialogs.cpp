@@ -10,6 +10,7 @@
 #include <FL/Fl_Double_Window.H>
 #pragma warning(pop)
 
+#include "preferences.h"
 #include "config.h"
 #include "themes.h"
 #include "widgets.h"
@@ -447,7 +448,7 @@ void Resize_Dialog::initialize_content() {
 	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(1, 255);
-	anchor(Config::get("resize-anchor", 4));
+	anchor(Preferences::get("resize-anchor", 4));
 }
 
 int Resize_Dialog::refresh_content(int ww, int dy) {
