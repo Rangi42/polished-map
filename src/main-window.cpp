@@ -1036,6 +1036,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name) {
 			"Binary collision data is not supported.";
 		_warning_dialog->message(msg);
 		_warning_dialog->show(this);
+		_has_collisions = false;
 	}
 	else {
 		rm = _metatileset.read_collisions(buffer);

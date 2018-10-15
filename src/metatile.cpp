@@ -9,4 +9,7 @@ void Metatile::clear() {
 			_tile_ids[y][x] = 0;
 		}
 	}
+	for (int i = 0; i < NUM_QUADRANTS; i++) {
+		_collisions[i].clear();
+	}
 }
