@@ -46,7 +46,7 @@ cd fltk-1.3.4
 chmod +x configure
 ./configure --prefix="$PWD/.." --with-abiversion=10304
 make
-sudo make install
+make install
 popd
 
 # Build Polished Map
@@ -57,6 +57,5 @@ make
 # Install Polished Map
 # (tested on Ubuntu and Ubuntu derivatives only; it just copies bin/polishedmap
 #  and res/app.xpm to system directories)
-# (if it fails, then try sudo make install)
-make install
+sudo make install
 ```

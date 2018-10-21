@@ -3,6 +3,7 @@
 #else
 #include <unistd.h>
 #include <libgen.h>
+#include <string.h>
 #endif
 
 #pragma warning(push, 0)
