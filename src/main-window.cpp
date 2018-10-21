@@ -944,9 +944,11 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	load_lighting(buffer);
 
 	// load unique map palettes if they exist
-	strcpy(buffer, filename);
-	fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
-	load_lighting(buffer);
+	if (filename) {
+		strcpy(buffer, filename);
+		fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
+		load_lighting(buffer);
+	}
 
 	update_active_controls();
 	update_labels();
