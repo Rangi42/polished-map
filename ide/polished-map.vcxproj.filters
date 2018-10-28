@@ -337,6 +337,12 @@
     <None Include="..\res\coll-top-right-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\load-roof.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load-roof-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">

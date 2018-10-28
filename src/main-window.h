@@ -48,21 +48,24 @@ private:
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
-		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
+		*_load_roof_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_load_lighting_tb,
+		*_edit_current_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_event_cursor_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_close_mi = NULL, *_unload_event_script_mi = NULL, *_save_mi = NULL,
-		*_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_mi = NULL, *_unload_roof_mi = NULL,
+		*_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL,
+		*_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_edit_tileset_mi = NULL,
 		*_edit_current_lighting_mi = NULL;
 	// Dialogs
 	Directory_Chooser *_new_dir_chooser;
-	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_pal_load_chooser, *_pal_save_chooser, *_png_chooser;
+	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_pal_load_chooser, *_pal_save_chooser, *_roof_chooser,
+		*_png_chooser;
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Tileset_Options_Dialog *_tileset_options_dialog;
@@ -127,6 +130,8 @@ private:
 	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
 	void load_lighting(const char *filename);
+	void load_roof(const char *filename);
+	void unload_roof(void);
 	bool read_metatile_data(const char *tileset_name);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
@@ -153,6 +158,8 @@ private:
 	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
+	static void load_roof_cb(Fl_Widget *w, Main_Window *mw);
+	static void unload_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void print_cb(Fl_Widget *w, Main_Window *mw);

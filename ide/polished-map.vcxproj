@@ -191,6 +191,8 @@
     <None Include="..\res\load-disabled.xpm" />
     <None Include="..\res\load-lighting-disabled.xpm" />
     <None Include="..\res\load-lighting.xpm" />
+    <None Include="..\res\load-roof-disabled.xpm" />
+    <None Include="..\res\load-roof.xpm" />
     <None Include="..\res\load.xpm" />
     <None Include="..\res\new-disabled.xpm" />
     <None Include="..\res\new.xpm" />

@@ -82,6 +82,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	_load_roof_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
 	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
 	_load_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
@@ -135,6 +137,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_pal_load_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_pal_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+	_roof_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
@@ -198,10 +201,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
-		OS_MENU_ITEM("Save Event &Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
+		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("Load &Roof Tiles...", FL_COMMAND + 'R', (Fl_Callback *)load_roof_cb, this, 0),
+		OS_MENU_ITEM("Unload Roo&f Tiles", 0, (Fl_Callback *)unload_roof_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
-		OS_MENU_ITEM("&Export Current Lighting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
 		{},
@@ -303,8 +308,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
-	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
+	_load_roof_mi = PM_FIND_MENU_ITEM_CB(load_roof_cb);
+	_unload_roof_mi = PM_FIND_MENU_ITEM_CB(unload_roof_cb);
+	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
 	_save_mi = PM_FIND_MENU_ITEM_CB(save_cb);
 	_save_as_mi = PM_FIND_MENU_ITEM_CB(save_as_cb);
 	_save_blockset_mi = PM_FIND_MENU_ITEM_CB(save_metatiles_cb);
@@ -397,6 +404,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_event_cursor_tb->deimage(CURSOR_DISABLED_ICON);
 	_event_cursor_tb->value(event_cursor());
 
+	_load_roof_tb->tooltip("Load Roof Tiles (Ctrl+Shift+R)");
+	_load_roof_tb->callback((Fl_Callback *)load_roof_cb, this);
+	_load_roof_tb->image(LOAD_ROOF_ICON);
+	_load_roof_tb->deimage(LOAD_ROOF_DISABLED_ICON);
+
 	_lighting->add("Morn");   // Lighting::MORN
 	_lighting->add("Day");    // Lighting::DAY
 	_lighting->add("Night");  // Lighting::NITE
@@ -464,6 +476,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_pal_save_chooser->title("Save Lighting");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
 	_pal_save_chooser->preset_file("lighting.pal");
+
+	_roof_chooser->title("Open Roof Tiles");
+	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -674,6 +689,8 @@ void Main_Window::update_active_controls() {
 	if (_map.size()) {
 		_load_event_script_mi->activate();
 		_load_event_script_tb->activate();
+		_load_roof_mi->activate();
+		_load_roof_tb->activate();
 		_close_mi->activate();
 		_save_mi->activate();
 		_save_tb->activate();
@@ -689,6 +706,13 @@ void Main_Window::update_active_controls() {
 		else {
 			_unload_event_script_mi->deactivate();
 			_save_event_script_mi->deactivate();
+		}
+		const Tileset *tileset = _metatileset.const_tileset();
+		if (tileset && tileset->num_roof_tiles() > 0) {
+			_unload_roof_mi->activate();
+		}
+		else {
+			_unload_roof_mi->deactivate();
 		}
 		if (_map.can_undo()) {
 			_undo_mi->activate();
@@ -728,6 +752,9 @@ void Main_Window::update_active_controls() {
 	else {
 		_load_event_script_mi->deactivate();
 		_load_event_script_tb->deactivate();
+		_load_roof_mi->deactivate();
+		_load_roof_tb->deactivate();
+		_unload_roof_mi->deactivate();
 		_close_mi->deactivate();
 		_unload_event_script_mi->deactivate();
 		_save_mi->deactivate();
@@ -974,6 +1001,26 @@ void Main_Window::load_lighting(const char *filename) {
 		lighting_cb(NULL, this);
 	}
 	update_lighting();
+	redraw();
+}
+
+void Main_Window::load_roof(const char *filename) {
+	Tileset *tileset = _metatileset.tileset();
+	Tileset::Result rt =tileset->read_roof_graphics(filename);
+	if (rt) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Error reading ";
+		msg = msg + basename + "!\n\n" + Tileset::error_message(rt);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+	redraw();
+}
+
+void Main_Window::unload_roof() {
+	Tileset *tileset = _metatileset.tileset();
+	tileset->clear_roof_graphics();
 	redraw();
 }
 
@@ -1590,6 +1637,32 @@ void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *) {
 
 void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *) {
 	// TODO: unload_event_script_cb
+}
+
+void Main_Window::load_roof_cb(Fl_Widget *, Main_Window *mw) {
+	int status = mw->_roof_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_roof_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+	if (status == -1) {
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_roof_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->load_roof(filename);
+
+	mw->update_active_controls();
+	mw->redraw();
+}
+
+void Main_Window::unload_roof_cb(Fl_Widget *, Main_Window *mw) {
+	mw->unload_roof();
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::load_lighting_cb(Fl_Widget *, Main_Window *mw) {

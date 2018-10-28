@@ -35,6 +35,8 @@
 #include "blocks-disabled.xpm"
 #include "events.xpm"
 #include "events-disabled.xpm"
+#include "load-roof.xpm"
+#include "load-roof-disabled.xpm"
 #include "add-sub.xpm"
 #include "add-sub-disabled.xpm"
 #include "resize.xpm"
@@ -86,6 +88,8 @@ static Fl_Pixmap BLOCKS_ICON(BLOCKS_XPM);
 static Fl_Pixmap BLOCKS_DISABLED_ICON(BLOCKS_DISABLED_XPM);
 static Fl_Pixmap EVENTS_ICON(EVENTS_XPM);
 static Fl_Pixmap EVENTS_DISABLED_ICON(EVENTS_DISABLED_XPM);
+static Fl_Pixmap LOAD_ROOF_ICON(LOAD_ROOF_XPM);
+static Fl_Pixmap LOAD_ROOF_DISABLED_ICON(LOAD_ROOF_DISABLED_XPM);
 static Fl_Pixmap ADD_SUB_ICON(ADD_SUB_XPM);
 static Fl_Pixmap ADD_SUB_DISABLED_ICON(ADD_SUB_DISABLED_XPM);
 static Fl_Pixmap RESIZE_ICON(RESIZE_XPM);

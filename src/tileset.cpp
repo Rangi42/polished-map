@@ -1,11 +1,12 @@
 #include "config.h"
-#include "tiled-image.h"
 #include "tileset.h"
 #include "image.h"
 
-Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _result(GFX_NULL), _modified(false) {
+Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _num_roof_tiles(0),
+	_result(GFX_NULL), _modified(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
+		_roof_tiles[i] = new Tile((uint8_t)i);
 	}
 }
 
@@ -13,6 +14,7 @@ Tileset::~Tileset() {
 	clear();
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		delete _tiles[i];
+		delete _roof_tiles[i];
 	}
 }
 
@@ -23,8 +25,16 @@ void Tileset::clear() {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i]->clear();
 	}
+	clear_roof_graphics();
 	_result = GFX_NULL;
 	_modified = false;
+}
+
+void Tileset::clear_roof_graphics() {
+	_num_roof_tiles = 0;
+	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
+		_roof_tiles[i]->clear();
+	}
 }
 
 void Tileset::update_lighting(Lighting l) {
@@ -73,6 +83,18 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	return buffer;
 }
 
+void Tileset::read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j) {
+	Palette p = _palette_map.palette(i);
+	t->palette(p);
+	for (int ty = 0; ty < TILE_SIZE; ty++) {
+		for (int tx = 0; tx < TILE_SIZE; tx++) {
+			Hue h = ti.tile_hue(j, tx, ty);
+			const uchar *rgb = Color::color(_lighting, p, h);
+			t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
+		}
+	}
+}
+
 Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
@@ -97,20 +119,45 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
 		Tile *t = _tiles[j];
-		Palette p = _palette_map.palette((uint8_t)i);
-		t->palette(p);
-		for (int ty = 0; ty < TILE_SIZE; ty++) {
-			for (int tx = 0; tx < TILE_SIZE; tx++) {
-				Hue h = ti.tile_hue(i, tx, ty);
-				const uchar *rgb = Color::color(l, p, h);
-				t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
-			}
-		}
+		read_tile(t, ti, (uint8_t)i, (size_t)i);
 	}
 
 	_modified = false;
 
 	return (_result = GFX_OK);
+}
+
+Tileset::Result Tileset::read_roof_graphics(const char *f) {
+	if (!_palette_map.size()) { return GFX_NO_PALETTE; } // no colors
+
+	Tiled_Image ti(f);
+	switch (ti.result()) {
+	case Tiled_Image::IMG_OK: break;
+	case Tiled_Image::IMG_NULL: return GFX_BAD_FILE;
+	case Tiled_Image::IMG_BAD_FILE: return GFX_BAD_FILE;
+	case Tiled_Image::IMG_BAD_EXT: return GFX_BAD_EXT;
+	case Tiled_Image::IMG_BAD_DIMS: return GFX_BAD_DIMS;
+	case Tiled_Image::IMG_TOO_SHORT: return GFX_TOO_SHORT;
+	case Tiled_Image::IMG_TOO_LARGE: return GFX_TOO_LARGE;
+	case Tiled_Image::IMG_NOT_GRAYSCALE: return GFX_NOT_GRAYSCALE;
+	case Tiled_Image::IMG_BAD_CMD: return GFX_BAD_CMD;
+	default: return GFX_BAD_FILE;
+	}
+
+	if (FIRST_ROOF_TILE_ID + ti.num_tiles() > MAX_NUM_TILES) {
+		return GFX_TOO_LARGE;
+	}
+	_num_roof_tiles = ti.num_tiles();
+
+	bool allow_256_tiles = Config::allow_256_tiles();
+	for (size_t i = 0; i < _num_roof_tiles; i++) {
+		int k = (int)i + FIRST_ROOF_TILE_ID;
+		int j = (!allow_256_tiles && k >= 0x60) ? (k >= 0xE0 ? k - 0x80 : k + 0x20) : k;
+		Tile *t = _roof_tiles[j];
+		read_tile(t, ti, (uint8_t)k, i);
+	}
+
+	return GFX_OK;
 }
 
 const char *Tileset::error_message(Result result) {
