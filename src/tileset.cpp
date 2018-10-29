@@ -42,15 +42,8 @@ void Tileset::update_lighting(Lighting l) {
 	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
-		Tile *t = _tiles[j];
-		Palette p = t->palette();
-		for (int ty = 0; ty < TILE_SIZE; ty++) {
-			for (int tx = 0; tx < TILE_SIZE; tx++) {
-				Hue h = t->hue(tx, ty);
-				const uchar *rgb = Color::color(l, p, h);
-				t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
-			}
-		}
+		_tiles[j]->update_lighting(l);
+		_roof_tiles[j]->update_lighting(l);
 	}
 }
 

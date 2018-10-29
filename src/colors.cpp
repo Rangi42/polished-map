@@ -260,6 +260,21 @@ Lighting Color::read_lighting(const char *f, Lighting lighting) {
 	return lighting;
 }
 
+bool Color::read_roof_colors(const char *f, uint8_t map_group) {
+	PalVec roof_colors = parse_lighting(f);
+	if (roof_colors.size() < (size_t)map_group + 1) { return false; }
+
+	// Each HueArray in a PalVec contains 4 RGB hues, so treat them as <DAY LIGHT, NITE LIGHT, DAY DARK, NITE DARK>
+	color(Lighting::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
+	color(Lighting::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
+	color(Lighting::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
+	color(Lighting::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
+	color(Lighting::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(2)]);
+	color(Lighting::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(3)]);
+
+	return true;
+}
+
 bool Color::write_lighting(const char *f, Lighting lighting) {
 	FILE *file = fl_fopen(f, "w");
 	if (!file) { return false; }

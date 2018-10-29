@@ -137,7 +137,7 @@ static void guess_map_constant(const char *name, char *constant) {
 	*constant = '\0';
 }
 
-bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory) {
+bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs) {
 	if (!filename) { return false; }
 
 	std::cmatch cm;
@@ -161,12 +161,17 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	char constant[FL_PATH_MAX] = {};
 	guess_map_constant(name, constant);
 
+	attrs.group = 0;
 	while (ifs.good()) {
 		bool w_x_h = false;
 		std::string line;
 		std::getline(ifs, line);
 		trim(line);
-		if (starts_with(line, "map_const")) {
+		if (starts_with(line, "newgroup") && line[strlen("newgroup")] != ':') {
+			attrs.group++;
+			continue;
+		}
+		else if (starts_with(line, "map_const")) {
 			// "map_const": pokecrystal
 			line.erase(0, strlen("map_const") + 1); // include next whitespace character
 			w_x_h = true;
@@ -204,7 +209,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	return false;
 }
 
-std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const char *directory) {
+std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs) {
 	if (!filename) { return ""; }
 
 	std::cmatch cm;
@@ -229,33 +234,46 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
+		remove_comment(line);
 		trim(line);
-		if (starts_with(line, "map_header")) {
-			// "map_header": pokecrystal pre-2018
-			line.erase(0, strlen("map_header") + 1); // include next whitespace character
-		}
-		else if (starts_with(line, "map")) {
-			// "map": pokecrystal
-			line.erase(0, strlen("map") + 1); // include next whitespace character
+
+		std::istringstream lss(line);
+
+		std::string macro;
+		lss >> macro;
+		if (macro != "map_header" && macro != "map") { continue; }
+
+		std::string map_label;
+		std::getline(lss, map_label, ',');
+		trim(map_label);
+		if (map_label != map_name) { continue; }
+
+		std::string tileset_name;
+		std::getline(lss, tileset_name, ',');
+		trim(tileset_name);
+		if (starts_with(tileset_name, "TILESET_")) {
+			tileset_name.erase(0, strlen("TILESET_"));
+			std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
 		}
 		else {
-			continue;
+			tileset_name.erase();
 		}
-		if (!starts_with(line, map_name)) { continue; }
-		line.erase(0, strlen(map_name));
-		std::istringstream lss(line);
-		char comma1;
-		std::string tileset_name;
-		lss >> comma1;
-		if (comma1 != ',') { continue; }
-		lss >> tileset_name;
-		if (!starts_with(tileset_name, "TILESET_")) { return ""; }
-		tileset_name.erase(0, strlen("TILESET_"));
-		size_t comma2 = tileset_name.find(',');
-		if (comma2 != std::string::npos) {
-			tileset_name.erase(comma2);
-		}
-		std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
+
+		std::string environment;
+		std::getline(lss, environment, ',');
+		trim(environment);
+		attrs.environment = environment;
+
+		std::string skip_token;
+		std::getline(lss, skip_token, ','); // landmark
+		std::getline(lss, skip_token, ','); // music
+		std::getline(lss, skip_token, ','); // phone service flag
+
+		std::string palette;
+		std::getline(lss, palette, ',');
+		trim(palette);
+		attrs.palette = palette;
+
 		return tileset_name;
 	}
 
@@ -312,11 +330,11 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	return v;
 }
 
-bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory) {
+bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory, Map_Attributes &attrs) {
 	initialize();
 
 	// Initialize map size
-	if (!guess_map_size(filename, directory)) {
+	if (!guess_map_size(filename, directory, attrs)) {
 		_map_width->value(1);
 		_map_height->value(1);
 	}
@@ -334,7 +352,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 	_tileset->clear();
 
-	std::string guessed_tileset_name = guess_map_tileset(filename, directory);
+	std::string guessed_tileset_name = guess_map_tileset(filename, directory, attrs);
 	Dictionary pretty_names = guess_tileset_names(directory);
 	int v = 0;
 	for (int i = 0; i < n; i++) {

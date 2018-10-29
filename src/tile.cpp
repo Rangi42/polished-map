@@ -35,3 +35,13 @@ void Tile::copy(const Tile *t) {
 	memcpy(_hues, t->_hues, TILE_SIZE * TILE_SIZE * sizeof(Hue));
 	memcpy(_rgb, t->_rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
 }
+
+void Tile::update_lighting(Lighting l) {
+	for (int ty = 0; ty < TILE_SIZE; ty++) {
+		for (int tx = 0; tx < TILE_SIZE; tx++) {
+			Hue h = hue(tx, ty);
+			const uchar *rgb = Color::color(l, _palette, h);
+			pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
+		}
+	}
+}

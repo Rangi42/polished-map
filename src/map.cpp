@@ -24,6 +24,9 @@ void Map::clear() {
 	delete [] _blocks;
 	_blocks = NULL;
 	_width = _height = 0;
+	_attributes.group = 0;
+	_attributes.environment.clear();
+	_attributes.palette.clear();
 	_result = MAP_NULL;
 	_modified = false;
 	_history.clear();

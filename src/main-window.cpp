@@ -49,8 +49,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
+	int roof_colors_config = Preferences::get("roofs", 1);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
+	Config::auto_load_roof_colors(!!roof_colors_config);
 
 	// Populate window
 
@@ -274,6 +276,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
+			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -306,6 +310,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
+	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
@@ -832,7 +837,8 @@ void Main_Window::open_map(const char *filename) {
 
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
-	if (!_map_options_dialog->limit_blk_options(filename, directory)) {
+	Map_Attributes attrs;
+	if (!_map_options_dialog->limit_blk_options(filename, directory, attrs)) {
 		std::string msg = "This is not a valid project!\n\n"
 			"Make sure the Options are correct.";
 		_error_dialog->message(msg);
@@ -871,6 +877,8 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	uint8_t w = _map_options_dialog->map_width(), h = _map_options_dialog->map_height();
 	_map.size(w, h);
 	int ms = metatile_size();
+
+	_map.attributes(attrs);
 
 	const char *basename;
 
@@ -977,6 +985,33 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		load_lighting(buffer);
 	}
 
+	// use lighting coresponding to palette
+	Lighting new_lighting = lighting();
+	if (new_lighting != Lighting::CUSTOM) {
+		if (_map.palette() == "PALETTE_NITE" || _map.palette() == "PALETTE_DARK") {
+			new_lighting = Lighting::NITE;
+		}
+		else if (_map.environment() == "INDOOR" || _map.environment() == "GATE") {
+			new_lighting = Lighting::INDOOR;
+		}
+		else if (_map.palette() == "PALETTE_MORN") {
+			new_lighting = Lighting::MORN;
+		}
+		else {
+			new_lighting = Lighting::DAY;
+		}
+	}
+	if (new_lighting != lighting()) {
+		_lighting->value(new_lighting);
+		lighting_cb(NULL, this);
+		update_lighting();
+	}
+
+	// load roof palettes if applicable
+	if (auto_load_roof_colors() && _map.group() && _map.is_outside()) {
+		load_roof_colors();
+	}
+
 	update_active_controls();
 	update_labels();
 	update_status(NULL);
@@ -1001,10 +1036,34 @@ void Main_Window::load_lighting(const char *filename) {
 		lighting_cb(NULL, this);
 	}
 	update_lighting();
-	redraw();
 }
 
-void Main_Window::load_roof(const char *filename) {
+void Main_Window::load_roof_colors() {
+	char buffer[FL_PATH_MAX] = {};
+	Config::roofs_pal_path(buffer, _directory.c_str());
+
+	if (_edited_lighting) {
+		const char *basename = fl_filename_name(buffer);
+		std::string msg = "The lighting has been edited!\n\n";
+		msg = msg + "Load " + basename + " anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return; }
+	}
+
+	if (!Color::read_roof_colors(buffer, _map.group())) {
+		Config::roofs_pal_path(buffer, "");
+		std::string msg = "Warning: Could not read ";
+		msg = msg + buffer + "!";
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else {
+		update_lighting();
+	}
+}
+
+void Main_Window::load_roof_tiles(const char *filename) {
 	Tileset *tileset = _metatileset.tileset();
 	Tileset::Result rt =tileset->read_roof_graphics(filename);
 	if (rt) {
@@ -1653,7 +1712,7 @@ void Main_Window::load_roof_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->load_roof(filename);
+	mw->load_roof_tiles(filename);
 
 	mw->update_active_controls();
 	mw->redraw();
@@ -1772,6 +1831,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("all256", mw->allow_256_tiles());
+	Preferences::set("roofs", mw->auto_load_roof_colors());
 	if (mw->_resize_dialog->initialized()) {
 		Preferences::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
@@ -2114,6 +2174,11 @@ void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::allow_256_tiles(!!m->mvalue()->value());
+	mw->redraw();
+}
+
+void Main_Window::auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::auto_load_roof_colors(!!m->mvalue()->value());
 	mw->redraw();
 }
 

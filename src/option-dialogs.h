@@ -8,6 +8,7 @@
 #include "config.h"
 #include "widgets.h"
 #include "tileset.h"
+#include "map.h"
 
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
@@ -55,14 +56,14 @@ private:
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
-	bool limit_blk_options(const char *filename, const char *directory);
+	bool limit_blk_options(const char *filename, const char *directory, Map_Attributes &attrs);
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	const char *tileset(void) const;
 private:
 	const char *original_name(const char *pretty_name) const;
-	bool guess_map_size(const char *filename, const char *directory);
-	std::string guess_map_tileset(const char *filename, const char *directory);
+	bool guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs);
+	std::string guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs);
 	Dictionary guess_tileset_names(const char *directory);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 protected:

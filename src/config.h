@@ -3,7 +3,7 @@
 
 class Config {
 private:
-	static bool _monochrome, _256_tiles;
+	static bool _monochrome, _256_tiles, _roof_colors;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *palette_macro(void);
@@ -17,10 +17,13 @@ public:
 	static void tileset_constants_path(char *dest, const char *root);
 	static void map_headers_path(char *dest, const char *root);
 	static void bg_tiles_pal_path(char *dest, const char *root);
+	static void roofs_pal_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }
 	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
+	inline static bool auto_load_roof_colors(void) { return _roof_colors; }
+	inline static void auto_load_roof_colors(bool r) { _roof_colors = r; }
 };
 
 #endif

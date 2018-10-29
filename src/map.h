@@ -9,6 +9,12 @@
 
 #define MAX_HISTORY_SIZE 100
 
+struct Map_Attributes {
+	uint8_t group;
+	std::string environment;
+	std::string palette;
+};
+
 class Map {
 protected:
 	struct Map_State {
@@ -19,6 +25,7 @@ protected:
 public:
 	enum Result { MAP_OK, MAP_BAD_FILE, MAP_TOO_SHORT, MAP_TOO_LONG, MAP_NULL };
 private:
+	Map_Attributes _attributes;
 	uint8_t _width, _height;
 	Block **_blocks;
 	Result _result;
@@ -29,6 +36,15 @@ public:
 	~Map();
 	inline uint8_t width(void) const { return _width; }
 	inline uint8_t height(void) const { return _height; }
+	inline Map_Attributes attributes(void) const { return _attributes; }
+	void attributes(Map_Attributes a) { _attributes = a; }
+	inline uint8_t group(void) const { return _attributes.group; }
+	inline void group(uint8_t g) { _attributes.group = g; }
+	inline std::string environment(void) const { return _attributes.environment; }
+	inline void environment(std::string e) { _attributes.environment = e; }
+	inline std::string palette(void) const { return _attributes.palette; }
+	inline void palette(std::string p) { _attributes.palette = p; }
+	inline bool is_outside(void) const { return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE"; }
 	void size(uint8_t w, uint8_t h);
 	inline size_t size(void) const { return (size_t)_width * (size_t)_height; }
 	inline Block *block(uint8_t x, uint8_t y) const { return _blocks[(size_t)y * _width + (size_t)x]; }

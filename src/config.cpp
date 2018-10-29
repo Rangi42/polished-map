@@ -20,7 +20,7 @@ static char *trim_suffix(const char *s) {
 	return t;
 }
 
-bool Config::_monochrome = false, Config::_256_tiles = false;
+bool Config::_monochrome = false, Config::_256_tiles = false, Config::_roof_colors = true;
 
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;
@@ -130,8 +130,16 @@ void Config::tileset_constants_path(char *dest, const char *root) {
 
 void Config::bg_tiles_pal_path(char *dest, const char *root) {
 	// try gfx/tilesets/bg_tiles.pal (pokecrystal)
-	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "bg_tiles.pal", root);
+	sprintf(dest, "%s%sbg_tiles.pal", root, gfx_tileset_dir());
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/bg.pal (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "bg.pal", root);
+}
+
+void Config::roofs_pal_path(char *dest, const char *root) {
+	// try gfx/tilesets/roofs.pal (pokecrystal)
+	sprintf(dest, "%s%sroofs.pal", root, gfx_tileset_dir());
+	if (file_exists(dest)) { return; }
+	// last resort: tilesets/roof.pal (old pokecrystal)
+	sprintf(dest, "%stilesets" DIR_SEP "roof.pal", root);
 }

@@ -8,6 +8,8 @@
 #include <FL/Enumerations.H>
 #pragma warning(pop)
 
+#include "utils.h"
+
 #define RGB5C(x) (uchar)((x) * 8) // (uchar)((x) * 33 / 4) for BGB instead of VBA
 #define CRGB5(c) (uchar)((c) / 8)
 
@@ -39,6 +41,7 @@ public:
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);
 	static PalVec parse_lighting(const char *f);
 	static Lighting read_lighting(const char *f, Lighting lighting);
+	static bool read_roof_colors(const char *f, uint8_t map_group);
 	static bool write_lighting(const char *f, Lighting lighting);
 };
 

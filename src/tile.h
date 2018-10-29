@@ -36,6 +36,7 @@ public:
 	void pixel(int x, int y, Hue h, uchar r, uchar g, uchar b);
 	void clear(void);
 	void copy(const Tile *t);
+	void update_lighting(Lighting l);
 };
 
 #endif
