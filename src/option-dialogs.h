@@ -64,7 +64,7 @@ private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs);
 	std::string guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs);
-	Dictionary guess_tileset_names(const char *directory);
+	void guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 protected:
 	void initialize_content(void);

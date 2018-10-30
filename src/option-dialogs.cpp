@@ -280,14 +280,12 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 	return "";
 }
 
-Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
-	Dictionary pretty_names;
-
+void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names) {
 	char tileset_constants[FL_PATH_MAX] = {};
 	Config::tileset_constants_path(tileset_constants, directory);
 
 	std::ifstream ifs(tileset_constants);
-	if (!ifs.good()) { return pretty_names; }
+	if (!ifs.good()) { return; }
 
 	int id = 1;
 	char original[16] = {};
@@ -301,11 +299,14 @@ Dictionary Map_Options_Dialog::guess_tileset_names(const char *directory) {
 		lss >> token;
 		if (starts_with(token, "TILESET_")) { token.erase(0, strlen("TILESET_")); }
 		sprintf(original, "%02d", id++);
-		token = original + (": " + token);
-		pretty_names[original] = token;
+		std::string pretty = original + (": " + token);
+		pretty_names[original] = pretty;
+		std::string guessable = token;
+		std::transform(guessable.begin(), guessable.end(), guessable.begin(), tolower);
+		guessable_names[original] = guessable;
 	}
 
-	return pretty_names;
+	return;
 }
 
 std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Dictionary &pretty_names) {
@@ -353,7 +354,8 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_tileset->clear();
 
 	std::string guessed_tileset_name = guess_map_tileset(filename, directory, attrs);
-	Dictionary pretty_names = guess_tileset_names(directory);
+	Dictionary pretty_names, guessable_names;
+	guess_tileset_names(directory, pretty_names, guessable_names);
 	int v = 0;
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
@@ -362,8 +364,12 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
-			std::string original_name(add_tileset(name, ext_len, pretty_names));
-			if (guessed_tileset_name == original_name) { v = _tileset->size() - 2; } // ignore terminating NULL
+			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
+			Dictionary::const_iterator it = guessable_names.find(guessable_name);
+			if (it != guessable_names.end()) {
+				guessable_name = it->second;
+			}
+			if (guessed_tileset_name == guessable_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 		}
 	}
 	_tileset->value(v);
