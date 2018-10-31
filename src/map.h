@@ -10,9 +10,13 @@
 #define MAX_HISTORY_SIZE 100
 
 struct Map_Attributes {
+public:
 	uint8_t group;
 	std::string environment;
+	std::string landmark;
 	std::string palette;
+public:
+	void clear(void);
 };
 
 class Map {
@@ -42,6 +46,8 @@ public:
 	inline void group(uint8_t g) { _attributes.group = g; }
 	inline std::string environment(void) const { return _attributes.environment; }
 	inline void environment(std::string e) { _attributes.environment = e; }
+	inline std::string landmark(void) const { return _attributes.landmark; }
+	inline void landmark(std::string l) { _attributes.landmark = l; }
 	inline std::string palette(void) const { return _attributes.palette; }
 	inline void palette(std::string p) { _attributes.palette = p; }
 	inline bool is_outside(void) const { return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE"; }

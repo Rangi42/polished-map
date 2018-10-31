@@ -264,8 +264,13 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		trim(environment);
 		attrs.environment = environment;
 
+		std::string landmark;
+		std::getline(lss, landmark, ',');
+		trim(landmark);
+		std::transform(landmark.begin(), landmark.end(), landmark.begin(), tolower);
+		attrs.landmark = landmark;
+
 		std::string skip_token;
-		std::getline(lss, skip_token, ','); // landmark
 		std::getline(lss, skip_token, ','); // music
 		std::getline(lss, skip_token, ','); // phone service flag
 

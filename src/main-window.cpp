@@ -976,13 +976,26 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// load unique tileset palettes if they exist
 	sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
-	load_lighting(buffer);
+	if (file_exists(buffer)) {
+		load_lighting(buffer);
+	}
+
+	// load unique landmark palettes if they exist
+	if (_map.landmark() != tileset_name) {
+		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
+		puts(buffer);
+		if (file_exists(buffer)) {
+			load_lighting(buffer);
+		}
+	}
 
 	// load unique map palettes if they exist
 	if (filename) {
 		strcpy(buffer, filename);
 		fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
-		load_lighting(buffer);
+		if (file_exists(buffer)) {
+			load_lighting(buffer);
+		}
 	}
 
 	// use lighting coresponding to palette

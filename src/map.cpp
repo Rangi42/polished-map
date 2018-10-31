@@ -2,6 +2,13 @@
 
 #include "map.h"
 
+void Map_Attributes::clear() {
+	group = 0;
+	environment.clear();
+	landmark.clear();
+	palette.clear();
+}
+
 Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false),
 	_history(MAX_HISTORY_SIZE), _future(MAX_HISTORY_SIZE) {}
 
@@ -23,10 +30,8 @@ void Map::block(uint8_t x, uint8_t y, Block *b) {
 void Map::clear() {
 	delete [] _blocks;
 	_blocks = NULL;
+	_attributes.clear();
 	_width = _height = 0;
-	_attributes.group = 0;
-	_attributes.environment.clear();
-	_attributes.palette.clear();
 	_result = MAP_NULL;
 	_modified = false;
 	_history.clear();
