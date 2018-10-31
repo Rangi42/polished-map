@@ -57,8 +57,8 @@ private:
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
 	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_mi = NULL, *_unload_roof_mi = NULL,
-		*_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL,
-		*_save_event_script_mi = NULL, *_print_mi = NULL;
+		*_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL,
+		*_save_tileset_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_edit_tileset_mi = NULL,
 		*_edit_current_lighting_mi = NULL;
@@ -132,7 +132,7 @@ private:
 	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
 	void load_lighting(const char *filename);
-	void load_roof_colors(void);
+	void load_roof_colors(bool quiet);
 	void load_roof_tiles(const char *filename);
 	void unload_roof(void);
 	bool read_metatile_data(const char *tileset_name);
@@ -163,6 +163,7 @@ private:
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void unload_roof_cb(Fl_Widget *w, Main_Window *mw);
+	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void print_cb(Fl_Widget *w, Main_Window *mw);

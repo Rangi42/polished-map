@@ -208,7 +208,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
 		OS_MENU_ITEM("Load &Roof Tiles...", FL_COMMAND + 'R', (Fl_Callback *)load_roof_cb, this, 0),
-		OS_MENU_ITEM("Unload Roo&f Tiles", 0, (Fl_Callback *)unload_roof_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Unload Roo&f Tiles", 0, (Fl_Callback *)unload_roof_cb, this, 0),
+		OS_MENU_ITEM("Loa&d Roof Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
 		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
@@ -321,6 +322,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
 	_load_roof_mi = PM_FIND_MENU_ITEM_CB(load_roof_cb);
 	_unload_roof_mi = PM_FIND_MENU_ITEM_CB(unload_roof_cb);
+	_load_roof_colors_mi = PM_FIND_MENU_ITEM_CB(load_roof_colors_cb);
 	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
 	_save_mi = PM_FIND_MENU_ITEM_CB(save_cb);
 	_save_as_mi = PM_FIND_MENU_ITEM_CB(save_as_cb);
@@ -724,6 +726,12 @@ void Main_Window::update_active_controls() {
 		else {
 			_unload_roof_mi->deactivate();
 		}
+		if (tileset) {
+			_load_roof_colors_mi->activate();
+		}
+		else {
+			_load_roof_colors_mi->deactivate();
+		}
 		if (_map.can_undo()) {
 			_undo_mi->activate();
 			_undo_tb->activate();
@@ -765,6 +773,7 @@ void Main_Window::update_active_controls() {
 		_load_roof_mi->deactivate();
 		_load_roof_tb->deactivate();
 		_unload_roof_mi->deactivate();
+		_load_roof_colors_mi->deactivate();
 		_close_mi->deactivate();
 		_unload_event_script_mi->deactivate();
 		_save_mi->deactivate();
@@ -1026,7 +1035,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// load roof palettes if applicable
 	if (auto_load_roof_colors() && _map.group() && _map.is_outside()) {
-		load_roof_colors();
+		load_roof_colors(true);
 	}
 
 	update_active_controls();
@@ -1055,7 +1064,7 @@ void Main_Window::load_lighting(const char *filename) {
 	update_lighting();
 }
 
-void Main_Window::load_roof_colors() {
+void Main_Window::load_roof_colors(bool quiet) {
 	char buffer[FL_PATH_MAX] = {};
 	Config::roofs_pal_path(buffer, _directory.c_str());
 
@@ -1070,13 +1079,27 @@ void Main_Window::load_roof_colors() {
 
 	if (!Color::read_roof_colors(buffer, _map.group())) {
 		Config::roofs_pal_path(buffer, "");
-		std::string msg = "Warning: Could not read ";
-		msg = msg + buffer + "!";
-		_warning_dialog->message(msg);
-		_warning_dialog->show(this);
+		if (quiet) {
+			std::string msg = "Warning: Could not read ";
+			msg = msg + buffer + "!";
+			_warning_dialog->message(msg);
+			_warning_dialog->show(this);
+		}
+		else {
+			std::string msg = "Could not read ";
+			msg = msg + buffer + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+		}
 	}
 	else {
 		update_lighting();
+		if (!quiet) {
+			std::string msg = "Loaded roof colors for map group ";
+			msg = msg + std::to_string(_map.group()) + "!";
+			_success_dialog->message(msg);
+			_success_dialog->show(this);
+		}
 	}
 }
 
@@ -1739,6 +1762,19 @@ void Main_Window::unload_roof_cb(Fl_Widget *, Main_Window *mw) {
 	mw->unload_roof();
 	mw->update_active_controls();
 	mw->redraw();
+}
+
+void Main_Window::load_roof_colors_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	if (!mw->_map.group()) {
+		std::string msg = "The map's group is unknown!";
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	mw->load_roof_colors(false);
 }
 
 void Main_Window::load_lighting_cb(Fl_Widget *, Main_Window *mw) {
