@@ -20,7 +20,8 @@ static char *trim_suffix(const char *s) {
 	return t;
 }
 
-bool Config::_monochrome = false, Config::_256_tiles = false, Config::_roof_colors = true;
+bool Config::_monochrome = false, Config::_256_tiles = false,
+	Config::_special_lighting = true, Config::_roof_colors = true;
 
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;

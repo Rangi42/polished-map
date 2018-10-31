@@ -49,9 +49,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
+	int special_lighting_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
+	Config::auto_load_special_lighting(!!special_lighting_config);
 	Config::auto_load_roof_colors(!!roof_colors_config);
 
 	// Populate window
@@ -276,6 +278,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
+			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
 			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0)),
 		{},
@@ -310,6 +314,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
+	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
@@ -974,27 +979,26 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	Config::bg_tiles_pal_path(buffer, directory);
 	load_lighting(buffer);
 
-	// load unique tileset palettes if they exist
-	sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
-	if (file_exists(buffer)) {
-		load_lighting(buffer);
-	}
-
-	// load unique landmark palettes if they exist
-	if (_map.landmark() != tileset_name) {
-		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
-		puts(buffer);
+	if (Config::auto_load_special_lighting()) {
+		// load unique tileset palettes if they exist
+		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
 		if (file_exists(buffer)) {
 			load_lighting(buffer);
 		}
-	}
-
-	// load unique map palettes if they exist
-	if (filename) {
-		strcpy(buffer, filename);
-		fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
-		if (file_exists(buffer)) {
-			load_lighting(buffer);
+		// load unique landmark palettes if they exist
+		if (_map.landmark() != tileset_name) {
+			sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
+			if (file_exists(buffer)) {
+				load_lighting(buffer);
+			}
+		}
+		// load unique map palettes if they exist
+		if (filename) {
+			strcpy(buffer, filename);
+			fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
+			if (file_exists(buffer)) {
+				load_lighting(buffer);
+			}
 		}
 	}
 
@@ -1844,6 +1848,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("all256", mw->allow_256_tiles());
+	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	if (mw->_resize_dialog->initialized()) {
 		Preferences::set("resize-anchor", mw->_resize_dialog->anchor());
@@ -2187,6 +2192,11 @@ void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::allow_256_tiles(!!m->mvalue()->value());
+	mw->redraw();
+}
+
+void Main_Window::auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::auto_load_special_lighting(!!m->mvalue()->value());
 	mw->redraw();
 }
 
