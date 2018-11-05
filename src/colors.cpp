@@ -276,7 +276,7 @@ bool Color::read_roof_colors(const char *f, uint8_t map_group) {
 }
 
 bool Color::write_lighting(const char *f, Lighting lighting) {
-	FILE *file = fl_fopen(f, "w");
+	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	if (Config::monochrome()) {
 		for (int h = 0; h < NUM_HUES; h++) {

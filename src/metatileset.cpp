@@ -161,7 +161,7 @@ Metatileset::Result Metatileset::read_collisions(const char *f) {
 }
 
 bool Metatileset::write_collisions(const char *f) {
-	FILE *file = fl_fopen(f, "w");
+	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
 		Metatile *mt = _metatiles[i];

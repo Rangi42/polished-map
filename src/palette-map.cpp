@@ -84,7 +84,7 @@ const char *Palette_Map::error_message(Result result) {
 }
 
 bool Palette_Map::write_palette_map(const char *f) {
-	FILE *file = fl_fopen(f, "w");
+	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	size_t n = MAX_NUM_TILES;
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
