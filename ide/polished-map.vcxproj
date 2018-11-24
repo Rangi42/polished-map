@@ -120,6 +120,7 @@
     <ClCompile Include="..\src\option-dialogs.cpp" />
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\preferences.cpp" />
+    <ClCompile Include="..\src\roof-window.cpp" />
     <ClCompile Include="..\src\themes.cpp" />
     <ClCompile Include="..\src\tile.cpp" />
     <ClCompile Include="..\src\tiled-image.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\preferences.h" />
     <ClInclude Include="..\src\resource.h" />
+    <ClInclude Include="..\src\roof-window.h" />
     <ClInclude Include="..\src\themes.h" />
     <ClInclude Include="..\src\tile.h" />
     <ClInclude Include="..\src\tiled-image.h" />
@@ -165,6 +167,8 @@
     <None Include="..\res\blocks-disabled.xpm" />
     <None Include="..\res\blocks.xpm" />
     <None Include="..\res\change-disabled.xpm" />
+    <None Include="..\res\change-roof-disabled.xpm" />
+    <None Include="..\res\change-roof.xpm" />
     <None Include="..\res\change.xpm" />
     <None Include="..\res\coll-bottom-left-disabled.xpm" />
     <None Include="..\res\coll-bottom-left.xpm" />
@@ -191,8 +195,6 @@
     <None Include="..\res\load-disabled.xpm" />
     <None Include="..\res\load-lighting-disabled.xpm" />
     <None Include="..\res\load-lighting.xpm" />
-    <None Include="..\res\load-roof-disabled.xpm" />
-    <None Include="..\res\load-roof.xpm" />
     <None Include="..\res\load.xpm" />
     <None Include="..\res\new-disabled.xpm" />
     <None Include="..\res\new.xpm" />
@@ -204,6 +206,8 @@
     <None Include="..\res\redo.xpm" />
     <None Include="..\res\resize-disabled.xpm" />
     <None Include="..\res\resize.xpm" />
+    <None Include="..\res\roof-disabled.xpm" />
+    <None Include="..\res\roof.xpm" />
     <None Include="..\res\save-disabled.xpm" />
     <None Include="..\res\save.xpm" />
     <None Include="..\res\show-disabled.xpm" />

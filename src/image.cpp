@@ -14,14 +14,14 @@
 #include "image.h"
 #include "config.h"
 
-Image::Result Image::write_image(const char *f, const Map &map, const Metatileset &mt) {
+Image::Result Image::write_map_image(const char *f, const Map &map, const Metatileset &mt) {
 	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
 	size_t h = map.height() * METATILE_SIZE * TILE_SIZE;
 	uchar *buffer = mt.print_rgb(map);
 	return write_image(f, w, h, buffer);
 }
 
-Image::Result Image::write_image(const char *f, const Tileset &tileset) {
+Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
 	size_t n = MAX_NUM_TILES;
 	while (tileset.const_tile((uint8_t)(n-1))->palette() == Palette::UNDEFINED) { n--; }
 	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
@@ -29,6 +29,13 @@ Image::Result Image::write_image(const char *f, const Tileset &tileset) {
 	bool allow_256 = Config::allow_256_tiles();
 	if (!allow_256 && h > 6 * TILE_SIZE) { h -= 2 * TILE_SIZE; } // skip tiles $60 to $7F
 	uchar *buffer = tileset.print_rgb(w, h, n);
+	return write_image(f, w, h, buffer);
+}
+
+Image::Result Image::write_roof_image(const char *f, const Tileset &tileset) {
+	size_t w = ROOF_TILES_PER_ROW * TILE_SIZE;
+	size_t h = ROOF_TILES_PER_COL * TILE_SIZE;
+	uchar *buffer = tileset.print_roof_rgb(w, h);
 	return write_image(f, w, h, buffer);
 }
 

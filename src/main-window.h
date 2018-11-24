@@ -20,6 +20,7 @@
 #include "help-window.h"
 #include "block-window.h"
 #include "tileset-window.h"
+#include "roof-window.h"
 #include "lighting-window.h"
 #include "directory-chooser.h"
 
@@ -48,20 +49,20 @@ private:
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL, *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
-		*_load_roof_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_edit_tileset_tb, *_load_lighting_tb,
-		*_edit_current_lighting_tb;
+		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb, *_edit_roof_tb,
+		*_load_lighting_tb, *_edit_current_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_event_cursor_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_mi = NULL, *_unload_roof_mi = NULL,
-		*_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL,
-		*_save_tileset_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL, *_close_mi = NULL,
+		*_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_roof_mi = NULL,
+		*_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
-	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_edit_tileset_mi = NULL,
-		*_edit_current_lighting_mi = NULL;
+	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_change_roof_mi = NULL,
+		*_edit_tileset_mi = NULL, *_edit_roof_mi = NULL, *_edit_current_lighting_mi = NULL;
 	// Dialogs
 	Directory_Chooser *_new_dir_chooser;
 	Fl_Native_File_Chooser *_blk_open_chooser, *_blk_save_chooser, *_pal_load_chooser, *_pal_save_chooser, *_roof_chooser,
@@ -69,11 +70,13 @@ private:
 	Modal_Dialog *_error_dialog, *_warning_dialog, *_success_dialog, *_unsaved_dialog, *_about_dialog;
 	Map_Options_Dialog *_map_options_dialog;
 	Tileset_Options_Dialog *_tileset_options_dialog;
+	Roof_Options_Dialog *_roof_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
 	Block_Window *_block_window;
 	Tileset_Window *_tileset_window;
+	Roof_Window *_roof_window;
 	Lighting_Window *_lighting_window;
 	Monochrome_Lighting_Window *_monochrome_lighting_window;
 	// Data
@@ -112,7 +115,9 @@ public:
 	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
-	inline bool unsaved(void) const { return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified(); }
+	inline bool unsaved(void) const {
+		return _map.modified() || _metatileset.modified() || _metatileset.const_tileset()->modified() || _metatileset.const_tileset()->modified_roof();
+	}
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
 	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }
 	inline std::unordered_map<int, uint8_t>::const_iterator hotkey_metatile(int key) const { return _hotkey_metatiles.find(key); }
@@ -133,15 +138,14 @@ private:
 	void open_map(const char *directory, const char *filename);
 	void load_lighting(const char *filename);
 	void load_roof_colors(bool quiet);
-	void load_roof_tiles(const char *filename);
-	void unload_roof(void);
-	bool read_metatile_data(const char *tileset_name);
+	bool read_metatile_data(const char *tileset_name, const char *roof_name);
 	void add_sub_metatiles(size_t n);
 	void force_add_sub_metatiles(size_t s, size_t n);
 	void resize_map(int w, int h);
 	bool save_map(bool force);
 	bool save_metatileset(void);
 	bool save_tileset(void);
+	bool save_roof(void);
 	bool export_lighting(const char *filename, Lighting l);
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
@@ -158,11 +162,10 @@ private:
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
+	static void save_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
-	static void load_roof_cb(Fl_Widget *w, Main_Window *mw);
-	static void unload_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
@@ -199,7 +202,9 @@ private:
 	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);
 	static void change_tileset_cb(Fl_Widget *w, Main_Window *mw);
+	static void change_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_tileset_cb(Fl_Widget *w, Main_Window *mw);
+	static void edit_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);

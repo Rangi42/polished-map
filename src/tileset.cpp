@@ -3,7 +3,7 @@
 #include "image.h"
 
 Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _num_roof_tiles(0),
-	_result(GFX_NULL), _modified(false) {
+	_result(GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 		_roof_tiles[i] = new Tile((uint8_t)i);
@@ -28,6 +28,7 @@ void Tileset::clear() {
 	clear_roof_graphics();
 	_result = GFX_NULL;
 	_modified = false;
+	_modified_roof = false;
 }
 
 void Tileset::clear_roof_graphics() {
@@ -56,22 +57,18 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 		const Tile *t = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
 		if (!allow_256_tiles && i >= 0x80) { ty -= 2 * TILE_SIZE; }
-		for (int py = 0; py < TILE_SIZE; py++) {
-			for (int px = 0; px < TILE_SIZE; px++) {
-				Hue h = t->hue(px, py);
-				uchar c;
-				switch (h) {
-				case Hue::BLACK: c = 0x00; break;
-				case Hue::DARK:  c = 0x55; break;
-				case Hue::LIGHT: c = 0xAA; break;
-				case Hue::WHITE: default: c = 0xFF;
-				}
-				size_t j = ((ty + py) * TILES_PER_ROW * TILE_SIZE + tx + px) * NUM_CHANNELS;
-				buffer[j++] = c;
-				buffer[j++] = c;
-				buffer[j] = c;
-			}
-		}
+		print_tile_rgb(t, tx, ty, TILES_PER_ROW, buffer);
+	}
+	return buffer;
+}
+
+uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
+	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
+	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	for (size_t i = 0; i < NUM_ROOF_TILES; i++) {
+		const Tile *t = _roof_tiles[i + FIRST_ROOF_TILE_ID];
+		int ty = (i / ROOF_TILES_PER_ROW) * TILE_SIZE, tx = (i % ROOF_TILES_PER_ROW) * TILE_SIZE;
+		print_tile_rgb(t, tx, ty, ROOF_TILES_PER_ROW, buffer);
 	}
 	return buffer;
 }
@@ -84,6 +81,25 @@ void Tileset::read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j) {
 			Hue h = ti.tile_hue(j, tx, ty);
 			const uchar *rgb = Color::color(_lighting, p, h);
 			t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
+		}
+	}
+}
+
+void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) const {
+	for (int py = 0; py < TILE_SIZE; py++) {
+		for (int px = 0; px < TILE_SIZE; px++) {
+			Hue h = t->hue(px, py);
+			uchar c;
+			switch (h) {
+			case Hue::BLACK: c = 0x00; break;
+			case Hue::DARK:  c = 0x55; break;
+			case Hue::LIGHT: c = 0xAA; break;
+			case Hue::WHITE: default: c = 0xFF;
+			}
+			size_t j = ((ty + py) * n * TILE_SIZE + tx + px) * NUM_CHANNELS;
+			buffer[j++] = c;
+			buffer[j++] = c;
+			buffer[j] = c;
 		}
 	}
 }
@@ -116,6 +132,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	}
 
 	_modified = false;
+	_modified_roof = false;
 
 	return (_result = GFX_OK);
 }
@@ -137,7 +154,10 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 	default: return GFX_BAD_FILE;
 	}
 
-	if (FIRST_ROOF_TILE_ID + ti.num_tiles() > MAX_NUM_TILES) {
+	if (ti.num_tiles() < NUM_ROOF_TILES) {
+		return GFX_TOO_SHORT;
+	}
+	if (ti.num_tiles() > NUM_ROOF_TILES || FIRST_ROOF_TILE_ID + ti.num_tiles() > MAX_NUM_TILES) {
 		return GFX_TOO_LARGE;
 	}
 	_num_roof_tiles = ti.num_tiles();
@@ -181,6 +201,11 @@ const char *Tileset::error_message(Result result) {
 }
 
 bool Tileset::write_graphics(const char *f) {
-	Image::Result result = Image::write_image(f, *this);
+	Image::Result result = Image::write_tileset_image(f, *this);
+	return !result;
+}
+
+bool Tileset::write_roof_graphics(const char *f) {
+	Image::Result result = Image::write_roof_image(f, *this);
 	return !result;
 }

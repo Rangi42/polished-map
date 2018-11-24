@@ -16,8 +16,7 @@
 * Allow undo/redo for resize operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
 * File → Open Recent → the last few opened .blk files (issue [#11](https://github.com/Rangi42/polished-map/issues/11))
-* Load `ROOF` palettes from roofs.pal for `TOWN` or `ROUTE` environments; based on the map group in map_constants.asm and environment in maps.asm
-* Guess the Morn/Day/Nite/Indoor lighting from the palette constant in maps.asm
+* Guess the roof type by parsing roofs.asm
 
 ## Polished Map++
 

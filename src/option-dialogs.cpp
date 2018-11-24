@@ -94,19 +94,25 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL) {}
+Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0), _max_roof_name_length(0),
+	_map_width(NULL), _map_height(NULL), _tileset(NULL), _roof(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
 	delete _tileset;
+	delete _roof;
 }
 
 const char *Map_Options_Dialog::tileset(void) const {
 	if (!_tileset->mvalue()) { return NULL; }
 	const char *t = _tileset->mvalue()->label();
 	return original_name(t);
+}
+
+const char *Map_Options_Dialog::roof(void) const {
+	if (!_roof->mvalue() || _roof->value() == 0) { return NULL; }
+	return _roof->mvalue()->label();
 }
 
 const char *Map_Options_Dialog::original_name(const char *pretty_name) const {
@@ -336,6 +342,19 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	return v;
 }
 
+std::string Map_Options_Dialog::add_roof(const char *r, int ext_len) {
+	std::string v(r);
+	v.erase(v.size() - ext_len, ext_len);
+
+	if (_roof->find_index(v.c_str()) == -1) {
+		_roof->add(v.c_str());
+		int m = text_width(v.c_str(), 6);
+		_max_roof_name_length = MAX(m, _max_roof_name_length);
+	}
+
+	return v;
+}
+
 bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory, Map_Attributes &attrs) {
 	initialize();
 
@@ -355,8 +374,13 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	int n = fl_filename_list(tileset_directory, &list);
 	if (n < 0) { return false; }
 
-	_max_tileset_name_length = 0;
 	_tileset->clear();
+	_max_tileset_name_length = 0;
+
+	_roof->clear();
+	_roof->add("(none)");
+	_roof->value(0);
+	_max_roof_name_length = text_width("(none)", 6);
 
 	std::string guessed_tileset_name = guess_map_tileset(filename, directory, attrs);
 	Dictionary pretty_names, guessable_names;
@@ -379,6 +403,27 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	}
 	_tileset->value(v);
 
+	fl_filename_free_list(&list, n);
+
+	// Initialize roof choices
+
+	char roof_directory[FL_PATH_MAX] = {};
+	strcpy(roof_directory, directory);
+	strcat(roof_directory, Config::gfx_roof_dir());
+
+	n = fl_filename_list(roof_directory, &list);
+	if (n >= 0) {
+		for (int i = 0; i < n; i++) {
+			const char *name = list[i]->d_name;
+			int ext_len = ends_with(name, ".2bpp") ? 5 :
+						  ends_with(name, ".png") ? 4 : 0;
+			if (ext_len) {
+				add_roof(name, ext_len);
+			}
+		}
+		fl_filename_free_list(&list, n);
+	}
+
 	return true;
 }
 
@@ -387,19 +432,21 @@ void Map_Options_Dialog::initialize_content() {
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
+	_roof = new Dropdown(0, 0, 0, 0, "Roof:");
 	// Initialize content group's children
 	_map_width->align(FL_ALIGN_LEFT);
 	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(1, 255);
 	_tileset->align(FL_ALIGN_LEFT);
+	_roof->align(FL_ALIGN_LEFT);
 	// Initialize data
 	_original_names.clear();
 }
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h + wgt_m + wgt_h;
+	int ch = wgt_h + wgt_m + wgt_h + wgt_m + wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
 	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
@@ -411,6 +458,10 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = _max_tileset_name_length + wgt_h;
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
+	dy += _tileset->h() + wgt_m;
+
+	wgt_w = _max_roof_name_length + wgt_h;
+	_roof->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
 }
@@ -597,6 +648,55 @@ int Tileset_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = _map_options_dialog->_max_tileset_name_length + wgt_h;
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
+}
+
+Roof_Options_Dialog::Roof_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(280, t),
+	_roof(NULL), _map_options_dialog(mod) {}
+
+Roof_Options_Dialog::~Roof_Options_Dialog() {
+	delete _roof;
+}
+
+bool Roof_Options_Dialog::limit_roof_options(const char *old_roof_name) {
+	if (!_map_options_dialog) { return false; }
+	initialize();
+	// Copy _map_options_dialog's roof choices
+	_roof->clear();
+	int n = _map_options_dialog->_roof->size() - 1; // ignore terminating NULL
+	int v = 0;
+	for (int i = 0; i < n; i++) {
+		const Fl_Menu_Item &item = _map_options_dialog->_roof->menu()[i];
+		const char *name = item.label();
+		if (old_roof_name && !strcmp(old_roof_name, name)) { v = i; }
+		_roof->add(name);
+	}
+	_roof->value(v);
+	return true;
+}
+
+const char *Roof_Options_Dialog::roof(void) const {
+	if (!_roof->mvalue() || !_roof->value()) { return NULL; }
+	return _roof->mvalue()->label();
+}
+
+void Roof_Options_Dialog::initialize_content() {
+	// Populate content group
+	_roof = new Dropdown(0, 0, 0, 0, "Roof:");
+	// Initialize content group's children
+	_roof->align(FL_ALIGN_LEFT);
+}
+
+int Roof_Options_Dialog::refresh_content(int ww, int dy) {
+	int wgt_w = 0, wgt_h = 22, win_m = 10;
+	int ch = wgt_h;
+	_content->resize(win_m, dy, ww, ch);
+
+	int wgt_off = win_m + text_width(_roof->label(), 2);
+
+	wgt_w = _map_options_dialog->_max_roof_name_length + wgt_h;
+	_roof->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
 }

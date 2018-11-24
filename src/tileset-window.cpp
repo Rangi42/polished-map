@@ -193,6 +193,11 @@ void Tileset_Window::apply_modifications() {
 		uint8_t id = (uint8_t)i;
 		_tileset->tile(id)->copy(t);
 		palette_map.palette(id, t->palette());
+		Tile *rt = _tileset->roof_tile(id);
+		if (rt) {
+			rt->palette(t->palette());
+			rt->update_lighting(_tileset->lighting());
+		}
 	}
 	_tileset->modified(true);
 }

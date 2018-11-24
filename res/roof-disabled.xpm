@@ -1,11 +1,11 @@
 /* XPM */
-static const char *LOAD_ROOF_XPM[] = {
+static const char *ROOF_DISABLED_XPM[] = {
 "16 16 5 1",
 "  c None",
-"# c #383838",
-"+ c #58B828",
-"- c #A0F870",
-". c #D8F8D8",
+"# c #757575",
+"+ c #B0B0B0",
+"- c #DADADA",
+". c #ECECEC",
 " ############## ",
 "##...........-##",
 "##.---+---+--+##",

@@ -35,16 +35,18 @@
 #include "blocks-disabled.xpm"
 #include "events.xpm"
 #include "events-disabled.xpm"
-#include "load-roof.xpm"
-#include "load-roof-disabled.xpm"
 #include "add-sub.xpm"
 #include "add-sub-disabled.xpm"
 #include "resize.xpm"
 #include "resize-disabled.xpm"
 #include "change.xpm"
 #include "change-disabled.xpm"
+#include "change-roof.xpm"
+#include "change-roof-disabled.xpm"
 #include "tileset.xpm"
 #include "tileset-disabled.xpm"
+#include "roof.xpm"
+#include "roof-disabled.xpm"
 #include "load-lighting.xpm"
 #include "load-lighting-disabled.xpm"
 #include "lighting.xpm"
@@ -88,16 +90,18 @@ static Fl_Pixmap BLOCKS_ICON(BLOCKS_XPM);
 static Fl_Pixmap BLOCKS_DISABLED_ICON(BLOCKS_DISABLED_XPM);
 static Fl_Pixmap EVENTS_ICON(EVENTS_XPM);
 static Fl_Pixmap EVENTS_DISABLED_ICON(EVENTS_DISABLED_XPM);
-static Fl_Pixmap LOAD_ROOF_ICON(LOAD_ROOF_XPM);
-static Fl_Pixmap LOAD_ROOF_DISABLED_ICON(LOAD_ROOF_DISABLED_XPM);
 static Fl_Pixmap ADD_SUB_ICON(ADD_SUB_XPM);
 static Fl_Pixmap ADD_SUB_DISABLED_ICON(ADD_SUB_DISABLED_XPM);
 static Fl_Pixmap RESIZE_ICON(RESIZE_XPM);
 static Fl_Pixmap RESIZE_DISABLED_ICON(RESIZE_DISABLED_XPM);
 static Fl_Pixmap CHANGE_ICON(CHANGE_XPM);
 static Fl_Pixmap CHANGE_DISABLED_ICON(CHANGE_DISABLED_XPM);
+static Fl_Pixmap CHANGE_ROOF_ICON(CHANGE_ROOF_XPM);
+static Fl_Pixmap CHANGE_ROOF_DISABLED_ICON(CHANGE_ROOF_DISABLED_XPM);
 static Fl_Pixmap TILESET_ICON(TILESET_XPM);
 static Fl_Pixmap TILESET_DISABLED_ICON(TILESET_DISABLED_XPM);
+static Fl_Pixmap ROOF_ICON(ROOF_XPM);
+static Fl_Pixmap ROOF_DISABLED_ICON(ROOF_DISABLED_XPM);
 static Fl_Pixmap LIGHTING_ICON(LIGHTING_XPM);
 static Fl_Pixmap LIGHTING_DISABLED_ICON(LIGHTING_DISABLED_XPM);
 static Fl_Pixmap LOAD_LIGHTING_ICON(LOAD_LIGHTING_XPM);

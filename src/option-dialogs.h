@@ -48,11 +48,12 @@ typedef std::unordered_map<std::string, std::string> Dictionary;
 
 class Map_Options_Dialog : public Option_Dialog {
 private:
-	int _max_tileset_name_length;
+	int _max_tileset_name_length, _max_roof_name_length;
 	OS_Spinner *_map_width, *_map_height;
-	Dropdown *_tileset;
+	Dropdown *_tileset, *_roof;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
+	friend class Roof_Options_Dialog;
 public:
 	Map_Options_Dialog(const char *t);
 	~Map_Options_Dialog();
@@ -60,12 +61,14 @@ public:
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	const char *tileset(void) const;
+	const char *roof(void) const;
 private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs);
 	std::string guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs);
 	void guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
+	std::string add_roof(const char *r, int ext_len);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
@@ -120,6 +123,20 @@ public:
 	~Tileset_Options_Dialog();
 	bool limit_tileset_options(const char *old_tileset_name);
 	const char *tileset(void) const;
+protected:
+	void initialize_content(void);
+	int refresh_content(int ww, int dy);
+};
+
+class Roof_Options_Dialog : public Option_Dialog {
+private:
+	Dropdown *_roof;
+	Map_Options_Dialog *_map_options_dialog;
+public:
+	Roof_Options_Dialog(const char *t, Map_Options_Dialog *mod);
+	~Roof_Options_Dialog();
+	bool limit_roof_options(const char *old_roof_name);
+	const char *roof(void) const;
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
