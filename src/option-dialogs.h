@@ -62,6 +62,7 @@ public:
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
 	const char *tileset(void) const;
 	const char *roof(void) const;
+	inline int num_roofs(void) const { return _roof->size() - 2; }
 private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs);

@@ -366,6 +366,9 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	// Initialize tileset choices
 
+	_tileset->clear();
+	_max_tileset_name_length = 0;
+
 	char tileset_directory[FL_PATH_MAX] = {};
 	strcpy(tileset_directory, directory);
 	strcat(tileset_directory, Config::gfx_tileset_dir());
@@ -373,14 +376,6 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	dirent **list;
 	int n = fl_filename_list(tileset_directory, &list);
 	if (n < 0) { return false; }
-
-	_tileset->clear();
-	_max_tileset_name_length = 0;
-
-	_roof->clear();
-	_roof->add("(none)");
-	_roof->value(0);
-	_max_roof_name_length = text_width("(none)", 6);
 
 	std::string guessed_tileset_name = guess_map_tileset(filename, directory, attrs);
 	Dictionary pretty_names, guessable_names;
@@ -407,6 +402,11 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	// Initialize roof choices
 
+	_roof->clear();
+	_roof->add("(none)");
+	_roof->value(0);
+	_max_roof_name_length = text_width("(none)", 6);
+
 	char roof_directory[FL_PATH_MAX] = {};
 	strcpy(roof_directory, directory);
 	strcat(roof_directory, Config::gfx_roof_dir());
@@ -422,6 +422,13 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			}
 		}
 		fl_filename_free_list(&list, n);
+	}
+
+	if (num_roofs() > 0) {
+		_roof->activate();
+	}
+	else {
+		_roof->deactivate();
 	}
 
 	return true;

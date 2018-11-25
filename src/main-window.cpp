@@ -733,7 +733,7 @@ void Main_Window::update_active_controls() {
 			_save_event_script_mi->deactivate();
 		}
 		const Tileset *tileset = _metatileset.const_tileset();
-		if (tileset) {
+		if (tileset && _map.group()) {
 			_load_roof_colors_mi->activate();
 		}
 		else {
@@ -772,8 +772,14 @@ void Main_Window::update_active_controls() {
 		_change_tileset_tb->activate();
 		_edit_tileset_mi->activate();
 		_edit_tileset_tb->activate();
-		_change_roof_mi->activate();
-		_change_roof_tb->activate();
+		if (_map_options_dialog->num_roofs() > 0) {
+			_change_roof_mi->activate();
+			_change_roof_tb->activate();
+		}
+		else {
+			_change_roof_mi->deactivate();
+			_change_roof_tb->deactivate();
+		}
 		if (tileset->num_roof_tiles() > 0) {
 			_save_roof_mi->activate();
 			_edit_roof_mi->activate();
@@ -1195,7 +1201,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		_has_collisions = (rm == Metatileset::Result::META_OK);
 	}
 
-	if (roof_name) {
+	if (tileset->has_roof()) {
 		Config::roof_path(buffer, directory, roof_name);
 		rt = tileset->read_roof_graphics(buffer);
 		if (rt) {
@@ -2188,8 +2194,9 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	if (mw->_metatileset.modified() || mw->_metatileset.const_tileset()->modified() ||
-		mw->_metatileset.const_tileset()->modified_roof()) {
+	const Tileset *tileset = mw->_metatileset.tileset();
+
+	if (mw->_metatileset.modified() || tileset->modified() || tileset->modified_roof()) {
 		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the tileset anyway?";
@@ -2198,7 +2205,6 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	const Tileset *tileset = mw->_metatileset.tileset();
 	char old_name[FL_PATH_MAX] = {};
 	strcpy(old_name, tileset->name());
 	size_t old_size = mw->_metatileset.size();
@@ -2247,8 +2253,12 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	if (mw->_metatileset.const_tileset()->modified_roof()) {
-		std::string msg = mw->modified_filename();
+	Tileset *tileset = mw->_metatileset.tileset();
+
+	if (tileset->modified_roof()) {
+		char basename[FL_PATH_MAX] = {};
+		Config::roof_png_path(basename, "", tileset->roof_name());
+		std::string msg = fl_filename_name(basename);
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the roof anyway?";
 		mw->_unsaved_dialog->message(msg);
@@ -2256,7 +2266,6 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	Tileset *tileset = mw->_metatileset.tileset();
 	char old_name[FL_PATH_MAX] = {};
 	strcpy(old_name, tileset->roof_name());
 
@@ -2275,7 +2284,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 
 	const char *roof_name = mw->_roof_options_dialog->roof();
 	tileset->roof_name(roof_name);
-	if (roof_name) {
+	if (tileset->has_roof()) {
 		char filename[FL_PATH_MAX] = {};
 		Config::roof_path(filename, mw->_directory.c_str(), roof_name);
 		Tileset::Result rt = tileset->read_roof_graphics(filename);

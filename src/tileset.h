@@ -35,6 +35,7 @@ public:
 	inline void name(const char *m) { _name = m ? m : ""; }
 	inline const char *roof_name(void) const { return _roof_name.c_str(); }
 	inline void roof_name(const char *m) { _roof_name = m ? m : ""; }
+	inline bool has_roof(void) const { return !_roof_name.empty(); }
 	inline Lighting lighting(void) const { return _lighting; }
 	inline Palette_Map &palette_map(void) { return _palette_map; }
 	inline Tile *tile(uint8_t i) { return _tiles[i]; }
