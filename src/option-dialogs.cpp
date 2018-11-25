@@ -261,6 +261,18 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 			tileset_name.erase(0, strlen("TILESET_"));
 			std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
 		}
+		else if (starts_with(tileset_name, "$")) {
+			tileset_name.erase(0, 1);
+			int ti = std::stoi(tileset_name, NULL, 16);
+			char tileset_num[16] = {};
+			sprintf(tileset_num, "%02d", ti);
+			tileset_name = tileset_num;
+		}
+		else if (std::all_of(tileset_name.begin(), tileset_name.end(), isdigit)) {
+			if (tileset_name.length() == 1) {
+				tileset_name = "0" + tileset_name;
+			}
+		}
 		else {
 			tileset_name.erase();
 		}

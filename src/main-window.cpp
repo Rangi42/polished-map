@@ -1043,13 +1043,15 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	// use lighting coresponding to palette
 	Lighting new_lighting = lighting();
 	if (new_lighting != Lighting::CUSTOM) {
-		if (_map.palette() == "PALETTE_NITE" || _map.palette() == "PALETTE_DARK") {
+		if (_map.palette() == "PALETTE_NITE" || _map.palette() == "PALETTE_DARK" ||
+			_map.palette() == "2" || _map.palette() == "4") {
 			new_lighting = Lighting::NITE;
 		}
-		else if (_map.environment() == "INDOOR" || _map.environment() == "GATE") {
+		else if (_map.environment() == "INDOOR" || _map.environment() == "GATE" ||
+			_map.environment() == "3" || _map.environment() == "6") {
 			new_lighting = Lighting::INDOOR;
 		}
-		else if (_map.palette() == "PALETTE_MORN") {
+		else if (_map.palette() == "PALETTE_MORN" || _map.palette() == "3") {
 			new_lighting = Lighting::MORN;
 		}
 		else {
