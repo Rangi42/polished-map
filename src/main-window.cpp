@@ -1191,6 +1191,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	}
 
 	if (Config::collisions_path(buffer, directory, tileset_name)) {
+		Config::collisions_path(buffer, "", tileset_name);
 		std::string msg = "Warning: ";
 		msg = msg + buffer + ":\n\n"
 			"Binary collision data is not supported.";
