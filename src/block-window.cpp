@@ -6,7 +6,7 @@
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
 	_tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _collision_inputs(),
-	_ok_button(NULL), _cancel_button(NULL) {}
+	_bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
@@ -41,6 +41,11 @@ void Block_Window::initialize() {
 	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
 	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
+	int bsw = text_width("AA", 2) + 22;
+	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new OS_Spinner(300, 144, bsw, 22);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new OS_Spinner(332+bsw, 144, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new OS_Spinner(300, 170, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new OS_Spinner(332+bsw, 170, bsw, 22);
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
 	_window->end();
@@ -82,6 +87,19 @@ void Block_Window::initialize() {
 	_collision_inputs[Quadrant::BOTTOM_LEFT]->deimage(COLL_BOTTOM_LEFT_DISABLED_ICON);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT]->deimage(COLL_BOTTOM_RIGHT_DISABLED_ICON);
+	_bin_collision_spinners[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
+	_bin_collision_spinners[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]->deimage(COLL_TOP_RIGHT_DISABLED_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->deimage(COLL_BOTTOM_LEFT_DISABLED_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->deimage(COLL_BOTTOM_RIGHT_DISABLED_ICON);
+	for (int i = 0; i < NUM_QUADRANTS; i++) {
+		OS_Spinner *bin = _bin_collision_spinners[i];
+		bin->align(FL_ALIGN_LEFT);
+		bin->range(0x00, 0xFF);
+	}
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -109,7 +127,7 @@ void Block_Window::tileset(const Tileset *t) {
 	}
 }
 
-void Block_Window::metatile(const Metatile *mt, bool has_collisions) {
+void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_collisions) {
 	_metatile_id = mt->id();
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
@@ -120,15 +138,34 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions) {
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
 		OS_Input *cin = _collision_inputs[i];
-		if (has_collisions) {
-			cin->value(mt->collision((Quadrant)i).c_str());
-			cin->activate();
+		OS_Spinner *bin = _bin_collision_spinners[i];
+		if (bin_collisions) {
+			cin->hide();
+			cin->deactivate();
+			bin->show();
+			if (has_collisions) {
+				bin->value(mt->bin_collision((Quadrant)i));
+				bin->activate();
+			}
+			else {
+				bin->value(0);
+				bin->deactivate();
+			}
 		}
 		else {
-			cin->value(NULL);
-			cin->deactivate();
+			bin->hide();
+			bin->deactivate();
+			cin->show();
+			if (has_collisions) {
+				cin->value(mt->collision((Quadrant)i).c_str());
+				cin->activate();
+			}
+			else {
+				cin->value(NULL);
+				cin->deactivate();
+			}
+			cin->position(0);
 		}
-		cin->position(0);
 	}
 	char buffer[32];
 	sprintf(buffer, "Block: $%02X", _metatile_id);

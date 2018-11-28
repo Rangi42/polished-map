@@ -16,7 +16,7 @@
 * Allow undo/redo for resize operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
 * File → Open Recent → the last few opened .blk files (issue [#11](https://github.com/Rangi42/polished-map/issues/11))
-* Guess the roof type by parsing roofs.asm
+* Hexadecimal input spinners for binary collision values
 
 ## Polished Map++
 

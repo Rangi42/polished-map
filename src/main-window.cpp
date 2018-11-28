@@ -1190,19 +1190,10 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		return false;
 	}
 
-	if (Config::collisions_path(buffer, directory, tileset_name)) {
-		Config::collisions_path(buffer, "", tileset_name);
-		std::string msg = "Warning: ";
-		msg = msg + buffer + ":\n\n"
-			"Binary collision data is not supported.";
-		_warning_dialog->message(msg);
-		_warning_dialog->show(this);
-		_has_collisions = false;
-	}
-	else {
-		rm = _metatileset.read_collisions(buffer);
-		_has_collisions = (rm == Metatileset::Result::META_OK);
-	}
+	bool bin_collisions = Config::collisions_path(buffer, directory, tileset_name);
+	_metatileset.bin_collisions(bin_collisions);
+	rm = _metatileset.read_collisions(buffer);
+	_has_collisions = (rm == Metatileset::Result::META_OK);
 
 	if (tileset->has_roof()) {
 		Config::roof_path(buffer, directory, roof_name);
@@ -1393,13 +1384,15 @@ bool Main_Window::save_map(bool force) {
 }
 
 bool Main_Window::save_metatileset() {
-	char filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
 	const char *tileset_name = _metatileset.tileset()->name();
+
+	char filename[FL_PATH_MAX] = {};
 	Config::metatileset_path(filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
+
 	char filename_coll[FL_PATH_MAX] = {};
-	bool bin_coll = Config::collisions_path(filename_coll, directory, tileset_name);
+	Config::collisions_path(filename_coll, directory, tileset_name);
 	const char *basename_coll = fl_filename_name(filename_coll);
 
 	if (_metatileset.modified()) {
@@ -1411,7 +1404,7 @@ bool Main_Window::save_metatileset() {
 			return false;
 		}
 
-		if (_has_collisions && !bin_coll && !_metatileset.write_collisions(filename_coll)) {
+		if (_has_collisions && !_metatileset.write_collisions(filename_coll)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename_coll + "!";
 			_error_dialog->message(msg);
@@ -1550,6 +1543,8 @@ void Main_Window::edit_metatile(Metatile *mt) {
 				Quadrant q = (Quadrant)i;
 				const char *c = _block_window->collision(q);
 				mt->collision(q, c);
+				uint8_t b = _block_window->bin_collision(q);
+				mt->bin_collision(q, b);
 			}
 		}
 	}
@@ -2367,7 +2362,7 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to edit
 		Metatile *mt = mw->_metatileset.metatile(mb->id());
-		mw->_block_window->metatile(mt, mw->_has_collisions);
+		mw->_block_window->metatile(mt, mw->_has_collisions, mw->_metatileset.bin_collisions());
 		mw->_block_window->show(mw);
 		if (!mw->_block_window->canceled()) {
 			mw->edit_metatile(mt);

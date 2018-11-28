@@ -18,7 +18,7 @@ private:
 	Metatile *_metatiles[MAX_NUM_METATILES];
 	size_t _num_metatiles;
 	Result _result;
-	bool _modified;
+	bool _modified, _bin_collisions;
 public:
 	Metatileset();
 	~Metatileset();
@@ -30,14 +30,21 @@ public:
 	inline Result result(void) const { return _result; }
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
+	inline bool bin_collisions(void) const { return _bin_collisions; }
+	inline void bin_collisions(bool b) { _bin_collisions = b; }
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool z) const;
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
 	bool write_metatiles(const char *f);
-	Result read_collisions(const char *f);
-	bool write_collisions(const char *f);
+	inline Result read_collisions(const char *f) { return _bin_collisions ? read_bin_collisions(f) : read_asm_collisions(f); }
+	inline bool write_collisions(const char *f) { return _bin_collisions ? write_bin_collisions(f) : write_asm_collisions(f); }
 	static const char *error_message(Result result);
+private:
+	Result read_asm_collisions(const char *f);
+	Result read_bin_collisions(const char *f);
+	bool write_asm_collisions(const char *f);
+	bool write_bin_collisions(const char *f);
 };
 
 #endif

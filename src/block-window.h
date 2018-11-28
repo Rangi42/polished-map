@@ -32,6 +32,7 @@ private:
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
+	OS_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 public:
@@ -42,10 +43,11 @@ private:
 	void refresh(void);
 public:
 	void tileset(const Tileset *t);
-	void metatile(const Metatile *mt, bool has_collisions);
+	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
 	inline uint8_t tile_id(int x, int y) { return _chips[y * METATILE_SIZE + x]->id(); }
 	inline const char *collision(Quadrant q) { return _collision_inputs[q]->value(); }
+	inline uint8_t bin_collision(Quadrant q) { return (uint8_t)_bin_collision_spinners[q]->value(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);

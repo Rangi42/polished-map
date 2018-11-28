@@ -8,7 +8,8 @@
 
 #include "metatileset.h"
 
-Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(META_NULL), _modified(false) {
+Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(META_NULL), _modified(false),
+	_bin_collisions(false) {
 	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
 		_metatiles[i] = new Metatile((uint8_t)i);
 	}
@@ -29,6 +30,7 @@ void Metatileset::clear() {
 	_num_metatiles = 0;
 	_result = META_NULL;
 	_modified = false;
+	_bin_collisions = false;
 }
 
 void Metatileset::size(size_t n) {
@@ -97,7 +99,7 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = META_BAD_FILE); } // cannot load file
 
-	uchar data[METATILE_SIZE * METATILE_SIZE];
+	uchar data[METATILE_SIZE * METATILE_SIZE] = {};
 	while (!feof(file)) {
 		size_t c = fread(data, 1, METATILE_SIZE * METATILE_SIZE, file);
 		if (!c) { break; } // end of file
@@ -131,7 +133,7 @@ bool Metatileset::write_metatiles(const char *f) {
 	return true;
 }
 
-Metatileset::Result Metatileset::read_collisions(const char *f) {
+Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
 
 	std::ifstream ifs(f);
@@ -157,10 +159,34 @@ Metatileset::Result Metatileset::read_collisions(const char *f) {
 		if (++i == _num_metatiles) { break; }
 	}
 
+	_bin_collisions = false;
 	return (_result = META_OK);
 }
 
-bool Metatileset::write_collisions(const char *f) {
+Metatileset::Result Metatileset::read_bin_collisions(const char *f) {
+	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
+
+	FILE *file = fl_fopen(f, "rb");
+	if (file == NULL) { return (_result = META_BAD_FILE); } // cannot load file
+
+	size_t i = 0;
+	uchar data[NUM_QUADRANTS] = {};
+	while (!feof(file)) {
+		size_t c = fread(data, 1, NUM_QUADRANTS, file);
+		if (!c) { break; } // end of file
+		if (c < NUM_QUADRANTS) { fclose(file); return (_result = META_TOO_SHORT); }
+		for (int j = 0; j < NUM_QUADRANTS; j++) {
+			_metatiles[i]->bin_collision((Quadrant)j, data[j]);
+		}
+		if (++i == _num_metatiles) { break; }
+	}
+
+	fclose(file);
+	_bin_collisions = true;
+	return (_result = META_OK);
+}
+
+bool Metatileset::write_asm_collisions(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -168,6 +194,17 @@ bool Metatileset::write_collisions(const char *f) {
 		fprintf(file, "\ttilecoll %s, %s, %s, %s ; %02x\n",
 			mt->collision(Quadrant::TOP_LEFT).c_str(), mt->collision(Quadrant::TOP_RIGHT).c_str(),
 			mt->collision(Quadrant::BOTTOM_LEFT).c_str(), mt->collision(Quadrant::BOTTOM_RIGHT).c_str(), i);
+	}
+	fclose(file);
+	return true;
+}
+
+bool Metatileset::write_bin_collisions(const char *f) {
+	FILE *file = fl_fopen(f, "wb");
+	if (!file) { return false; }
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		fwrite(mt->bin_collisions(), 1, NUM_QUADRANTS, file);
 	}
 	fclose(file);
 	return true;
