@@ -41,7 +41,7 @@ void Block_Window::initialize() {
 	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
 	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
-	int bsw = text_width("AA", 2) + 22;
+	int bsw = text_width("255", 2) + 22;
 	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new OS_Spinner(300, 144, bsw, 22);
 	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new OS_Spinner(332+bsw, 144, bsw, 22);
 	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new OS_Spinner(300, 170, bsw, 22);

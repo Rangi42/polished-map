@@ -33,6 +33,8 @@ public:
 	const uint8_t *bin_collisions(void) const { return _bin_collisions; }
 	void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[q] = c; }
 	void clear(void);
+	void copy(const Metatile *src);
+	void swap(Metatile *mt);
 };
 
 #endif

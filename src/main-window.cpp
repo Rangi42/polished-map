@@ -1960,12 +1960,7 @@ void Main_Window::paste_metatile_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_copied || !mw->_selected) { return; }
 	uint8_t id = mw->_selected->id();
 	Metatile *dest = mw->_metatileset.metatile(id);
-	for (int y = 0; y < METATILE_SIZE; y++) {
-		for (int x = 0; x < METATILE_SIZE; x++) {
-			uint8_t tid = mw->_clipboard.tile_id(x, y);
-			dest->tile_id(x, y, tid);
-		}
-	}
+	dest->copy(&mw->_clipboard);
 	mw->_metatileset.modified(true);
 	mw->redraw();
 }
@@ -1974,13 +1969,7 @@ void Main_Window::swap_metatiles_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_copied || !mw->_selected) { return; }
 	uint8_t id1 = mw->_clipboard.id(), id2 = mw->_selected->id();
 	Metatile *mt1 = mw->_metatileset.metatile(id1), *mt2 = mw->_metatileset.metatile(id2);
-	for (int y = 0; y < METATILE_SIZE; y++) {
-		for (int x = 0; x < METATILE_SIZE; x++) {
-			uint8_t tid1 = mt1->tile_id(x, y), tid2 = mt2->tile_id(x, y);
-			mt1->tile_id(x, y, tid2);
-			mt2->tile_id(x, y, tid1);
-		}
-	}
+	mt1->swap(mt2);
 	mw->_metatileset.modified(true);
 	mw->redraw();
 }
