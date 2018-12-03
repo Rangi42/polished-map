@@ -15,6 +15,8 @@
 #include <FL/Fl_Help_View.H>
 #pragma warning(pop)
 
+#include "hex-spinner.h"
+
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_MENU_ITEM(l, s, c, d, f) {l "    ", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 
@@ -69,6 +71,11 @@ protected:
 class OS_Spinner : public Fl_Spinner {
 public:
 	OS_Spinner(int x, int y, int w, int h, const char *l = NULL);
+};
+
+class OS_Hex_Spinner : public Hex_Spinner {
+public:
+	OS_Hex_Spinner(int x, int y, int w, int h, const char *l = NULL);
 };
 
 class HTML_View : public Fl_Help_View {

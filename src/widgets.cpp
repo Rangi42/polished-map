@@ -174,6 +174,23 @@ OS_Spinner::OS_Spinner(int x, int y, int w, int h, const char *l) : Fl_Spinner(x
 	down_button_.down_box(OS_DEPRESSED_DOWN_BOX);
 }
 
+OS_Hex_Spinner::OS_Hex_Spinner(int x, int y, int w, int h, const char *l) : Hex_Spinner(x, y, w, h, l) {
+	labelfont(OS_FONT);
+	labelsize(OS_FONT_SIZE);
+	textfont(OS_FONT);
+	textsize(OS_FONT_SIZE);
+	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+	_input.box(OS_INPUT_THIN_DOWN_BOX);
+	_up_button.labelfont(OS_FONT);
+	_up_button.labelsize(OS_FONT_SIZE);
+	_up_button.box(OS_BUTTON_UP_BOX);
+	_up_button.down_box(OS_DEPRESSED_DOWN_BOX);
+	_down_button.labelfont(OS_FONT);
+	_down_button.labelsize(OS_FONT_SIZE);
+	_down_button.box(OS_BUTTON_UP_BOX);
+	_down_button.down_box(OS_DEPRESSED_DOWN_BOX);
+}
+
 HTML_View::HTML_View(int x, int y, int w, int h, const char *l) : Fl_Help_View(x, y, w, h, l) {
 	box(OS_INPUT_THIN_DOWN_BOX);
 	textsize(16);

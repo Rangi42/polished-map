@@ -32,7 +32,7 @@ private:
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
-	OS_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
+	OS_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 public:
