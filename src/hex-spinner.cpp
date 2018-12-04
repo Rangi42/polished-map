@@ -7,14 +7,12 @@
 #pragma warning(pop)
 
 #include "hex-spinner.h"
+#include "utils.h"
 
 Hex_Input::Hex_Input(int x, int y, int w, int h, const char *l) : Fl_Int_Input(x, y, w, h, l) {}
 
-int Hex_Input::handletext(int event, int x, int y, int w, int h) {
+int Hex_Input::handle_paste_text() {
 	// Based on Fl_Input_::handletext() for FL_PASTE case
-	if (event != FL_PASTE) {
-		return Fl_Input_::handletext(event, x, y, w, h);
-	}
 	if (readonly()) {
 		fl_beep(FL_BEEP_ERROR);
 		return 1;
@@ -41,29 +39,28 @@ int Hex_Input::handletext(int event, int x, int y, int w, int h) {
 
 int Hex_Input::handle_key() {
 	// Based on Fl_Input::handle_key() for FL_INT_INPUT type
-	char ascii = Fl::event_text()[0];
 	int del;
-	if (Fl::compose(del)) {
-		Fl::compose_reset();
-		int ip = position()<mark() ? position() : mark();
-		if (isxdigit(ascii) || (!ip && (ascii == '+' || ascii == '-'))) {
-			if (readonly()) {
-				fl_beep();
-			}
-			else {
-				replace(position(), mark(), &ascii, 1);
-			}
-		}
-		return 1;
+	if (!Fl::compose(del)) {
+		return 0;
 	}
-	return 0;
+	Fl::compose_reset();
+	char a = Fl::event_text()[0];
+	int ip = MIN(position(), mark());
+	if (isxdigit(a) || (!ip && (a == '+' || a == '-'))) {
+		if (readonly()) {
+			fl_beep();
+		}
+		else {
+			replace(position(), mark(), &a, 1);
+		}
+	}
+	return 1;
 }
 
 int Hex_Input::handle(int event) {
 	// Based on Fl_Input::handle()
 	if (event == FL_PASTE) {
-		Fl_Boxtype b = box();
-		return handletext(event, x()+Fl::box_dx(b), y()+Fl::box_dy(b), w()-Fl::box_dw(b), h()-Fl::box_dh(b));
+		return handle_paste_text();
 	}
 	if (event == FL_KEYBOARD) {
 		if (active_r() && window() && this == Fl::belowmouse()) {

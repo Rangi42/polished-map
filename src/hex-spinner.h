@@ -13,7 +13,7 @@ public:
 	int handle(int event);
 private:
 	int handle_key(void);
-	int handletext(int event, int x, int y, int w, int h);
+	int handle_paste_text(void);
 };
 
 class Hex_Spinner : public Fl_Group {
