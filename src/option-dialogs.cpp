@@ -401,6 +401,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
 			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
+			if (guessed_tileset_name == guessable_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 			Dictionary::const_iterator it = guessable_names.find(guessable_name);
 			if (it != guessable_names.end()) {
 				guessable_name = it->second;
