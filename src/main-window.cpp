@@ -49,12 +49,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
-	int special_lighting_config = Preferences::get("special", 1);
-	int roof_colors_config = Preferences::get("roofs", 1);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
-	Config::auto_load_special_lighting(!!special_lighting_config);
-	Config::auto_load_roof_colors(!!roof_colors_config);
+
+	int special_lighting_config = Preferences::get("special", 1);
+	int roof_colors_config = Preferences::get("roofs", 1);
 
 	// Populate window
 
@@ -282,7 +281,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
-			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
+			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
 			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
@@ -1017,7 +1016,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	Config::bg_tiles_pal_path(buffer, directory);
 	load_lighting(buffer);
 
-	if (Config::auto_load_special_lighting()) {
+	if (auto_load_special_lighting()) {
 		// load unique tileset palettes if they exist
 		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
 		if (file_exists(buffer)) {
@@ -2328,13 +2327,15 @@ void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 }
 
 void Main_Window::auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::auto_load_special_lighting(!!m->mvalue()->value());
-	mw->redraw();
+	if (mw->auto_load_special_lighting() == !m->mvalue()->value()) {
+		mw->redraw();
+	}
 }
 
 void Main_Window::auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::auto_load_roof_colors(!!m->mvalue()->value());
-	mw->redraw();
+	if (mw->auto_load_roof_colors() == !m->mvalue()->value()) {
+		mw->redraw();
+	}
 }
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
