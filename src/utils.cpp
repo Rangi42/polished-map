@@ -53,9 +53,11 @@ bool file_exists(const char *f) {
 
 bool dir_name(const char *f, char *d) {
 #ifdef _WIN32
-	if (_splitpath_s(f, NULL, 0, d, FL_PATH_MAX, NULL, 0, NULL, 0)) {
+	char e[FL_PATH_MAX] = {};
+	if (_splitpath_s(f, d, FL_PATH_MAX, e, FL_PATH_MAX, NULL, 0, NULL, 0)) {
 		return false;
 	}
+	strcat(d, e);
 #else
 	char *f2 = strdup(f);
 	strcpy(d, dirname(f2));
