@@ -128,12 +128,18 @@ void Config::map_constants_path(char *dest, const char *root) {
 	sprintf(dest, "%sconstants" DIR_SEP "map_constants.asm", root);
 }
 
-void Config::map_headers_path(char *dest, const char *root) {
+bool Config::map_headers_path(char *dest, const char *root) {
 	// try data/maps/maps.asm (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "maps" DIR_SEP "maps.asm", root);
-	if (file_exists(dest)) { return; }
+	if (file_exists(dest)) { return true; }
 	// last resort: maps/map_headers.asm (old pokecrystal)
 	sprintf(dest, "%smaps" DIR_SEP "map_headers.asm", root);
+	return file_exists(dest);
+}
+
+void Config::map_header_path(char *dest, const char *root, const char *map_name) {
+	// data/mapHeaders/%s.asm (pokered)
+	sprintf(dest, "%sdata" DIR_SEP "mapHeaders" DIR_SEP "%s.asm", root, map_name);
 }
 
 void Config::tileset_constants_path(char *dest, const char *root) {

@@ -226,78 +226,106 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		return cm[1].str();
 	}
 
-	char map_headers[FL_PATH_MAX] = {};
-	Config::map_headers_path(map_headers, directory);
-
-	std::ifstream ifs(map_headers);
-	if (!ifs.good()) { return ""; }
-
 	const char *name = fl_filename_name(filename);
 	char map_name[FL_PATH_MAX] = {};
 	strcpy(map_name, name);
 	char *dot = strchr(map_name, '.');
 	if (dot) { *dot = '\0'; }
-	while (ifs.good()) {
-		std::string line;
-		std::getline(ifs, line);
-		remove_comment(line);
-		trim(line);
 
-		std::istringstream lss(line);
+	char map_headers[FL_PATH_MAX] = {};
+	bool map_headers_exist = Config::map_headers_path(map_headers, directory);
 
-		std::string macro;
-		lss >> macro;
-		if (macro != "map_header" && macro != "map") { continue; }
+	if (map_headers_exist) {
+		std::ifstream ifs(map_headers);
+		if (!ifs.good()) { return ""; }
 
-		std::string map_label;
-		std::getline(lss, map_label, ',');
-		trim(map_label);
-		if (map_label != map_name) { continue; }
+		while (ifs.good()) {
+			std::string line;
+			std::getline(ifs, line);
+			remove_comment(line);
+			trim(line);
 
-		std::string tileset_name;
-		std::getline(lss, tileset_name, ',');
-		trim(tileset_name);
-		if (starts_with(tileset_name, "TILESET_")) {
-			tileset_name.erase(0, strlen("TILESET_"));
-			std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
-		}
-		else if (starts_with(tileset_name, "$")) {
-			tileset_name.erase(0, 1);
-			int ti = std::stoi(tileset_name, NULL, 16);
-			char tileset_num[16] = {};
-			sprintf(tileset_num, "%02d", ti);
-			tileset_name = tileset_num;
-		}
-		else if (std::all_of(tileset_name.begin(), tileset_name.end(), isdigit)) {
-			if (tileset_name.length() == 1) {
-				tileset_name = "0" + tileset_name;
+			std::istringstream lss(line);
+
+			std::string macro;
+			lss >> macro;
+			if (macro != "map_header" && macro != "map") { continue; }
+
+			std::string map_label;
+			std::getline(lss, map_label, ',');
+			trim(map_label);
+			if (map_label != map_name) { continue; }
+
+			std::string tileset_name;
+			std::getline(lss, tileset_name, ',');
+			trim(tileset_name);
+			if (starts_with(tileset_name, "TILESET_")) {
+				tileset_name.erase(0, strlen("TILESET_"));
+				std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
 			}
+			else if (starts_with(tileset_name, "$")) {
+				tileset_name.erase(0, 1);
+				int ti = std::stoi(tileset_name, NULL, 16);
+				char tileset_num[16] = {};
+				sprintf(tileset_num, "%02d", ti);
+				tileset_name = tileset_num;
+			}
+			else if (std::all_of(tileset_name.begin(), tileset_name.end(), isdigit)) {
+				if (tileset_name.length() == 1) {
+					tileset_name = "0" + tileset_name;
+				}
+			}
+			else {
+				tileset_name.erase();
+			}
+
+			std::string environment;
+			std::getline(lss, environment, ',');
+			trim(environment);
+			attrs.environment = environment;
+
+			std::string landmark;
+			std::getline(lss, landmark, ',');
+			trim(landmark);
+			std::transform(landmark.begin(), landmark.end(), landmark.begin(), tolower);
+			attrs.landmark = landmark;
+
+			std::string skip_token;
+			std::getline(lss, skip_token, ','); // music
+			std::getline(lss, skip_token, ','); // phone service flag
+
+			std::string palette;
+			std::getline(lss, palette, ',');
+			trim(palette);
+			attrs.palette = palette;
+
+			return tileset_name;
 		}
-		else {
-			tileset_name.erase();
+	}
+	else {
+		char map_header[FL_PATH_MAX] = {};
+		Config::map_header_path(map_header, directory, map_name);
+
+		std::ifstream ifs(map_header);
+		if (!ifs.good()) { return ""; }
+
+		while (ifs.good()) {
+			std::string line;
+			std::getline(ifs, line);
+			remove_comment(line);
+			trim(line);
+
+			std::istringstream lss(line);
+
+			std::string db;
+			lss >> db;
+			if (db != "db") { continue; }
+
+			std::string tileset_name;
+			lss >> tileset_name;
+			std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
+			return tileset_name;
 		}
-
-		std::string environment;
-		std::getline(lss, environment, ',');
-		trim(environment);
-		attrs.environment = environment;
-
-		std::string landmark;
-		std::getline(lss, landmark, ',');
-		trim(landmark);
-		std::transform(landmark.begin(), landmark.end(), landmark.begin(), tolower);
-		attrs.landmark = landmark;
-
-		std::string skip_token;
-		std::getline(lss, skip_token, ','); // music
-		std::getline(lss, skip_token, ','); // phone service flag
-
-		std::string palette;
-		std::getline(lss, palette, ',');
-		trim(palette);
-		attrs.palette = palette;
-
-		return tileset_name;
 	}
 
 	return "";
