@@ -66,3 +66,12 @@ bool dir_name(const char *f, char *d) {
 #endif
 	return true;
 }
+
+bool normalize_path(const char *f, char *d) {
+#ifdef _WIN32
+	DWORD r = GetFullPathNameA(f, MAX_PATH, d, NULL);
+#else
+	char *r = realpath(f, d);
+#endif
+	return !!r;
+}

@@ -35,21 +35,22 @@ const char *Config::palette_macro() {
 }
 
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
-	if (!dir_name(blk_path, project_path)) {
+	char scratch_path[FL_PATH_MAX] = {};
+	if (!dir_name(blk_path, scratch_path)) {
 		return false;
 	}
 	int depth = -1;
-	for (char *c = project_path; *c; c++) {
+	for (char *c = scratch_path; *c; c++) {
 		depth += *c == '/' || *c == '\\';
 	}
 	char main_asm[FL_PATH_MAX] = {};
 	for (int i = 0; i < depth; i++) {
-		strcpy(main_asm, project_path);
+		strcpy(main_asm, scratch_path);
 		strcat(main_asm, "main.asm");
 		if (file_exists(main_asm)) { // the project directory contains main.asm
-			return true;
+			return normalize_path(scratch_path, project_path);
 		}
-		strcat(project_path, ".." DIR_SEP); // go up a level
+		strcat(scratch_path, ".." DIR_SEP); // go up a level
 	}
 	return false;
 }
