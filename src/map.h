@@ -50,10 +50,7 @@ public:
 	inline void landmark(std::string l) { _attributes.landmark = l; }
 	inline std::string palette(void) const { return _attributes.palette; }
 	inline void palette(std::string p) { _attributes.palette = p; }
-	inline bool is_outside(void) const {
-		return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE" ||
-			_attributes.environment == "1" || _attributes.environment == "2"; // TPP:AC uses numbers
-	}
+	inline bool is_outside(void) const { return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE"; }
 	void size(uint8_t w, uint8_t h);
 	inline size_t size(void) const { return (size_t)_width * (size_t)_height; }
 	inline Block *block(uint8_t x, uint8_t y) const { return _blocks[(size_t)y * _width + (size_t)x]; }

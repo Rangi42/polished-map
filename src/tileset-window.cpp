@@ -116,7 +116,6 @@ void Tileset_Window::initialize() {
 	_palette->add("BROWN");
 	_palette->add("ROOF");
 	_palette->add("TEXT");
-	_palette->add("MONOCHROME", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
 	_palette->add("UNDEFINED", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
 	_palette->callback((Fl_Callback *)change_palette_cb, this);
 	_priority->callback((Fl_Callback *)change_palette_cb, this);
@@ -151,27 +150,6 @@ void Tileset_Window::tileset(Tileset *t) {
 	}
 	for (int i = 0x00; i < 0x100; i++) {
 		_deep_tile_buttons[i]->activate();
-	}
-	if (!Config::allow_256_tiles()) {
-		for (int i = 0x60; i < 0x80; i++) {
-			_deep_tile_buttons[i]->deactivate();
-		}
-		for (int i = 0xe0; i < 0x100; i++) {
-			_deep_tile_buttons[i]->deactivate();
-		}
-		if (Config::monochrome()) { // assume pokered's tileset size
-			for (int i = 0x80; i < 0xe0; i++) {
-				_deep_tile_buttons[i]->deactivate();
-			}
-		}
-	}
-	if (Config::monochrome()) {
-		_palette->deactivate();
-		_priority->deactivate();
-	}
-	else {
-		_palette->activate();
-		_priority->activate();
 	}
 }
 

@@ -72,19 +72,4 @@ public:
 	void apply_modifications(void);
 };
 
-class Monochrome_Lighting_Window : public Abstract_Lighting_Window {
-private:
-	Label *_palette_heading;
-	Fl_Group *_color_group;
-	Color_Button *_color_buttons[NUM_HUES];
-public:
-	Monochrome_Lighting_Window(int x, int y);
-	~Monochrome_Lighting_Window();
-private:
-	void initial_setup(void);
-	void refresh(void);
-public:
-	void apply_modifications(void);
-};
-
 #endif

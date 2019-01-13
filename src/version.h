@@ -8,7 +8,7 @@
 #define PROGRAM_VERSION_STRING "3.5.2"
 #endif
 
-#define PROGRAM_NAME "Polished Map"
+#define PROGRAM_NAME "Polished Map++"
 
 #define PROGRAM_AUTHOR "Rangi"
 

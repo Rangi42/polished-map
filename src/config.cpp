@@ -8,20 +8,6 @@
 #include "utils.h"
 #include "config.h"
 
-static char *trim_suffix(const char *s) {
-	// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
-#ifdef _WIN32
-	char *t = _strdup(s);
-#else
-	char *t = strdup(s);
-#endif
-	char *dot = strchr(t, '.');
-	if (dot) { *dot = '\0'; }
-	return t;
-}
-
-bool Config::_monochrome = false, Config::_256_tiles = false;
-
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;
 }
@@ -56,14 +42,8 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 }
 
 void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
-	if (monochrome()) { return; }
 	// try gfx/tilesets/*_palette_map.asm (pokecrystal)
 	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
-	if (file_exists(dest)) { return; }
-	// try color/tilesets/*.asm (Red++ 3)
-	char *name = trim_suffix(tileset);
-	sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
-	free(name);
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/*_palette_map.asm (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
@@ -100,11 +80,6 @@ void Config::metatileset_path(char *dest, const char *root, const char *tileset)
 	// try data/tilesets/*_metatiles.bin (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 	if (file_exists(dest)) { return; }
-	// try gfx/blocksets/*.bst (pokered)
-	char *name = trim_suffix(tileset);
-	sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
-	free(name);
-	if (file_exists(dest)) { return; }
 	// last resort: tilesets/*_metatiles.bin (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 }
@@ -125,22 +100,16 @@ void Config::map_constants_path(char *dest, const char *root) {
 	// try constants/map_dimension_constants.asm (Prism)
 	sprintf(dest, "%sconstants" DIR_SEP "map_dimension_constants.asm", root);
 	if (file_exists(dest)) { return; }
-	// last resort: constants/map_constants.asm (pokecrystal, pokered)
+	// last resort: constants/map_constants.asm (pokecrystal)
 	sprintf(dest, "%sconstants" DIR_SEP "map_constants.asm", root);
 }
 
-bool Config::map_headers_path(char *dest, const char *root) {
+void Config::map_headers_path(char *dest, const char *root) {
 	// try data/maps/maps.asm (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "maps" DIR_SEP "maps.asm", root);
-	if (file_exists(dest)) { return true; }
+	if (file_exists(dest)) { return; }
 	// last resort: maps/map_headers.asm (old pokecrystal)
 	sprintf(dest, "%smaps" DIR_SEP "map_headers.asm", root);
-	return file_exists(dest);
-}
-
-void Config::map_header_path(char *dest, const char *root, const char *map_name) {
-	// data/mapHeaders/%s.asm (pokered)
-	sprintf(dest, "%sdata" DIR_SEP "mapHeaders" DIR_SEP "%s.asm", root, map_name);
 }
 
 void Config::tileset_constants_path(char *dest, const char *root) {

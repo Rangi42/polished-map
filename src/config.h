@@ -2,8 +2,6 @@
 #define CONFIG_H
 
 class Config {
-private:
-	static bool _monochrome, _256_tiles;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -18,14 +16,9 @@ public:
 	static bool collisions_path(char *dest, const char *root, const char *tileset);
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
-	static bool map_headers_path(char *dest, const char *root);
-	static void map_header_path(char *dest, const char *root, const char *map_name);
+	static void map_headers_path(char *dest, const char *root);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
-	inline static bool monochrome(void) { return _monochrome; }
-	inline static void monochrome(bool m) { _monochrome = m; }
-	inline static bool allow_256_tiles(void) { return _256_tiles; }
-	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
 };
 
 #endif

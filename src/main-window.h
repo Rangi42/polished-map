@@ -47,7 +47,7 @@ private:
 		*_event_cursor_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
-	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL, *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
+	Fl_Menu_Item *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
 		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb, *_edit_roof_tb,
 		*_load_lighting_tb, *_edit_current_lighting_tb;
@@ -78,7 +78,6 @@ private:
 	Tileset_Window *_tileset_window;
 	Roof_Window *_roof_window;
 	Lighting_Window *_lighting_window;
-	Monochrome_Lighting_Window *_monochrome_lighting_window;
 	// Data
 	std::string _directory, _blk_file;
 	Metatileset _metatileset;
@@ -110,8 +109,6 @@ public:
 	inline bool event_cursor(void) const { return _event_cursor_mi && !!_event_cursor_mi->value(); }
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline Mode mode(void) const { return _mode; }
-	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
-	inline bool allow_256_tiles(void) const { return _allow_256_tiles_mi && !!_allow_256_tiles_mi->value(); }
 	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
@@ -207,8 +204,6 @@ private:
 	static void edit_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
-	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons

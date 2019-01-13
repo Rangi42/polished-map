@@ -46,12 +46,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int show_events_config = Preferences::get("show", 1);
 	int event_cursor_config = Preferences::get("event", 0);
 	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
-
-	int monochrome_config = Preferences::get("monochrome", 0);
-	int allow_256_tiles_config = Preferences::get("all256", 0);
-	Config::monochrome(!!monochrome_config);
-	Config::allow_256_tiles(!!allow_256_tiles_config);
-
 	int special_lighting_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
@@ -158,7 +152,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_tileset_window = new Tileset_Window(48, 48);
 	_roof_window = new Roof_Window(48, 48);
 	_lighting_window = new Lighting_Window(48, 48);
-	_monochrome_lighting_window = new Monochrome_Lighting_Window(48, 48);
 
 	// Drag-and-drop receiver
 	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
@@ -278,10 +271,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Edit Current &Lighting...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_lighting_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
-		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
-			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
-			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
 			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
@@ -316,8 +305,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_lighting_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
-	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
-	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
 	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
@@ -556,7 +543,6 @@ Main_Window::~Main_Window() {
 	delete _tileset_window;
 	delete _roof_window;
 	delete _lighting_window;
-	delete _monochrome_lighting_window;
 }
 
 void Main_Window::show() {
@@ -1450,24 +1436,24 @@ bool Main_Window::save_tileset() {
 		_error_dialog->show(this);
 		return false;
 	}
+	else {
+		std::string msg = "Saved ";
+		msg = msg + basename + "!";
+		_success_dialog->message(msg);
+		_success_dialog->show(this);
+	}
 
-	std::string msg = "Saved ";
-	msg = msg + basename + "!";
-	_success_dialog->message(msg);
-	_success_dialog->show(this);
+	Config::palette_map_path(filename, directory, tileset_name);
+	basename = fl_filename_name(filename);
 
-	if (!Config::monochrome()) {
-		Config::palette_map_path(filename, directory, tileset_name);
-		const char *basename = fl_filename_name(filename);
-
-		if (!tileset->palette_map().write_palette_map(filename)) {
-			std::string msg = "Could not write to ";
-			msg = msg + basename + "!";
-			_error_dialog->message(msg);
-			_error_dialog->show(this);
-			return false;
-		}
-
+	if (!tileset->palette_map().write_palette_map(filename)) {
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+	else {
 		std::string msg = "Saved ";
 		msg = msg + basename + "!";
 		_success_dialog->message(msg);
@@ -1920,8 +1906,6 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("show", mw->show_events());
 	Preferences::set("event", mw->event_cursor());
 	Preferences::set("lighting", mw->lighting());
-	Preferences::set("monochrome", mw->monochrome());
-	Preferences::set("all256", mw->allow_256_tiles());
 	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	if (mw->_resize_dialog->initialized()) {
@@ -2303,26 +2287,14 @@ void Main_Window::edit_roof_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::edit_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
-	Abstract_Lighting_Window *alw = mw->monochrome() ? (Abstract_Lighting_Window *)mw->_monochrome_lighting_window
-		                                             : (Abstract_Lighting_Window *)mw->_lighting_window;
-	alw->current_lighting(mw->lighting());
-	alw->show(mw);
-	bool canceled = alw->canceled();
+	mw->_lighting_window->current_lighting(mw->lighting());
+	mw->_lighting_window->show(mw);
+	bool canceled = mw->_lighting_window->canceled();
 	if (canceled) { return; }
 
 	mw->_edited_lighting = true;
-	alw->apply_modifications();
+	mw->_lighting_window->apply_modifications();
 	mw->update_lighting();
-	mw->redraw();
-}
-
-void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::monochrome(!!m->mvalue()->value());
-	mw->redraw();
-}
-
-void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
-	Config::allow_256_tiles(!!m->mvalue()->value());
 	mw->redraw();
 }
 

@@ -40,23 +40,18 @@ void Tileset::clear_roof_graphics() {
 
 void Tileset::update_lighting(Lighting l) {
 	_lighting = l;
-	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
-		_tiles[j]->update_lighting(l);
-		_roof_tiles[j]->update_lighting(l);
+		_tiles[i]->update_lighting(l);
+		_roof_tiles[i]->update_lighting(l);
 	}
 }
 
 uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
-	bool allow_256_tiles = Config::allow_256_tiles();
 	for (size_t i = 0; i < n; i++) {
-		if (!allow_256_tiles && i == 0x60) { i += 0x1f; continue; }
 		const Tile *t = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
-		if (!allow_256_tiles && i >= 0x80) { ty -= 2 * TILE_SIZE; }
 		print_tile_rgb(t, tx, ty, TILES_PER_ROW, buffer);
 	}
 	return buffer;
@@ -124,10 +119,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	_num_tiles = ti.num_tiles();
 
 	_lighting = l;
-	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
-		Tile *t = _tiles[j];
+		Tile *t = _tiles[i];
 		read_tile(t, ti, (uint8_t)i, (size_t)i);
 	}
 
@@ -162,11 +155,9 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 	}
 	_num_roof_tiles = ti.num_tiles();
 
-	bool allow_256_tiles = Config::allow_256_tiles();
 	for (size_t i = 0; i < _num_roof_tiles; i++) {
 		int k = (int)i + FIRST_ROOF_TILE_ID;
-		int j = (!allow_256_tiles && k >= 0x60) ? (k >= 0xE0 ? k - 0x80 : k + 0x20) : k;
-		Tile *t = _roof_tiles[j];
+		Tile *t = _roof_tiles[k];
 		read_tile(t, ti, (uint8_t)k, i);
 	}
 

@@ -24,12 +24,6 @@ void Palette_Map::clear() {
 Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
 
-	if (Config::monochrome()) {
-		_palette_size = Config::allow_256_tiles() ? MAX_NUM_TILES : 0x60;
-		FILL(_palette, Palette::MONOCHROME, _palette_size);
-		return (_result = PALETTE_OK);
-	}
-
 	std::ifstream ifs(f);
 	if (!ifs.good()) { return (_result = BAD_PALETTE_FILE); }
 	std::string prefix(Config::palette_macro());
@@ -89,14 +83,8 @@ bool Palette_Map::write_palette_map(const char *f) {
 	size_t n = MAX_NUM_TILES;
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
 	const char *prefix = Config::palette_macro();
-	bool allow_256_tiles = Config::allow_256_tiles();
 	bool seen_priority = false;
 	for (size_t i = 0; i < n; i++) {
-		if (!allow_256_tiles && (i == 0x60 || i == 0xe0)) {
-			fputs("\nrept 16\n\tdb $ff\nendr\n\n", file);
-			i += 0x1f;
-			continue;
-		}
 		if (i % PALETTES_PER_LINE == 0) {
 			fputs(prefix, file);
 			fputc(' ', file);
@@ -125,7 +113,6 @@ bool Palette_Map::write_palette_map(const char *f) {
 			fputc('\n', file);
 		}
 	}
-	if (n % 2) { fputs(", TEXT", file); }
 	if (!seen_priority && n % PALETTES_PER_LINE) { fputc('\n', file); }
 	fclose(file);
 	return true;
