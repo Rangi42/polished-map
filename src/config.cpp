@@ -42,8 +42,8 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 }
 
 void Config::attributes_path(char *dest, const char *root, const char *tileset) {
-	// try gfx/tilesets/*_attributes.bin (pokecrystal)
-	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_attributes.bin", root, tileset);
+	// try data/tilesets/*_attributes.bin (pokecrystal)
+	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_attributes.bin", root, tileset);
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/*_attributes.bin (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_attributes.bin", root, tileset);

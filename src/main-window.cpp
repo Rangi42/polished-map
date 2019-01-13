@@ -1128,8 +1128,6 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	const char *directory = _directory.c_str();
 
-	// TODO: read attributes.bin
-
 	Config::tileset_path(buffer, directory, tileset_name);
 	Tileset::Result rt = tileset->read_graphics(buffer, lighting());
 	if (rt) {
@@ -1152,6 +1150,24 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	}
 	else if (rm) {
 		Config::metatileset_path(buffer, "", tileset_name);
+		std::string msg = "Error reading ";
+		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	Config::attributes_path(buffer, directory, tileset_name);
+	rm = _metatileset.read_attributes(buffer);
+	if (rm == Metatileset::Result::META_TOO_SHORT || rm == Metatileset::Result::META_TOO_LONG) {
+		Config::attributes_path(buffer, "", tileset_name);
+		std::string msg = "Warning: ";
+		msg = msg + buffer + ":\n\n" + Metatileset::error_message(rm);
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+	}
+	else if (rm) {
+		Config::attributes_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
 		_error_dialog->message(msg);

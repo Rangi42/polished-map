@@ -133,6 +133,56 @@ bool Metatileset::write_metatiles(const char *f) {
 	return true;
 }
 
+Metatileset::Result Metatileset::read_attributes(const char *f) {
+	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
+
+	FILE *file = fl_fopen(f, "rb");
+	if (file == NULL) { return (_result = META_BAD_FILE); } // cannot load file
+
+	uchar data[METATILE_SIZE * METATILE_SIZE] = {};
+	size_t i = 0;
+	while (!feof(file)) {
+		size_t c = fread(data, 1, METATILE_SIZE * METATILE_SIZE, file);
+		if (!c) { break; } // end of file
+		if (c < METATILE_SIZE * METATILE_SIZE) { fclose(file); return (_result = META_TOO_SHORT); }
+		if (i >= _num_metatiles) { fclose(file); return (_result = META_TOO_LONG); }
+		Metatile *mt = _metatiles[i++];
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				uchar a = data[y * METATILE_SIZE + x];
+				Palette p = (Palette)(a & 0x87);
+				bool x_flip = !!(a & 0x20);
+				bool y_flip = !!(a & 0x40);
+				mt->palette(x, y, p);
+				mt->x_flip(x, y, x_flip);
+				mt->y_flip(x, y, y_flip);
+			}
+		}
+	}
+
+	fclose(file);
+	return (_result = META_OK);
+}
+
+bool Metatileset::write_attributes(const char *f) {
+	FILE *file = fl_fopen(f, "wb");
+	if (!file) { return false; }
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				uchar a = (uchar)mt->palette(x, y);
+				a |= mt->tile_id(x, y) >= 0x80 ? 0x08 : 0;
+				a |= mt->x_flip(x, y) ? 0x20 : 0;
+				a |= mt->y_flip(x, y) ? 0x40 : 0;
+				fputc(a, file);
+			}
+		}
+	}
+	fclose(file);
+	return true;
+}
+
 Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = META_NO_GFX); } // no graphics
 
