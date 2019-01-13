@@ -8,7 +8,6 @@
 
 #include "tileset.h"
 #include "map-buttons.h"
-#include "palette-map.h"
 #include "metatile.h"
 #include "widgets.h"
 

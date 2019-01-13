@@ -119,7 +119,6 @@
     <ClCompile Include="..\src\metatileset.cpp" />
     <ClCompile Include="..\src\modal-dialog.cpp" />
     <ClCompile Include="..\src\option-dialogs.cpp" />
-    <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\preferences.cpp" />
     <ClCompile Include="..\src\roof-window.cpp" />
     <ClCompile Include="..\src\themes.cpp" />
@@ -147,7 +146,6 @@
     <ClInclude Include="..\src\metatileset.h" />
     <ClInclude Include="..\src\modal-dialog.h" />
     <ClInclude Include="..\src\option-dialogs.h" />
-    <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\preferences.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\roof-window.h" />

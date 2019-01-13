@@ -52,7 +52,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
 				uint8_t tid = mt->tile_id(tx, ty);
 				const Tile *t = _tileset.const_tile_or_roof(tid);
-				const uchar *rgb = t->rgb();
+				const uchar *rgb = t->rgb(Palette::GREEN); // TODO: proper palette selection
 				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
 			}
 		}
@@ -79,7 +79,7 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
 					for (int py = 0; py < TILE_SIZE; py++) {
 						for (int px = 0; px < TILE_SIZE; px++) {
-							const uchar *rgb = t->const_pixel(px, py);
+							const uchar *rgb = t->const_pixel(Palette::GREEN, px, py); // TODO: proper palette selection
 							size_t j = o + (py * bw + px) * NUM_CHANNELS;
 							buffer[j++] = rgb[0];
 							buffer[j++] = rgb[1];

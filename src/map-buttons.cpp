@@ -66,7 +66,7 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
 	Block_Window *bw = (Block_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y();
-	bw->draw_tile(x, y, id, zoom);
+	bw->draw_tile(Palette::GREEN, x, y, id, zoom); // TODO: proper palette selection
 	if (border) {
 		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
 		draw_selection_border(x, y, rs, false);
@@ -238,36 +238,36 @@ Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_B
 	when(FL_WHEN_RELEASE);
 }
 
-void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb) {
-	_palette = pb->palette();
-	uchar r, g, b;
-	Fl::get_color(pb->color(), r, g, b);
-	pixel(pb->col(), pb->row(), pb->hue(), r, g, b);
+void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb, Lighting l) {
+	Hue h = pb->hue();
+	for (int pi = 0; pi < NUM_PALETTES; pi++) {
+		Palette p = (Palette)pi;
+		const uchar *rgb = Color::color(l, p, h);
+		pixel(p, pb->col(), pb->row(), h, rgb[0], rgb[1], rgb[2]);
+	}
 }
 
-void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs) {
+void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		copy_pixel(pbs[i]);
+		copy_pixel(pbs[i], l);
 	}
 }
 
 void Deep_Tile_Button::draw() {
-	fl_draw_image(_rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	// TODO: proper palette selection
+	fl_draw_image(_rgb[Palette::GREEN], x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
 }
 
-Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _lighting(), _palette(), _hue() {
+Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _hue() {
 	user_data(NULL);
 	box(FL_FLAT_BOX);
 }
 
-void Pixel_Button::coloring(Lighting l, Palette p, Hue h) {
-	_lighting = l;
-	_palette = p;
-	_hue = h;
-	const uchar *rgb = Color::color(l, p, h);
+void Pixel_Button::coloring() {
+	const uchar *rgb = Color::monochrome_color(_hue);
 	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
 }
 
@@ -313,9 +313,8 @@ Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s,
 	box(OS_SWATCH_BOX);
 }
 
-void Swatch::coloring(Lighting l, Palette p, Hue h) {
-	_hue = h;
-	const uchar *rgb = Color::color(l, p, h);
+void Swatch::coloring() {
+	const uchar *rgb = Color::monochrome_color(_hue);
 	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
 }
 

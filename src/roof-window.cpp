@@ -156,19 +156,17 @@ void Roof_Window::select(Deep_Tile_Button *dtb) {
 	_selected = dtb;
 	_selected->setonly();
 
-	Lighting l = _tileset->lighting();
-	Palette p = _selected->palette();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
 			Pixel_Button *pb = _pixels[y * TILE_SIZE + x];
 			Hue h = _selected->hue(x, y);
-			pb->coloring(l, p, h);
+			pb->hue(h);
 		}
 	}
-	_swatch1->coloring(l, p, Hue::WHITE);
-	_swatch2->coloring(l, p, Hue::LIGHT);
-	_swatch3->coloring(l, p, Hue::DARK);
-	_swatch4->coloring(l, p, Hue::BLACK);
+	_swatch1->hue(Hue::WHITE);
+	_swatch2->hue(Hue::LIGHT);
+	_swatch3->hue(Hue::DARK);
+	_swatch4->hue(Hue::BLACK);
 }
 
 void Roof_Window::choose(Swatch *swatch) {
@@ -233,14 +231,14 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 			// Shift+left-click to flood fill
 			rw->flood_fill(pb, pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
-			rw->_selected->copy_pixels(rw->_pixels);
+			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->lighting());
 			rw->_selected->redraw();
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			rw->substitute_hue(pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
-			rw->_selected->copy_pixels(rw->_pixels);
+			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->lighting());
 			rw->_selected->redraw();
 		}
 		else {
@@ -248,7 +246,7 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 			Hue h = rw->_chosen->hue();
 			pb->hue(h);
 			pb->damage(1);
-			rw->_selected->copy_pixel(pb);
+			rw->_selected->copy_pixel(pb, rw->_tileset->lighting());
 			rw->_selected->redraw();
 		}
 	}

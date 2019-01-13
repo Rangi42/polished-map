@@ -4,9 +4,10 @@
 #include <string>
 
 #include "tile.h"
-#include "palette-map.h"
 #include "tiled-image.h"
 #include "utils.h"
+
+#define MAX_NUM_TILES 256
 
 #define TILES_PER_ROW 16
 #define TILES_PER_COL (MAX_NUM_TILES / TILES_PER_ROW)
@@ -18,12 +19,11 @@
 
 class Tileset {
 public:
-	enum Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
-		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
+	enum Result { GFX_OK, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS, GFX_TOO_SHORT,
+		GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name, _roof_name;
 	Lighting _lighting;
-	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
 	size_t _num_tiles, _num_roof_tiles;
 	Result _result;
@@ -37,7 +37,6 @@ public:
 	inline void roof_name(const char *m) { _roof_name = m ? m : ""; }
 	inline bool has_roof(void) const { return !_roof_name.empty(); }
 	inline Lighting lighting(void) const { return _lighting; }
-	inline Palette_Map &palette_map(void) { return _palette_map; }
 	inline Tile *tile(uint8_t i) { return _tiles[i]; }
 	inline Tile *roof_tile(uint8_t i) { return _roof_tiles[i]; }
 	inline const Tile *const_tile(uint8_t i) const { return _tiles[i]; }
@@ -53,7 +52,7 @@ public:
 	inline bool modified_roof(void) const { return _modified_roof; }
 	inline void modified_roof(bool m) { _modified_roof = m; }
 private:
-	void read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j);
+	void read_tile(Tile *t, const Tiled_Image &ti, size_t i);
 	void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) const;
 public:
 	void clear(void);
@@ -61,7 +60,6 @@ public:
 	void update_lighting(Lighting l);
 	uchar *print_rgb(size_t w, size_t h, size_t n) const;
 	uchar *print_roof_rgb(size_t w, size_t h) const;
-	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
 	Result read_graphics(const char *f, Lighting l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);

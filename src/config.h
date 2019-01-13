@@ -7,7 +7,7 @@ public:
 	static const char *gfx_roof_dir(void);
 	static const char *palette_macro(void);
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
-	static void palette_map_path(char *dest, const char *root, const char *tileset);
+	static void attributes_path(char *dest, const char *root, const char *tileset);
 	static void tileset_path(char *dest, const char *root, const char *tileset);
 	static void tileset_png_path(char *dest, const char *root, const char *tileset);
 	static void roof_path(char *dest, const char *root, const char *roof);

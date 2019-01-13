@@ -80,8 +80,17 @@ static const uchar undefined_colors[NUM_HUES][NUM_CHANNELS] = {
 	RGBX(0xABCDEF), RGBX(0x456789), RGBX(0x789ABC), RGBX(0x123456) // UNDEFINED
 };
 
+static const uchar monochrome_colors[NUM_HUES][NUM_CHANNELS] = {
+	// WHITE, DARK, LIGHT, BLACK
+	RGBX(0xFFFFFF), RGBX(0x555555), RGBX(0xAAAAAA), RGBX(0x000000)
+};
+
 Hue Color::ordered_hue(int i) {
 	return hue_order[i];
+}
+
+const uchar *Color::monochrome_color(Hue h) {
+	return monochrome_colors[h];
 }
 
 const uchar *Color::color(Lighting l, Palette p, Hue h) {

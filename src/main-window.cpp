@@ -1128,23 +1128,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	const char *directory = _directory.c_str();
 
-	Config::palette_map_path(buffer, directory, tileset_name);
-	Palette_Map::Result rp = tileset->read_palette_map(buffer);
-	if (rp == Palette_Map::Result::PALETTE_TOO_LONG) {
-		Config::palette_map_path(buffer, "", tileset_name);
-		std::string msg = "Warning: ";
-		msg = msg + buffer + ":\n\n" + Palette_Map::error_message(rp);
-		_warning_dialog->message(msg);
-		_warning_dialog->show(this);
-	}
-	else if (rp) {
-		Config::palette_map_path(buffer, "", tileset_name);
-		std::string msg = "Error reading ";
-		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(rp);
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return false;
-	}
+	// TODO: read attributes.bin
 
 	Config::tileset_path(buffer, directory, tileset_name);
 	Tileset::Result rt = tileset->read_graphics(buffer, lighting());
@@ -1443,22 +1427,7 @@ bool Main_Window::save_tileset() {
 		_success_dialog->show(this);
 	}
 
-	Config::palette_map_path(filename, directory, tileset_name);
-	basename = fl_filename_name(filename);
-
-	if (!tileset->palette_map().write_palette_map(filename)) {
-		std::string msg = "Could not write to ";
-		msg = msg + basename + "!";
-		_error_dialog->message(msg);
-		_error_dialog->show(this);
-		return false;
-	}
-	else {
-		std::string msg = "Saved ";
-		msg = msg + basename + "!";
-		_success_dialog->message(msg);
-		_success_dialog->show(this);
-	}
+	// TODO: save attributes.bin
 
 	tileset->modified(false);
 	return true;

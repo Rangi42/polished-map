@@ -27,7 +27,7 @@ int Tile_Window::handle(int event) {
 Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
 	_tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
 	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
+	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
 
 Tileset_Window::~Tileset_Window() {
 	delete _window;
@@ -39,8 +39,6 @@ Tileset_Window::~Tileset_Window() {
 	delete _swatch2;
 	delete _swatch3;
 	delete _swatch4;
-	delete _palette;
-	delete _priority;
 	delete _ok_button;
 	delete _cancel_button;
 }
@@ -63,9 +61,6 @@ void Tileset_Window::initialize() {
 	_swatch2 = new Swatch(434, 64, 22, "2");
 	_swatch3 = new Swatch(434, 92, 22, "3");
 	_swatch4 = new Swatch(434, 120, 22, "4");
-	int off = text_width("Color:", 3);
-	_palette = new Dropdown(278 + off, 192, 146 - off, 22, "Color:");
-	_priority = new OS_Check_Button(278, 218, 178, 22, "Priority (above sprites)");
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
 	_window->end();
@@ -107,18 +102,6 @@ void Tileset_Window::initialize() {
 	_swatch3->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch4->shortcut('4');
 	_swatch4->callback((Fl_Callback *)choose_swatch_cb, this);
-	_palette->align(FL_ALIGN_LEFT);
-	_palette->add("GRAY");
-	_palette->add("RED");
-	_palette->add("GREEN");
-	_palette->add("WATER");
-	_palette->add("YELLOW");
-	_palette->add("BROWN");
-	_palette->add("ROOF");
-	_palette->add("TEXT");
-	_palette->add("UNDEFINED", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
-	_palette->callback((Fl_Callback *)change_palette_cb, this);
-	_priority->callback((Fl_Callback *)change_palette_cb, this);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -165,15 +148,12 @@ void Tileset_Window::show(const Fl_Widget *p) {
 }
 
 void Tileset_Window::apply_modifications() {
-	Palette_Map &palette_map = _tileset->palette_map();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *t = _deep_tile_buttons[i];
 		uint8_t id = (uint8_t)i;
 		_tileset->tile(id)->copy(t);
-		palette_map.palette(id, t->palette());
 		Tile *rt = _tileset->roof_tile(id);
 		if (rt) {
-			rt->palette(t->palette());
 			rt->update_lighting(_tileset->lighting());
 		}
 	}
@@ -188,27 +168,17 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 	sprintf(buffer, "Tile: $%02X", _selected->id());
 	_tile_heading->copy_label(buffer);
 
-	Lighting l = _tileset->lighting();
-	Palette p = _selected->palette();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
 			Pixel_Button *pb = _pixels[y * TILE_SIZE + x];
 			Hue h = _selected->hue(x, y);
-			pb->coloring(l, p, h);
+			pb->hue(h);
 		}
 	}
-	_swatch1->coloring(l, p, Hue::WHITE);
-	_swatch2->coloring(l, p, Hue::LIGHT);
-	_swatch3->coloring(l, p, Hue::DARK);
-	_swatch4->coloring(l, p, Hue::BLACK);
-
-	_palette->value((int)p & 0xf);
-	if ((int)p & 0x80) {
-		_priority->set();
-	}
-	else {
-		_priority->clear();
-	}
+	_swatch1->hue(Hue::WHITE);
+	_swatch2->hue(Hue::LIGHT);
+	_swatch3->hue(Hue::DARK);
+	_swatch4->hue(Hue::BLACK);
 }
 
 void Tileset_Window::choose(Swatch *swatch) {
@@ -245,19 +215,6 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) {
 	}
 }
 
-void Tileset_Window::palette(Palette p) {
-	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		_pixels[i]->palette(p);
-	}
-	Lighting l = _tileset->lighting();
-	_swatch1->coloring(l, p, Hue::WHITE);
-	_swatch2->coloring(l, p, Hue::LIGHT);
-	_swatch3->coloring(l, p, Hue::DARK);
-	_swatch4->coloring(l, p, Hue::BLACK);
-	_selected->copy_pixels(_pixels);
-	_window->redraw();
-}
-
 void Tileset_Window::close_cb(Fl_Widget *, Tileset_Window *tw) {
 	tw->_window->hide();
 }
@@ -286,14 +243,14 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 			// Shift+left-click to flood fill
 			tw->flood_fill(pb, pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
-			tw->_selected->copy_pixels(tw->_pixels);
+			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->lighting());
 			tw->_selected->redraw();
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			tw->substitute_hue(pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
-			tw->_selected->copy_pixels(tw->_pixels);
+			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->lighting());
 			tw->_selected->redraw();
 		}
 		else {
@@ -301,7 +258,7 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 			Hue h = tw->_chosen->hue();
 			pb->hue(h);
 			pb->damage(1);
-			tw->_selected->copy_pixel(pb);
+			tw->_selected->copy_pixel(pb, tw->_tileset->lighting());
 			tw->_selected->redraw();
 		}
 	}
@@ -323,12 +280,6 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 			break;
 		}
 	}
-}
-
-void Tileset_Window::change_palette_cb(Fl_Widget *, Tileset_Window *tw) {
-	int pv = tw->_palette->value();
-	if (tw->_priority->value()) { pv |= 0x80; }
-	tw->palette((Palette)pv);
 }
 
 void Tileset_Window::copy_tile_cb(Fl_Widget *, Tileset_Window *tw) {
@@ -358,11 +309,14 @@ void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 
 void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_selected) { return; }
-	tw->_selected->palette(Palette::UNDEFINED);
-	const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), Hue::WHITE);
+	Lighting l = tw->_tileset->lighting();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
-			tw->_selected->pixel(x, y, Hue::WHITE, rgb[0], rgb[1], rgb[2]);
+			for (int pi = 0; pi < NUM_PALETTES; pi++) {
+				Palette p = (Palette)pi;
+				const uchar *rgb = Color::color(l, p, Hue::WHITE);
+				tw->_selected->pixel(p, x, y, Hue::WHITE, rgb[0], rgb[1], rgb[2]);
+			}
 		}
 	}
 	tw->select(tw->_selected);

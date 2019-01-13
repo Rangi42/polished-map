@@ -178,9 +178,9 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(int x, int y, uint8_t id, bool zoom) const {
+void Block_Window::draw_tile(Palette p, int x, int y, uint8_t id, bool zoom) const {
 	const Tile *t = _tileset->const_tile_or_roof(id);
-	const uchar *rgb = t->rgb();
+	const uchar *rgb = t->rgb(p);
 	if (zoom) {
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 		for (int ty = 0; ty < TILE_SIZE; ty++) {

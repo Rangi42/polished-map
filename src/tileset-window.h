@@ -10,7 +10,6 @@
 
 #include "tileset.h"
 #include "map-buttons.h"
-#include "palette-map.h"
 #include "metatile.h"
 #include "widgets.h"
 #include "block-window.h"
@@ -35,8 +34,6 @@ private:
 	Deep_Tile_Button *_deep_tile_buttons[MAX_NUM_TILES], *_selected;
 	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
-	Dropdown *_palette;
-	OS_Check_Button *_priority;
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 	friend class Tile_Window;
@@ -58,14 +55,12 @@ public:
 	void choose(Swatch *swatch);
 	void flood_fill(Pixel_Button *pb, Hue f, Hue t);
 	void substitute_hue(Hue f, Hue t);
-	void palette(Palette p);
 private:
 	static void close_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void cancel_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void select_tile_cb(Deep_Tile_Button *dtb, Tileset_Window *tw);
 	static void choose_swatch_cb(Swatch *s, Tileset_Window *tw);
 	static void change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw);
-	static void change_palette_cb(Fl_Widget *wgt, Tileset_Window *tw);
 	static void copy_tile_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void paste_tile_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void swap_tiles_cb(Fl_Widget *w, Tileset_Window *tw);

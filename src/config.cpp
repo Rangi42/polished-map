@@ -41,12 +41,12 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 	return false;
 }
 
-void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
-	// try gfx/tilesets/*_palette_map.asm (pokecrystal)
-	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
+void Config::attributes_path(char *dest, const char *root, const char *tileset) {
+	// try gfx/tilesets/*_attributes.bin (pokecrystal)
+	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_attributes.bin", root, tileset);
 	if (file_exists(dest)) { return; }
-	// last resort: tilesets/*_palette_map.asm (old pokecrystal)
-	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
+	// last resort: tilesets/*_attributes.bin (old pokecrystal)
+	sprintf(dest, "%stilesets" DIR_SEP "%s_attributes.bin", root, tileset);
 }
 
 void Config::tileset_path(char *dest, const char *root, const char *tileset) {

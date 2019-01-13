@@ -4,7 +4,7 @@
 #pragma warning(pop)
 
 #include "utils.h"
-#include "palette-map.h"
+#include "tileset.h"
 #include "tiled-image.h"
 
 Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(IMG_NULL) {

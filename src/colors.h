@@ -23,6 +23,7 @@ enum Hue { WHITE, DARK, LIGHT, BLACK };
 
 #define NUM_LIGHTINGS 5
 #define NUM_GAME_PALETTES 8
+#define NUM_PALETTES (NUM_GAME_PALETTES + 1) // + UNDEFINED
 #define NUM_HUES 4
 #define NUM_CHANNELS 3
 
@@ -36,6 +37,7 @@ private:
 	static void color(Lighting l, Palette p, HueArray v);
 public:
 	static Hue ordered_hue(int i);
+	static const uchar *monochrome_color(Hue h);
 	static const uchar *color(Lighting l, Palette p, Hue h);
 	static void color(Lighting l, Palette p, Hue h, Fl_Color c);
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);

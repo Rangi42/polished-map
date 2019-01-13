@@ -1,7 +1,6 @@
 #ifndef METATILESET_H
 #define METATILESET_H
 
-#include "palette-map.h"
 #include "tileset.h"
 #include "map.h"
 #include "metatile.h"

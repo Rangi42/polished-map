@@ -9,7 +9,6 @@
 #include "utils.h"
 #include "widgets.h"
 #include "tile.h"
-#include "palette-map.h"
 
 class Metatile_Button : public Fl_Radio_Button {
 private:
@@ -68,19 +67,15 @@ public:
 class Pixel_Button : public Fl_Box {
 private:
 	int _x, _y;
-	Lighting _lighting;
-	Palette _palette;
 	Hue _hue;
 public:
 	Pixel_Button(int x = 0, int y = 0, int s = 0);
 	inline int row(void) const { return _y; }
 	inline int col(void) const { return _x; }
 	inline void coords(int x, int y) { _x = x; _y = y; }
-	inline Palette palette(void) const { return _palette; }
-	inline void palette(Palette p) { coloring(_lighting, p, _hue); }
 	inline Hue hue(void) const { return _hue; }
-	inline void hue(Hue h) { coloring(_lighting, _palette, h); }
-	void coloring(Lighting l, Palette p, Hue h);
+	inline void hue(Hue h) { _hue = h; coloring(); }
+	void coloring(void);
 	void draw(void);
 	int handle(int event);
 };
@@ -91,15 +86,16 @@ private:
 public:
 	Swatch(int x, int y, int s, const char *l = NULL);
 	inline Hue hue(void) const { return _hue; }
-	void coloring(Lighting l, Palette p, Hue h);
+	void hue(Hue h) { _hue = h; coloring(); }
+	void coloring(void);
 	void draw(void);
 };
 
 class Deep_Tile_Button : public Fl_Radio_Button, public Tile {
 public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
-	void copy_pixel(const Pixel_Button *pb);
-	void copy_pixels(Pixel_Button **pbs);
+	void copy_pixel(const Pixel_Button *pb, Lighting l);
+	void copy_pixels(Pixel_Button **pbs, Lighting l);
 	void draw(void);
 };
 
