@@ -15,7 +15,7 @@
 
 #define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
 
-#define CHIP_ZOOM_FACTOR 3
+#define CHIP_ZOOM_FACTOR 4
 #define CHIP_PX_SIZE (TILE_SIZE * CHIP_ZOOM_FACTOR)
 #define CHIP_LINE_BYTES (CHIP_PX_SIZE * NUM_CHANNELS)
 
@@ -26,10 +26,12 @@ private:
 	uint8_t _metatile_id;
 	bool _canceled;
 	Fl_Double_Window *_window;
-	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading;
+	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading, *_collision_heading;
 	Fl_Group *_tileset_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
+	Dropdown *_palette;
+	OS_Check_Button *_x_flip, *_y_flip, *_priority;
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
 	OS_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
@@ -44,19 +46,20 @@ public:
 	void tileset(const Tileset *t);
 	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
-	inline uint8_t tile_id(int x, int y) { return _chips[y * METATILE_SIZE + x]->id(); }
+	inline const Chip *const_chip(int x, int y) const { return _chips[y * METATILE_SIZE + x]; }
 	inline const char *collision(Quadrant q) { return _collision_inputs[q]->value(); }
 	inline uint8_t bin_collision(Quadrant q) { return (uint8_t)_bin_collision_spinners[q]->value(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
-	void draw_tile(Palette p, int x, int y, uint8_t id, bool zoom) const;
+	void draw_tile(int x, int y, const Attributable *a, bool zoom) const;
 	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);
 	static void cancel_cb(Fl_Widget *w, Block_Window *bw);
 	static void select_tile_cb(Tile_Button *tb, Block_Window *bw);
 	static void change_chip_cb(Chip *c, Block_Window *bw);
+	static void change_attributes_cb(Fl_Widget *w, Block_Window *bw);
 };
 
 #endif

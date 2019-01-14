@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "widgets.h"
 #include "tile.h"
+#include "attributable.h"
 
 class Metatile_Button : public Fl_Radio_Button {
 private:
@@ -39,27 +40,20 @@ public:
 	int handle(int event);
 };
 
-class Tile_Button : public Fl_Radio_Button {
-private:
-	uint8_t _id;
+class Tile_Button : public Fl_Radio_Button, public Attributable {
 public:
 	Tile_Button(int x, int y, int s, uint8_t id);
-	inline uint8_t id(void) const { return _id; }
-	inline void id(uint8_t id) { _id = id; }
 	void draw(void);
 };
 
-class Chip : public Fl_Box {
+class Chip : public Fl_Box, public Attributable {
 private:
 	uint8_t _row, _col;
-	uint8_t _id;
 public:
 	Chip(int x, int y, int s, uint8_t row, uint8_t col);
 	inline uint8_t row(void) const { return _row; }
 	inline uint8_t col(void) const { return _col; }
 	inline void coords(uint8_t row, uint8_t col) { _row = row; _col = col; }
-	inline uint8_t id(void) const { return _id; }
-	inline void id(uint8_t id) { _id = id; }
 	void draw(void);
 	int handle(int event);
 };

@@ -104,6 +104,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\attributable.cpp" />
     <ClCompile Include="..\src\colors.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\directory-chooser.cpp" />
@@ -131,6 +132,7 @@
     <ClCompile Include="..\src\widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\attributable.h" />
     <ClInclude Include="..\src\colors.h" />
     <ClInclude Include="..\src\config.h" />
     <ClInclude Include="..\src\directory-chooser.h" />

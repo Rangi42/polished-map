@@ -48,21 +48,21 @@ void Tileset_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Tile_Window(_dx, _dy, 466, 304, "Edit Tileset");
+	_window = new Tile_Window(_dx, _dy, 426, 304, "Edit Tileset");
 	_tileset_heading = new Label(10, 10, 258, 22);
 	_tile_heading = new Label(278, 10, 146, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
 	_tileset_group->end();
 	_window->begin();
-	_tile_group = new Fl_Group(278, 36, 146, 146);
+	_tile_group = new Fl_Group(278, 36, 138, 138);
 	_tile_group->end();
 	_window->begin();
-	_swatch1 = new Swatch(434, 36, 22, "1");
-	_swatch2 = new Swatch(434, 64, 22, "2");
-	_swatch3 = new Swatch(434, 92, 22, "3");
-	_swatch4 = new Swatch(434, 120, 22, "4");
-	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
-	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+	_swatch1 = new Swatch(278, 184, 22, "1");
+	_swatch2 = new Swatch(306, 184, 22, "2");
+	_swatch3 = new Swatch(334, 184, 22, "3");
+	_swatch4 = new Swatch(362, 184, 22, "4");
+	_ok_button = new Default_Button(336, 233, 80, 22, "OK");
+	_cancel_button = new OS_Button(336, 272, 80, 22, "Cancel");
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();

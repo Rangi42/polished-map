@@ -50,18 +50,18 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 		int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
 		for (int ty = 0; ty < METATILE_SIZE; ty++) {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
-				uint8_t tid = mt->tile_id(tx, ty);
-				const Tile *t = _tileset.const_tile_or_roof(tid);
-				const uchar *rgb = t->rgb(mt->palette(tx, ty));
-				rgb += mt->y_flip(tx, ty)
-					? mt->x_flip(tx, ty)
+				const Attributable *a = mt->attributes(tx, ty);
+				const Tile *t = _tileset.const_tile_or_roof(a->id());
+				const uchar *rgb = t->rgb(a->palette());
+				rgb += a->y_flip()
+					? a->x_flip()
 						? NUM_CHANNELS * (LINE_PX * LINE_PX - (z ? 1 : ZOOM_FACTOR))
 						: LINE_BYTES * (LINE_PX - 1)
-					: mt->x_flip(tx, ty)
+					: a->x_flip()
 						? (LINE_PX - 1) * NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR)
 						: 0;
-				int td = mt->x_flip(tx, ty) ? -d : d;
-				int tld = mt->y_flip(tx, ty) ? -ld : ld;
+				int td = a->x_flip() ? -d : d;
+				int tld = a->y_flip() ? -ld : ld;
 				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, td, tld);
 			}
 		}
@@ -83,15 +83,14 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 			const Metatile *m = _metatiles[b->id()];
 			for (int ty = 0; ty < METATILE_SIZE; ty++) {
 				for (int tx = 0; tx < METATILE_SIZE; tx++) {
-					uint8_t tid = m->tile_id(tx, ty);
-					const Tile *t = _tileset.const_tile_or_roof(tid);
-					Palette p = m->palette(tx, ty);
+					const Attributable *a = m->attributes(tx, ty);
+					const Tile *t = _tileset.const_tile_or_roof(a->id());
 					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
 					for (int py = 0; py < TILE_SIZE; py++) {
+						int my = a->y_flip() ? TILE_SIZE - py - 1 : py;
 						for (int px = 0; px < TILE_SIZE; px++) {
-							int mx = m->x_flip(tx, ty) ? TILE_SIZE - px - 1 : px;
-							int my = m->y_flip(tx, ty) ? TILE_SIZE - py - 1 : py;
-							const uchar *rgb = t->const_pixel(p, mx, my);
+							int mx = a->x_flip() ? TILE_SIZE - px - 1 : px;
+							const uchar *rgb = t->const_pixel(a->palette(), mx, my);
 							size_t j = o + (py * bw + px) * NUM_CHANNELS;
 							buffer[j++] = rgb[0];
 							buffer[j++] = rgb[1];
@@ -162,12 +161,7 @@ Metatileset::Result Metatileset::read_attributes(const char *f) {
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
 				uchar a = data[y * METATILE_SIZE + x];
-				Palette p = (Palette)(a & 0x87);
-				bool x_flip = !!(a & 0x20);
-				bool y_flip = !!(a & 0x40);
-				mt->palette(x, y, p);
-				mt->x_flip(x, y, x_flip);
-				mt->y_flip(x, y, y_flip);
+				mt->attribute_byte(x, y, a);
 			}
 		}
 	}
@@ -183,10 +177,7 @@ bool Metatileset::write_attributes(const char *f) {
 		Metatile *mt = _metatiles[i];
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
-				uchar a = (uchar)mt->palette(x, y);
-				a |= mt->tile_id(x, y) >= 0x80 ? 0x08 : 0;
-				a |= mt->x_flip(x, y) ? 0x20 : 0;
-				a |= mt->y_flip(x, y) ? 0x40 : 0;
+				uchar a = mt->attribute_byte(x, y);
 				fputc(a, file);
 			}
 		}

@@ -14,8 +14,7 @@
 #include "widgets.h"
 #include "block-window.h"
 
-#define PIXEL_ZOOM_FACTOR 18
-#define ZOOMED_TILE_PX_SIZE (TILE_SIZE * PIXEL_ZOOM_FACTOR)
+#define PIXEL_ZOOM_FACTOR 17
 
 class Tile_Window : public Fl_Double_Window {
 public:

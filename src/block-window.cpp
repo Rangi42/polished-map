@@ -5,8 +5,9 @@
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
-	_tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _collision_inputs(),
-	_bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_collision_heading(NULL), _tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL),
+	_chips(), _x_flip(NULL), _y_flip(NULL), _priority(NULL), _collision_inputs(), _bin_collision_spinners(),
+	_ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
@@ -14,8 +15,12 @@ Block_Window::~Block_Window() {
 	delete _tile_heading;
 	delete _metatile_heading;
 	delete _hover_tile_heading;
+	delete _collision_heading;
 	delete _tileset_group;
 	delete _metatile_group;
+	delete _x_flip;
+	delete _y_flip;
+	delete _priority;
 	delete _cancel_button;
 	delete _ok_button;
 }
@@ -25,29 +30,36 @@ void Block_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 466, 304, "Edit Block");
+	_window = new Fl_Double_Window(_dx, _dy, 466, 432, "Edit Block");
 	int thw = text_width("Tile: $FFF", 2);
 	_tile_heading = new Label(268-thw, 10, thw, 22);
 	_tileset_heading = new Label(10, 10, 258-thw, 22);
-	_metatile_heading = new Label(278, 10, 98, 22);
-	_hover_tile_heading = new Label(376, 10, thw, 22);
+	_metatile_heading = new Label(278, 10, 130-thw, 22);
+	_hover_tile_heading = new Label(408-thw, 10, thw, 22);
+	_collision_heading = new Label(278, 253, 178, 22, "Collision:");
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
 	_tileset_group->end();
 	_window->begin();
-	_metatile_group = new Fl_Group(278, 36, 98, 98);
+	_metatile_group = new Fl_Group(278, 36, 130, 130);
 	_metatile_group->end();
 	_window->begin();
-	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(300, 144, 156, 22);
-	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
-	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
-	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
+	int off = text_width("Color:", 3);
+	_palette = new Dropdown(278+off, 176, 178-off, 22, "Color:");
+	off = text_width("X flip", 3);
+	_x_flip = new OS_Check_Button(278, 202, 22+off, 22, "X flip");
+	_y_flip = new OS_Check_Button(304+off, 202, 22+off, 22, "Y flip");
+	_priority = new OS_Check_Button(278, 228, 178, 22, "Priority (above sprites)");
+	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(298, 279, 156, 22);
+	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(298, 305, 156, 22);
+	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(298, 331, 156, 22);
+	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(298, 357, 156, 22);
 	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
-	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new OS_Hex_Spinner(300, 144, bsw, 22);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new OS_Hex_Spinner(332+bsw, 144, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new OS_Hex_Spinner(300, 170, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new OS_Hex_Spinner(332+bsw, 170, bsw, 22);
-	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
-	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new OS_Hex_Spinner(298, 279, bsw, 22);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new OS_Hex_Spinner(332+bsw, 279, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new OS_Hex_Spinner(298, 305, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new OS_Hex_Spinner(332+bsw, 305, bsw, 22);
+	_ok_button = new Default_Button(282, 400, 80, 22, "OK");
+	_cancel_button = new OS_Button(376, 400, 80, 22, "Cancel");
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
@@ -79,6 +91,20 @@ void Block_Window::initialize() {
 	// Initialize window's children
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_metatile_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_palette->align(FL_ALIGN_LEFT);
+	_palette->add("GRAY");
+	_palette->add("RED");
+	_palette->add("GREEN");
+	_palette->add("WATER");
+	_palette->add("YELLOW");
+	_palette->add("BROWN");
+	_palette->add("ROOF");
+	_palette->add("TEXT");
+	_palette->add("UNDEFINED", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
+	_palette->callback((Fl_Callback *)change_attributes_cb, this);
+	_priority->callback((Fl_Callback *)change_attributes_cb, this);
+	_x_flip->callback((Fl_Callback *)change_attributes_cb, this);
+	_y_flip->callback((Fl_Callback *)change_attributes_cb, this);
 	_collision_inputs[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
 	_collision_inputs[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
 	_collision_inputs[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
@@ -127,8 +153,8 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
 			int i = y * METATILE_SIZE + x;
-			uint8_t id = mt->tile_id(x, y);
-			_chips[i]->id(id);
+			const Attributable *a = mt->attributes(x, y);
+			_chips[i]->copy(*a);
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
@@ -178,9 +204,10 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(Palette p, int x, int y, uint8_t id, bool zoom) const {
-	const Tile *t = _tileset->const_tile_or_roof(id);
-	const uchar *rgb = t->rgb(p);
+void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) const {
+	// TODO: indicate X flip, Y flip, and priority
+	const Tile *t = _tileset->const_tile_or_roof(a->id());
+	const uchar *rgb = t->rgb(a->palette());
 	if (zoom) {
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
@@ -248,6 +275,10 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 				if (row_free && col_free) {
 					Chip *chip = bw->chip(x, y);
 					chip->id(id + TILES_PER_ROW * dy + dx);
+					chip->palette((Palette)bw->_palette->value());
+					chip->priority(!!bw->_priority->value());
+					chip->x_flip(!!bw->_x_flip->value());
+					chip->y_flip(!!bw->_y_flip->value());
 					chip->damage(1);
 				}
 			}
@@ -258,5 +289,18 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 		uint8_t id = c->id();
 		bw->_selected = bw->_tile_buttons[id];
 		bw->_selected->setonly();
+	}
+}
+
+void Block_Window::change_attributes_cb(Fl_Widget *, Block_Window *bw) {
+	int pi = bw->_palette->value();
+	if (bw->_priority->value()) { pi |= 0x80; }
+	Palette p = (Palette)pi;
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
+		Tile_Button *tb = bw->_tile_buttons[i];
+		tb->palette(p);
+		tb->x_flip(!!bw->_x_flip->value());
+		tb->y_flip(!!bw->_y_flip->value());
+		tb->damage(1);
 	}
 }

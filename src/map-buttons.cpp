@@ -63,10 +63,8 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 		border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
-static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
-	Block_Window *bw = (Block_Window *)wgt->user_data();
-	int x = wgt->x(), y = wgt->y();
-	bw->draw_tile(Palette::GREEN, x, y, id, zoom); // TODO: proper palette selection
+static void draw_tileset_button(Block_Window *bw, int x, int y, const Attributable *a, bool border, bool zoom) {
+	bw->draw_tile(x, y, a, zoom);
 	if (border) {
 		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
 		draw_selection_border(x, y, rs, false);
@@ -179,7 +177,7 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
+Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Attributable(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -187,10 +185,10 @@ Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y
 }
 
 void Tile_Button::draw() {
-	draw_tileset_button(this, _id, !!value(), false);
+	draw_tileset_button((Block_Window *)user_data(), x(), y(), this, !!value(), false);
 }
 
-Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), _row(row), _col(col), _id(0) {
+Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), Attributable(0), _row(row), _col(col) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -198,7 +196,7 @@ Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), 
 }
 
 void Chip::draw() {
-	draw_tileset_button(this, _id, Fl::belowmouse() == this, true);
+	draw_tileset_button((Block_Window *)user_data(), x(), y(), this, Fl::belowmouse() == this, true);
 }
 
 int Chip::handle(int event) {
