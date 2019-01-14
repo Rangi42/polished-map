@@ -107,6 +107,7 @@ void Block_Window::refresh() {
 	_canceled = false;
 	_selected = _tile_buttons[0];
 	_selected->setonly();
+	_selected->do_callback();
 }
 
 void Block_Window::tileset(const Tileset *t) {
@@ -258,5 +259,6 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 		uint8_t id = c->id();
 		bw->_selected = bw->_tile_buttons[id];
 		bw->_selected->setonly();
+		bw->_selected->do_callback();
 	}
 }
