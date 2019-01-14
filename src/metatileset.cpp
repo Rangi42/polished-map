@@ -85,10 +85,13 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 				for (int tx = 0; tx < METATILE_SIZE; tx++) {
 					uint8_t tid = m->tile_id(tx, ty);
 					const Tile *t = _tileset.const_tile_or_roof(tid);
+					Palette p = m->palette(tx, ty);
 					size_t o = ((y * METATILE_SIZE + ty) * bw + x * METATILE_SIZE + tx) * TILE_SIZE * NUM_CHANNELS;
 					for (int py = 0; py < TILE_SIZE; py++) {
 						for (int px = 0; px < TILE_SIZE; px++) {
-							const uchar *rgb = t->const_pixel(Palette::GREEN, px, py); // TODO: proper palette selection
+							int mx = m->x_flip(tx, ty) ? TILE_SIZE - px - 1 : px;
+							int my = m->y_flip(tx, ty) ? TILE_SIZE - py - 1 : py;
+							const uchar *rgb = t->const_pixel(p, mx, my);
 							size_t j = o + (py * bw + px) * NUM_CHANNELS;
 							buffer[j++] = rgb[0];
 							buffer[j++] = rgb[1];

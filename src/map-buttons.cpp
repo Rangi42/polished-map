@@ -245,6 +245,7 @@ void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb, Lighting l) {
 		const uchar *rgb = Color::color(l, p, h);
 		pixel(p, pb->col(), pb->row(), h, rgb[0], rgb[1], rgb[2]);
 	}
+	monochrome_pixel(pb->col(), pb->row(), h);
 }
 
 void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
@@ -254,8 +255,7 @@ void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 }
 
 void Deep_Tile_Button::draw() {
-	// TODO: proper palette selection
-	fl_draw_image(_rgb[Palette::GREEN], x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	fl_draw_image(_monochrome_rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
