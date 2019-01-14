@@ -2,10 +2,6 @@
 #include <fstream>
 #include <sstream>
 
-#pragma warning(push, 0)
-#include <FL/fl_draw.H>
-#pragma warning(pop)
-
 #include "metatileset.h"
 
 Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(META_NULL), _modified(false),
@@ -43,33 +39,20 @@ void Metatileset::size(size_t n) {
 }
 
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
+	int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
 	if (id < size()) {
 		Metatile *mt = _metatiles[id];
-		int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
-		int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);
-		int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
 		for (int ty = 0; ty < METATILE_SIZE; ty++) {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
 				const Attributable *a = mt->attributes(tx, ty);
 				const Tile *t = _tileset.const_tile_or_roof(a->id());
-				const uchar *rgb = t->rgb(a->palette());
-				rgb += a->y_flip()
-					? a->x_flip()
-						? NUM_CHANNELS * (LINE_PX * LINE_PX - (z ? 1 : ZOOM_FACTOR))
-						: LINE_BYTES * (LINE_PX - 1)
-					: a->x_flip()
-						? (LINE_PX - 1) * NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR)
-						: 0;
-				int td = a->x_flip() ? -d : d;
-				int tld = a->y_flip() ? -ld : ld;
-				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, td, tld);
+				t->draw_attributable(a, x + tx * s, y + ty * s, z);
 			}
 		}
 	}
 	else {
-		int s = TILE_SIZE * METATILE_SIZE * (z ? ZOOM_FACTOR : 1);
 		fl_color(EMPTY_RGB);
-		fl_rectf(x, y, s, s);
+		fl_rectf(x, y, METATILE_SIZE * s, METATILE_SIZE * s);
 	}
 }
 

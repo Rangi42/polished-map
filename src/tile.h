@@ -10,6 +10,7 @@
 
 #include "utils.h"
 #include "colors.h"
+#include "attributable.h"
 
 #define TILE_SIZE 8
 #define ZOOM_FACTOR 2
@@ -46,6 +47,7 @@ public:
 	void monochrome_pixel(int x, int y, Hue h);
 	void clear(void);
 	void copy(const Tile *t);
+	void draw_attributable(const Attributable *a, int x, int y, bool zoom) const;
 	void update_lighting(Lighting l);
 };
 

@@ -217,14 +217,16 @@ void Block_Window::select(const Attributable *a) {
 }
 
 void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) const {
-	// TODO: indicate X flip, Y flip, and priority
 	const Tile *t = _tileset->const_tile_or_roof(a->id());
-	const uchar *rgb = t->rgb(a->palette());
 	if (zoom) {
+		// TODO: indicate priority somehow
+		const uchar *rgb = t->rgb(a->palette());
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
+			int my = a->y_flip() ? TILE_SIZE - ty - 1 : ty;
 			for (int tx = 0; tx < TILE_SIZE; tx++) {
-				int ti = (ty * LINE_BYTES + tx * NUM_CHANNELS) * ZOOM_FACTOR;
+				int mx = a->x_flip() ? TILE_SIZE - tx - 1 : tx;
+				int ti = (my * LINE_BYTES + mx * NUM_CHANNELS) * ZOOM_FACTOR;
 				int ci = (ty * CHIP_LINE_BYTES + tx * NUM_CHANNELS) * CHIP_ZOOM_FACTOR;
 				for (int c = 0; c < NUM_CHANNELS; c++) {
 					uchar v = rgb[ti + c];
@@ -239,7 +241,7 @@ void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) con
 		fl_draw_image(chip, x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, NUM_CHANNELS, CHIP_LINE_BYTES);
 	}
 	else {
-		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+		t->draw_attributable(a, x, y, true);
 	}
 }
 
