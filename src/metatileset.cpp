@@ -52,8 +52,17 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
 				uint8_t tid = mt->tile_id(tx, ty);
 				const Tile *t = _tileset.const_tile_or_roof(tid);
-				const uchar *rgb = t->rgb(Palette::GREEN); // TODO: proper palette selection
-				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
+				const uchar *rgb = t->rgb(mt->palette(tx, ty));
+				rgb += mt->y_flip(tx, ty)
+					? mt->x_flip(tx, ty)
+						? NUM_CHANNELS * (LINE_PX * LINE_PX - (z ? 1 : ZOOM_FACTOR))
+						: LINE_BYTES * (LINE_PX - 1)
+					: mt->x_flip(tx, ty)
+						? (LINE_PX - 1) * NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR)
+						: 0;
+				int td = mt->x_flip(tx, ty) ? -d : d;
+				int tld = mt->y_flip(tx, ty) ? -ld : ld;
+				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, td, tld);
 			}
 		}
 	}
