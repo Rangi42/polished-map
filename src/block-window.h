@@ -52,6 +52,7 @@ public:
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
+	void select(const Attributable *a);
 	void draw_tile(int x, int y, const Attributable *a, bool zoom) const;
 	void update_status(Chip *c);
 private:

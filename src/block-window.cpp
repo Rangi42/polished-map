@@ -131,8 +131,9 @@ void Block_Window::initialize() {
 
 void Block_Window::refresh() {
 	_canceled = false;
-	_selected = _tile_buttons[0];
-	_selected->setonly();
+	Tile_Button *tb = _tile_buttons[0];
+	tb->Attributable::clear();
+	select(tb);
 }
 
 void Block_Window::tileset(const Tileset *t) {
@@ -202,6 +203,17 @@ void Block_Window::show(const Fl_Widget *p) {
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+}
+
+void Block_Window::select(const Attributable *a) {
+	_selected = _tile_buttons[a->id()];
+	_selected->setonly();
+	_selected->do_callback();
+	_palette->value((int)a->palette() & 0xf);
+	_x_flip->value(a->x_flip());
+	_y_flip->value(a->y_flip());
+	_priority->value(a->priority());
+	_palette->do_callback();
 }
 
 void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) const {
@@ -286,9 +298,8 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
-		uint8_t id = c->id();
-		bw->_selected = bw->_tile_buttons[id];
-		bw->_selected->setonly();
+		bw->select(c);
+		bw->_window->redraw();
 	}
 }
 
