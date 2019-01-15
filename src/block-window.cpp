@@ -219,7 +219,6 @@ void Block_Window::select(const Attributable *a) {
 void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) const {
 	const Tile *t = _tileset->const_tile_or_roof(a->id());
 	if (zoom) {
-		// TODO: indicate priority somehow
 		const uchar *rgb = t->rgb(a->palette());
 		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 		for (int ty = 0; ty < TILE_SIZE; ty++) {
@@ -239,6 +238,10 @@ void Block_Window::draw_tile(int x, int y, const Attributable *a, bool zoom) con
 			}
 		}
 		fl_draw_image(chip, x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, NUM_CHANNELS, CHIP_LINE_BYTES);
+		if (a->priority()) {
+			fl_rect(x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, FL_CYAN);
+			fl_rect(x+1, y+1, CHIP_PX_SIZE-2, CHIP_PX_SIZE-2, FL_CYAN);
+		}
 	}
 	else {
 		t->draw_attributable(a, x, y, true);
