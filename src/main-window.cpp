@@ -1376,6 +1376,10 @@ bool Main_Window::save_metatileset() {
 	Config::metatileset_path(filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 
+	char filename_attr[FL_PATH_MAX] = {};
+	Config::attributes_path(filename_attr, directory, tileset_name);
+	const char *basename_attr = fl_filename_name(filename_attr);
+
 	char filename_coll[FL_PATH_MAX] = {};
 	Config::collisions_path(filename_coll, directory, tileset_name);
 	const char *basename_coll = fl_filename_name(filename_coll);
@@ -1384,6 +1388,14 @@ bool Main_Window::save_metatileset() {
 		if (!_metatileset.write_metatiles(filename)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
+			_error_dialog->message(msg);
+			_error_dialog->show(this);
+			return false;
+		}
+
+		if (!_metatileset.write_attributes(filename)) {
+			std::string msg = "Could not write to ";
+			msg = msg + basename_attr + "!";
 			_error_dialog->message(msg);
 			_error_dialog->show(this);
 			return false;
@@ -1402,7 +1414,10 @@ bool Main_Window::save_metatileset() {
 	std::string msg = "Saved ";
 	msg = msg + basename;
 	if (_has_collisions) {
-		msg = msg + "\nand " + basename_coll;
+		msg = msg + ", " + basename_attr + ",\nand " + basename_coll;
+	}
+	else {
+		msg = msg + "\nand " + basename_attr;
 	}
 	msg = msg + "!";
 	_success_dialog->message(msg);
@@ -1442,8 +1457,6 @@ bool Main_Window::save_tileset() {
 		_success_dialog->message(msg);
 		_success_dialog->show(this);
 	}
-
-	// TODO: save attributes.bin
 
 	tileset->modified(false);
 	return true;
