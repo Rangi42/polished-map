@@ -1393,7 +1393,7 @@ bool Main_Window::save_metatileset() {
 			return false;
 		}
 
-		if (!_metatileset.write_attributes(filename)) {
+		if (!_metatileset.write_attributes(filename_attr)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename_attr + "!";
 			_error_dialog->message(msg);
