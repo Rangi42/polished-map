@@ -1,6 +1,6 @@
-# Polished Map
+# Polished Map++
 
-A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal), [pokered](https://github.com/pret/pokered), and hacks including [Polished Crystal](https://github.com/Rangi42/polishedcrystal), [Orange](https://github.com/PiaCarrot/pokeorange), [Red++](https://github.com/TheFakeMateo/RedPlusPlus/), [Prism](https://www.reddit.com/r/PokemonPrism/), and [Axyllia](http://pokemonfractal.wikia.com/wiki/Axyllia).
+A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal) hacks that allow [per-block attributes](https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-\(including-X-and-Y-flip\)), such as [Red++](https://github.com/TheFakeMateo/RedPlusPlus/) and [Coral](https://github.com/pkmncoraldev/pokecoral/).
 
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and focused on graphics instead of script editing.
 

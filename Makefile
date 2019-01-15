@@ -1,8 +1,8 @@
 DESTDIR =
 PREFIX = /usr/local
 
-polishedmap = polishedmap
-polishedmapd = polishedmapd
+polishedmap = polishedmap-plusplus
+polishedmapd = polishedmap-plusplusd
 
 CXX = g++
 LD = $(CXX)
@@ -26,7 +26,7 @@ OBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(tmpdir)/%.o)
 DEBUGOBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(debugdir)/%.o)
 TARGET = $(bindir)/$(polishedmap)
 DEBUGTARGET = $(bindir)/$(polishedmapd)
-DESKTOP = "$(DESTDIR)$(PREFIX)/share/applications/Polished Map.desktop"
+DESKTOP = "$(DESTDIR)$(PREFIX)/share/applications/Polished Map++.desktop"
 
 .PHONY: all $(polishedmap) $(polishedmapd) release debug clean install uninstall
 
@@ -63,22 +63,22 @@ clean:
 	$(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
 
 install: release
-	mkdir -p $(DESTDIR)$(PREFIX)/bin
-	cp $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
-	mkdir -p $(DESTDIR)$(PREFIX)/share/pixmaps
-	cp $(resdir)/app.xpm $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm
-	cp $(resdir)/app-icon.xpm $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap16.xpm
-	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
-	echo "[Desktop Entry]" > $(DESKTOP)
-	echo "Name=Polished Map" >> $(DESKTOP)
-	echo "Comment=Edit pokecrystal maps and tilesets" >> $(DESKTOP)
-	echo "Icon=$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm" >> $(DESKTOP)
-	echo "Exec=$(DESTDIR)$(PREFIX)/bin/$(polishedmap)" >> $(DESKTOP)
-	echo "Type=Application" >> $(DESKTOP)
-	echo "Terminal=false" >> $(DESKTOP)
+	mkdir -p "$(DESTDIR)$(PREFIX)/bin"
+	cp $(TARGET) "$(DESTDIR)$(PREFIX)/bin/$(polishedmap)"
+	mkdir -p "$(DESTDIR)$(PREFIX)/share/pixmaps"
+	cp $(resdir)/app.xpm "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm"
+	cp $(resdir)/app-icon.xpm "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm"
+	mkdir -p "$(DESTDIR)$(PREFIX)/share/applications"
+	echo "[Desktop Entry]" > "$(DESKTOP)"
+	echo "Name=Polished Map++" >> "$(DESKTOP)"
+	echo "Comment=Edit pokecrystal maps and tilesets" >> "$(DESKTOP)"
+	echo "Icon=$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm" >> "$(DESKTOP)"
+	echo "Exec=$(DESTDIR)$(PREFIX)/bin/$(polishedmap)" >> "$(DESKTOP)"
+	echo "Type=Application" >> "$(DESKTOP)"
+	echo "Terminal=false" >> "$(DESKTOP)"
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
-	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm
-	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap16.xpm
-	rm -f $(DESKTOP)
+	rm -f "$(DESTDIR)$(PREFIX)/bin/$(polishedmap)"
+	rm -f "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm"
+	rm -f "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm"
+	rm -f "$(DESKTOP)"

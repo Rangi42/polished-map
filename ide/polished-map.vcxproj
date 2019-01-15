@@ -44,13 +44,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\bin\$(Configuration)\</OutDir>
     <IntDir>..\tmp\$(Configuration)\</IntDir>
-    <TargetName>polishedmapd</TargetName>
+    <TargetName>polishedmap-plusplusd</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\$(Configuration)\</OutDir>
     <IntDir>..\tmp\$(Configuration)\</IntDir>
-    <TargetName>polishedmap</TargetName>
+    <TargetName>polishedmap-plusplus</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
