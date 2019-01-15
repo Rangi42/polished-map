@@ -59,8 +59,8 @@ protected:
 class Lighting_Window : public Abstract_Lighting_Window {
 private:
 	Fl_Group *_palette_heading_group, *_color_group;
-	Label *_palette_headings[NUM_GAME_PALETTES];
-	Color_Button *_color_buttons[NUM_GAME_PALETTES][NUM_HUES];
+	Label *_palette_headings[NUM_PALETTES];
+	Color_Button *_color_buttons[NUM_PALETTES][NUM_HUES];
 public:
 	Lighting_Window(int x, int y);
 	~Lighting_Window();

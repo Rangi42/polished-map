@@ -180,9 +180,9 @@ void Lighting_Window::initial_setup() {
 	_cancel_button = new OS_Button(111 + hhgw, 159, 80, 22, "Cancel");
 	_window->end();
 	// Populate hue heading group
-	const char *hhll[NUM_GAME_PALETTES] = {"GRAY:", "RED:", "GREEN:", "WATER:", "YELLOW:", "BROWN:", "ROOF:", "TEXT:"};
+	const char *hhll[NUM_PALETTES] = {"GRAY:", "RED:", "GREEN:", "WATER:", "YELLOW:", "BROWN:", "ROOF:", "TEXT:"};
 	_palette_heading_group->begin();
-	for (int i = 0; i < NUM_GAME_PALETTES; i++) {
+	for (int i = 0; i < NUM_PALETTES; i++) {
 		Label *hhl = new Label(10, 11+21*i, hhgw, 22, hhll[i]);
 		hhl->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
 	}
@@ -190,7 +190,7 @@ void Lighting_Window::initial_setup() {
 	// Populate swatch group
 	_color_group->color(FL_INACTIVE_COLOR);
 	_color_group->begin();
-	for (int y = 0; y < NUM_GAME_PALETTES; y++) {
+	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
 			Color_Button *cb = new Color_Button(_color_group->x()+2+21*x, _color_group->y()+2+21*y, 20);
 			cb->color(Color::fl_color(_current_lighting, (Palette)y, Color::ordered_hue(x)));
@@ -207,7 +207,7 @@ void Lighting_Window::initial_setup() {
 void Lighting_Window::refresh() {
 	_canceled = false;
 	_copied = false;
-	for (int y = 0; y < NUM_GAME_PALETTES; y++) {
+	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
 			Fl_Color c = Color::fl_color(_current_lighting, (Palette)y, Color::ordered_hue(x));
 			_color_buttons[y][x]->color(c);
@@ -217,7 +217,7 @@ void Lighting_Window::refresh() {
 }
 
 void Lighting_Window::apply_modifications() {
-	for (int y = 0; y < NUM_GAME_PALETTES; y++) {
+	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
 			Color_Button *cb = _color_buttons[y][x];
 			Color::color(_current_lighting, (Palette)y, Color::ordered_hue(x), cb->color());

@@ -7,7 +7,7 @@
 
 #include "tile.h"
 
-#define BYTES_PER_2BPP_TILE (TILE_SIZE * TILE_SIZE / 4)
+#define BYTES_PER_2BPP_TILE (TILE_AREA / 4)
 
 class Tiled_Image {
 public:

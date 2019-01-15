@@ -30,7 +30,7 @@ private:
 	Label *_roof_heading;
 	Fl_Group *_roof_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[NUM_ROOF_TILES], *_selected;
-	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
+	Pixel_Button *_pixels[TILE_AREA];
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;

@@ -91,12 +91,16 @@ void Roof_Window::initialize() {
 	// Initialize window's children
 	_roof_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_swatch1->hue(Hue::WHITE);
 	_swatch1->shortcut('1');
 	_swatch1->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch2->hue(Hue::LIGHT);
 	_swatch2->shortcut('2');
 	_swatch2->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch3->hue(Hue::DARK);
 	_swatch3->shortcut('3');
 	_swatch3->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch4->hue(Hue::BLACK);
 	_swatch4->shortcut('4');
 	_swatch4->callback((Fl_Callback *)choose_swatch_cb, this);
 	_ok_button->tooltip("OK (Enter)");
@@ -163,10 +167,6 @@ void Roof_Window::select(Deep_Tile_Button *dtb) {
 			pb->hue(h);
 		}
 	}
-	_swatch1->hue(Hue::WHITE);
-	_swatch2->hue(Hue::LIGHT);
-	_swatch3->hue(Hue::DARK);
-	_swatch4->hue(Hue::BLACK);
 }
 
 void Roof_Window::choose(Swatch *swatch) {
@@ -195,7 +195,7 @@ void Roof_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
 }
 
 void Roof_Window::substitute_hue(Hue f, Hue t) {
-	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+	for (size_t i = 0; i < TILE_AREA; i++) {
 		Pixel_Button *pb = _pixels[i];
 		if (pb->hue() == f) {
 			pb->hue(t);

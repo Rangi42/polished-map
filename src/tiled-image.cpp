@@ -33,7 +33,7 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 	if (png.count() != 1) { return (_result = IMG_NOT_GRAYSCALE); }
 
 	delete [] _tile_hues;
-	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
+	_tile_hues = new Hue[_num_tiles * TILE_AREA]();
 
 	Hue png_hues[4] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE};
 	size_t hi = 0;
@@ -227,7 +227,7 @@ Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 
 	_num_tiles = n;
 	delete [] _tile_hues;
-	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
+	_tile_hues = new Hue[_num_tiles * TILE_AREA]();
 
 	for (size_t i = 0; i < _num_tiles; i++) {
 		for (int j = 0; j < TILE_SIZE; j++) {

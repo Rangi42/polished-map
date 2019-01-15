@@ -244,10 +244,11 @@ void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb, Lighting l) {
 		pixel(p, pb->col(), pb->row(), h, rgb[0], rgb[1], rgb[2]);
 	}
 	monochrome_pixel(pb->col(), pb->row(), h);
+	undefined_pixel(pb->col(), pb->row(), h);
 }
 
 void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
-	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+	for (int i = 0; i < TILE_AREA; i++) {
 		copy_pixel(pbs[i], l);
 	}
 }

@@ -100,7 +100,6 @@ void Block_Window::initialize() {
 	_palette->add("BROWN");
 	_palette->add("ROOF");
 	_palette->add("TEXT");
-	_palette->add("UNDEFINED", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
 	_palette->callback((Fl_Callback *)change_attributes_cb, this);
 	_priority->callback((Fl_Callback *)change_attributes_cb, this);
 	_x_flip->callback((Fl_Callback *)change_attributes_cb, this);
@@ -209,7 +208,7 @@ void Block_Window::select(const Attributable *a) {
 	_selected = _tile_buttons[a->id()];
 	_selected->setonly();
 	_selected->do_callback();
-	_palette->value((int)a->palette() & 0xf);
+	_palette->value(a->palette());
 	_x_flip->value(a->x_flip());
 	_y_flip->value(a->y_flip());
 	_priority->value(a->priority());
@@ -309,14 +308,12 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 }
 
 void Block_Window::change_attributes_cb(Fl_Widget *, Block_Window *bw) {
-	int pi = bw->_palette->value();
-	if (bw->_priority->value()) { pi |= 0x80; }
-	Palette p = (Palette)pi;
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		Tile_Button *tb = bw->_tile_buttons[i];
-		tb->palette(p);
+		tb->palette((Palette)bw->_palette->value());
 		tb->x_flip(!!bw->_x_flip->value());
 		tb->y_flip(!!bw->_y_flip->value());
+		tb->priority(!!bw->_priority->value());
 		tb->damage(1);
 	}
 }

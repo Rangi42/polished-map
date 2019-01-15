@@ -7,65 +7,59 @@
 
 Tile::Tile(uint8_t id) : _id(id), _hues(), _rgb() {}
 
-void Tile::pixel(Palette p, int x, int y, Hue h, uchar r, uchar g, uchar b) {
-	_hues[y * TILE_SIZE + x] = h;
-	int c = (int)p & 0xf;
-	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
+static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
+	int i = TILE_PIXEL_OFFSET(x, y);
 	// red
-	_rgb[c][i] = r;
-	_rgb[c][i + NUM_CHANNELS] = r;
-	_rgb[c][i + LINE_BYTES] = r;
-	_rgb[c][i + LINE_BYTES + NUM_CHANNELS] = r;
+	tile[i] = rgb[0];
+	tile[i + NUM_CHANNELS] = rgb[0];
+	tile[i + LINE_BYTES] = rgb[0];
+	tile[i + LINE_BYTES + NUM_CHANNELS] = rgb[0];
 	i++;
 	// green
-	_rgb[c][i] = g;
-	_rgb[c][i + NUM_CHANNELS] = g;
-	_rgb[c][i + LINE_BYTES] = g;
-	_rgb[c][i + LINE_BYTES + NUM_CHANNELS] = g;
+	tile[i] = rgb[1];
+	tile[i + NUM_CHANNELS] = rgb[1];
+	tile[i + LINE_BYTES] = rgb[1];
+	tile[i + LINE_BYTES + NUM_CHANNELS] = rgb[1];
 	i++;
 	// blue
-	_rgb[c][i] = b;
-	_rgb[c][i + NUM_CHANNELS] = b;
-	_rgb[c][i + LINE_BYTES] = b;
-	_rgb[c][i + LINE_BYTES + NUM_CHANNELS] = b;
+	tile[i] = rgb[2];
+	tile[i + NUM_CHANNELS] = rgb[2];
+	tile[i + LINE_BYTES] = rgb[2];
+	tile[i + LINE_BYTES + NUM_CHANNELS] = rgb[2];
+}
+
+void Tile::pixel(Palette p, int x, int y, Hue h, uchar r, uchar g, uchar b) {
+	_hues[y * TILE_SIZE + x] = h;
+	uchar rgb[NUM_CHANNELS] = {r, g, b};
+	fill_tile_pixel(_rgb[p], x, y, rgb);
 }
 
 void Tile::monochrome_pixel(int x, int y, Hue h) {
 	const uchar *rgb = Color::monochrome_color(h);
-	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;
-	// red
-	_monochrome_rgb[i] = rgb[0];
-	_monochrome_rgb[i + NUM_CHANNELS] = rgb[0];
-	_monochrome_rgb[i + LINE_BYTES] = rgb[0];
-	_monochrome_rgb[i + LINE_BYTES + NUM_CHANNELS] = rgb[0];
-	i++;
-	// green
-	_monochrome_rgb[i] = rgb[1];
-	_monochrome_rgb[i + NUM_CHANNELS] = rgb[1];
-	_monochrome_rgb[i + LINE_BYTES] = rgb[1];
-	_monochrome_rgb[i + LINE_BYTES + NUM_CHANNELS] = rgb[1];
-	i++;
-	// blue
-	_monochrome_rgb[i] = rgb[2];
-	_monochrome_rgb[i + NUM_CHANNELS] = rgb[2];
-	_monochrome_rgb[i + LINE_BYTES] = rgb[2];
-	_monochrome_rgb[i + LINE_BYTES + NUM_CHANNELS] = rgb[2];
+	fill_tile_pixel(_monochrome_rgb, x, y, rgb);
+}
+
+void Tile::undefined_pixel(int x, int y, Hue h) {
+	const uchar *rgb = Color::undefined_color(h);
+	fill_tile_pixel(_undefined_rgb, x, y, rgb);
 }
 
 void Tile::clear() {
-	FILL(_hues, Hue::WHITE, TILE_SIZE * TILE_SIZE);
+	FILL(_hues, Hue::WHITE, TILE_AREA);
 	for (int i = 0; i < NUM_PALETTES; i++) {
-		FILL(_rgb[i], 0xff, LINE_PX * LINE_PX * NUM_CHANNELS);
+		FILL(_rgb[i], 0xff, TILE_BYTES);
 	}
-	FILL(_monochrome_rgb, 0xff, LINE_PX * LINE_PX * NUM_CHANNELS);
+	FILL(_monochrome_rgb, 0xff, TILE_BYTES);
+	FILL(_undefined_rgb, 0xff, TILE_BYTES);
 }
 
 void Tile::copy(const Tile *t) {
-	memcpy(_hues, t->_hues, TILE_SIZE * TILE_SIZE * sizeof(Hue));
+	memcpy(_hues, t->_hues, TILE_AREA * sizeof(Hue));
 	for (int i = 0; i < NUM_PALETTES; i++) {
-		memcpy(_rgb[i], t->_rgb[i], LINE_PX * LINE_PX * NUM_CHANNELS);
+		memcpy(_rgb[i], t->_rgb[i], TILE_BYTES);
 	}
-	memcpy(_monochrome_rgb, t->_monochrome_rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
+	memcpy(_monochrome_rgb, t->_monochrome_rgb, TILE_BYTES);
+	memcpy(_undefined_rgb, t->_undefined_rgb, TILE_BYTES);
 }
 
 void Tile::draw_attributable(const Attributable *a, int x, int y, bool zoom) const {
@@ -95,6 +89,7 @@ void Tile::update_lighting(Lighting l) {
 				pixel(p, tx, ty, h, rgb[0], rgb[1], rgb[2]);
 			}
 			monochrome_pixel(tx, ty, h);
+			undefined_pixel(tx, ty, h);
 		}
 	}
 }
