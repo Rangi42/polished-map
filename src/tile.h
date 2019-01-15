@@ -25,6 +25,7 @@
 class Tile {
 protected:
 	uint8_t _id;
+	bool _undefined;
 	Hue _hues[TILE_AREA];
 	uchar _rgb[NUM_PALETTES][TILE_BYTES];
 	uchar _monochrome_rgb[TILE_BYTES];
@@ -33,9 +34,9 @@ public:
 	Tile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
-	inline const uchar *rgb(Palette p) const { return _rgb[p]; }
-	inline const uchar *monochrome_rgb(void) const { return _monochrome_rgb; }
-	inline const uchar *undefined_rgb(void) const { return _undefined_rgb; }
+	inline bool undefined(void) const { return _undefined; }
+	inline void undefined(bool u) { _undefined = u; }
+	inline const uchar *rgb(Palette p) const { return _undefined ? _undefined_rgb : _rgb[p]; }
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
 	inline uchar *pixel(Palette p, int x, int y) { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }
 	inline const uchar *const_pixel(Palette p, int x, int y) const { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }

@@ -254,7 +254,8 @@ void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 }
 
 void Deep_Tile_Button::draw() {
-	fl_draw_image(_monochrome_rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	const uchar *rgb = _undefined ? _undefined_rgb : _monochrome_rgb;
+	fl_draw_image(rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}

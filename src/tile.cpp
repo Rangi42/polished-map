@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "tile.h"
 
-Tile::Tile(uint8_t id) : _id(id), _hues(), _rgb() {}
+Tile::Tile(uint8_t id) : _id(id), _undefined(true), _hues(), _rgb() {}
 
 static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 	int i = TILE_PIXEL_OFFSET(x, y);
@@ -45,6 +45,7 @@ void Tile::undefined_pixel(int x, int y, Hue h) {
 }
 
 void Tile::clear() {
+	_undefined = true;
 	FILL(_hues, Hue::WHITE, TILE_AREA);
 	for (int i = 0; i < NUM_PALETTES; i++) {
 		FILL(_rgb[i], 0xff, TILE_BYTES);
@@ -54,6 +55,7 @@ void Tile::clear() {
 }
 
 void Tile::copy(const Tile *t) {
+	_undefined = t->_undefined;
 	memcpy(_hues, t->_hues, TILE_AREA * sizeof(Hue));
 	for (int i = 0; i < NUM_PALETTES; i++) {
 		memcpy(_rgb[i], t->_rgb[i], TILE_BYTES);

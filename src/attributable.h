@@ -3,17 +3,17 @@
 
 #include "colors.h"
 
-#define PALETTE_MASK  0x07
-#define BANK_1_MASK   0x08
-#define X_FLIP_MASK   0x20
-#define Y_FLIP_MASK   0x40
-#define PRIORITY_MASK 0x80
+#define PALETTE_MASK   0x07
+#define BANK_1_MASK    0x08
+#define X_FLIP_MASK    0x20
+#define Y_FLIP_MASK    0x40
+#define PRIORITY_MASK  0x80
 
 class Attributable {
 protected:
 	uint8_t _id;
 	Palette _palette;
-	bool _x_flip, _y_flip, _priority;
+	bool _x_flip, _y_flip, _priority, _undefined;
 public:
 	Attributable(uint8_t id = 0);
 	inline uint8_t id(void) const { return _id; }

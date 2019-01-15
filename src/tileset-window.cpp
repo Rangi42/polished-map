@@ -239,6 +239,7 @@ void Tileset_Window::choose_swatch_cb(Swatch *s, Tileset_Window *tw) {
 void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!tw->_chosen) { return; }
+		tw->_selected->undefined(false);
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
 			tw->flood_fill(pb, pb->hue(), tw->_chosen->hue());

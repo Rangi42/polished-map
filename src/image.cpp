@@ -23,8 +23,7 @@ Image::Result Image::write_map_image(const char *f, const Map &map, const Metati
 
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
 	size_t n = MAX_NUM_TILES;
-	// TODO: count n down from the undefined tiles
-	//while (tileset.const_tile((uint8_t)(n-1))->palette() == Palette::UNDEFINED) { n--; }
+	while (tileset.const_tile((uint8_t)(n-1))->undefined()) { n--; }
 	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
 	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
 	uchar *buffer = tileset.print_rgb(w, h, n);

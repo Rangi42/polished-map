@@ -68,6 +68,7 @@ uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
 }
 
 void Tileset::read_tile(Tile *t, const Tiled_Image &ti, size_t i) {
+	t->undefined(false);
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = ti.tile_hue(i, tx, ty);
@@ -111,9 +112,9 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 	_num_tiles = ti.num_tiles();
 
 	_lighting = l;
-	for (int i = 0; i < MAX_NUM_TILES; i++) {
+	for (size_t i = 0; i < _num_tiles; i++) {
 		Tile *t = _tiles[i];
-		read_tile(t, ti, (size_t)i);
+		read_tile(t, ti, i);
 	}
 
 	_modified = false;
