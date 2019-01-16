@@ -64,7 +64,7 @@ void Tile::copy(const Tile *t) {
 	memcpy(_undefined_rgb, t->_undefined_rgb, TILE_BYTES);
 }
 
-void Tile::draw_attributable(const Attributable *a, int x, int y, bool zoom, bool show_priority) const {
+void Tile::draw_attributable(const Attributable *a, int x, int y, bool zoom) const {
 	const uchar *buffer = rgb(a->palette());
 	int s = TILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
 	int k = zoom ? 1 : ZOOM_FACTOR;
@@ -76,12 +76,6 @@ void Tile::draw_attributable(const Attributable *a, int x, int y, bool zoom, boo
 	int td = a->x_flip() ? -d : d;
 	int tld = a->y_flip() ? -ld : ld;
 	fl_draw_image(buffer, x, y, s, s, td, tld);
-	if (show_priority && a->priority()) {
-		fl_rect(x, y, s, s, FL_CYAN);
-		if (zoom) {
-			fl_rect(x+1, y+1, s-2, s-2, FL_CYAN);
-		}
-	}
 }
 
 void Tile::update_lighting(Lighting l) {
