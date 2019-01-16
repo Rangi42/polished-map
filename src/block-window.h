@@ -27,9 +27,9 @@ private:
 	bool _canceled;
 	Fl_Double_Window *_window;
 	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading, *_collision_heading;
-	Fl_Group *_tileset_group, *_metatile_group;
+	Fl_Group *_tileset_group, *_current_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
-	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
+	Chip *_chips[METATILE_SIZE * METATILE_SIZE], *_current;
 	Dropdown *_palette;
 	OS_Check_Button *_x_flip, *_y_flip, *_priority;
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
@@ -43,6 +43,7 @@ private:
 	void initialize(void);
 	void refresh(void);
 public:
+	inline const Tileset *tileset(void) const { return _tileset; }
 	void tileset(const Tileset *t);
 	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
@@ -53,7 +54,6 @@ public:
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
 	void select(const Attributable *a);
-	void draw_tile(int x, int y, const Attributable *a, bool zoom) const;
 	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);

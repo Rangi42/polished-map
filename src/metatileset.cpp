@@ -46,7 +46,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
 				const Attributable *a = mt->attributes(tx, ty);
 				const Tile *t = _tileset.const_tile_or_roof(a->id());
-				t->draw_attributable(a, x + tx * s, y + ty * s, z);
+				t->draw_attributable(a, x + tx * s, y + ty * s, z, true);
 			}
 		}
 	}

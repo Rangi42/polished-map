@@ -63,14 +63,6 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 		border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
-static void draw_tileset_button(Block_Window *bw, int x, int y, const Attributable *a, bool border, bool zoom) {
-	bw->draw_tile(x, y, a, zoom);
-	if (border) {
-		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
-		draw_selection_border(x, y, rs, false);
-	}
-}
-
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
@@ -185,7 +177,13 @@ Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y
 }
 
 void Tile_Button::draw() {
-	draw_tileset_button((Block_Window *)user_data(), x(), y(), this, !!value(), false);
+	Block_Window *bw = (Block_Window *)user_data();
+	const Tileset *tileset = bw->tileset();
+	const Tile *t = tileset->const_tile_or_roof(_id);
+	t->draw_attributable(this, x(), y(), true, false);
+	if (value()) {
+		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
+	}
 }
 
 Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), Attributable(0), _row(row), _col(col) {
@@ -196,7 +194,35 @@ Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), 
 }
 
 void Chip::draw() {
-	draw_tileset_button((Block_Window *)user_data(), x(), y(), this, Fl::belowmouse() == this, true);
+	Block_Window *bw = (Block_Window *)user_data();
+	const Tileset *tileset = bw->tileset();
+	const Tile *t = tileset->const_tile_or_roof(_id);
+	const uchar *rgb = t->rgb(_palette);
+	uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
+	for (int ty = 0; ty < TILE_SIZE; ty++) {
+		int my = _y_flip ? TILE_SIZE - ty - 1 : ty;
+		for (int tx = 0; tx < TILE_SIZE; tx++) {
+			int mx = _x_flip ? TILE_SIZE - tx - 1 : tx;
+			int ti = (my * LINE_BYTES + mx * NUM_CHANNELS) * ZOOM_FACTOR;
+			int ci = (ty * CHIP_LINE_BYTES + tx * NUM_CHANNELS) * CHIP_ZOOM_FACTOR;
+			for (int c = 0; c < NUM_CHANNELS; c++) {
+				uchar v = rgb[ti + c];
+				for (int row = 0; row < CHIP_ZOOM_FACTOR; row++) {
+					for (int col = 0; col < CHIP_ZOOM_FACTOR; col++) {
+						chip[ci + CHIP_LINE_BYTES * row + NUM_CHANNELS * col + c] = v;
+					}
+				}
+			}
+		}
+	}
+	fl_draw_image(chip, x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE, NUM_CHANNELS, CHIP_LINE_BYTES);
+	if (_priority) {
+		fl_rect(x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE, FL_CYAN);
+		fl_rect(x()+1, y()+1, CHIP_PX_SIZE-2, CHIP_PX_SIZE-2, FL_CYAN);
+	}
+	if (active() && Fl::belowmouse() == this) {
+		draw_selection_border(x(), y(), CHIP_PX_SIZE, false);
+	}
 }
 
 int Chip::handle(int event) {
@@ -207,11 +233,15 @@ int Chip::handle(int event) {
 			Fl::pushed(this);
 			do_callback();
 		}
-		bw->update_status(this);
+		if (active()) {
+			bw->update_status(this);
+		}
 		redraw();
 		return 1;
 	case FL_LEAVE:
-		bw->update_status(NULL);
+		if (active()) {
+			bw->update_status(NULL);
+		}
 		redraw();
 		return 1;
 	case FL_MOVE:
