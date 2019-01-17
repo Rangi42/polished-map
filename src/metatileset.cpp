@@ -72,7 +72,7 @@ void Metatileset::size(size_t n) {
 	_modified = true;
 }
 
-void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom) const {
+void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const {
 	int s = TILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
 	if (id >= size()) {
 		fl_color(EMPTY_RGB);
@@ -87,7 +87,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom) const {
 			const Attributable *a = mt->attributes(tx, ty);
 			const Tile *t = _tileset.const_tile_or_roof(a->id());
 			t->draw_attributable(a, ax, ay, zoom);
-			if (a->priority()) {
+			if (show_priority && a->priority()) {
 				(zoom ? large_priority_png : small_priority_png).draw(ax, ay, s, s);
 			}
 		}
