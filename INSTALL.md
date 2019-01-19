@@ -4,7 +4,7 @@
 
 **To install Polished Map:**
 
-1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/roukaour/polished-map/releases).
+1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
 4. Double-click **Polished Map** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ 2013 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=40784).
@@ -35,7 +35,7 @@ sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
 
 # Clone Polished Map
-git clone https://github.com/roukaour/polished-map.git
+git clone https://github.com/Rangi42/polished-map.git
 cd polished-map
 
 # Build FLTK 1.3.4 with the latest ABI enabled
