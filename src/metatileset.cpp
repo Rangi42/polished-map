@@ -274,7 +274,7 @@ bool Metatileset::write_asm_collisions(const char *f) {
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
 		Metatile *mt = _metatiles[i];
-		fprintf(file, "\ttilecoll %s, %s, %s, %s ; %02x\n",
+		fprintf(file, "\ttilecoll %s, %s, %s, %s ; %02lx\n",
 			mt->collision(Quadrant::TOP_LEFT).c_str(), mt->collision(Quadrant::TOP_RIGHT).c_str(),
 			mt->collision(Quadrant::BOTTOM_LEFT).c_str(), mt->collision(Quadrant::BOTTOM_RIGHT).c_str(), i);
 	}
