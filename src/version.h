@@ -12,4 +12,6 @@
 
 #define PROGRAM_AUTHOR "Rangi"
 
+#define CURRENT_YEAR "2019"
+
 #endif

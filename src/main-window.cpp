@@ -513,7 +513,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_unsaved_dialog->width_range(280, 700);
 
 	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
-		"Copyright \xc2\xa9 2018 Rangi.\n"
+		"Copyright \xc2\xa9 " CURRENT_YEAR " " PROGRAM_AUTHOR ".\n"
 		"\n"
 		"Source code is available at:\n"
 		"https://github.com/Rangi42/polished-map\n"
