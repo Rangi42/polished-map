@@ -204,6 +204,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("Save &As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
+		OS_MENU_ITEM("Save &Map", 0, (Fl_Callback *)save_map_cb, this, 0),
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
@@ -327,6 +328,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
 	_save_mi = PM_FIND_MENU_ITEM_CB(save_cb);
 	_save_as_mi = PM_FIND_MENU_ITEM_CB(save_as_cb);
+	_save_map_mi = PM_FIND_MENU_ITEM_CB(save_map_cb);
 	_save_blockset_mi = PM_FIND_MENU_ITEM_CB(save_metatiles_cb);
 	_save_tileset_mi = PM_FIND_MENU_ITEM_CB(save_tileset_cb);
 	_save_roof_mi = PM_FIND_MENU_ITEM_CB(save_roof_cb);
@@ -719,6 +721,7 @@ void Main_Window::update_active_controls() {
 		_save_mi->activate();
 		_save_tb->activate();
 		_save_as_mi->activate();
+		_save_map_mi->activate();
 		_save_blockset_mi->activate();
 		_save_tileset_mi->activate();
 		_print_mi->activate();
@@ -800,6 +803,7 @@ void Main_Window::update_active_controls() {
 		_save_mi->deactivate();
 		_save_tb->deactivate();
 		_save_as_mi->deactivate();
+		_save_map_mi->deactivate();
 		_save_blockset_mi->deactivate();
 		_save_tileset_mi->deactivate();
 		_save_roof_mi->deactivate();
@@ -1629,19 +1633,26 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	int status = mw->_new_dir_chooser->show();
-	if (status == 1) { return; }
-	if (status == -1) {
-		std::string msg = "Could not get project directory!";
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
+	char directory[FL_PATH_MAX] = {};
+
+	if (!mw->_map.size()) {
+		int status = mw->_new_dir_chooser->show();
+		if (status == 1) { return; }
+		if (status == -1) {
+			std::string msg = "Could not get project directory!";
+			mw->_error_dialog->message(msg);
+			mw->_error_dialog->show(mw);
+			return;
+		}
+
+		const char *project_dir = mw->_new_dir_chooser->filename();
+		strcpy(directory, project_dir);
+		strcat(directory, DIR_SEP);
+	}
+	else {
+		strcpy(directory, mw->_directory.c_str());
 	}
 
-	const char *project_dir = mw->_new_dir_chooser->filename();
-	char directory[FL_PATH_MAX] = {};
-	strcpy(directory, project_dir);
-	strcat(directory, DIR_SEP);
 	mw->open_map(directory, NULL);
 }
 
@@ -1722,11 +1733,7 @@ void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 		save_metatiles_cb(w, mw);
 	}
 	if (other_modified && !mw->_map.modified()) { return; }
-	if (mw->_blk_file.empty()) {
-		save_as_cb(w, mw);
-		return;
-	}
-	mw->save_map(false);
+	save_map_cb(w, mw);
 }
 
 void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
@@ -1773,6 +1780,15 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_png_chooser->preset_file(buffer);
 
 	mw->save_map(true);
+}
+
+void Main_Window::save_map_cb(Fl_Widget *w, Main_Window *mw) {
+	if (mw->_blk_file.empty()) {
+		save_as_cb(w, mw);
+	}
+	else {
+		mw->save_map(false);
+	}
 }
 
 void Main_Window::save_metatiles_cb(Fl_Widget *, Main_Window *mw) {
