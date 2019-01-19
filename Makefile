@@ -4,7 +4,7 @@ PREFIX = /usr/local
 polishedmap = polishedmap-plusplus
 polishedmapd = polishedmap-plusplusd
 
-CXX = g++
+CXX ?= g++
 LD = $(CXX)
 RM = rm -rf
 
@@ -18,7 +18,7 @@ CXXFLAGS = -std=c++11 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images -
 LDFLAGS = $(shell fltk-config --use-images --ldflags) $(shell pkg-config --libs libpng xpm)
 
 RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native
-DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare
+DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter
 
 COMMON = $(wildcard $(srcdir)/*.h) $(wildcard $(resdir)/*.xpm)
 SOURCES = $(wildcard $(srcdir)/*.cpp)
