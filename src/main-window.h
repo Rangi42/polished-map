@@ -57,9 +57,9 @@ private:
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL, *_close_mi = NULL,
-		*_save_mi = NULL, *_save_as_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_roof_mi = NULL,
-		*_save_event_script_mi = NULL, *_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL,
+		*_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_map_mi, *_save_blockset_mi = NULL,
+		*_save_tileset_mi = NULL, *_save_roof_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_change_roof_mi = NULL,
 		*_edit_tileset_mi = NULL, *_edit_roof_mi = NULL, *_edit_current_lighting_mi = NULL;
@@ -158,6 +158,7 @@ private:
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);
+	static void save_map_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_roof_cb(Fl_Widget *w, Main_Window *mw);
