@@ -72,6 +72,7 @@ bool normalize_path(const char *f, char *d) {
 	DWORD r = GetFullPathNameA(f, MAX_PATH, d, NULL);
 #else
 	char *r = realpath(f, d);
+	strcat(d, DIR_SEP);
 #endif
 	return !!r;
 }
