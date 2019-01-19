@@ -611,6 +611,7 @@ int Main_Window::handle(int event) {
 		key = Fl::event_key();
 		//if (key & FL_KP == FL_KP) { key -= FL_KP; } // normalize numpad keys into digits
 		if (handle_hotkey(key)) { return 1; }
+		// fall through
 	default:
 		return Fl_Double_Window::handle(event);
 	}

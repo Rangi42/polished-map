@@ -27,7 +27,7 @@ public:
 	Tile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
-	inline const Palette palette(void) const { return _palette; }
+	inline Palette palette(void) const { return _palette; }
 	inline void palette(Palette p) { _palette = p; }
 	inline const uchar *rgb(void) const { return _rgb; }
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
