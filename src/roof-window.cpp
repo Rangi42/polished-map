@@ -149,7 +149,7 @@ void Roof_Window::show(const Fl_Widget *p) {
 
 void Roof_Window::apply_modifications() {
 	for (int i = 0; i < NUM_ROOF_TILES; i++) {
-		const Tile *t = _deep_tile_buttons[i];
+		Tile *t = _deep_tile_buttons[i];
 		uint8_t id = t->id();
 		_tileset->roof_tile(id)->copy(t);
 	}
@@ -227,6 +227,7 @@ void Roof_Window::choose_swatch_cb(Swatch *s, Roof_Window *rw) {
 void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!rw->_chosen) { return; }
+		rw->_selected->undefined(false);
 		if (Fl::event_shift()) {
 			// Shift+left-click to flood fill
 			rw->flood_fill(pb, pb->hue(), rw->_chosen->hue());

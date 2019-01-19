@@ -96,12 +96,16 @@ void Tileset_Window::initialize() {
 	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_swatch1->shortcut('1');
 	_swatch1->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch1->hue(Hue::WHITE);
 	_swatch2->shortcut('2');
 	_swatch2->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch2->hue(Hue::LIGHT);
 	_swatch3->shortcut('3');
 	_swatch3->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch3->hue(Hue::DARK);
 	_swatch4->shortcut('4');
 	_swatch4->callback((Fl_Callback *)choose_swatch_cb, this);
+	_swatch4->hue(Hue::BLACK);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -130,8 +134,6 @@ void Tileset_Window::tileset(Tileset *t) {
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *t = _tileset->const_tile((uint8_t)i);
 		_deep_tile_buttons[i]->copy(t);
-	}
-	for (int i = 0x00; i < 0x100; i++) {
 		_deep_tile_buttons[i]->activate();
 	}
 }
@@ -152,10 +154,6 @@ void Tileset_Window::apply_modifications() {
 		const Tile *t = _deep_tile_buttons[i];
 		uint8_t id = (uint8_t)i;
 		_tileset->tile(id)->copy(t);
-		Tile *rt = _tileset->roof_tile(id);
-		if (rt) {
-			rt->update_lighting(_tileset->lighting());
-		}
 	}
 	_tileset->modified(true);
 }
@@ -175,10 +173,6 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 			pb->hue(h);
 		}
 	}
-	_swatch1->hue(Hue::WHITE);
-	_swatch2->hue(Hue::LIGHT);
-	_swatch3->hue(Hue::DARK);
-	_swatch4->hue(Hue::BLACK);
 }
 
 void Tileset_Window::choose(Swatch *swatch) {
