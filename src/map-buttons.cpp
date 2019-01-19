@@ -197,7 +197,7 @@ void Tile_Button::draw() {
 	Block_Window *bw = (Block_Window *)user_data();
 	const Tileset *tileset = bw->tileset();
 	const Tile *t = tileset->const_tile_or_roof(_id);
-	t->draw_attributable(this, x(), y(), true);
+	fl_draw_image(t->rgb(_palette), x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}

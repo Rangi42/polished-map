@@ -1,7 +1,3 @@
-#pragma warning(push, 0)
-#include <FL/fl_draw.H>
-#pragma warning(pop)
-
 #include "utils.h"
 #include "tile.h"
 
@@ -62,20 +58,6 @@ void Tile::copy(const Tile *t) {
 	}
 	memcpy(_monochrome_rgb, t->_monochrome_rgb, TILE_BYTES);
 	memcpy(_undefined_rgb, t->_undefined_rgb, TILE_BYTES);
-}
-
-void Tile::draw_attributable(const Attributable *a, int x, int y, bool zoom) const {
-	const uchar *buffer = rgb(a->palette());
-	int s = TILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
-	int k = zoom ? 1 : ZOOM_FACTOR;
-	int d = NUM_CHANNELS * k;
-	int ld = LINE_BYTES * k;
-	buffer += a->y_flip()
-		? a->x_flip() ? (LINE_PX * LINE_PX - k) * NUM_CHANNELS : LINE_BYTES * (LINE_PX - 1)
-		: a->x_flip() ? (LINE_PX - 1) * k * NUM_CHANNELS : 0;
-	int td = a->x_flip() ? -d : d;
-	int tld = a->y_flip() ? -ld : ld;
-	fl_draw_image(buffer, x, y, s, s, td, tld);
 }
 
 void Tile::update_lighting(Lighting l) {

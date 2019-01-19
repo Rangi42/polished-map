@@ -79,6 +79,9 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_p
 		fl_rectf(x, y, METATILE_SIZE * s, METATILE_SIZE * s);
 		return;
 	}
+	int k = zoom ? 1 : ZOOM_FACTOR;
+	int d = NUM_CHANNELS * k;
+	int ld = LINE_BYTES * k;
 	Metatile *mt = _metatiles[id];
 	for (int ty = 0; ty < METATILE_SIZE; ty++) {
 		int ay = y + ty * s;
@@ -86,7 +89,13 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_p
 			int ax = x + tx * s;
 			const Attributable *a = mt->attributes(tx, ty);
 			const Tile *t = _tileset.const_tile_or_roof(a->id());
-			t->draw_attributable(a, ax, ay, zoom);
+			const uchar *buffer = t->rgb(a->palette());
+			buffer += a->y_flip()
+				? a->x_flip() ? (LINE_PX * LINE_PX - k) * NUM_CHANNELS : LINE_BYTES * (LINE_PX - 1)
+				: a->x_flip() ? (LINE_PX - 1) * k * NUM_CHANNELS : 0;
+			int td = a->x_flip() ? -d : d;
+			int tld = a->y_flip() ? -ld : ld;
+			fl_draw_image(buffer, ax, ay, s, s, td, tld);
 			if (show_priority && a->priority()) {
 				(zoom ? large_priority_png : small_priority_png).draw(ax, ay, s, s);
 			}
