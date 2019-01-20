@@ -38,17 +38,15 @@ public:
 	inline void undefined(bool u) { _undefined = u; }
 	inline const uchar *rgb(Palette p) const { return _undefined ? _undefined_rgb : _rgb[p]; }
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
-	inline uchar *pixel(Palette p, int x, int y) { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }
-	inline const uchar *const_pixel(Palette p, int x, int y) const { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }
+	inline uchar *colored_pixel(Palette p, int x, int y) { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }
+	inline const uchar *const_colored_pixel(Palette p, int x, int y) const { return &_rgb[p][TILE_PIXEL_OFFSET(x, y)]; }
 	inline uchar *monochrome_pixel(int x, int y) { return _monochrome_rgb + TILE_PIXEL_OFFSET(x, y); }
 	inline const uchar *const_monochrome_pixel(int x, int y) const { return _monochrome_rgb + TILE_PIXEL_OFFSET(x, y); }
 	inline uchar *undefined_pixel(int x, int y) { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
 	inline const uchar *const_undefined_pixel(int x, int y) const { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
-	void pixel(Palette p, int x, int y, Hue h, uchar r, uchar g, uchar b);
-	void monochrome_pixel(int x, int y, Hue h);
-	void undefined_pixel(int x, int y, Hue h);
 	void clear(void);
 	void copy(const Tile *t);
+	void render_pixel(int x, int y, Lighting l, Hue h);
 	void update_lighting(Lighting l);
 };
 

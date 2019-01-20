@@ -120,7 +120,7 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 						int my = a->y_flip() ? TILE_SIZE - py - 1 : py;
 						for (int px = 0; px < TILE_SIZE; px++) {
 							int mx = a->x_flip() ? TILE_SIZE - px - 1 : px;
-							const uchar *rgb = t->const_pixel(a->palette(), mx, my);
+							const uchar *rgb = t->const_colored_pixel(a->palette(), mx, my);
 							size_t j = o + (py * bw + px) * NUM_CHANNELS;
 							buffer[j++] = rgb[0];
 							buffer[j++] = rgb[1];

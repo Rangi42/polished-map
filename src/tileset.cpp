@@ -72,11 +72,7 @@ void Tileset::read_tile(Tile *t, const Tiled_Image &ti, size_t i) {
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = ti.tile_hue(i, tx, ty);
-			for (int pi = 0; pi < NUM_PALETTES; pi++) {
-				Palette p = (Palette)pi;
-				const uchar *rgb = Color::color(_lighting, p, h);
-				t->pixel(p, tx, ty, h, rgb[0], rgb[1], rgb[2]);
-			}
+			t->render_pixel(tx, ty, _lighting, h);
 		}
 	}
 }

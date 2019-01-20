@@ -282,17 +282,6 @@ Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_B
 	when(FL_WHEN_RELEASE);
 }
 
-void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb, Lighting l) {
-	Hue h = pb->hue();
-	for (int pi = 0; pi < NUM_PALETTES; pi++) {
-		Palette p = (Palette)pi;
-		const uchar *rgb = Color::color(l, p, h);
-		pixel(p, pb->col(), pb->row(), h, rgb[0], rgb[1], rgb[2]);
-	}
-	monochrome_pixel(pb->col(), pb->row(), h);
-	undefined_pixel(pb->col(), pb->row(), h);
-}
-
 void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 	for (int i = 0; i < TILE_AREA; i++) {
 		copy_pixel(pbs[i], l);

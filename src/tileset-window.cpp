@@ -307,11 +307,7 @@ void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	Lighting l = tw->_tileset->lighting();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
-			for (int pi = 0; pi < NUM_PALETTES; pi++) {
-				Palette p = (Palette)pi;
-				const uchar *rgb = Color::color(l, p, Hue::WHITE);
-				tw->_selected->pixel(p, x, y, Hue::WHITE, rgb[0], rgb[1], rgb[2]);
-			}
+			tw->_selected->render_pixel(x, y, l, Hue::WHITE);
 		}
 	}
 	tw->select(tw->_selected);
