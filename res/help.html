@@ -1,32 +1,32 @@
 R"(<html>
 <head>
-<title>Polished Map Help</title>
+<title>)" PROGRAM_NAME R"( Help</title>
 </head>
 <body>
-<h1>Polished Map</h1>
-<p>Copyright © 2018 Rangi</p>
+<h1>)" PROGRAM_NAME R"(</h1>
+<p>Copyright © )" CURRENT_YEAR " " PROGRAM_AUTHOR R"(</p>
 <p>A map and tileset editor for <a href="https://github.com/Rangi42/polishedcrystal">Pokémon Polished Crystal</a>.</p>
 <p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and focused on graphics instead of script editing.</p>
 <p>Source code is available at <a href="https://github.com/Rangi42/polished-map">https://github.com/Rangi42/polished-map</a>.</p>
 <hr>
-<p>Polished Map displays and edits .blk map files. It supports all the standard ways to open a file:</p>
+<p>)" PROGRAM_NAME R"( displays and edits .blk map files. It supports all the standard ways to open a file:</p>
 <ul>
-<li><b>Initial:</b> Double-click a .blk file in File Explorer. (Run install.bat to associate .blk files with Polished Map.)</li>
-<li><b>Menu bar:</b> Run polishedmap.exe and select the File&nbsp;→&nbsp;Open… menu item.</li>
-<li><b>Toolbar:</b> Run polishedmap.exe and click the Open toolbar button.</li>
-<li><b>Keyboard:</b> Run polishedmap.exe and press Ctrl+O.</li>
-<li><b>File Explorer:</b> Drag a .blk file onto polishedmap.exe.</li>
-<li><b>GUI:</b> Drag a .blk file onto an open Polished Map window.</li>
-<li><b>Command Prompt:</b> Pass the .blk filename as an argument to polishedmap.exe:<br><font size="2"><kbd>polishedmap.exe&nbsp;C:\pokecrystal\maps\SomeMap.blk</kbd></font></li>
+<li><b>Initial:</b> Double-click a .blk file in File Explorer. (Run install.bat to associate .blk files with )" PROGRAM_NAME R"(.)</li>
+<li><b>Menu bar:</b> Run )" PROGRAM_EXE R"( and select the File&nbsp;→&nbsp;Open… menu item.</li>
+<li><b>Toolbar:</b> Run )" PROGRAM_EXE R"( and click the Open toolbar button.</li>
+<li><b>Keyboard:</b> Run )" PROGRAM_EXE R"( and press Ctrl+O.</li>
+<li><b>File Explorer:</b> Drag a .blk file onto )" PROGRAM_EXE R"(.</li>
+<li><b>GUI:</b> Drag a .blk file onto an open )" PROGRAM_NAME R"( window.</li>
+<li><b>Command Prompt:</b> Pass the .blk filename as an argument to )" PROGRAM_EXE R"(:<br><font size="2"><kbd>)" PROGRAM_EXE "&nbsp;pokecrystal" DIR_SEP "maps" DIR_SEP R"(SomeMap.blk</kbd></font></li>
 </ul>
 <p>You can include a map's size and tileset in its filename as <var>MapName</var>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var>.blk; for instance, NewBarkTown.10x9.blk, UnionCave1F.cave.blk, or House1.4x4.house.blk.</p>
-<p>Otherwise Polished Map will try to guess a map's size and tileset from the assembly code. This can fail if the map and tileset filenames do not exactly correspond to their constants in the code. Then you'll just have to enter the size and tileset yourself.</p>
+<p>Otherwise )" PROGRAM_NAME R"( will try to guess a map's size and tileset from the assembly code. This can fail if the map and tileset filenames do not exactly correspond to their constants in the code. Then you'll just have to enter the size and tileset yourself.</p>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
 <li><b>Monochrome:</b> Tileset palettes will not be read or written. This option is necessary for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
 <li><b>256 Tiles:</b> Allow all 256 tile IDs from $00 to $FF. <a href="https://github.com/pret/pokecrystal">pokecrystal</a>'s tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF, with $E0 to $FF unused. This option is necessary for projects that support larger tilesets, such as Polished Crystal and Orange.</li>
-<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps\IcePath1F.blk with the tileset gfx\tilesets\ice_path.png and the landmark in data\maps\maps.asm for IcePath is ICE_PATH, then this option will automatically load maps\IcePath1F.pal (corresponding to the map), or else maps\ice_path.pal (the landmark), or else gfx\tilesets\ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
-<li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants\map_constants.asm and the roof palettes are defined in gfx\tilesets\roofs.pal (or tilesets\roof.pal for backwards compatibility with older pokecrystal versions). You can also use File&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
+<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.blk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else maps" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
+<li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use File&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
@@ -77,8 +77,8 @@ R"(<html>
 <p>When you open a map the roof selection always defaults to none, even if the map uses a roof. This is because pokecrystal only loads roofs for certain tilesets, which are <a href="https://github.com/pret/pokecrystal/wiki/Hard-coded-logic#tilesets-that-have-per-mapgroup-roofs">hard-coded</a> instead of being defined in a data table. This makes it impractical to automatically detect a map's roof type, so you'll have to manually specify it.</p>
 <p>The roof editor window is similar to the tileset editor. However, it does not support Delete.</p>
 <hr>
-<p>The colors' exact appearance depends on the current lighting: MORN, DAY, NITE, INDOOR, or CUSTOM. The default set of lighting colors is based on pokecrystal, but custom ones will be read from gfx\tilesets\bg_tiles.pal (or tilesets\bg.pal for backwards compatibility with older pokecrystal versions) if it exists.</p>
-<p>When a map <var>MapName</var>.blk is opened with the tileset <var>tileset</var>.png, Polished Map will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Lighting.</p>
+<p>The colors' exact appearance depends on the current lighting: MORN, DAY, NITE, INDOOR, or CUSTOM. The default set of lighting colors is based on pokecrystal, but custom ones will be read from gfx)" DIR_SEP "tilesets" DIR_SEP "bg_tiles.pal (or tilesets" DIR_SEP R"(bg.pal for backwards compatibility with older pokecrystal versions) if it exists.</p>
+<p>When a map <var>MapName</var>.blk is opened with the tileset <var>tileset</var>.png, )" PROGRAM_NAME R"( will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Lighting.</p>
 <p>In the lighting editor, Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
 <p>Edited lighting colors can be exported, but only one at a time; so if you load a multi-lighting .pal file (like bg_tiles.pal, which defines MORN, DAY, NITE, and INDOOR lighting colors), do not overwrite it when exporting your edits.</p>
 </body>

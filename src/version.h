@@ -8,6 +8,12 @@
 #define PROGRAM_VERSION_STRING "3.5.2"
 #endif
 
+#ifdef _WIN32
+#define PROGRAM_EXE "polishedmap.exe"
+#else
+#define PROGRAM_EXE "polishedmap"
+#endif
+
 #define PROGRAM_NAME "Polished Map"
 
 #define PROGRAM_AUTHOR "Rangi"
