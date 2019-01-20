@@ -29,6 +29,7 @@ mkdir "%INSTALLDIR%" >nul 2>&1
 copy /b /y %SOURCEFILE% "%INSTALLPATH%" >nul
 
 reg add "HKCR\.blk" /ve /f /d "Polished Map++" >nul
+reg add "HKCR\.ablk" /ve /f /d "Polished Map++" >nul
 reg add "HKCR\Polished Map++" /ve /f /d "BLK Map File" >nul
 rem reg add "HKCR\Polished Map\DefaultIcon" /ve /f /d "%%SystemRoot%%\system32\imageres.dll,127" >nul
 reg add "HKCR\Polished Map++\shell\open\command" /ve /f /d "\"%INSTALLPATH%\" \"%%1\"" >nul

@@ -147,7 +147,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	if (!filename) { return false; }
 
 	std::cmatch cm;
-	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.[A-Za-z0-9_-]+)?\\.[Bb][Ll][Kk]");
+	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.[A-Za-z0-9_-]+)?\\.[Aa]?[Bb][Ll][Kk]");
 	std::regex_match(filename, cm, rx);
 	size_t n = cm.size();
 	if (n == 3) {
@@ -215,7 +215,7 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 	if (!filename) { return ""; }
 
 	std::cmatch cm;
-	std::regex rx(".+\\.([A-Za-z0-9_-]+)\\.[Bb][Ll][Kk]");
+	std::regex rx(".+\\.([A-Za-z0-9_-]+)\\.[Aa]?[Bb][Ll][Kk]");
 	std::regex_match(filename, cm, rx);
 	size_t n = cm.size();
 	if (n == 2) {

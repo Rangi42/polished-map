@@ -116,9 +116,9 @@ const char *Map::error_message(Result result) {
 	case MAP_TOO_SHORT:
 		return "File ends too early.";
 	case MAP_TOO_LONG:
-		return "The .blk file is larger than the specified size.";
+		return "The .ablk/.blk file is larger than the specified size.";
 	case MAP_NULL:
-		return "No *.blk file chosen.";
+		return "No .ablk/.blk file chosen.";
 	default:
 		return "Unspecified error.";
 	}

@@ -485,11 +485,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_dir_chooser->title("Choose Project Directory");
 
 	_blk_open_chooser->title("Open Map");
-	_blk_open_chooser->filter("BLK Files\t*.blk\n");
+	_blk_open_chooser->filter("BLK Files\t*.{ablk,blk}\n");
 
 	_blk_save_chooser->title("Save Map");
-	_blk_save_chooser->filter("BLK Files\t*.blk\n");
-	_blk_save_chooser->preset_file("NewMap.blk");
+	_blk_save_chooser->filter("BLK Files\t*.{ablk,blk}\n");
+	_blk_save_chooser->preset_file("NewMap.ablk");
 
 	_pal_load_chooser->title("Open Lighting");
 	_pal_load_chooser->filter("PAL Files\t*.pal\n");
@@ -979,10 +979,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	copy_label(buffer);
-	if (ends_with(basename, ".blk")) {
+	if (ends_with(basename, ".ablk") || ends_with(basename, ".blk")) {
 		sprintf(buffer, "%s", basename);
 		size_t n = strlen(buffer);
-		buffer[n-4] = '\0';
+		buffer[n - (buffer[n-4] == 'a' ? 5 : 4)] = '\0';
 		strcat(buffer, ".png");
 	}
 	else {
