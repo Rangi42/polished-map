@@ -36,7 +36,7 @@ sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
 
 # Clone Polished Map++
-git clone --single-branch --branch plusplus https://github.com/Rangi42/polished-map.git
+git clone --branch plusplus https://github.com/Rangi42/polished-map.git
 cd polished-map
 
 # Build FLTK 1.3.4 with the latest ABI enabled
