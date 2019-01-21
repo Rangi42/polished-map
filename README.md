@@ -1,10 +1,10 @@
 # Polished Map
 
-A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal), [pokered](https://github.com/pret/pokered), and hacks including [Polished Crystal](https://github.com/Rangi42/polishedcrystal), [Orange](https://github.com/PiaCarrot/pokeorange), [Red++](https://github.com/TheFakeMateo/RedPlusPlus/), [Prism](https://www.reddit.com/r/PokemonPrism/), and [Axyllia](http://pokemonfractal.wikia.com/wiki/Axyllia).
+A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal), [pokered](https://github.com/pret/pokered), and hacks including [Polished Crystal](https://github.com/Rangi42/polishedcrystal), [Orange](https://github.com/PiaCarrot/pokeorange), [Red++](https://github.com/TheFakeMateo/rpp-backup/), [Prism](https://www.reddit.com/r/PokemonPrism/), and [Axyllia](http://pokemonfractal.wikia.com/wiki/Axyllia).
 
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and focused on graphics instead of script editing.
 
-Latest release: [**3.5.2**](https://github.com/Rangi42/polished-map/releases/tag/v3.5.2)
+Latest release: [**3.5.3**](https://github.com/Rangi42/polished-map/releases/tag/v3.5.3)
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
 
