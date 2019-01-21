@@ -1,6 +1,6 @@
 #include "attributable.h"
 
-Attributable::Attributable(uint8_t id) : _id(id), _palette(), _x_flip(), _y_flip(), _priority() {}
+Attributable::Attributable(uint8_t id) : _id(id), _palette(), _extra(), _x_flip(), _y_flip(), _priority() {}
 
 uchar Attributable::byte() const {
 	uchar a = (uchar)_palette & PALETTE_MASK;
@@ -21,11 +21,12 @@ void Attributable::byte(uchar a) {
 void Attributable::clear() {
 	_id = 0x00;
 	_palette = Palette::GRAY;
-	_x_flip = _y_flip = _priority = false;
+	_extra = _x_flip = _y_flip = _priority = false;
 }
 
 void Attributable::copy(const Attributable &a) {
 	_id = a._id;
+	_extra = a._extra;
 	_palette = a._palette;
 	_x_flip = a._x_flip;
 	_y_flip = a._y_flip;

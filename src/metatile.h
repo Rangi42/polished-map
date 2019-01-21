@@ -28,6 +28,8 @@ public:
 	inline void id(uint8_t id) { _id = id; }
 	inline uint8_t tile_id(int x, int y) const { return _attributes[y][x].id(); }
 	inline void tile_id(int x, int y, uint8_t tid) { _attributes[y][x].id(tid); }
+	inline bool extra(int x, int y) const { return _attributes[y][x].extra(); }
+	inline void extra(int x, int y, bool e) { _attributes[y][x].extra(e); }
 	inline const Attributable *attributes(int x, int y) const { return &_attributes[y][x]; }
 	inline void attributes(int x, int y, const Attributable *a) { _attributes[y][x].copy(*a); }
 	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].byte(); }

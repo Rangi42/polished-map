@@ -6,8 +6,8 @@
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
 	_collision_heading(NULL), _tileset_group(NULL), _current_group(NULL), _metatile_group(NULL), _tile_buttons(),
-	_selected(NULL), _chips(), _current(NULL), _x_flip(NULL), _y_flip(NULL), _priority(NULL), _collision_inputs(),
-	_bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_selected(NULL), _chips(), _current(NULL), _x_flip(NULL), _y_flip(NULL), _extra(NULL), _priority(NULL),
+	_collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
@@ -21,6 +21,7 @@ Block_Window::~Block_Window() {
 	delete _metatile_group;
 	delete _x_flip;
 	delete _y_flip;
+	delete _extra;
 	delete _priority;
 	delete _cancel_button;
 	delete _ok_button;
@@ -50,9 +51,10 @@ void Block_Window::initialize() {
 	_window->begin();
 	int off = text_width("Color:", 3);
 	_palette = new Dropdown(278+off, 176, 174-off, 22, "Color:");
-	off = text_width("X flip", 3);
+	off = MAX(text_width("X flip", 3), text_width("Y flip", 3));
 	_x_flip = new OS_Check_Button(278, 202, 22+off, 22, "X flip");
 	_y_flip = new OS_Check_Button(304+off, 202, 22+off, 22, "Y flip");
+	_extra = new OS_Check_Button(330+off*2, 202, 122-off*2, 22, "\xe2\x98\x85"); // U+2605 BLACK STAR
 	_priority = new OS_Check_Button(278, 228, 174, 22, "Priority (above sprites)");
 	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(298, 279, 154, 22);
 	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(298, 305, 154, 22);
@@ -112,6 +114,7 @@ void Block_Window::initialize() {
 	_priority->callback((Fl_Callback *)change_attributes_cb, this);
 	_x_flip->callback((Fl_Callback *)change_attributes_cb, this);
 	_y_flip->callback((Fl_Callback *)change_attributes_cb, this);
+	_extra->callback((Fl_Callback *)change_attributes_cb, this);
 	_collision_inputs[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
 	_collision_inputs[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
 	_collision_inputs[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
@@ -219,6 +222,7 @@ void Block_Window::select(const Attributable *a) {
 	_palette->value(a->palette());
 	_x_flip->value(a->x_flip());
 	_y_flip->value(a->y_flip());
+	_extra->value(a->extra());
 	_priority->value(a->priority());
 	_palette->do_callback();
 }
@@ -273,6 +277,7 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 					chip->priority(!!bw->_priority->value());
 					chip->x_flip(!!bw->_x_flip->value());
 					chip->y_flip(!!bw->_y_flip->value());
+					chip->extra(!!bw->_extra->value());
 					chip->damage(1);
 				}
 			}
@@ -291,12 +296,14 @@ void Block_Window::change_attributes_cb(Fl_Widget *, Block_Window *bw) {
 		tb->palette((Palette)bw->_palette->value());
 		tb->x_flip(!!bw->_x_flip->value());
 		tb->y_flip(!!bw->_y_flip->value());
+		tb->extra(!!bw->_extra->value());
 		tb->priority(!!bw->_priority->value());
 		tb->damage(1);
 	}
 	bw->_current->palette((Palette)bw->_palette->value());
 	bw->_current->x_flip(!!bw->_x_flip->value());
 	bw->_current->y_flip(!!bw->_y_flip->value());
+	bw->_current->extra(!!bw->_extra->value());
 	bw->_current->priority(!!bw->_priority->value());
 	bw->_current->damage(1);
 }

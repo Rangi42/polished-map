@@ -236,6 +236,10 @@ void Chip::draw() {
 	if (_priority) {
 		chip_priority_png.draw(x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE);
 	}
+	if (_extra) {
+		fl_rect(x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE, FL_CYAN);
+		fl_rect(x()+1, y()+1, CHIP_PX_SIZE-2, CHIP_PX_SIZE-2, FL_CYAN);
+	}
 	if (active() && Fl::belowmouse() == this) {
 		draw_selection_border(x(), y(), CHIP_PX_SIZE, false);
 	}
