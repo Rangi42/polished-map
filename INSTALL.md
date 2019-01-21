@@ -2,18 +2,18 @@
 
 ## Windows
 
-**To install Polished Map:**
+**To install Polished Map++:**
 
-1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
-2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
+1. Download **install.bat** and **polishedmap-plusplus.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
+2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map++ to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
-4. Double-click **Polished Map** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ 2013 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=40784).
+4. Double-click **Polished Map++** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ 2013 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=40784).
 
-If you have Microsoft Visual Studio, you can build Polished Map yourself:
+If you have Microsoft Visual Studio, you can build Polished Map++ yourself:
 
-1. On GitHub, click the green "**Clone or download**" button and click "**Download ZIP**". This will download **polished-map-master.zip**.
-2. Unzip polished-map-master.zip. This will create the **polished-map-master** folder.
-3. Navigate to the polished-map-master folder in Explorer.
+1. Download the **Source code (zip)** from [the latest release](https://github.com/Rangi42/polished-map/releases). This will download **polished-map-*[version]*.zip**.
+2. Unzip polished-map-*[version]*.zip. This will create the **polished-map-*[version]*** folder.
+3. Navigate to the polished-map-*[version]* folder in Explorer.
 4. Unzip lib/fltk-1.3.4.zip. This will create the lib/**fltk-1.3.4** folder.
 5. Open lib/fltk-1.3.4/ide/VisualC2010/fltk.sln in Visual Studio 2013. (Other versions may or may not work, I haven't tried.)
 6. A dialog "Upgrade VS++ Compiler and Libraries" will open, since fltk.sln was made for Visual Studio 2008. Click OK.
@@ -21,8 +21,8 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 8. Move the .lib files from lib/fltk-1.3.4/lib to lib.
 9. Open ide/polished-map.sln in Visual Studio 2013.
 10. If the Solution Configuration dropdown on the toolbar says Debug, set it to **Release**.
-11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polishedmap.exe**.
-12. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
+11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polishedmap-plusplus.exe**.
+12. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map++ to your account and create a shortcut on your Desktop.
 
 
 ## Linux
@@ -35,8 +35,8 @@ Run the following commands:
 sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
 
-# Clone Polished Map
-git clone https://github.com/Rangi42/polished-map.git
+# Clone Polished Map++
+git clone --single-branch --branch plusplus https://github.com/Rangi42/polished-map.git
 cd polished-map
 
 # Build FLTK 1.3.4 with the latest ABI enabled
@@ -50,13 +50,13 @@ make
 make install
 popd
 
-# Build Polished Map
+# Build Polished Map++
 # ("export PATH" is needed if fltk-config is not already in your PATH)
 export PATH="$PWD/lib/bin:$PATH"
 make
 
-# Install Polished Map
-# (tested on Ubuntu and Ubuntu derivatives only; it just copies bin/polishedmap
-#  and res/app.xpm to system directories)
+# Install Polished Map++
+# (tested on Ubuntu and Ubuntu derivatives only; it just copies
+#  bin/polishedmap-plusplus and res/app.xpm to system directories)
 sudo make install
 ```

@@ -5,27 +5,32 @@ R"(<html>
 <body>
 <h1>)" PROGRAM_NAME R"(</h1>
 <p>Copyright © )" CURRENT_YEAR " " PROGRAM_AUTHOR R"(</p>
-<p>A map and tileset editor for <a href="https://github.com/Rangi42/polishedcrystal">Pokémon Polished Crystal</a>.</p>
+<p>A map and tileset editor for <a href="https://github.com/TheFakeMateo/RedPlusPlus">Pokémon Red++</a>.</p>
 <p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and focused on graphics instead of script editing.</p>
-<p>Source code is available at <a href="https://github.com/Rangi42/polished-map">https://github.com/Rangi42/polished-map</a>.</p>
+<p>Source code is available at <a href="https://github.com/Rangi42/polished-map/tree/plusplus">https://github.com/Rangi42/polished-map/tree/plusplus</a>.</p>
 <hr>
-<p>)" PROGRAM_NAME R"( displays and edits .blk map files. It supports all the standard ways to open a file:</p>
+<p>)" PROGRAM_NAME R"( assumes that you have applied two major edits to a <a href="https://github.com/pret/pokecrystal">pokecrystal</a> project:</p>
 <ul>
-<li><b>Initial:</b> Double-click a .blk file in File Explorer. (Run install.bat to associate .blk files with )" PROGRAM_NAME R"(.)</li>
+<li><a href="https://github.com/pret/pokecrystal/wiki/Expand-tilesets-from-192-to-255-tiles">Expand tilesets from 192 to 255 tiles</a>: By default you cannot use tiles $60 to $7F or $E0 to $FF, since they are reserved for text character tiles.</li>
+<li><a href="https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-(including-X-and-Y-flip)" ")" R"(">Allow tiles to have different attributes in different blocks (including X and Y flip)</a>: By default colors are assigned to each tile with a palette_map.asm file, and will be the same for that tile in every block; and the X flip, Y flip, and priority attributes are not available.</li>
+</ul>
+<p>These two edits take more advantage of the Game Boy Color's hardware capabilities, and let you create more detailed maps than with standard pokecrystal. Projects including <a href="https://github.com/TheFakeMateo/RedPlusPlus">Red++</a> and <a href="https://github.com/pkmncoraldev/pokecoral">Coral</a> use these features.</p>
+<hr>
+<p>)" PROGRAM_NAME R"( displays and edits .ablk map files. (The extension has been renamed from .blk so that you can use it side-by-side with standard pokecrystal projects.) It supports all the standard ways to open a file:</p>
+<ul>
+<li><b>Initial:</b> Double-click an .ablk file in File Explorer. (Run install.bat to associate .ablk files with )" PROGRAM_NAME R"(.)</li>
 <li><b>Menu bar:</b> Run )" PROGRAM_EXE R"( and select the File&nbsp;→&nbsp;Open… menu item.</li>
 <li><b>Toolbar:</b> Run )" PROGRAM_EXE R"( and click the Open toolbar button.</li>
 <li><b>Keyboard:</b> Run )" PROGRAM_EXE R"( and press Ctrl+O.</li>
-<li><b>File Explorer:</b> Drag a .blk file onto )" PROGRAM_EXE R"(.</li>
-<li><b>GUI:</b> Drag a .blk file onto an open )" PROGRAM_NAME R"( window.</li>
-<li><b>Command Prompt:</b> Pass the .blk filename as an argument to )" PROGRAM_EXE R"(:<br><font size="2"><kbd>)" PROGRAM_EXE "&nbsp;pokecrystal" DIR_SEP "maps" DIR_SEP R"(SomeMap.blk</kbd></font></li>
+<li><b>File Explorer:</b> Drag an .ablk file onto )" PROGRAM_EXE R"(.</li>
+<li><b>GUI:</b> Drag an .ablk file onto an open )" PROGRAM_NAME R"( window.</li>
+<li><b>Command Prompt:</b> Pass the .ablk filename as an argument to )" PROGRAM_EXE R"(:<br><font size="2"><kbd>)" PROGRAM_EXE "&nbsp;pokecrystal" DIR_SEP "maps" DIR_SEP R"(SomeMap.ablk</kbd></font></li>
 </ul>
-<p>You can include a map's size and tileset in its filename as <var>MapName</var>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var>.blk; for instance, NewBarkTown.10x9.blk, UnionCave1F.cave.blk, or House1.4x4.house.blk.</p>
+<p>You can include a map's size and tileset in its filename as <var>MapName</var>.<var>WIDTH</var>x<var>HEIGHT</var>.<var>TILESET</var>.ablk; for instance, NewBarkTown.10x9.ablk, UnionCave1F.cave.ablk, or House1.4x4.house.ablk.</p>
 <p>Otherwise )" PROGRAM_NAME R"( will try to guess a map's size and tileset from the assembly code. This can fail if the map and tileset filenames do not exactly correspond to their constants in the code. Then you'll just have to enter the size and tileset yourself.</p>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
-<li><b>Monochrome:</b> Tileset palettes will not be read or written. This option is necessary for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
-<li><b>256 Tiles:</b> Allow all 256 tile IDs from $00 to $FF. <a href="https://github.com/pret/pokecrystal">pokecrystal</a>'s tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF, with $E0 to $FF unused. This option is necessary for projects that support larger tilesets, such as Polished Crystal and Orange.</li>
-<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.blk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else maps" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
+<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.ablk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else maps" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
 <li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use File&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
 </ul>
 <hr>
@@ -59,7 +64,14 @@ R"(<html>
 <li>Hold Ctrl and left-click to place four tiles at once: a contiguous 2x2 group, with the selected tile as the top-left.</li>
 <li>Hold Ctrl+Shift and left-click to place sixteen tiles at once: a contiguous 4x4 group, with the selected tile as the top-left.</li>
 </ul>
-<p>For pokecrystal-based projects, you can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
+<p>When you place tiles, they use the currently selected attributes. The attributes are:</p>
+<ul>
+<li><b>X flip:</b> Flip the tile horizontally.</li>
+<li><b>Y flip:</b> Flip the tile vertically.</li>
+<li><b>Priority:</b> Display the tile above sprites, including NPCs and the player. (The lightest hue will be transparent to sprites.)</li>
+<li><b>Color:</b> The tile's color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles.</li>
+</ul>
+<p>You can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
 <hr>
 <p>The tileset editor window has more mouse controls, similar to the map editor:</p>
 <ul>
@@ -70,15 +82,14 @@ R"(<html>
 <li>Hold Shift and left-click a group of pixels to flood-fill it.</li>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
 </ul>
-<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar palette. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
-<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">a feature</a> of Polished Crystal and similar hacks.</p>
+<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar palette. Delete will clear a tile's graphics.</p>
 <hr>
 <p>Tilesets can be augmented by roofs. A roof is assumed to take up the nine tiles from $0A to $12. When a roof is loaded, it visibly affects the map and the block editor, but not the tileset editor. Thus you can edit the tileset without the loaded roof overwriting those nine tiles.</p>
 <p>When you open a map the roof selection always defaults to none, even if the map uses a roof. This is because pokecrystal only loads roofs for certain tilesets, which are <a href="https://github.com/pret/pokecrystal/wiki/Hard-coded-logic#tilesets-that-have-per-mapgroup-roofs">hard-coded</a> instead of being defined in a data table. This makes it impractical to automatically detect a map's roof type, so you'll have to manually specify it.</p>
 <p>The roof editor window is similar to the tileset editor. However, it does not support Delete.</p>
 <hr>
 <p>The colors' exact appearance depends on the current lighting: MORN, DAY, NITE, INDOOR, or CUSTOM. The default set of lighting colors is based on pokecrystal, but custom ones will be read from gfx)" DIR_SEP "tilesets" DIR_SEP "bg_tiles.pal (or tilesets" DIR_SEP R"(bg.pal for backwards compatibility with older pokecrystal versions) if it exists.</p>
-<p>When a map <var>MapName</var>.blk is opened with the tileset <var>tileset</var>.png, )" PROGRAM_NAME R"( will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Lighting.</p>
+<p>When a map <var>MapName</var>.ablk is opened with the tileset <var>tileset</var>.png, )" PROGRAM_NAME R"( will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Lighting.</p>
 <p>In the lighting editor, Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
 <p>Edited lighting colors can be exported, but only one at a time; so if you load a multi-lighting .pal file (like bg_tiles.pal, which defines MORN, DAY, NITE, and INDOOR lighting colors), do not overwrite it when exporting your edits.</p>
 </body>

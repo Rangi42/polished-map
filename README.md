@@ -1,12 +1,12 @@
 # Polished Map++
 
-A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal) hacks that allow [per-block attributes](https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-\(including-X-and-Y-flip\)), such as [Red++](https://github.com/TheFakeMateo/RedPlusPlus/) and [Coral](https://github.com/pkmncoraldev/pokecoral/).
+A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal) hacks that allow [256 tiles](https://github.com/pret/pokecrystal/wiki/Expand-tilesets-from-192-to-255-tiles) and [per-block attributes](https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-\(including-X-and-Y-flip\)), such as [Red++](https://github.com/TheFakeMateo/RedPlusPlus/) and [Coral](https://github.com/pkmncoraldev/pokecoral/).
 
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and focused on graphics instead of script editing.
 
-Latest release: [**3.5.2**](https://github.com/Rangi42/polished-map/releases/tag/v3.5.2)
+Latest release: [**1.0.0**](https://github.com/Rangi42/polished-map/releases/tag/v1.0.0++)
 
-Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
+Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map++, or the longer instructions to build it yourself from source.
 
 The [example/](example/) directory contains a minimal pokecrystal project with two test maps. **Kanto.180x135.kanto.blk** is a stitch of every Kanto overworld map (they all use the "kanto" tileset). **Johto.235x135.johto.blk** is a stitch of every Johto overworld map; Goldenrod and Azalea use the johto_modern tileset, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
 
