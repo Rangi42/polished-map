@@ -8,7 +8,7 @@ Latest release: [**1.0.0**](https://github.com/Rangi42/polished-map/releases/tag
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map++, or the longer instructions to build it yourself from source.
 
-The [example/](example/) directory contains a minimal pokecrystal project with two test maps. **Kanto.180x135.kanto.blk** is a stitch of every Kanto overworld map (they all use the "kanto" tileset). **Johto.235x135.johto.blk** is a stitch of every Johto overworld map; Goldenrod and Azalea use the johto_modern tileset, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
+The [example/](example/) directory contains a minimal pokecrystal project with two test maps. **Kanto.180x135.kanto.ablk** is a stitch of every Kanto overworld map (they all use the "kanto" tileset). **Johto.235x135.johto.ablk** is a stitch of every Johto overworld map; Goldenrod and Azalea use the johto_modern tileset, so try switching tilesets with **Edit→Change Tileset…** or by pressing Ctrl+H.
 
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/). If you have questions or comments, please go there.
 
