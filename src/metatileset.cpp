@@ -173,7 +173,7 @@ bool Metatileset::write_metatiles(const char *f) {
 		Metatile *mt = _metatiles[i];
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
-				uint8_t id = mt->tile_id(x, y) + (mt->extra(x, y) ? 0x80 : 0);
+				uint8_t id = (mt->tile_id(x, y) & 0x7f) | (mt->extra(x, y) ? 0x80 : 0);
 				fputc(id, file);
 			}
 		}
