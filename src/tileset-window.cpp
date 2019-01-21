@@ -304,6 +304,7 @@ void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 
 void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_selected) { return; }
+	tw->_selected->undefined(true);
 	Lighting l = tw->_tileset->lighting();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {

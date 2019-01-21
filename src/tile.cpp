@@ -27,11 +27,7 @@ static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 void Tile::clear() {
 	_undefined = true;
 	FILL(_hues, Hue::WHITE, TILE_AREA);
-	for (int i = 0; i < NUM_PALETTES; i++) {
-		FILL(_rgb[i], 0xff, TILE_BYTES);
-	}
-	FILL(_monochrome_rgb, 0xff, TILE_BYTES);
-	FILL(_undefined_rgb, 0xff, TILE_BYTES);
+	update_lighting(Lighting::DAY);
 }
 
 void Tile::copy(const Tile *t) {
