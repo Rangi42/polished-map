@@ -50,29 +50,3 @@ bool file_exists(const char *f) {
 	return !access(f, 4);
 #endif
 }
-
-bool dir_name(const char *f, char *d) {
-#ifdef _WIN32
-	char e[FL_PATH_MAX] = {};
-	if (_splitpath_s(f, d, FL_PATH_MAX, e, FL_PATH_MAX, NULL, 0, NULL, 0)) {
-		return false;
-	}
-	strcat(d, e);
-#else
-	char *f2 = strdup(f);
-	strcpy(d, dirname(f2));
-	free(f2);
-	strcat(d, DIR_SEP);
-#endif
-	return true;
-}
-
-bool normalize_path(const char *f, char *d) {
-#ifdef _WIN32
-	DWORD r = GetFullPathNameA(f, MAX_PATH, d, NULL);
-#else
-	char *r = realpath(f, d);
-	strcat(d, DIR_SEP);
-#endif
-	return !!r;
-}
