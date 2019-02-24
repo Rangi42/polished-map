@@ -35,24 +35,27 @@ const char *Config::palette_macro() {
 }
 
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
+	char *c;
+
 	char scratch_path[FL_PATH_MAX] = {};
-	if (!dir_name(blk_path, scratch_path)) {
-		return false;
-	}
-	int depth = -1;
-	for (char *c = scratch_path; *c; c++) {
-		depth += *c == '/' || *c == '\\';
-	}
+	fl_filename_absolute(scratch_path, blk_path);
+
 	char main_asm[FL_PATH_MAX] = {};
-	for (int i = 0; i < depth; i++) {
+	for (;;) {
+		if (!(c = strrchr(scratch_path, DIR_SEP_CHR))) return false;
+		*c = '\0';
+
+		// Make sure there's enough room for "/main.asm\0"
+		if (c - scratch_path + 10 > FL_PATH_MAX) return false;
+
 		strcpy(main_asm, scratch_path);
-		strcat(main_asm, "main.asm");
-		if (file_exists(main_asm)) { // the project directory contains main.asm
-			return normalize_path(scratch_path, project_path);
+		strcat(main_asm, DIR_SEP "main.asm");
+		if (file_exists(main_asm)) {
+			strcat(scratch_path, DIR_SEP);
+			strcpy(project_path, scratch_path);
+			return true;
 		}
-		strcat(scratch_path, ".." DIR_SEP); // go up a level
 	}
-	return false;
 }
 
 void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
