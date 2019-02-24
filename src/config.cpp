@@ -21,22 +21,18 @@ const char *Config::palette_macro() {
 }
 
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
-	char *c;
-
 	char scratch_path[FL_PATH_MAX] = {};
 	fl_filename_absolute(scratch_path, blk_path);
-
 	char main_asm[FL_PATH_MAX] = {};
 	for (;;) {
-		if (!(c = strrchr(scratch_path, DIR_SEP_CHR))) return false;
-		*c = '\0';
-
+		char *pivot = strrchr(scratch_path, *DIR_SEP);
+		if (!pivot) { return false; }
+		*pivot = '\0';
 		// Make sure there's enough room for "/main.asm\0"
-		if (c - scratch_path + 10 > FL_PATH_MAX) return false;
-
+		if (pivot - scratch_path + 10 > FL_PATH_MAX) { return false; }
 		strcpy(main_asm, scratch_path);
 		strcat(main_asm, DIR_SEP "main.asm");
-		if (file_exists(main_asm)) {
+		if (file_exists(main_asm)) { // the project directory contains main.asm
 			strcat(scratch_path, DIR_SEP);
 			strcpy(project_path, scratch_path);
 			return true;

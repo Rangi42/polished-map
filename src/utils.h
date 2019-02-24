@@ -40,10 +40,8 @@
 
 #ifdef _WIN32
 #define DIR_SEP "\\"
-#define DIR_SEP_CHR '\\'
 #else
 #define DIR_SEP "/"
-#define DIR_SEP_CHR '/'
 #endif
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
