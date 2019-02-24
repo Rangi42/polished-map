@@ -2,7 +2,6 @@
 
 ## Bug Fixes
 
-* Relative paths don't work on the Linux command line (issue [#17](https://github.com/Rangi42/polished-map/issues/17))
 * Resizing window resets sidebar width to original zoom size (sometimes)
 * Ctrl+C/V/X when editing lighting interferes with regular cut/copy/paste somehow (worked around for now)
 
