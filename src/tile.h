@@ -14,8 +14,14 @@
 #define TILE_SIZE 8
 #define ZOOM_FACTOR 2
 
+#define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
+
 #define LINE_PX (TILE_SIZE * ZOOM_FACTOR)
 #define LINE_BYTES (LINE_PX * NUM_CHANNELS)
+
+#define CHIP_ZOOM_FACTOR 3
+#define CHIP_PX_SIZE (TILE_SIZE * CHIP_ZOOM_FACTOR)
+#define CHIP_LINE_BYTES (CHIP_PX_SIZE * NUM_CHANNELS)
 
 class Tile {
 protected:
@@ -29,6 +35,7 @@ public:
 	inline void id(uint8_t id) { _id = id; }
 	inline Palette palette(void) const { return _palette; }
 	inline void palette(Palette p) { _palette = p; }
+	inline bool priority(void) const { return _palette >= PRIORITY_GRAY; }
 	inline const uchar *rgb(void) const { return _rgb; }
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
@@ -37,6 +44,7 @@ public:
 	void clear(void);
 	void copy(const Tile *t);
 	void update_lighting(Lighting l);
+	void draw_with_priority(int x, int y, int s, bool show_priority) const;
 };
 
 #endif

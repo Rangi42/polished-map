@@ -33,7 +33,7 @@ public:
 	inline bool bin_collisions(void) const { return _bin_collisions; }
 	inline void bin_collisions(bool b) { _bin_collisions = b; }
 	void clear(void);
-	void draw_metatile(int x, int y, uint8_t id, bool z) const;
+	void draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const;
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
 	bool write_metatiles(const char *f);

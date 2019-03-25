@@ -24,10 +24,10 @@ int Tile_Window::handle(int event) {
 	return Fl_Double_Window::handle(event);
 }
 
-Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
-	_tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
-	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
+Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _show_priority(false),
+	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL),
+	_deep_tile_buttons(), _selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL),
+	_chosen(NULL), _palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
 
 Tileset_Window::~Tileset_Window() {
 	delete _window;
@@ -175,15 +175,21 @@ void Tileset_Window::tileset(Tileset *t) {
 	}
 }
 
-void Tileset_Window::show(const Fl_Widget *p) {
+void Tileset_Window::show(const Fl_Widget *p, bool show_priority) {
 	initialize();
 	refresh();
+	_show_priority = show_priority;
 	int x = p->x() + (p->w() - _window->w()) / 2;
 	int y = p->y() + (p->h() - _window->h()) / 2;
 	_window->position(x, y);
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+}
+
+void Tileset_Window::draw_tile(int x, int y, uint8_t id) const {
+	const Tile *t = _tileset->const_tile(id);
+	t->draw_with_priority(x, y, TILE_PX_SIZE, _show_priority);
 }
 
 void Tileset_Window::apply_modifications() {

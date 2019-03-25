@@ -204,6 +204,8 @@
     <None Include="..\res\open.xpm" />
     <None Include="..\res\print-disabled.xpm" />
     <None Include="..\res\print.xpm" />
+    <None Include="..\res\priority-disabled.xpm" />
+    <None Include="..\res\priority.xpm" />
     <None Include="..\res\redo-disabled.xpm" />
     <None Include="..\res\redo.xpm" />
     <None Include="..\res\resize-disabled.xpm" />

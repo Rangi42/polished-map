@@ -29,6 +29,7 @@ private:
 	int _dx, _dy;
 	Tileset *_tileset;
 	bool _canceled;
+	bool _show_priority;
 	Tile_Window *_window;
 	Label *_tileset_heading, *_tile_heading;
 	Fl_Group *_tileset_group, *_tile_group;
@@ -52,7 +53,9 @@ public:
 	void tileset(Tileset *t);
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
-	void show(const Fl_Widget *p);
+	inline bool show_priority(void) const { return _show_priority; }
+	void show(const Fl_Widget *p, bool show_priority);
+	void draw_tile(int x, int y, uint8_t id) const;
 	void apply_modifications(void);
 	void select(Deep_Tile_Button *dtb);
 	void choose(Swatch *swatch);

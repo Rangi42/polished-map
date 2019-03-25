@@ -4,9 +4,9 @@
 #include "icons.h"
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
-	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
-	_tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL), _chips(), _collision_inputs(),
-	_bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_show_priority(false), _window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL),
+	_hover_tile_heading(NULL), _tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL),
+	_chips(), _collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
@@ -168,9 +168,10 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 	_metatile_heading->copy_label(buffer);
 }
 
-void Block_Window::show(const Fl_Widget *p) {
+void Block_Window::show(const Fl_Widget *p, bool show_priority) {
 	initialize();
 	refresh();
+	_show_priority = show_priority;
 	int x = p->x() + (p->w() - _window->w()) / 2;
 	int y = p->y() + (p->h() - _window->h()) / 2;
 	_window->position(x, y);
@@ -179,30 +180,9 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::draw_tile(int x, int y, uint8_t id, bool zoom) const {
+void Block_Window::draw_tile(uint8_t id, int x, int y, int s) const {
 	const Tile *t = _tileset->const_tile_or_roof(id);
-	const uchar *rgb = t->rgb();
-	if (zoom) {
-		uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
-		for (int ty = 0; ty < TILE_SIZE; ty++) {
-			for (int tx = 0; tx < TILE_SIZE; tx++) {
-				int ti = (ty * LINE_BYTES + tx * NUM_CHANNELS) * ZOOM_FACTOR;
-				int ci = (ty * CHIP_LINE_BYTES + tx * NUM_CHANNELS) * CHIP_ZOOM_FACTOR;
-				for (int c = 0; c < NUM_CHANNELS; c++) {
-					uchar v = rgb[ti + c];
-					for (int row = 0; row < CHIP_ZOOM_FACTOR; row++) {
-						for (int col = 0; col < CHIP_ZOOM_FACTOR; col++) {
-							chip[ci + CHIP_LINE_BYTES * row + NUM_CHANNELS * col + c] = v;
-						}
-					}
-				}
-			}
-		}
-		fl_draw_image(chip, x, y, CHIP_PX_SIZE, CHIP_PX_SIZE, NUM_CHANNELS, CHIP_LINE_BYTES);
-	}
-	else {
-		fl_draw_image(rgb, x, y, TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
-	}
+	t->draw_with_priority(x, y, s, _show_priority);
 }
 
 void Block_Window::update_status(Chip *c) {

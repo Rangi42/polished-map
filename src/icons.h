@@ -31,6 +31,8 @@
 #include "show-disabled.xpm"
 #include "cursor.xpm"
 #include "cursor-disabled.xpm"
+#include "priority.xpm"
+#include "priority-disabled.xpm"
 #include "blocks.xpm"
 #include "blocks-disabled.xpm"
 #include "events.xpm"
@@ -86,6 +88,8 @@ static Fl_Pixmap SHOW_ICON(SHOW_XPM);
 static Fl_Pixmap SHOW_DISABLED_ICON(SHOW_DISABLED_XPM);
 static Fl_Pixmap CURSOR_ICON(CURSOR_XPM);
 static Fl_Pixmap CURSOR_DISABLED_ICON(CURSOR_DISABLED_XPM);
+static Fl_Pixmap PRIORITY_ICON(PRIORITY_XPM);
+static Fl_Pixmap PRIORITY_DISABLED_ICON(PRIORITY_DISABLED_XPM);
 static Fl_Pixmap BLOCKS_ICON(BLOCKS_XPM);
 static Fl_Pixmap BLOCKS_DISABLED_ICON(BLOCKS_DISABLED_XPM);
 static Fl_Pixmap EVENTS_ICON(EVENTS_XPM);

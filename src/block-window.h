@@ -14,18 +14,13 @@
 #include "metatile.h"
 #include "widgets.h"
 
-#define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
-
-#define CHIP_ZOOM_FACTOR 3
-#define CHIP_PX_SIZE (TILE_SIZE * CHIP_ZOOM_FACTOR)
-#define CHIP_LINE_BYTES (CHIP_PX_SIZE * NUM_CHANNELS)
-
 class Block_Window {
 private:
 	int _dx, _dy;
 	const Tileset *_tileset;
 	uint8_t _metatile_id;
 	bool _canceled;
+	bool _show_priority;
 	Fl_Double_Window *_window;
 	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading;
 	Fl_Group *_tileset_group, *_metatile_group;
@@ -50,8 +45,8 @@ public:
 	inline uint8_t bin_collision(Quadrant q) { return (uint8_t)_bin_collision_spinners[q]->value(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
-	void show(const Fl_Widget *p);
-	void draw_tile(int x, int y, uint8_t id, bool zoom) const;
+	void show(const Fl_Widget *p, bool show_priority);
+	void draw_tile(uint8_t id, int x, int y, int s) const;
 	void update_status(Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);

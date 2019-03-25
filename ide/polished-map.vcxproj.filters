@@ -361,6 +361,12 @@
     <None Include="..\res\roof-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\priority.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\priority-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">

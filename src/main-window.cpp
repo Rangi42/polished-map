@@ -45,6 +45,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int hex_config = Preferences::get("hex", 0);
 	int show_events_config = Preferences::get("show", 1);
 	int event_cursor_config = Preferences::get("event", 0);
+	int show_priority_config = Preferences::get("priority", 1);
 	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
@@ -84,6 +85,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
 	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
@@ -248,7 +250,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Events &Over Blocks", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
 			FL_MENU_INVISIBLE | FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
-			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Show &Priority", FL_COMMAND + 'P', (Fl_Callback *)show_priority_cb, this,
+			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::MORN ? FL_MENU_VALUE : 0)),
@@ -309,6 +313,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
+	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_lighting_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
@@ -421,6 +426,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_event_cursor_tb->image(CURSOR_ICON);
 	_event_cursor_tb->deimage(CURSOR_DISABLED_ICON);
 	_event_cursor_tb->value(event_cursor());
+
+	_show_priority_tb->tooltip("Show Priority (Ctrl+Shift+P)");
+	_show_priority_tb->callback((Fl_Callback *)show_priority_tb_cb, this);
+	_show_priority_tb->image(PRIORITY_ICON);
+	_show_priority_tb->deimage(PRIORITY_DISABLED_ICON);
+	_show_priority_tb->value(show_priority());
 
 	_lighting->add("Morn");   // Lighting::MORN
 	_lighting->add("Day");    // Lighting::DAY
@@ -663,7 +674,7 @@ int Main_Window::handle_hotkey(int key) {
 }
 
 void Main_Window::draw_metatile(int x, int y, uint8_t id) const {
-	_metatileset.draw_metatile(x, y, id, zoom());
+	_metatileset.draw_metatile(x, y, id, zoom(), show_priority());
 }
 
 void Main_Window::update_status(Block *b) {
@@ -1936,6 +1947,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("hex", mw->hex());
 	Preferences::set("show", mw->show_events());
 	Preferences::set("event", mw->event_cursor());
+	Preferences::set("priority", mw->show_priority());
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("all256", mw->allow_256_tiles());
@@ -2067,6 +2079,12 @@ void Main_Window::event_cursor_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::show_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_show_priority_tb, m);
+	mw->update_labels();
+	mw->redraw();
+}
+
 #undef SYNC_TB_WITH_M
 
 #define SYNC_MI_WITH_TB(tb, mi) if (tb->value()) mi->set(); else mi->clear()
@@ -2101,6 +2119,12 @@ void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 
 void Main_Window::event_cursor_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	SYNC_MI_WITH_TB(mw->_event_cursor_tb, mw->_event_cursor_mi);
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::show_priority_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_show_priority_tb, mw->_show_priority_mi);
 	mw->update_labels();
 	mw->redraw();
 }
@@ -2245,7 +2269,7 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
 	mw->_tileset_window->tileset(mw->_metatileset.tileset());
-	mw->_tileset_window->show(mw);
+	mw->_tileset_window->show(mw, mw->show_priority());
 	bool canceled = mw->_tileset_window->canceled();
 	if (canceled) { return; }
 
@@ -2370,7 +2394,7 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 		// Right-click to edit
 		Metatile *mt = mw->_metatileset.metatile(mb->id());
 		mw->_block_window->metatile(mt, mw->_has_collisions, mw->_metatileset.bin_collisions());
-		mw->_block_window->show(mw);
+		mw->_block_window->show(mw, mw->show_priority());
 		if (!mw->_block_window->canceled()) {
 			mw->edit_metatile(mt);
 		}

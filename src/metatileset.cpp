@@ -42,23 +42,22 @@ void Metatileset::size(size_t n) {
 	_modified = true;
 }
 
-void Metatileset::draw_metatile(int x, int y, uint8_t id, bool z) const {
+void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const {
 	if (id < size()) {
 		Metatile *mt = _metatiles[id];
-		int s = TILE_SIZE * (z ? ZOOM_FACTOR : 1);
-		int d = NUM_CHANNELS * (z ? 1 : ZOOM_FACTOR);
-		int ld = LINE_BYTES * (z ? 1 : ZOOM_FACTOR);
+		int s = TILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
 		for (int ty = 0; ty < METATILE_SIZE; ty++) {
+			int ay = y + ty * s;
 			for (int tx = 0; tx < METATILE_SIZE; tx++) {
+				int ax = x + tx * s;
 				uint8_t tid = mt->tile_id(tx, ty);
 				const Tile *t = _tileset.const_tile_or_roof(tid);
-				const uchar *rgb = t->rgb();
-				fl_draw_image(rgb, x + tx * s, y + ty * s, s, s, d, ld);
+				t->draw_with_priority(ax, ay, zoom ? TILE_PX_SIZE : TILE_SIZE, show_priority);
 			}
 		}
 	}
 	else {
-		int s = TILE_SIZE * METATILE_SIZE * (z ? ZOOM_FACTOR : 1);
+		int s = TILE_SIZE * METATILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
 		fl_color(EMPTY_RGB);
 		fl_rectf(x, y, s, s);
 	}

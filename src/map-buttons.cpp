@@ -66,10 +66,10 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zoom) {
 	Block_Window *bw = (Block_Window *)wgt->user_data();
 	int x = wgt->x(), y = wgt->y();
-	bw->draw_tile(x, y, id, zoom);
+	int s = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
+	bw->draw_tile(id, x, y, s);
 	if (border) {
-		int rs = zoom ? CHIP_PX_SIZE : TILE_PX_SIZE;
-		draw_selection_border(x, y, rs, false);
+		draw_selection_border(x, y, s, false);
 	}
 }
 
@@ -252,7 +252,8 @@ void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs) {
 }
 
 void Deep_Tile_Button::draw() {
-	fl_draw_image(_rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	Tileset_Window *tw = (Tileset_Window *)user_data();
+	draw_with_priority(x(), y(), TILE_PX_SIZE, tw->show_priority());
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
