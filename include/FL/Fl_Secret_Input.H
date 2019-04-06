@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Secret_Input.H 9774 2012-12-24 11:45:07Z manolo $"
+// "$Id$"
 //
 // Secret input header file for the Fast Light Tool Kit (FLTK).
 //
@@ -47,5 +47,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Secret_Input.H 9774 2012-12-24 11:45:07Z manolo $".
+// End of "$Id$".
 //

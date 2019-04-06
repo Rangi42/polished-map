@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Line_Dial.H 9637 2012-07-24 04:37:22Z matt $"
+// "$Id$"
 //
 // Line dial header file for the Fast Light Tool Kit (FLTK).
 //
@@ -32,5 +32,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Line_Dial.H 9637 2012-07-24 04:37:22Z matt $".
+// End of "$Id$".
 //

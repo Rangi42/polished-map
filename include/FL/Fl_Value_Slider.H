@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Value_Slider.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Value slider header file for the Fast Light Tool Kit (FLTK).
 //
@@ -56,5 +56,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Value_Slider.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

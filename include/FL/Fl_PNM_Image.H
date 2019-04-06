@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_PNM_Image.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // PNM image header file for the Fast Light Tool Kit (FLTK).
 //
@@ -39,5 +39,5 @@ class FL_EXPORT Fl_PNM_Image : public Fl_RGB_Image {
 #endif
 
 //
-// End of "$Id: Fl_PNM_Image.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Check_Browser.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Fl_Check_Browser header file for the Fast Light Tool Kit (FLTK).
 //
@@ -108,6 +108,6 @@ class FL_EXPORT Fl_Check_Browser : public Fl_Browser_ {
 #endif // Fl_Check_Browser_H
 
 //
-// End of "$Id: Fl_Check_Browser.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //
 

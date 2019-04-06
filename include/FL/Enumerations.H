@@ -1,9 +1,9 @@
 //
-// "$Id: Enumerations.H 11803 2016-07-09 18:43:31Z AlbrechtS $"
+// "$Id$"
 //
 // Enumerations for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2016 by Bill Spitzak and others.
+// Copyright 1998-2017 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -75,7 +75,7 @@
 
    FLTK remains binary compatible between patches.
  */
-#define FL_PATCH_VERSION	4
+#define FL_PATCH_VERSION	5
 
 /**
     The FLTK version number as a \em double.
@@ -1123,5 +1123,5 @@ enum Fl_Damage {
 #endif
 
 //
-// End of "$Id: Enumerations.H 11803 2016-07-09 18:43:31Z AlbrechtS $".
+// End of "$Id$".
 //

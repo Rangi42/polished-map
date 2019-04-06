@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_File_Browser.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // FileBrowser definitions.
 //
@@ -107,5 +107,5 @@ public:
 #endif // !_Fl_File_Browser_H_
 
 //
-// End of "$Id: Fl_File_Browser.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

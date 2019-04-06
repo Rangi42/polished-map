@@ -1,5 +1,5 @@
 //
-// "$Id: dirent.h 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Directory header file for the Fast Light Tool Kit (FLTK).
 //
@@ -21,5 +21,5 @@
 #include "filename.H"
 
 //
-// End of "$Id: dirent.h 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

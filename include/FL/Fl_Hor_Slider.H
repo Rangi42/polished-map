@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Hor_Slider.H 9637 2012-07-24 04:37:22Z matt $"
+// "$Id$"
 //
 // Horizontal slider header file for the Fast Light Tool Kit (FLTK).
 //
@@ -41,5 +41,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Hor_Slider.H 9637 2012-07-24 04:37:22Z matt $".
+// End of "$Id$".
 //

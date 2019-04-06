@@ -1,5 +1,5 @@
 /*
- * "$Id: filename.H 9704 2012-10-19 11:23:51Z manolo $"
+ * "$Id$"
  *
  * Filename header file for the Fast Light Tool Kit (FLTK).
  *
@@ -172,5 +172,5 @@ int _fl_filename_isdir_quick(const char *name);
 /** @} */
 
 /*
- * End of "$Id: filename.H 9704 2012-10-19 11:23:51Z manolo $".
+ * End of "$Id$".
  */

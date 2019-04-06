@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Cairo.H 11167 2016-02-13 17:35:36Z AlbrechtS $"
+// "$Id$"
 //
 // Main header file for the Fast Light Tool Kit (FLTK).
 //
@@ -84,5 +84,5 @@ private:
 #endif // FL_CAIRO_H
 
 //
-// End of "$Id: Fl_Cairo.H 11167 2016-02-13 17:35:36Z AlbrechtS $" .
+// End of "$Id$" .
 //

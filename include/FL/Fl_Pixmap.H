@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Pixmap.H 9706 2012-11-06 20:46:14Z matt $"
+// "$Id$"
 //
 // Pixmap header file for the Fast Light Tool Kit (FLTK).
 //
@@ -98,5 +98,5 @@ class FL_EXPORT Fl_Pixmap : public Fl_Image {
 #endif
 
 //
-// End of "$Id: Fl_Pixmap.H 9706 2012-11-06 20:46:14Z matt $".
+// End of "$Id$".
 //

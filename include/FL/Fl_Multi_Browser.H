@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Multi_Browser.H 10882 2015-11-05 17:54:16Z manolo $"
+// "$Id$"
 //
 // Multi browser header file for the Fast Light Tool Kit (FLTK).
 //
@@ -50,5 +50,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Multi_Browser.H 10882 2015-11-05 17:54:16Z manolo $".
+// End of "$Id$".
 //

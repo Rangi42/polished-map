@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Input_.H 10807 2015-07-21 13:55:13Z AlbrechtS $"
+// "$Id$"
 //
 // Input base class header file for the Fast Light Tool Kit (FLTK).
 //
@@ -495,5 +495,5 @@ public:
 #endif 
 
 //
-// End of "$Id: Fl_Input_.H 10807 2015-07-21 13:55:13Z AlbrechtS $".
+// End of "$Id$".
 //

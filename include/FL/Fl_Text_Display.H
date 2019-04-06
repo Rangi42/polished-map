@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Text_Display.H 11756 2016-05-26 16:39:09Z greg.ercolano $"
+// "$Id$"
 //
 // Header file for Fl_Text_Display class.
 //
@@ -539,5 +539,5 @@ protected:
 #endif
 
 //
-// End of "$Id: Fl_Text_Display.H 11756 2016-05-26 16:39:09Z greg.ercolano $".
+// End of "$Id$".
 //

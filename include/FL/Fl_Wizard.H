@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Wizard.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Fl_Wizard widget definitions.
 //
@@ -57,5 +57,5 @@ class FL_EXPORT Fl_Wizard : public Fl_Group {
 #endif // !_Fl_Wizard_H_
 
 //
-// End of "$Id: Fl_Wizard.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //
