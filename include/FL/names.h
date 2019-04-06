@@ -1,5 +1,5 @@
 //
-// "$Id: names.h 10812 2015-07-22 23:34:32Z AlbrechtS $"
+// "$Id$"
 //
 // Event names header file for the Fast Light Tool Kit (FLTK).
 //
@@ -117,5 +117,5 @@ const char * const fl_fontnames[] =
 #endif /* FL_NAMES_H */
 
 //
-// End of "$Id: names.h 10812 2015-07-22 23:34:32Z AlbrechtS $".
+// End of "$Id$".
 //

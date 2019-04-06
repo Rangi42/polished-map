@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_GIF_Image.H 10732 2015-05-23 23:42:26Z matt $"
+// "$Id$"
 //
 // GIF image header file for the Fast Light Tool Kit (FLTK).
 //
@@ -38,5 +38,5 @@ class FL_EXPORT Fl_GIF_Image : public Fl_Pixmap {
 #endif
 
 //
-// End of "$Id: Fl_GIF_Image.H 10732 2015-05-23 23:42:26Z matt $".
+// End of "$Id$".
 //

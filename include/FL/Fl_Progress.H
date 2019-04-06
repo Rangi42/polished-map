@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Progress.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Progress bar widget definitions.
 //
@@ -68,5 +68,5 @@ class FL_EXPORT Fl_Progress : public Fl_Widget {
 #endif // !_Fl_Progress_H_
 
 //
-// End of "$Id: Fl_Progress.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

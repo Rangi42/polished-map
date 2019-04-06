@@ -1,5 +1,5 @@
 //
-// "$Id: fl_ask.H 10501 2014-12-20 15:00:27Z manolo $"
+// "$Id$"
 //
 // Standard dialog header file for the Fast Light Tool Kit (FLTK).
 //
@@ -78,5 +78,5 @@ extern FL_EXPORT const char* fl_close;
 #endif // !fl_ask_H
 
 //
-// End of "$Id: fl_ask.H 10501 2014-12-20 15:00:27Z manolo $".
+// End of "$Id$".
 //

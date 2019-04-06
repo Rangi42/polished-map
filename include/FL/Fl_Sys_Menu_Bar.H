@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Sys_Menu_Bar.H 11795 2016-06-22 07:49:34Z greg.ercolano $"
+// "$Id$"
 //
 // MacOS system menu bar header file for the Fast Light Tool Kit (FLTK).
 //
@@ -130,5 +130,5 @@ typedef Fl_Menu_Bar Fl_Sys_Menu_Bar;
 #endif // Fl_Sys_Menu_Bar_H
 
 //
-// End of "$Id: Fl_Sys_Menu_Bar.H 11795 2016-06-22 07:49:34Z greg.ercolano $".
+// End of "$Id$".
 //

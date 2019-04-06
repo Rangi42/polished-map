@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Preferences.H 9978 2013-09-16 20:25:14Z greg.ercolano $"
+// "$Id$"
 //
 // Preferences .
 //
@@ -265,5 +265,5 @@ protected:
 #endif // !Fl_Preferences_H
 
 //
-// End of "$Id: Fl_Preferences.H 9978 2013-09-16 20:25:14Z greg.ercolano $".
+// End of "$Id$".
 //

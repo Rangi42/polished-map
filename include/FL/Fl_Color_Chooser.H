@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Color_Chooser.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Color chooser header file for the Fast Light Tool Kit (FLTK).
 //
@@ -186,5 +186,5 @@ FL_EXPORT int fl_color_chooser(const char* name, uchar& r, uchar& g, uchar& b, i
 #endif
 
 //
-// End of "$Id: Fl_Color_Chooser.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

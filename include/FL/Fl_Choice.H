@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Choice.H 10513 2015-01-10 22:05:15Z greg.ercolano $"
+// "$Id$"
 //
 // Choice header file for the Fast Light Tool Kit (FLTK).
 //
@@ -102,5 +102,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Choice.H 10513 2015-01-10 22:05:15Z greg.ercolano $".
+// End of "$Id$".
 //

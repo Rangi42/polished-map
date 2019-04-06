@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_RGB_Image.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // RGB Image header file for the Fast Light Tool Kit (FLTK).
 //
@@ -22,5 +22,5 @@
 #endif // !Fl_RGB_Image_H
 
 //
-// End of "$Id: Fl_RGB_Image.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

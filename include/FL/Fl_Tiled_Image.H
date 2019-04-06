@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Tiled_Image.H 10598 2015-03-01 20:16:56Z AlbrechtS $"
+// "$Id$"
 //
 // Tiled image header file for the Fast Light Tool Kit (FLTK).
 //
@@ -55,5 +55,5 @@ class FL_EXPORT Fl_Tiled_Image : public Fl_Image {
 #endif // !Fl_Tiled_Image_H
 
 //
-// End of "$Id: Fl_Tiled_Image.H 10598 2015-03-01 20:16:56Z AlbrechtS $"
+// End of "$Id$"
 //

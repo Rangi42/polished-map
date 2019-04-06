@@ -1,5 +1,5 @@
 //
-// "$Id: fl_message.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Standard message header file for the Fast Light Tool Kit (FLTK).
 //
@@ -19,5 +19,5 @@
 #include "fl_ask.H"
 
 //
-// End of "$Id: fl_message.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

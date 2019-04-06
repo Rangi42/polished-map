@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Menu_Item.H 11786 2016-06-18 00:32:18Z greg.ercolano $"
+// "$Id$"
 //
 // Menu item header file for the Fast Light Tool Kit (FLTK).
 //
@@ -439,5 +439,5 @@ enum {	// back-compatibility enum:
 #endif
 
 //
-// End of "$Id: Fl_Menu_Item.H 11786 2016-06-18 00:32:18Z greg.ercolano $".
+// End of "$Id$".
 //

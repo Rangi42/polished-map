@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Shared_Image.H 12002 2016-10-01 22:35:37Z AlbrechtS $"
+// "$Id$"
 //
 // Shared image header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2016 by Bill Spitzak and others.
+// Copyright 1998-2017 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -84,8 +84,21 @@ protected:
 public:
   /** Returns the filename of the shared image */
   const char	*name() { return name_; }
-  /** Returns the number of references of this shared image. When reference is below 1, the image is deleted. */
+
+  /** Returns the number of references of this shared image.
+    When reference is below 1, the image is deleted.
+  */
   int		refcount() { return refcount_; }
+
+  /** Returns whether this is an original image.
+    Images loaded from a file or from memory are marked \p original as
+    opposed to images created as a copy of another image with different
+    size (width or height).
+    \note This is useful for debugging (rarely used in user code).
+    \since FLTK 1.4.0
+  */
+  int original() { return original_; }
+
   void		release();
   void		reload();
 
@@ -127,5 +140,5 @@ FL_EXPORT extern void fl_register_images();
 #endif // !Fl_Shared_Image_H
 
 //
-// End of "$Id: Fl_Shared_Image.H 12002 2016-10-01 22:35:37Z AlbrechtS $"
+// End of "$Id$"
 //

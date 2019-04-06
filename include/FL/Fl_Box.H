@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Box.H 9672 2012-08-17 09:18:06Z manolo $"
+// "$Id$"
 //
 // Box header file for the Fast Light Tool Kit (FLTK).
 //
@@ -55,5 +55,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Box.H 9672 2012-08-17 09:18:06Z manolo $".
+// End of "$Id$".
 //

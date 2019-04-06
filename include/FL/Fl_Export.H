@@ -1,5 +1,5 @@
 /*
- * "$Id: Fl_Export.H 10236 2014-08-21 12:29:48Z cand $"
+ * "$Id$"
  *
  * WIN32 DLL export .
  *
@@ -38,5 +38,5 @@
 #endif /* !Fl_Export_H */
 
 /*
- * End of "$Id: Fl_Export.H 10236 2014-08-21 12:29:48Z cand $".
+ * End of "$Id$".
  */

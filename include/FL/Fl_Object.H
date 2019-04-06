@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Object.H 8864 2011-07-19 04:49:30Z greg.ercolano $"
+// "$Id$"
 //
 // Old Fl_Object header file for the Fast Light Tool Kit (FLTK).
 //
@@ -23,5 +23,5 @@
 #include "Fl_Widget.H"
 
 //
-// End of "$Id: Fl_Object.H 8864 2011-07-19 04:49:30Z greg.ercolano $".
+// End of "$Id$".
 //

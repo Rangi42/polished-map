@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Input_Choice.H 10513 2015-01-10 22:05:15Z greg.ercolano $"
+// "$Id$"
 //
 // An input/chooser widget.
 //            ______________  ____
@@ -264,5 +264,5 @@ public:
 #endif // !Fl_Input_Choice_H
 
 //
-// End of "$Id: Fl_Input_Choice.H 10513 2015-01-10 22:05:15Z greg.ercolano $".
+// End of "$Id$".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Text_Buffer.H 11799 2016-06-25 00:54:24Z greg.ercolano $"
+// "$Id$"
 //
 // Header file for Fl_Text_Buffer class.
 //
@@ -801,5 +801,5 @@ protected:
 #endif
 
 //
-// End of "$Id: Fl_Text_Buffer.H 11799 2016-06-25 00:54:24Z greg.ercolano $".
+// End of "$Id$".
 //

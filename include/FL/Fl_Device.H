@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Device.H 12030 2016-10-16 15:00:02Z manolo $"
+// "$Id$"
 //
 // Definition of classes Fl_Device, Fl_Graphics_Driver, Fl_Surface_Device, Fl_Display_Device
 // for the Fast Light Tool Kit (FLTK).
@@ -632,5 +632,5 @@ public:
 #endif // Fl_Device_H
 
 //
-// End of "$Id: Fl_Device.H 12030 2016-10-16 15:00:02Z manolo $".
+// End of "$Id$".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Group.H 10446 2014-11-10 22:09:11Z AlbrechtS $"
+// "$Id$"
 //
 // Group header file for the Fast Light Tool Kit (FLTK).
 //
@@ -224,5 +224,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Group.H 10446 2014-11-10 22:09:11Z AlbrechtS $".
+// End of "$Id$".
 //
