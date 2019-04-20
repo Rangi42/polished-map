@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+
 #ifdef _WIN32
 #include <io.h>
 #else
@@ -49,4 +51,15 @@ bool file_exists(const char *f) {
 #else
 	return !access(f, 4);
 #endif
+}
+
+size_t file_size(const char *f) {
+#ifdef __CYGWIN__
+#define stat64 stat
+#elif defined(_WIN32)
+#define stat64 _stat32i64
+#endif
+	struct stat64 s;
+	int r = stat64(f, &s);
+	return r ? 0 : (size_t)s.st_size;
 }

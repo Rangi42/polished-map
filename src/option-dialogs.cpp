@@ -95,11 +95,12 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0), _max_roof_name_length(0),
-	_map_width(NULL), _map_height(NULL), _tileset(NULL), _roof(NULL) {}
+	_map_width(NULL), _map_height(NULL), _map_size(NULL), _tileset(NULL), _roof(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_width;
 	delete _map_height;
+	delete _map_size;
 	delete _tileset;
 	delete _roof;
 }
@@ -145,6 +146,15 @@ static void guess_map_constant(const char *name, char *constant) {
 
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs) {
 	if (!filename) { return false; }
+
+	size_t fs = file_size(filename);
+	char buffer[32];
+#ifdef __GNUC__
+	sprintf(buffer, "(%zu B)", fs);
+#else
+	sprintf(buffer, "(%u B)", (uint32_t)fs);
+#endif
+	_map_size->copy_label(buffer);
 
 	std::cmatch cm;
 	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.[A-Za-z0-9_-]+)?\\.[Aa]?[Bb][Ll][Kk]");
@@ -448,6 +458,7 @@ void Map_Options_Dialog::initialize_content() {
 	// Populate content group
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
+	_map_size = new Label(0, 0, 0, 0);
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_roof = new Dropdown(0, 0, 0, 0, "Roof:");
 	// Initialize content group's children
@@ -471,6 +482,9 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	wgt_w = text_width("999", 2) + wgt_h;
 	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
 	_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
+
+	int mso = _map_height->x() + _map_height->w();
+	_map_size->resize(mso + 10, dy, ww - mso, wgt_h);
 	dy += _map_height->h() + wgt_m;
 
 	wgt_w = _max_tileset_name_length + wgt_h;

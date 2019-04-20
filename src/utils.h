@@ -80,5 +80,6 @@ void remove_comment(std::string &s, char c = ';');
 int text_width(const char *l, int pad);
 int text_width(const char *l, int pad = 0);
 bool file_exists(const char *f);
+size_t file_size(const char *f);
 
 #endif

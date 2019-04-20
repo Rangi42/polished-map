@@ -50,6 +50,7 @@ class Map_Options_Dialog : public Option_Dialog {
 private:
 	int _max_tileset_name_length, _max_roof_name_length;
 	OS_Spinner *_map_width, *_map_height;
+	Label *_map_size;
 	Dropdown *_tileset, *_roof;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
