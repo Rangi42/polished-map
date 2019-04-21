@@ -72,8 +72,8 @@ install: release
 	echo "[Desktop Entry]" > $(DESKTOP)
 	echo "Name=Polished Map" >> $(DESKTOP)
 	echo "Comment=Edit pokecrystal maps and tilesets" >> $(DESKTOP)
-	echo "Icon=$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm" >> $(DESKTOP)
-	echo "Exec=$(DESTDIR)$(PREFIX)/bin/$(polishedmap)" >> $(DESKTOP)
+	echo "Icon=$(PREFIX)/share/pixmaps/polishedmap48.xpm" >> $(DESKTOP)
+	echo "Exec=$(PREFIX)/bin/$(polishedmap)" >> $(DESKTOP)
 	echo "Type=Application" >> $(DESKTOP)
 	echo "Terminal=false" >> $(DESKTOP)
 
