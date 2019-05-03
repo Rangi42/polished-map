@@ -28,7 +28,7 @@ private:
 	Tileset *_tileset;
 	bool _canceled;
 	Roof_Tile_Window *_window;
-	Label *_roof_heading;
+	Label *_roof_heading, *_tile_heading;
 	Fl_Group *_roof_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[NUM_ROOF_TILES], *_selected;
 	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
