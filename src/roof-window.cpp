@@ -22,13 +22,14 @@ int Roof_Tile_Window::handle(int event) {
 }
 
 Roof_Window::Roof_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
-	_roof_heading(NULL), _roof_group(NULL), _tile_group(NULL), _deep_tile_buttons(), _selected(NULL),
-	_pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
+	_roof_heading(NULL), _tile_heading(NULL), _roof_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
+	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
 	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
 
 Roof_Window::~Roof_Window() {
 	delete _window;
 	delete _roof_heading;
+	delete _tile_heading;
 	delete _roof_group;
 	delete _tile_group;
 	delete _swatch1;
@@ -45,7 +46,9 @@ void Roof_Window::initialize() {
 	Fl_Group::current(NULL);
 	// Populate window
 	_window = new Roof_Tile_Window(_dx, _dy, 226, 228, "Edit Roof");
-	_roof_heading = new Label(10, 10, 206, 22);
+	int thw = text_width("Tile: $FFF", 2);
+	_roof_heading = new Label(10, 10, 206-thw, 22);
+	_tile_heading = new Label(216-thw, 10, thw, 22);
 	_roof_group = new Fl_Group(10, 36, 50, 50);
 	_roof_group->end();
 	_window->begin();
@@ -159,6 +162,10 @@ void Roof_Window::apply_modifications() {
 void Roof_Window::select(Deep_Tile_Button *dtb) {
 	_selected = dtb;
 	_selected->setonly();
+
+	char buffer[32];
+	sprintf(buffer, "Tile: $%02X", _selected->id());
+	_tile_heading->copy_label(buffer);
 
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
