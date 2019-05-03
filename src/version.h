@@ -1,11 +1,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define PROGRAM_VERSION 3,5,3
+#define PROGRAM_VERSION 3,5,4
 #ifdef _DEBUG
-#define PROGRAM_VERSION_STRING "3.5.3 [DEBUG]"
+#define PROGRAM_VERSION_STRING "3.5.4 [DEBUG]"
 #else
-#define PROGRAM_VERSION_STRING "3.5.3"
+#define PROGRAM_VERSION_STRING "3.5.4"
 #endif
 
 #ifdef _WIN32

@@ -4,7 +4,7 @@ A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal),
 
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and focused on graphics instead of script editing.
 
-Latest release: [**3.5.3**](https://github.com/Rangi42/polished-map/releases/tag/v3.5.3)
+Latest release: [**3.5.4**](https://github.com/Rangi42/polished-map/releases/tag/v3.5.4)
 
 Follow the steps in [INSTALL.md](INSTALL.md) to install the release copy of Polished Map, or the longer instructions to build it yourself from source.
 
