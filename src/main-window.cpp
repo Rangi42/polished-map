@@ -937,6 +937,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		}
 		else if (r) {
 			_map.clear();
+			_metatileset.clear();
 			std::string msg = "Error reading ";
 			msg = msg + basename + "!\n\n" + Map::error_message(r);
 			_error_dialog->message(msg);
