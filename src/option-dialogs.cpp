@@ -232,11 +232,8 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		return cm[1].str();
 	}
 
-	const char *name = fl_filename_name(filename);
 	char map_name[FL_PATH_MAX] = {};
-	strcpy(map_name, name);
-	char *dot = strchr(map_name, '.');
-	if (dot) { *dot = '\0'; }
+	remove_dot_ext(filename, map_name);
 
 	char map_headers[FL_PATH_MAX] = {};
 	Config::map_headers_path(map_headers, directory);

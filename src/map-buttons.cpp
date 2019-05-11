@@ -8,18 +8,6 @@
 #include "block-window.h"
 #include "map-buttons.h"
 
-// 32x32 translucent red highlight for the event quadrant of a block
-static uchar event_cursor_png_buffer[96] = {
-	0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-	0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x01, 0x03, 0x00, 0x00, 0x00, 0x49, 0xB4, 0xE8,
-	0xB7, 0x00, 0x00, 0x00, 0x03, 0x50, 0x4C, 0x54, 0x45, 0xFF, 0x00, 0x00, 0x19, 0xE2, 0x09, 0x37,
-	0x00, 0x00, 0x00, 0x01, 0x74, 0x52, 0x4E, 0x53, 0x80, 0xAD, 0x5E, 0x5B, 0x46, 0x00, 0x00, 0x00,
-	0x0B, 0x49, 0x44, 0x41, 0x54, 0x78, 0x5E, 0x63, 0x18, 0xE4, 0x00, 0x00, 0x00, 0xA0, 0x00, 0x01,
-	0x1C, 0x35, 0x43, 0x02, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
-};
-
-static Fl_PNG_Image event_cursor_png(NULL, event_cursor_png_buffer, 96);
-
 // 32x32 translucent zigzag pattern for tile priority
 static uchar chip_priority_png_buffer[166] = {
 	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
@@ -126,8 +114,7 @@ int Metatile_Button::handle(int event) {
 	}
 }
 
-Block::Block(int x, int y, int s, uint8_t row, uint8_t col, uint8_t id) : Fl_Box(x, y, s, s),
-	_row(row), _col(col), _id(id) {
+Block::Block(uint8_t row, uint8_t col, uint8_t id) : Fl_Box(0, 0, 0, 0), _row(row), _col(col), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -143,12 +130,12 @@ void Block::update_label() {
 
 void Block::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
-	bool below_mouse = Fl::belowmouse() == this, event_cursor = mw->event_cursor();
+	bool below_mouse = Fl::belowmouse() == this, event_cursor = mw->mode() == Mode::EVENTS;
 	draw_map_button(this, _id, below_mouse && !event_cursor);
 	if (!below_mouse || !event_cursor) { return; }
-	int hw = w() / 2, hh = h() / 2;
-	int hx = x() + right_half() * hw, hy = y() + bottom_half() * hh;
-	event_cursor_png.draw(hx, hy, hw, hh);
+	int hx = x() + right_half() * w() / 2, hy = y() + bottom_half() * h() / 2;
+	int hs = mw->metatile_size() / 2;
+	draw_selection_border(hx, hy, hs, mw->zoom());
 }
 
 int Block::handle(int event) {
@@ -163,7 +150,7 @@ int Block::handle(int event) {
 		redraw();
 		return 1;
 	case FL_LEAVE:
-		mw->update_status(NULL);
+		mw->update_status((Block *)NULL);
 		redraw();
 		return 1;
 	case FL_MOVE:

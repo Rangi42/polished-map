@@ -17,6 +17,7 @@ public:
 	static void map_constants_path(char *dest, const char *root);
 	static void tileset_constants_path(char *dest, const char *root);
 	static void map_headers_path(char *dest, const char *root);
+	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
 };
