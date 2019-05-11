@@ -9,7 +9,7 @@ Swatch_Window::Swatch_Window(int x, int y, int w, int h, const char *l) : Fl_Dou
 
 int Swatch_Window::handle(int event) {
 	Lighting_Window *lw = (Lighting_Window *)user_data();
-	// TODO: FIX: actual cut/copy/paste events interfere here somehow, but not in Tile_Window::handle
+	// FIX: actual cut/copy/paste events interfere here somehow, but not in Tile_Window::handle
 	if (Fl::event_text()) {
 		if (Fl::test_shortcut(FL_COMMAND + 'c')) {
 			Lighting_Window::copy_color_cb(NULL, lw);

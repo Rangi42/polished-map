@@ -142,6 +142,14 @@ void Config::map_header_path(char *dest, const char *root, const char *map_name)
 	sprintf(dest, "%sdata" DIR_SEP "mapHeaders" DIR_SEP "%s.asm", root, map_name);
 }
 
+void Config::event_script_path(char *dest, const char *root, const char *map_name) {
+	// try maps/*.asm (pokecrystal, Prism)
+	sprintf(dest, "%smaps" DIR_SEP "%s.asm", root, map_name);
+	if (file_exists(dest)) { return; }
+	// last resort: data/mapObjects/%s.asm (pokered)
+	sprintf(dest, "%sdata" DIR_SEP "mapObjects" DIR_SEP "%s.asm", root, map_name);
+}
+
 void Config::tileset_constants_path(char *dest, const char *root) {
 	// try constants/tileset_constants.asm (pokecrystal)
 	sprintf(dest, "%sconstants" DIR_SEP "tileset_constants.asm", root);

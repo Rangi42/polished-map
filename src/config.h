@@ -20,6 +20,7 @@ public:
 	static void tileset_constants_path(char *dest, const char *root);
 	static bool map_headers_path(char *dest, const char *root);
 	static void map_header_path(char *dest, const char *root, const char *map_name);
+	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }

@@ -27,6 +27,12 @@ void Map::block(uint8_t x, uint8_t y, Block *b) {
 	_blocks[(size_t)y * _width + (size_t)x] = b;
 }
 
+Block *Map::block_under(Event *e) {
+	if (!e) { return NULL; }
+	uint8_t bx = e->event_x() / 2, by = e->event_y() / 2;
+	return 0 <= bx && bx < _width && 0 <= by && by < _height ? block(bx, by) : NULL;
+}
+
 void Map::clear() {
 	delete [] _blocks;
 	_blocks = NULL;
@@ -36,6 +42,14 @@ void Map::clear() {
 	_modified = false;
 	_history.clear();
 	_future.clear();
+}
+
+void Map::resize_blocks(int x, int y, int s) {
+	size_t n = size();
+	for (size_t i = 0; i < n; i++) {
+		Block *b = _blocks[i];
+		b->resize(x + b->col() * s, y + b->row() * s, s, s);
+	}
 }
 
 void Map::remember() {
@@ -99,7 +113,7 @@ Map::Result Map::read_blocks(const char *f) {
 		for (uint8_t x = 0; x < (size_t)_width; x++) {
 			size_t i = (size_t)y * _width + (size_t)x;
 			uint8_t id = data[i];
-			_blocks[i] = new Block(0, 0, 0, y, x, id);
+			_blocks[i] = new Block(y, x, id);
 		}
 	}
 

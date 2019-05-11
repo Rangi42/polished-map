@@ -39,6 +39,12 @@ void remove_comment(std::string &s, char c) {
 	}
 }
 
+void remove_dot_ext(const char *f, char *s) {
+	strcpy(s, fl_filename_name(f));
+	char *dot = strchr(s, '.');
+	if (dot) { *dot = '\0'; }
+}
+
 int text_width(const char *l, int pad) {
 	int lw = 0, lh = 0;
 	fl_measure(l, lw, lh, 0);

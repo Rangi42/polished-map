@@ -34,7 +34,8 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_directory(), _blk_file(), _metatileset(), _map(), _metatile_buttons(), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_directory(), _blk_file(), _asm_file(), _metatileset(), _map(), _map_events(), _metatile_buttons(), _clipboard(0),
+	_wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	Mode mode_config = (Mode)Preferences::get("mode", Mode::BLOCKS);
 	mode(mode_config);
@@ -43,9 +44,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int zoom_config = Preferences::get("zoom", 0);
 	int ids_config = Preferences::get("ids", 0);
 	int hex_config = Preferences::get("hex", 0);
-	int show_events_config = Preferences::get("show", 1);
-	int event_cursor_config = Preferences::get("event", 0);
 	int show_priority_config = Preferences::get("priority", 1);
+	int show_events_config = Preferences::get("event", 1);
 	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
@@ -53,6 +53,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	Config::monochrome(!!monochrome_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
 
+	int auto_events_config = Preferences::get("events", 1);
 	int special_lighting_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
@@ -83,17 +84,16 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	_event_cursor_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
+	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
 	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
 	_load_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_current_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
-	// TODO: new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
-	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
-	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
@@ -144,6 +144,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_pal_load_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_pal_save_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_roof_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
+	_asm_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
 	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
@@ -167,13 +168,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_dnd_receiver->callback((Fl_Callback *)drag_and_drop_cb);
 	_dnd_receiver->user_data(this);
 
-	// TEMPORARY: hide not-yet-implemented features
-	_load_event_script_tb->hide();
-	_show_events_tb->hide();
-	_blocks_mode_tb->hide();
-	_events_mode_tb->hide();
-	_show_events_tb->hide();
-
 	// Configure window
 	size_range(384, 256);
 	resizable(_map_scroll);
@@ -192,6 +186,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	// Configure workspaces
 	_sidebar->dnd_receiver(_dnd_receiver);
 	_map_scroll->dnd_receiver(_dnd_receiver);
+	_map_scroll->resizable(NULL);
+	_map_group->resizable(NULL);
+	_map_group->clip_children(1);
 
 	// Configure menu bar
 	_menu_bar->box(OS_PANEL_THIN_UP_BOX);
@@ -210,9 +207,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
-		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INVISIBLE/*0*/),
-		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_INVISIBLE/*FL_MENU_DIVIDER*/),
+		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
+		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INACTIVE/*0*/),
+		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
 		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load Roo&f Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, FL_MENU_DIVIDER),
@@ -247,12 +244,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (ids_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Hexadecimal", FL_COMMAND + FL_SHIFT + '4', (Fl_Callback *)hex_cb, this,
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Events &Over Blocks", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_INVISIBLE | FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Event Cursor", FL_COMMAND + 'u', (Fl_Callback *)event_cursor_cb, this,
-			FL_MENU_TOGGLE | (event_cursor_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Priority", FL_COMMAND + 'P', (Fl_Callback *)show_priority_cb, this,
-			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
+			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::MORN ? FL_MENU_VALUE : 0)),
@@ -266,12 +261,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (lighting_config == Lighting::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
-		/*{},
-		OS_SUBMENU("&Mode"),*/
+		{},
+		OS_SUBMENU("&Mode"),
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + '1', (Fl_Callback *)blocks_mode_cb, this,
-			FL_MENU_INVISIBLE | FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Events", FL_COMMAND + '2', (Fl_Callback *)events_mode_cb, this,
-			FL_MENU_INVISIBLE | FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Tools"),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
@@ -287,6 +282,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
+			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
 			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
@@ -311,9 +308,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
-	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
-	_event_cursor_mi = PM_FIND_MENU_ITEM_CB(event_cursor_cb);
 	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
+	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_lighting_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
@@ -324,6 +320,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
+	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
@@ -415,31 +412,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_hex_tb->deimage(HEX_DISABLED_ICON);
 	_hex_tb->value(hex());
 
-	_show_events_tb->tooltip("Events Over Blocks (Ctrl+R)");
-	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
-	_show_events_tb->image(SHOW_ICON);
-	_show_events_tb->deimage(SHOW_DISABLED_ICON);
-	_show_events_tb->value(show_events());
-
-	_event_cursor_tb->tooltip("Event Cursor (Ctrl+U)");
-	_event_cursor_tb->callback((Fl_Callback *)event_cursor_tb_cb, this);
-	_event_cursor_tb->image(CURSOR_ICON);
-	_event_cursor_tb->deimage(CURSOR_DISABLED_ICON);
-	_event_cursor_tb->value(event_cursor());
-
 	_show_priority_tb->tooltip("Show Priority (Ctrl+Shift+P)");
 	_show_priority_tb->callback((Fl_Callback *)show_priority_tb_cb, this);
 	_show_priority_tb->image(PRIORITY_ICON);
 	_show_priority_tb->deimage(PRIORITY_DISABLED_ICON);
 	_show_priority_tb->value(show_priority());
 
-	_lighting->add("Morn");   // Lighting::MORN
-	_lighting->add("Day");    // Lighting::DAY
-	_lighting->add("Night");  // Lighting::NITE
-	_lighting->add("Indoor"); // Lighting::INDOOR
-	_lighting->add("Custom"); // Lighting::CUSTOM
-	_lighting->value(lighting_config);
-	_lighting->callback((Fl_Callback *)lighting_cb, this);
+	_show_events_tb->tooltip("Show Events (Ctrl+R)");
+	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
+	_show_events_tb->image(SHOW_ICON);
+	_show_events_tb->deimage(SHOW_DISABLED_ICON);
+	_show_events_tb->value(show_events());
 
 	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+1)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
@@ -452,6 +435,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_tb->image(EVENTS_ICON);
 	_events_mode_tb->deimage(EVENTS_DISABLED_ICON);
 	_events_mode_tb->value(mode() == Mode::EVENTS);
+
+	_lighting->add("Morn");   // Lighting::MORN
+	_lighting->add("Day");    // Lighting::DAY
+	_lighting->add("Night");  // Lighting::NITE
+	_lighting->add("Indoor"); // Lighting::INDOOR
+	_lighting->add("Custom"); // Lighting::CUSTOM
+	_lighting->value(lighting_config);
+	_lighting->callback((Fl_Callback *)lighting_cb, this);
 
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
@@ -513,6 +504,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_roof_chooser->title("Open Roof Tiles");
 	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
+
+	_asm_chooser->title("Open Event Script");
+	_asm_chooser->filter("ASM Files\t*.asm\n");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -593,10 +587,19 @@ void Main_Window::show() {
 #endif
 }
 
+bool Main_Window::unsaved(void) const {
+	return _map.modified() || _map_events.modified() || _metatileset.modified() ||
+		_metatileset.const_tileset()->modified() || _metatileset.const_tileset()->modified_roof();
+}
+
 const char *Main_Window::modified_filename() {
 	if (_map.modified()) {
 		if (_blk_file.empty()) { return NEW_MAP_NAME; }
 		return fl_filename_name(_blk_file.c_str());
+	}
+	if (_map_events.modified()) {
+		if (_asm_file.empty()) { return NEW_MAP_NAME; }
+		return fl_filename_name(_asm_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
 	const Tileset *tileset = _metatileset.const_tileset();
@@ -713,7 +716,7 @@ void Main_Window::update_status(Block *b) {
 }
 
 void Main_Window::update_event_cursor(Block *b) {
-	if (!event_cursor() || !b) {
+	if (_mode != Mode::EVENTS || !b) {
 		_hover_event->label("");
 		_status_bar->redraw();
 		return;
@@ -738,9 +741,9 @@ void Main_Window::update_active_controls() {
 		_save_tileset_mi->activate();
 		_print_mi->activate();
 		_print_tb->activate();
-		if (false/* TODO: check for loaded event script */) {
+		if (_map_events.size()) {
 			_unload_event_script_mi->activate();
-			_save_event_script_mi->activate();
+			// TODO: _save_event_script_mi->activate();
 		}
 		else {
 			_unload_event_script_mi->deactivate();
@@ -914,6 +917,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	_map.modified(false);
+	_map_events.modified(false);
 	_metatileset.modified(false);
 	close_cb(NULL, this);
 
@@ -925,6 +929,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		_blk_file = "";
 		_blk_save_chooser->directory(directory);
 	}
+	_asm_file = "";
 
 	// read data
 	const char *tileset_name = _map_options_dialog->tileset();
@@ -958,34 +963,26 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 			_error_dialog->show(this);
 			return;
 		}
-
-		// map from file
-		_map_group->size(ms * (int)w, ms * (int)h);
-		for (uint8_t y = 0; y < h; y++) {
-			for (uint8_t x = 0; x < w; x++) {
-				Block *block = _map.block(x, y);
-				block->resize(_map_group->x() + x * ms, _map_group->y() + y * ms, ms, ms);
-				block->callback((Fl_Callback *)change_block_cb, this);
-				_map_group->add(block);
-			}
-		}
 	}
 	else {
 		basename = NEW_MAP_NAME;
 		_map.modified(true);
-
-		// new map
-		_map_group->size(ms * (int)w, ms * (int)h);
 		for (uint8_t row = 0; row < h; row++) {
 			for (uint8_t col = 0; col < w; col++) {
-				int x = col * ms, y = row * ms;
-				Block *block = new Block(_map_group->x() + x, _map_group->y() + y, ms, row, col, 0);
-				block->callback((Fl_Callback *)change_block_cb, this);
-				_map_group->add(block);
-				_map.block(col, row, block);
+				_map.block(col, row, new Block(row, col, 0x00));
 			}
 		}
 	}
+
+	_map_group->size(ms * (int)w, ms * (int)h);
+	for (uint8_t y = 0; y < h; y++) {
+		for (uint8_t x = 0; x < w; x++) {
+			Block *block = _map.block(x, y);
+			block->callback((Fl_Callback *)change_block_cb, this);
+			_map_group->add(block);
+		}
+	}
+	_map.resize_blocks(_map_group->x(), _map_group->y(), ms);
 	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
 	_map_scroll->contents(_map_group->w(), _map_group->h());
@@ -1085,11 +1082,57 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		load_roof_colors(true);
 	}
 
+	// load map events if applicable and they exist
+	if (auto_load_events() && filename) {
+		char map_name[FL_PATH_MAX] = {};
+		remove_dot_ext(filename, map_name);
+		Config::event_script_path(buffer, directory, map_name);
+		if (file_exists(buffer)) {
+			load_events(buffer);
+		}
+	}
+
 	update_active_controls();
 	update_labels();
-	update_status(NULL);
+	update_status((Block *)NULL);
 
 	redraw();
+}
+
+void Main_Window::load_events(const char *filename) {
+	Map_Events::Result et = _map_events.read_events(filename, monochrome());
+	if (et) {
+		const char *basename = fl_filename_name(filename);
+		std::string msg = "Error reading ";
+		msg = msg + basename + "!\n\n" + Map_Events::error_message(et);
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return;
+	}
+
+	_map_events.resize_events(_map_group->x(), _map_group->y(), metatile_size() / 2);
+	size_t n = _map_events.size();
+	for (size_t i = 0; i < n; i++) {
+		Event *event = _map_events.event(i);
+		event->callback((Fl_Callback *)change_event_cb, this);
+		_map_group->add(event);
+	}
+
+	_edited_events = false;
+	_asm_file = filename;
+}
+
+void Main_Window::unload_events() {
+	size_t n = _map_events.size();
+	for (size_t i = 0; i < n; i++) {
+		Event *event = _map_events.event(i);
+		_map_group->remove(event);
+		delete event;
+	}
+	_map_events.clear();
+
+	_edited_events = false;
+	_asm_file = "";
 }
 
 void Main_Window::load_lighting(const char *filename) {
@@ -1287,7 +1330,7 @@ void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 	_roof_window->tileset(tileset);
 
 	update_labels();
-	update_status(NULL);
+	update_status((Block *)NULL);
 
 	redraw();
 }
@@ -1344,6 +1387,11 @@ void Main_Window::resize_map(int w, int h) {
 			_map_group->add(new Block());
 		}
 	}
+	size_t n = _map_events.size();
+	for (size_t i = 0; i < n; i++) {
+		Event *event = _map_events.event(i);
+		_map_group->add(event);
+	}
 
 	int ms = metatile_size();
 	_map_group->size(ms * (int)w, ms * (int)h);
@@ -1353,14 +1401,15 @@ void Main_Window::resize_map(int w, int h) {
 		for (int x = 0; x < w; x++) {
 			Block *block = (Block *)_map_group->child(i++);
 			block->coords((uint8_t)y, (uint8_t)x);
-			block->resize(_map_group->x() + x * ms, _map_group->y() + y * ms, ms, ms);
 			block->callback((Fl_Callback *)change_block_cb, this);
 			_map.block((uint8_t)x, (uint8_t)y, block);
 		}
 	}
+	_map.resize_blocks(_map_group->x(), _map_group->y(), ms);
 
 	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
+	_map_events.resize_events(_map_group->x(), _map_group->y(), ms / 2);
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	_map.modified(true);
@@ -1569,16 +1618,16 @@ void Main_Window::edit_metatile(Metatile *mt) {
 }
 
 void Main_Window::update_zoom() {
-	// TODO: FIX: resizing window after this resets sidebar width to original zoom size
+	// FIX: resizing window after this resets sidebar width to original zoom size
 	int ms = metatile_size();
 	size_t n = _metatileset.size();
-	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
-	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
-	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
 	_sidebar->init_sizes();
-	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
+	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
 	_map_group->init_sizes();
 	_map_scroll->init_sizes();
+	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
+	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
+	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
 	for (size_t i = 0; i < n; i++) {
@@ -1587,13 +1636,8 @@ void Main_Window::update_zoom() {
 		mt->resize(sx + dx, sy + dy, ms + 1, ms + 1);
 	}
 	int mx = _map_group->x(), my = _map_group->y();
-	for (uint8_t row = 0; row < _map.height(); row++) {
-		for (uint8_t col = 0; col < _map.width(); col++) {
-			Block *block = _map.block(col, row);
-			int dx = col * ms, dy = row * ms;
-			block->resize(mx + dx, my + dy, ms, ms);
-		}
-	}
+	_map.resize_blocks(mx, my, ms);
+	_map_events.resize_events(mx, my, ms / 2);
 }
 
 void Main_Window::update_labels() {
@@ -1719,9 +1763,10 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_group->clear();
 	mw->_map_group->size(0, 0);
 	mw->_map.clear();
+	mw->_map_events.clear();
 	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
-	mw->update_status(NULL);
+	mw->update_status((Block *)NULL);
 	mw->_directory.clear();
 	mw->_blk_file.clear();
 	mw->_metatileset.clear();
@@ -1819,16 +1864,57 @@ void Main_Window::save_roof_cb(Fl_Widget *, Main_Window *mw) {
 	mw->save_roof();
 }
 
-void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *) {
-	// TODO: load_event_script_cb
+void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map.size()) { return; }
+
+	int status = mw->_asm_chooser->show();
+	if (status == 1) { return; }
+
+	const char *filename = mw->_asm_chooser->filename();
+	const char *basename = fl_filename_name(filename);
+	if (status == -1) {
+		std::string msg = "Could not open ";
+		msg = msg + basename + "!\n\n" + mw->_asm_chooser->errmsg();
+		mw->_error_dialog->message(msg);
+		mw->_error_dialog->show(mw);
+		return;
+	}
+
+	if (mw->_edited_events) {
+		std::string msg = "The events have been edited!\n\n";
+		msg = msg + "Load " + basename + " anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	mw->unload_events();
+	mw->load_events(filename);
+
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *) {
 	// TODO: save_event_script_cb
 }
 
-void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *) {
-	// TODO: unload_event_script_cb
+void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map_events.size()) { return; }
+
+	if (mw->_edited_events) {
+		const char *basename = fl_filename_name(mw->_asm_file.c_str());
+		std::string msg = "The events have been edited!\n\n";
+		msg = msg + "Unload " + basename + " anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	mw->unload_events();
+
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::load_roof_colors_cb(Fl_Widget *, Main_Window *mw) {
@@ -1946,12 +2032,12 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("zoom", mw->zoom());
 	Preferences::set("ids", mw->ids());
 	Preferences::set("hex", mw->hex());
-	Preferences::set("show", mw->show_events());
-	Preferences::set("event", mw->event_cursor());
 	Preferences::set("priority", mw->show_priority());
+	Preferences::set("event", mw->show_events());
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("all256", mw->allow_256_tiles());
+	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	if (mw->_resize_dialog->initialized()) {
@@ -2068,20 +2154,14 @@ void Main_Window::hex_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
-	SYNC_TB_WITH_M(mw->_show_events_tb, m);
-	mw->update_labels();
-	mw->redraw();
-}
-
-void Main_Window::event_cursor_cb(Fl_Menu_ *m, Main_Window *mw) {
-	SYNC_TB_WITH_M(mw->_event_cursor_tb, m);
-	mw->update_labels();
-	mw->redraw();
-}
-
 void Main_Window::show_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
 	SYNC_TB_WITH_M(mw->_show_priority_tb, m);
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_show_events_tb, m);
 	mw->update_labels();
 	mw->redraw();
 }
@@ -2112,20 +2192,14 @@ void Main_Window::hex_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	SYNC_MI_WITH_TB(mw->_show_events_tb, mw->_show_events_mi);
-	mw->update_labels();
-	mw->redraw();
-}
-
-void Main_Window::event_cursor_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	SYNC_MI_WITH_TB(mw->_event_cursor_tb, mw->_event_cursor_mi);
-	mw->update_labels();
-	mw->redraw();
-}
-
 void Main_Window::show_priority_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	SYNC_MI_WITH_TB(mw->_show_priority_tb, mw->_show_priority_mi);
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_show_events_tb, mw->_show_events_mi);
 	mw->update_labels();
 	mw->redraw();
 }
@@ -2368,6 +2442,12 @@ void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw) {
+	if (mw->auto_load_events() == !m->mvalue()->value()) {
+		mw->redraw();
+	}
+}
+
 void Main_Window::auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw) {
 	if (mw->auto_load_special_lighting() == !m->mvalue()->value()) {
 		mw->redraw();
@@ -2403,7 +2483,7 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 }
 
 void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
-	if (!mw->_map_editable) { return; }
+	if (!mw->_map_editable || mw->_mode != Mode::BLOCKS) { return; }
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!mw->_selected) { return; }
 		if (Fl::event_is_click()) {
@@ -2439,4 +2519,9 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		if (id >= mw->_metatileset.size()) { return; }
 		mw->select_metatile(mw->_metatile_buttons[id]);
 	}
+}
+
+void Main_Window::change_event_cb(Event *, Main_Window *mw) {
+	if (!mw->_map_editable || mw->_mode != Mode::EVENTS) { return; }
+	// TODO: edit events
 }
