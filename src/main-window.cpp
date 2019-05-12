@@ -73,6 +73,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_tb = new Toolbar_Button(0, 0, 24, 24);
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_load_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
+	_reload_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_print_tb = new Toolbar_Button(0, 0, 24, 24);
@@ -209,6 +210,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
 		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INACTIVE/*0*/),
+		OS_MENU_ITEM("Reloa&d Event Script", FL_COMMAND + 'r', (Fl_Callback *)reload_event_script_cb, this, 0),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
 		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
@@ -274,7 +276,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
 		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("C&hange Roof...", FL_COMMAND + 'H', (Fl_Callback *)change_roof_cb, this, 0),
-		OS_MENU_ITEM("Edit &Roof...", FL_COMMAND + 'r', (Fl_Callback *)edit_roof_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Edit &Roof...", FL_COMMAND + 'f', (Fl_Callback *)edit_roof_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Edit Current &Lighting...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_lighting_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
@@ -325,6 +327,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
+	_reload_event_script_mi = PM_FIND_MENU_ITEM_CB(reload_event_script_cb);
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
 	_load_roof_colors_mi = PM_FIND_MENU_ITEM_CB(load_roof_colors_cb);
 	_close_mi = PM_FIND_MENU_ITEM_CB(close_cb);
@@ -367,6 +370,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_load_event_script_tb->callback((Fl_Callback *)load_event_script_cb, this);
 	_load_event_script_tb->image(LOAD_ICON);
 	_load_event_script_tb->deimage(LOAD_DISABLED_ICON);
+
+	_reload_event_script_tb->tooltip("Reload Event Script... (Ctrl+R)");
+	_reload_event_script_tb->callback((Fl_Callback *)reload_event_script_cb, this);
+	_reload_event_script_tb->image(RELOAD_ICON);
+	_reload_event_script_tb->deimage(RELOAD_DISABLED_ICON);
 
 	_save_tb->tooltip("Save (Ctrl+S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
@@ -469,7 +477,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_change_roof_tb->image(CHANGE_ROOF_ICON);
 	_change_roof_tb->deimage(CHANGE_ROOF_DISABLED_ICON);
 
-	_edit_roof_tb->tooltip("Edit Roof... (Ctrl+R)");
+	_edit_roof_tb->tooltip("Edit Roof... (Ctrl+F)");
 	_edit_roof_tb->callback((Fl_Callback *)edit_roof_cb, this);
 	_edit_roof_tb->image(ROOF_ICON);
 	_edit_roof_tb->deimage(ROOF_DISABLED_ICON);
@@ -743,11 +751,15 @@ void Main_Window::update_active_controls() {
 		_print_tb->activate();
 		if (_map_events.size()) {
 			_unload_event_script_mi->activate();
+			_reload_event_script_mi->activate();
 			// TODO: _save_event_script_mi->activate();
+			_reload_event_script_tb->activate();
 		}
 		else {
 			_unload_event_script_mi->deactivate();
+			_reload_event_script_mi->deactivate();
 			_save_event_script_mi->deactivate();
+			_reload_event_script_tb->deactivate();
 		}
 		const Tileset *tileset = _metatileset.const_tileset();
 		if (tileset && _map.group()) {
@@ -813,6 +825,8 @@ void Main_Window::update_active_controls() {
 		_load_event_script_mi->deactivate();
 		_load_event_script_tb->deactivate();
 		_load_roof_colors_mi->deactivate();
+		_reload_event_script_mi->deactivate();
+		_reload_event_script_tb->deactivate();
 		_close_mi->deactivate();
 		_unload_event_script_mi->deactivate();
 		_save_mi->deactivate();
@@ -1897,6 +1911,26 @@ void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *) {
 	// TODO: save_event_script_cb
+}
+
+void Main_Window::reload_event_script_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map_events.size()) { return; }
+
+	if (mw->_edited_events) {
+		const char *basename = fl_filename_name(mw->_asm_file.c_str());
+		std::string msg = "The events have been edited!\n\n";
+		msg = msg + "Reload " + basename + " anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
+
+	std::string filename(mw->_asm_file);
+	mw->unload_events();
+	mw->load_events(filename.c_str());
+
+	mw->update_active_controls();
+	mw->redraw();
 }
 
 void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *mw) {
