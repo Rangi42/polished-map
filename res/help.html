@@ -5,8 +5,8 @@ R"(<html>
 <body>
 <h1>)" PROGRAM_NAME R"(</h1>
 <p>Copyright © )" CURRENT_YEAR " " PROGRAM_AUTHOR R"(</p>
-<p>A map and tileset editor for <a href="https://github.com/TheFakeMateo/RedPlusPlus">Pokémon Red++</a>.</p>
-<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and focused on graphics instead of script editing.</p>
+<p>A map and tileset editor for <a href="https://github.com/Rangi42/polishedcrystal">Polished Crystal</a> and <a href="https://github.com/TheFakeMateo/RedPlusPlus">Pokémon Red++</a>.</p>
+<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and more focused on graphics than script editing.</p>
 <p>Source code is available at <a href="https://github.com/Rangi42/polished-map/tree/plusplus">https://github.com/Rangi42/polished-map/tree/plusplus</a>.</p>
 <hr>
 <p>)" PROGRAM_NAME R"( assumes that you have applied two major edits to a <a href="https://github.com/pret/pokecrystal">pokecrystal</a> project:</p>
@@ -14,7 +14,7 @@ R"(<html>
 <li><a href="https://github.com/pret/pokecrystal/wiki/Expand-tilesets-from-192-to-255-tiles">Expand tilesets from 192 to 255 tiles</a>: By default you cannot use tiles $60 to $7F or $E0 to $FF, since they are reserved for text character tiles.</li>
 <li><a href="https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-(including-X-and-Y-flip)" ")" R"(">Allow tiles to have different attributes in different blocks (including X and Y flip)</a>: By default colors are assigned to each tile with a palette_map.asm file, and will be the same for that tile in every block; and the X flip, Y flip, and priority attributes are not available.</li>
 </ul>
-<p>These two edits take more advantage of the Game Boy Color's hardware capabilities, and let you create more detailed maps than with standard pokecrystal. Projects including <a href="https://github.com/TheFakeMateo/RedPlusPlus">Red++</a> and <a href="https://github.com/pkmncoraldev/pokecoral">Coral</a> use these features.</p>
+<p>These two edits take more advantage of the Game Boy Color's hardware capabilities, and let you create more detailed maps than with standard pokecrystal. Projects including <a href="https://github.com/Rangi42/polishedcrystal">Polished Crystal</a>, <a href="https://github.com/TheFakeMateo/RedPlusPlus">Red++</a>, <a href="https://github.com/pkmncoraldev/pokecoral">Coral</a> , and <a href="https://github.com/BloodlessNS/ancientruby">Ancient Ruby</a> use these features.</p>
 <hr>
 <p>)" PROGRAM_NAME R"( displays and edits .ablk map files. (The extension has been renamed from .blk so that you can use it side-by-side with standard pokecrystal projects.) It supports all the standard ways to open a file:</p>
 <ul>
