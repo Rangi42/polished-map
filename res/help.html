@@ -25,6 +25,7 @@ R"(<html>
 <ul>
 <li><b>Monochrome:</b> Tileset palettes will not be read or written. This option is necessary for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
 <li><b>256 Tiles:</b> Allow all 256 tile IDs from $00 to $FF. <a href="https://github.com/pret/pokecrystal">pokecrystal</a>'s tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF, with $E0 to $FF unused. This option is necessary for projects that support larger tilesets, such as Polished Crystal and Orange.</li>
+<li><b>Auto-Load Events:</b> Automatically loads the .asm file corresponding to the map if one exists. For example, if you open maps)" DIR_SEP "PalletTown.blk, then this option will automatically try to load maps" DIR_SEP "PalletTown.asm (for pokecrystal-based projects) or data" DIR_SEP "mapObjects" DIR_SEP R"(PalletTown.asm (for pokered).</li>
 <li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.blk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else maps" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
 <li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use File&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
 </ul>
@@ -36,7 +37,7 @@ R"(<html>
 <li>Right-click to edit a block.</li>
 <li>Middle-click and drag to scroll.</li>
 </ul>
-<p>The map area also uses the mouse:</p>
+<p>The map area also uses the mouse, but it depends on the Mode. In Block mode:</p>
 <ul>
 <li>Left-click or drag to place the selected block in the sidebar palette.</li>
 <li>Right-click to select a block from the map.</li>
@@ -44,12 +45,18 @@ R"(<html>
 <li>Hold Shift and left-click a group of blocks to flood-fill it.</li>
 <li>Hold Ctrl and left-click a block to replace every block of that type.</li>
 </ul>
+<p>And in Event mode:</p>
+<ul>
+<li>Middle-click and drag to scroll.</li>
+<li>Hover over an event to see a tooltip with its full definition.</li>
+</ul>
 <p>The number keys 0-9 are hotkeys for the sidebar palette.</p>
 <ul>
 <li>Press Ctrl+0-9 to assign that key to the selected block.</li>
 <li>Press 0-9 to select the block assigned to that key.</li>
 <li>Press Ctrl+Shift+0-9 to unassign that key.</li>
 </ul>
+<p>In Block mode, you can view and edit the map's blocks. In Event mode, you can view the map's events (NPCs, warps, signs, etc) but cannot edit them directly. Instead, you can edit the events' .asm file in a text editor, and then press Ctrl+R to reload the updated file.</p>
 <hr>
 <p>The block editor window has some simple mouse controls:</p>
 <ul>
