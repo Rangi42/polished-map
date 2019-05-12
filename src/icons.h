@@ -11,6 +11,8 @@
 #include "open-disabled.xpm"
 #include "load.xpm"
 #include "load-disabled.xpm"
+#include "reload.xpm"
+#include "reload-disabled.xpm"
 #include "save.xpm"
 #include "save-disabled.xpm"
 #include "print.xpm"
@@ -66,6 +68,8 @@ static Fl_Pixmap OPEN_ICON(OPEN_XPM);
 static Fl_Pixmap OPEN_DISABLED_ICON(OPEN_DISABLED_XPM);
 static Fl_Pixmap LOAD_ICON(LOAD_XPM);
 static Fl_Pixmap LOAD_DISABLED_ICON(LOAD_DISABLED_XPM);
+static Fl_Pixmap RELOAD_ICON(RELOAD_XPM);
+static Fl_Pixmap RELOAD_DISABLED_ICON(RELOAD_DISABLED_XPM);
 static Fl_Pixmap SAVE_ICON(SAVE_XPM);
 static Fl_Pixmap SAVE_DISABLED_ICON(SAVE_DISABLED_XPM);
 static Fl_Pixmap PRINT_ICON(PRINT_XPM);

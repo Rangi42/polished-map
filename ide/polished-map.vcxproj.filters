@@ -379,6 +379,12 @@
     <None Include="..\res\priority-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\reload.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\reload-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">

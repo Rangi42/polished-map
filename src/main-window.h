@@ -49,18 +49,19 @@ private:
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_auto_events_mi = NULL, *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
-	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_save_tb, *_print_tb, *_undo_tb, *_redo_tb,
-		*_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb, *_edit_roof_tb,
-		*_load_lighting_tb, *_edit_current_lighting_tb;
+	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb = NULL, *_save_tb, *_print_tb,
+		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
+		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_priority_tb, *_show_events_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL,
-		*_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_map_mi, *_save_blockset_mi = NULL,
-		*_save_tileset_mi = NULL, *_save_roof_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_reload_event_script_mi = NULL,
+		*_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_map_mi,
+		*_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_roof_mi = NULL, *_save_event_script_mi = NULL,
+		*_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_change_roof_mi = NULL,
 		*_edit_tileset_mi = NULL, *_edit_roof_mi = NULL, *_edit_current_lighting_mi = NULL;
@@ -168,6 +169,7 @@ private:
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
+	static void reload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
