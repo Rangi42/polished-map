@@ -94,13 +94,14 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 	od->_dialog->hide();
 }
 
-Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(280, t), _max_tileset_name_length(0), _max_roof_name_length(0),
-	_map_width(NULL), _map_height(NULL), _map_size(NULL), _tileset(NULL), _roof(NULL) {}
+Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(300, t), _max_tileset_name_length(0), _max_roof_name_length(0),
+	_map_header(NULL), _map_size(NULL), _map_width(NULL), _map_height(NULL), _tileset(NULL), _roof(NULL) {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
+	delete _map_header;
+	delete _map_size;
 	delete _map_width;
 	delete _map_height;
-	delete _map_size;
 	delete _tileset;
 	delete _roof;
 }
@@ -147,8 +148,13 @@ static void guess_map_constant(const char *name, char *constant) {
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs) {
 	if (!filename) { return false; }
 
+	const char *name = fl_filename_name(filename);
+	char buffer[FL_PATH_MAX] = {};
+	strcpy(buffer, name);
+	strcat(buffer, ":");
+	_map_header->copy_label(buffer);
+
 	size_t fs = file_size(filename);
-	char buffer[32];
 #ifdef __GNUC__
 	sprintf(buffer, "(%zu B)", fs);
 #else
@@ -173,7 +179,6 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	std::ifstream ifs(map_constants);
 	if (!ifs.good()) { return false; }
 
-	const char *name = fl_filename_name(filename);
 	char constant[FL_PATH_MAX] = {};
 	guess_map_constant(name, constant);
 
@@ -484,9 +489,10 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 void Map_Options_Dialog::initialize_content() {
 	// Populate content group
+	_map_header = new Label(0, 0, 0, 0);
+	_map_size = new Label(0, 0, 0, 0);
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
-	_map_size = new Label(0, 0, 0, 0);
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_roof = new Dropdown(0, 0, 0, 0, "Roof:");
 	// Initialize content group's children
@@ -502,8 +508,11 @@ void Map_Options_Dialog::initialize_content() {
 
 int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h + wgt_m + wgt_h + wgt_m + wgt_h;
+	int ch = wgt_h * 4 + wgt_m * 3;
 	_content->resize(win_m, dy, ww, ch);
+
+	_map_header->resize(win_m, dy, ww, wgt_h);
+	dy += _map_header->h() + wgt_m;
 
 	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
 
@@ -756,6 +765,142 @@ int Roof_Options_Dialog::refresh_content(int ww, int dy) {
 
 	wgt_w = _map_options_dialog->_max_roof_name_length + wgt_h;
 	_roof->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
+}
+
+Event_Options_Dialog::Event_Options_Dialog(const char *t) : Option_Dialog(300, t), _macro_heading(NULL),
+	_line_heading(NULL), _prefix(NULL), _suffix(NULL), _event_x(NULL), _event_y(NULL) {}
+
+Event_Options_Dialog::~Event_Options_Dialog() {
+	delete _macro_heading;
+	delete _line_heading;
+	delete _prefix;
+	delete _suffix;
+	delete _event_x;
+	delete _event_y;
+}
+
+void Event_Options_Dialog::use_event(const Event *e) {
+	initialize();
+	char buffer[512];
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	_snprintf_s(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#else
+	snprintf(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#endif
+	_macro_heading->copy_label(buffer);
+
+#ifdef __GNUC__
+	sprintf(buffer, "Line: %zu", e->_line);
+#else
+	sprintf(buffer, "Line: %u", e->_line);
+#endif
+	_line_heading->copy_label(buffer);
+
+	_prefix->value(e->_prefix.c_str());
+	if (e->_prefixed) {
+		_prefix->activate();
+	}
+	else {
+		_prefix->deactivate();
+	}
+	_prefix->position(0);
+
+	_suffix->value(e->_suffix.c_str());
+	if (e->_suffixed) {
+		_suffix->activate();
+	}
+	else {
+		_suffix->deactivate();
+	}
+	_suffix->position(0);
+
+	_event_x->value(e->_event_x);
+	_hex_event_x->value(e->_event_x);
+	if (e->_hex_coords) {
+		_event_x->hide();
+		_hex_event_x->show();
+	}
+	else {
+		_event_x->show();
+		_hex_event_x->hide();
+	}
+
+	_event_y->value(e->_event_y);
+	_hex_event_y->value(e->_event_y);
+	if (e->_hex_coords) {
+		_event_y->hide();
+		_hex_event_y->show();
+	}
+	else {
+		_event_y->show();
+		_hex_event_y->hide();
+	}
+}
+
+void Event_Options_Dialog::update_event(Event *e) {
+	e->_prefix = _prefix->value();
+	e->_suffix = _suffix->value();
+	if (e->_hex_coords) {
+		e->_event_x = (uint8_t)_hex_event_x->value();
+		e->_event_y = (uint8_t)_hex_event_y->value();
+	}
+	else {
+		e->_event_x = (uint8_t)_event_x->value();
+		e->_event_y = (uint8_t)_event_y->value();
+	}
+	e->update_tooltip();
+}
+
+void Event_Options_Dialog::limit_event_coords(uint8_t max_x, uint8_t max_y) {
+	_event_x->range(0, max_x);
+	_event_y->range(0, max_y);
+	_hex_event_x->range(0, max_x);
+	_hex_event_y->range(0, max_y);
+}
+
+void Event_Options_Dialog::initialize_content() {
+	// Populate content group
+	_macro_heading = new Label(0, 0, 0, 0);
+	_line_heading = new Label(0, 0, 0, 0);
+	_prefix = new OS_Input(0, 0, 0, 0, "Prefix:");
+	_suffix = new OS_Input(0, 0, 0, 0, "Suffix:");
+	_event_x = new OS_Spinner(0, 0, 0, 0, "X:");
+	_event_y = new OS_Spinner(0, 0, 0, 0, "Y:");
+	_hex_event_x = new OS_Hex_Spinner(0, 0, 0, 0, "X:");
+	_hex_event_y = new OS_Hex_Spinner(0, 0, 0, 0, "Y:");
+	// Initialize content group's children
+	_event_x->align(FL_ALIGN_LEFT);
+	_event_y->align(FL_ALIGN_LEFT);
+	_hex_event_x->align(FL_ALIGN_LEFT);
+	_hex_event_y->align(FL_ALIGN_LEFT);
+}
+
+int Event_Options_Dialog::refresh_content(int ww, int dy) {
+	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
+	int ch = wgt_h * 4 + wgt_m * 3;
+	_content->resize(win_m, dy, ww, ch);
+
+	wgt_w = text_width(_line_heading->label(), 6);
+	_macro_heading->resize(win_m, dy, ww-wgt_w, wgt_h);
+	_line_heading->resize(win_m+ww-wgt_w, dy, wgt_w, wgt_h);
+
+	int wgt_off = win_m + MAX(text_width(_prefix->label(), 2), text_width(_suffix->label(), 2));
+	wgt_w = ww - wgt_off + win_m;
+	_prefix->resize(wgt_off, dy+wgt_h+wgt_m, wgt_w, wgt_h);
+	_suffix->resize(wgt_off, dy+(wgt_h+wgt_m)*3, wgt_w, wgt_h);
+
+	dy += (wgt_h + wgt_m) * 2;
+
+	int dx = text_width(_event_y->label(), 2) + win_m;
+	wgt_w = text_width("999", 2) + wgt_h;
+	_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
+	_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
+
+	wgt_w = MAX(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
+	_hex_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
+	_hex_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
 
 	return ch;
 }

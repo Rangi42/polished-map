@@ -59,10 +59,10 @@ private:
 	// GUI outputs
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
-	Fl_Menu_Item *_load_event_script_mi = NULL, *_unload_event_script_mi = NULL, *_reload_event_script_mi = NULL,
-		*_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL, *_save_as_mi = NULL, *_save_map_mi,
-		*_save_blockset_mi = NULL, *_save_tileset_mi = NULL, *_save_roof_mi = NULL, *_save_event_script_mi = NULL,
-		*_print_mi = NULL;
+	Fl_Menu_Item *_load_event_script_mi = NULL, *_view_event_script_mi, *_reload_event_script_mi = NULL,
+		*_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL,
+		*_save_as_mi = NULL, *_save_map_mi = NULL, *_save_blockset_mi = NULL, *_save_tileset_mi = NULL,
+		*_save_roof_mi = NULL, *_save_event_script_mi = NULL, *_print_mi = NULL;
 	Fl_Menu_Item *_undo_mi = NULL, *_redo_mi = NULL, *_copy_block_mi = NULL, *_paste_block_mi = NULL, *_swap_block_mi = NULL;
 	Fl_Menu_Item *_resize_blockset_mi = NULL, *_resize_map_mi = NULL, *_change_tileset_mi = NULL, *_change_roof_mi = NULL,
 		*_edit_tileset_mi = NULL, *_edit_roof_mi = NULL, *_edit_current_lighting_mi = NULL;
@@ -74,6 +74,7 @@ private:
 	Map_Options_Dialog *_map_options_dialog;
 	Tileset_Options_Dialog *_tileset_options_dialog;
 	Roof_Options_Dialog *_roof_options_dialog;
+	Event_Options_Dialog *_event_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
@@ -92,8 +93,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _unsaved = false, _has_collisions = false, _edited_events = false, _edited_lighting = false, _copied = false,
-		_map_editable = false;
+	bool _unsaved = false, _has_collisions = false, _edited_lighting = false, _copied = false, _map_editable = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
@@ -134,6 +134,7 @@ public:
 	inline void update_status(Event *e) { update_status(_map.block_under(e)); }
 	void update_event_cursor(Block *b);
 	inline void update_event_cursor(Event *e) { update_event_cursor(_map.block_under(e)); }
+	inline void redraw_map(void) { _map_scroll->redraw(); }
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void substitute_block(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
@@ -142,8 +143,10 @@ private:
 	int handle_hotkey(int key);
 	void update_active_controls(void);
 	void open_map(const char *directory, const char *filename);
+	void warp_to_map(Event *e);
 	void load_events(const char *filename);
 	void unload_events(void);
+	void view_event_script(Event *e);
 	void load_lighting(const char *filename);
 	void load_roof_colors(bool quiet);
 	bool read_metatile_data(const char *tileset_name, const char *roof_name);
@@ -154,6 +157,7 @@ private:
 	bool save_metatileset(void);
 	bool save_tileset(void);
 	bool save_roof(void);
+	bool save_event_script(void);
 	bool export_lighting(const char *filename, Lighting l);
 	void edit_metatile(Metatile *mt);
 	void update_zoom(void);
@@ -173,6 +177,7 @@ private:
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
+	static void view_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void reload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
@@ -208,6 +213,7 @@ private:
 	// Mode menu
 	static void blocks_mode_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void events_mode_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void switch_mode_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Tools menu
 	static void add_sub_cb(Fl_Widget *w, Main_Window *mw);
 	static void resize_cb(Fl_Widget *w, Main_Window *mw);

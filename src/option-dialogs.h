@@ -49,8 +49,8 @@ typedef std::unordered_map<std::string, std::string> Dictionary;
 class Map_Options_Dialog : public Option_Dialog {
 private:
 	int _max_tileset_name_length, _max_roof_name_length;
+	Label *_map_header, *_map_size;
 	OS_Spinner *_map_width, *_map_height;
-	Label *_map_size;
 	Dropdown *_tileset, *_roof;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
@@ -139,6 +139,23 @@ public:
 	~Roof_Options_Dialog();
 	bool limit_roof_options(const char *old_roof_name);
 	const char *roof(void) const;
+protected:
+	void initialize_content(void);
+	int refresh_content(int ww, int dy);
+};
+
+class Event_Options_Dialog : public Option_Dialog {
+private:
+	Label *_macro_heading, *_line_heading;
+	OS_Input *_prefix, *_suffix;
+	OS_Spinner *_event_x, *_event_y;
+	OS_Hex_Spinner *_hex_event_x, *_hex_event_y;
+public:
+	Event_Options_Dialog(const char *t);
+	~Event_Options_Dialog();
+	void use_event(const Event *e);
+	void update_event(Event *e);
+	void limit_event_coords(uint8_t max_x, uint8_t max_y);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
