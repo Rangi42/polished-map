@@ -25,6 +25,10 @@ bool ends_with(const std::string &s, const std::string &p) {
 	return s.size() >= p.size() && !s.compare(s.size() - p.size(), p.size(), p);
 }
 
+bool ends_with(const std::wstring &s, const std::wstring &p) {
+	return s.size() >= p.size() && !s.compare(s.size() - p.size(), p.size(), p);
+}
+
 void trim(std::string &s, const std::string &t) {
 	std::string::size_type p = s.find_first_not_of(t);
 	s.erase(0, p);

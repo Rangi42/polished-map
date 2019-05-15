@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <cwctype>
+#include <algorithm>
 #include <queue>
 #include <utility>
 
@@ -150,6 +152,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_tileset_options_dialog = new Tileset_Options_Dialog("Change Tileset", _map_options_dialog);
 	_roof_options_dialog = new Roof_Options_Dialog("Change Roof", _map_options_dialog);
+	_event_options_dialog = new Event_Options_Dialog("Edit Event");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
@@ -203,9 +206,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
-		OS_MENU_ITEM("Save E&vent Script", 0, (Fl_Callback *)save_event_script_cb, this, FL_MENU_INACTIVE/*0*/),
+		OS_MENU_ITEM("Save E&vent Script", FL_COMMAND + 'A', (Fl_Callback *)save_event_script_cb, this, 0),
+		OS_MENU_ITEM("V&iew Event Script", FL_COMMAND + 'u', (Fl_Callback *)view_event_script_cb, this, 0),
 		OS_MENU_ITEM("Reloa&d Event Script", FL_COMMAND + 'r', (Fl_Callback *)reload_event_script_cb, this, 0),
-		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'L', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'W', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
 		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load Roo&f Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, FL_MENU_DIVIDER),
@@ -259,10 +263,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
 		OS_SUBMENU("&Mode"),
-		OS_MENU_ITEM("&Blocks", FL_COMMAND + '1', (Fl_Callback *)blocks_mode_cb, this,
+		OS_MENU_ITEM("&Blocks", FL_COMMAND + 'B', (Fl_Callback *)blocks_mode_cb, this,
 			FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Events", FL_COMMAND + '2', (Fl_Callback *)events_mode_cb, this,
-			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Events", FL_COMMAND + 'E', (Fl_Callback *)events_mode_cb, this,
+			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : FL_MENU_DIVIDER)),
+		OS_MENU_ITEM("&Switch Mode", FL_Tab, (Fl_Callback *)switch_mode_cb, this, 0),
 		{},
 		OS_SUBMENU("&Tools"),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
@@ -315,6 +320,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
+	_view_event_script_mi = PM_FIND_MENU_ITEM_CB(view_event_script_cb);
 	_reload_event_script_mi = PM_FIND_MENU_ITEM_CB(reload_event_script_cb);
 	_unload_event_script_mi = PM_FIND_MENU_ITEM_CB(unload_event_script_cb);
 	_load_roof_colors_mi = PM_FIND_MENU_ITEM_CB(load_roof_colors_cb);
@@ -414,19 +420,19 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_priority_tb->deimage(PRIORITY_DISABLED_ICON);
 	_show_priority_tb->value(show_priority());
 
-	_show_events_tb->tooltip("Show Events (Ctrl+R)");
+	_show_events_tb->tooltip("Show Events (Ctrl+Shift+R)");
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->deimage(SHOW_DISABLED_ICON);
 	_show_events_tb->value(show_events());
 
-	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+1)");
+	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+Shift+B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
 	_blocks_mode_tb->image(BLOCKS_ICON);
 	_blocks_mode_tb->deimage(BLOCKS_DISABLED_ICON);
 	_blocks_mode_tb->value(mode() == Mode::BLOCKS);
 
-	_events_mode_tb->tooltip("Events Mode (Ctrl+2)");
+	_events_mode_tb->tooltip("Events Mode (Ctrl+Shift+E)");
 	_events_mode_tb->callback((Fl_Callback *)events_mode_tb_cb, this);
 	_events_mode_tb->image(EVENTS_ICON);
 	_events_mode_tb->deimage(EVENTS_DISABLED_ICON);
@@ -552,6 +558,7 @@ Main_Window::~Main_Window() {
 	delete _map_options_dialog;
 	delete _tileset_options_dialog;
 	delete _roof_options_dialog;
+	delete _event_options_dialog;
 	delete _resize_dialog;
 	delete _add_sub_dialog;
 	delete _help_window;
@@ -736,13 +743,15 @@ void Main_Window::update_active_controls() {
 		_save_tileset_mi->activate();
 		_print_mi->activate();
 		_print_tb->activate();
-		if (_map_events.size()) {
+		if (_map_events.loaded()) {
+			_view_event_script_mi->activate();
 			_unload_event_script_mi->activate();
 			_reload_event_script_mi->activate();
-			// TODO: _save_event_script_mi->activate();
+			_save_event_script_mi->activate();
 			_reload_event_script_tb->activate();
 		}
 		else {
+			_view_event_script_mi->deactivate();
 			_unload_event_script_mi->deactivate();
 			_reload_event_script_mi->deactivate();
 			_save_event_script_mi->deactivate();
@@ -815,6 +824,7 @@ void Main_Window::update_active_controls() {
 		_reload_event_script_mi->deactivate();
 		_reload_event_script_tb->deactivate();
 		_close_mi->deactivate();
+		_view_event_script_mi->deactivate();
 		_unload_event_script_mi->deactivate();
 		_save_mi->deactivate();
 		_save_tb->deactivate();
@@ -1100,6 +1110,41 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	redraw();
 }
 
+void Main_Window::warp_to_map(Event *e) {
+	char destination[FL_PATH_MAX] = {};
+	if (!e->warp_map_name(destination)) { return; }
+
+	char filename[FL_PATH_MAX] = {};
+	strcpy(filename, _blk_file.c_str());
+	strcpy(const_cast<char *>(fl_filename_name(filename)), destination);
+	strcat(filename, fl_filename_ext(_blk_file.c_str()));
+
+	const char *basename = fl_filename_name(filename);
+	if (!strcmp(filename, _blk_file.c_str())) {
+		std::string msg = basename;
+		msg = msg + " is already open!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+	}
+	else if (file_exists(filename)) {
+		if (unsaved()) {
+			std::string msg = modified_filename();
+			msg = msg + " has unsaved changes!\n\n"
+				"Warp to " + basename + " anyway?";
+			_unsaved_dialog->message(msg);
+			_unsaved_dialog->show(this);
+			if (_unsaved_dialog->canceled()) { return; }
+		}
+		open_map(filename);
+	}
+	else {
+		std::string msg = "Could not warp to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+	}
+}
+
 void Main_Window::load_events(const char *filename) {
 	Map_Events::Result et = _map_events.read_events(filename);
 	if (et) {
@@ -1119,7 +1164,6 @@ void Main_Window::load_events(const char *filename) {
 		_map_group->add(event);
 	}
 
-	_edited_events = false;
 	_asm_file = filename;
 }
 
@@ -1131,9 +1175,55 @@ void Main_Window::unload_events() {
 		delete event;
 	}
 	_map_events.clear();
-
-	_edited_events = false;
 	_asm_file = "";
+}
+
+void Main_Window::view_event_script(Event *e) {
+#ifdef _WIN32
+	HWND hwnd = fl_xid(this);
+	wchar_t filename[FL_PATH_MAX] = {};
+	fl_utf8towc(_asm_file.c_str(), _asm_file.length(), filename, FL_PATH_MAX);
+
+	if (e) {
+		wchar_t directory[FL_PATH_MAX] = {}, program[FL_PATH_MAX] = {};
+		GetCurrentDirectory(FL_PATH_MAX, directory);
+		FindExecutable(filename, directory, program);
+
+		std::wstring program_lower(program);
+		std::transform(program_lower.begin(), program_lower.end(), program_lower.begin(), towlower);
+
+		std::wstringstream wss;
+		// Notepad2: /g <#> <filename>
+		if (ends_with(program_lower, L"notepad2.exe")) {
+			wss << L"/g " << e->line() << L" \"" << filename << L"\"";
+		}
+		// Notepad++: -n<#> <filename>
+		else if (ends_with(program_lower, L"notepad++.exe")) {
+			wss << L"-n" << e->line() << L" \"" << filename << L"\"";
+		}
+		// VS Code: -g <filename>:<#>
+		else if (ends_with(program_lower, L"code.exe")) {
+			wss << L"-g \"" << filename << L"\":" << e->line();
+		}
+		// Sublime Text: <filename>:<#>
+		else if (ends_with(program_lower, L"subl.exe") || ends_with(program_lower, L"sublime_text.exe")) {
+			wss << L"\"" << filename << L"\":" << e->line();
+		}
+
+		std::wstring params = wss.str();
+		if (!params.empty()) {
+			ShellExecute(hwnd, L"open", program, params.c_str(), NULL, SW_SHOW);
+			return;
+		}
+	}
+
+	ShellExecute(hwnd, L"edit", filename, NULL, NULL, SW_SHOW);
+#else
+	if (fork() == 0) {
+		execl("/usr/bin/xdg-open", "xdg-open", _asm_file.c_str(), NULL);
+		exit(EXIT_SUCCESS);
+	}
+#endif
 }
 
 void Main_Window::load_lighting(const char *filename) {
@@ -1578,6 +1668,35 @@ bool Main_Window::save_roof() {
 	return true;
 }
 
+bool Main_Window::save_event_script() {
+	const char *filename = _asm_file.c_str();
+	const char *basename = fl_filename_name(filename);
+
+	if (!_map_events.modified()) {
+		std::string msg = "Saved ";
+		msg = msg + basename + "!";
+		_success_dialog->message(msg);
+		_success_dialog->show(this);
+		return true;
+	}
+
+	if (!_map_events.write_event_script(filename)) {
+		std::string msg = "Could not write to ";
+		msg = msg + basename + "!";
+		_error_dialog->message(msg);
+		_error_dialog->show(this);
+		return false;
+	}
+
+	std::string msg = "Saved ";
+	msg = msg + basename + "!";
+	_success_dialog->message(msg);
+	_success_dialog->show(this);
+
+	_map_events.modified(false);
+	return true;
+}
+
 bool Main_Window::export_lighting(const char *filename, Lighting l) {
 	const char *basename = fl_filename_name(filename);
 
@@ -1779,15 +1898,22 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
-	bool other_modified = mw->_metatileset.modified() || mw->_metatileset.const_tileset()->modified();
+	bool other_modified = false;
 	if (mw->_metatileset.const_tileset()->modified()) {
 		save_tileset_cb(w, mw);
+		other_modified = true;
 	}
 	if (mw->_metatileset.const_tileset()->modified_roof()) {
 		save_roof_cb(w, mw);
+		other_modified = true;
 	}
 	if (mw->_metatileset.modified()) {
 		save_metatiles_cb(w, mw);
+		other_modified = true;
+	}
+	if (mw->_map_events.modified()) {
+		save_event_script_cb(w, mw);
+		other_modified = true;
 	}
 	if (other_modified && !mw->_map.modified()) { return; }
 	save_map_cb(w, mw);
@@ -1879,7 +2005,7 @@ void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	if (mw->_edited_events) {
+	if (mw->_map_events.modified()) {
 		std::string msg = "The events have been edited!\n\n";
 		msg = msg + "Load " + basename + " anyway?";
 		mw->_unsaved_dialog->message(msg);
@@ -1894,14 +2020,20 @@ void Main_Window::load_event_script_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *) {
-	// TODO: save_event_script_cb
+void Main_Window::view_event_script_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map_events.loaded()) { return; }
+	mw->view_event_script(NULL);
+}
+
+void Main_Window::save_event_script_cb(Fl_Widget *, Main_Window *mw) {
+	if (!mw->_map_events.loaded()) { return; }
+	mw->save_event_script();
 }
 
 void Main_Window::reload_event_script_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map_events.size()) { return; }
+	if (!mw->_map_events.loaded()) { return; }
 
-	if (mw->_edited_events) {
+	if (mw->_map_events.modified()) {
 		const char *basename = fl_filename_name(mw->_asm_file.c_str());
 		std::string msg = "The events have been edited!\n\n";
 		msg = msg + "Reload " + basename + " anyway?";
@@ -1919,9 +2051,9 @@ void Main_Window::reload_event_script_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::unload_event_script_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map_events.size()) { return; }
+	if (!mw->_map_events.loaded()) { return; }
 
-	if (mw->_edited_events) {
+	if (mw->_map_events.modified()) {
 		const char *basename = fl_filename_name(mw->_asm_file.c_str());
 		std::string msg = "The events have been edited!\n\n";
 		msg = msg + "Unload " + basename + " anyway?";
@@ -2278,6 +2410,20 @@ void Main_Window::events_mode_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::switch_mode_cb(Fl_Menu_ *, Main_Window *mw) {
+	if (mw->mode() == Mode::BLOCKS) {
+		mw->_events_mode_mi->setonly();
+		mw->_events_mode_tb->setonly();
+		mw->mode(Mode::EVENTS);
+	}
+	else {
+		mw->_blocks_mode_mi->setonly();
+		mw->_blocks_mode_tb->setonly();
+		mw->mode(Mode::BLOCKS);
+	}
+	mw->redraw();
+}
+
 void Main_Window::blocks_mode_tb_cb(Toolbar_Radio_Button *, Main_Window *mw) {
 	mw->_blocks_mode_mi->setonly();
 	mw->mode(Mode::BLOCKS);
@@ -2526,7 +2672,41 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 	}
 }
 
-void Main_Window::change_event_cb(Event *, Main_Window *mw) {
-	if (!mw->_map_editable || mw->_mode != Mode::EVENTS) { return; }
-	// TODO: edit events
+void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
+	if (mw->_mode != Mode::EVENTS) { return; }
+	int sx = mw->_map_scroll->x() - mw->_map_scroll->xposition();
+	int sy = mw->_map_scroll->y() - mw->_map_scroll->yposition();
+	if (Fl::event_button() == FL_LEFT_MOUSE) {
+		if (!Fl::event_is_click()) {
+			// Left-drag to move
+			uint8_t rx = (uint8_t)((Fl::event_x() - sx) / e->w());
+			uint8_t ry = (uint8_t)((Fl::event_y() - sy) / e->h());
+			uint8_t ex = MIN(MAX(rx, 0), mw->_map.max_event_x());
+			uint8_t ey = MIN(MAX(ry, 0), mw->_map.max_event_y());
+			e->coords(ex, ey);
+			e->reposition(sx, sy);
+			mw->_map_events.modified(true);
+			mw->redraw_map();
+		}
+		else if (Fl::event_shift()) {
+			// Shift+click to open a warp's map
+			mw->warp_to_map(e);
+		}
+		else if (Fl::event_clicks()) {
+			// Double-click to view .asm file
+			mw->view_event_script(e);
+		}
+	}
+	else if (Fl::event_button() == FL_RIGHT_MOUSE && Fl::event_is_click()) {
+		// Right-click to edit
+		mw->_event_options_dialog->use_event(e);
+		mw->_event_options_dialog->limit_event_coords(mw->_map.max_event_x(), mw->_map.max_event_y());
+		mw->_event_options_dialog->show(mw);
+		if (!mw->_event_options_dialog->canceled()) {
+			mw->_event_options_dialog->update_event(e);
+			e->reposition(sx, sy);
+			mw->_map_events.modified(true);
+			mw->redraw();
+		}
+	}
 }
