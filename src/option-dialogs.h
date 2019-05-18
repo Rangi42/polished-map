@@ -16,6 +16,8 @@
 #include <FL/Fl_Widget.H>
 #pragma warning(pop)
 
+#define NEW_MAP_NAME "New Map"
+
 class Option_Dialog {
 protected:
 	int _width;
