@@ -146,7 +146,11 @@ static void guess_map_constant(const char *name, char *constant) {
 }
 
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs) {
-	if (!filename) { return false; }
+	if (!filename) {
+		_map_header->label(NEW_MAP_NAME ":");
+		_map_size->label(NULL);
+		return false;
+	}
 
 	const char *name = fl_filename_name(filename);
 	char buffer[FL_PATH_MAX] = {};
