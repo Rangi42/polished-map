@@ -1112,6 +1112,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		char map_name[FL_PATH_MAX] = {};
 		remove_dot_ext(filename, map_name);
 		Config::event_script_path(buffer, directory, map_name);
+		if (!file_exists(buffer)) {
+			strcpy(buffer, filename);
+			fl_filename_setext(buffer, ".asm");
+		}
 		if (file_exists(buffer)) {
 			load_events(buffer);
 		}
