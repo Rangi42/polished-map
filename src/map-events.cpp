@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #pragma warning(push, 0)
-#include <FL/fl_utf8.H>
+#include <FL/fl_utf8.h>
 #pragma warning(pop)
 
 #include "map-events.h"

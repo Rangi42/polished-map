@@ -130,21 +130,21 @@ static uchar texture_azure32_png_buffer[107] = {
 };
 
 static Fl_PNG_Image texture_images[NUM_EVENT_TEXTURES] = {
-	Fl_PNG_Image(NULL, texture_red16_png_buffer,    107), // TX_RED
-	Fl_PNG_Image(NULL, texture_green16_png_buffer,  107), // TX_GREEN
-	Fl_PNG_Image(NULL, texture_blue16_png_buffer,   107), // TX_BLUE
-	Fl_PNG_Image(NULL, texture_purple16_png_buffer, 107), // TX_PURPLE
-	Fl_PNG_Image(NULL, texture_orange16_png_buffer, 107), // TX_ORANGE
-	Fl_PNG_Image(NULL, texture_azure16_png_buffer,  107)  // TX_AZURE
+	{NULL, texture_red16_png_buffer,    107}, // TX_RED
+	{NULL, texture_green16_png_buffer,  107}, // TX_GREEN
+	{NULL, texture_blue16_png_buffer,   107}, // TX_BLUE
+	{NULL, texture_purple16_png_buffer, 107}, // TX_PURPLE
+	{NULL, texture_orange16_png_buffer, 107}, // TX_ORANGE
+	{NULL, texture_azure16_png_buffer,  107}  // TX_AZURE
 };
 
 static Fl_PNG_Image zoomed_texture_images[NUM_EVENT_TEXTURES] = {
-	Fl_PNG_Image(NULL, texture_red32_png_buffer,    107), // TX_RED
-	Fl_PNG_Image(NULL, texture_green32_png_buffer,  107), // TX_GREEN
-	Fl_PNG_Image(NULL, texture_blue32_png_buffer,   107), // TX_BLUE
-	Fl_PNG_Image(NULL, texture_purple32_png_buffer, 107), // TX_PURPLE
-	Fl_PNG_Image(NULL, texture_orange32_png_buffer, 107), // TX_ORANGE
-	Fl_PNG_Image(NULL, texture_azure32_png_buffer,  107)  // TX_AZURE
+	{NULL, texture_red32_png_buffer,    107}, // TX_RED
+	{NULL, texture_green32_png_buffer,  107}, // TX_GREEN
+	{NULL, texture_blue32_png_buffer,   107}, // TX_BLUE
+	{NULL, texture_purple32_png_buffer, 107}, // TX_PURPLE
+	{NULL, texture_orange32_png_buffer, 107}, // TX_ORANGE
+	{NULL, texture_azure32_png_buffer,  107}  // TX_AZURE
 };
 
 Event::Event(size_t line, std::string prelude, std::string macro, Event_Meta meta, std::string tip_) : Fl_Box(0, 0, 0, 0),
@@ -244,7 +244,7 @@ void Event::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	if (mw->mode() != Mode::EVENTS && !mw->show_events()) { return; }
 	int X = x(), Y = y(), W = w(), H = h();
-	boolean zoom = mw->zoom();
+	bool zoom = mw->zoom();
 	(zoom ? zoomed_texture_images : texture_images)[_meta.texture].draw(X, Y, W, H);
 	fl_font(FL_HELVETICA_BOLD, zoom ? 24 : 14);
 	fl_color(FL_WHITE);

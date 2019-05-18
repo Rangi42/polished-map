@@ -31,6 +31,7 @@
 #ifdef _WIN32
 #include "resource.h"
 #else
+#include <unistd.h>
 #include <X11/xpm.h>
 #include "app-icon.xpm"
 #endif
