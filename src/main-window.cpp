@@ -1207,8 +1207,8 @@ void Main_Window::view_event_script(Event *e) {
 		std::transform(program_lower.begin(), program_lower.end(), program_lower.begin(), towlower);
 
 		std::wstringstream wss;
-		// Notepad2: /g <#> <filename>
-		if (ends_with(program_lower, L"notepad2.exe")) {
+		// Notepad2 or Notepad3: /g <#> <filename>
+		if (ends_with(program_lower, L"notepad2.exe") || ends_with(program_lower, L"notepad3.exe")) {
 			wss << L"/g " << e->line() << L" \"" << filename << L"\"";
 		}
 		// Notepad++: -n<#> <filename>
