@@ -800,19 +800,19 @@ void Event_Options_Dialog::use_event(const Event *e) {
 
 	_prefix->value(e->_prefix.c_str());
 	if (e->_prefixed) {
-		_prefix->activate();
+		_prefix->show();
 	}
 	else {
-		_prefix->deactivate();
+		_prefix->hide();
 	}
 	_prefix->position(0);
 
 	_suffix->value(e->_suffix.c_str());
 	if (e->_suffixed) {
-		_suffix->activate();
+		_suffix->show();
 	}
 	else {
-		_suffix->deactivate();
+		_suffix->hide();
 	}
 	_suffix->position(0);
 
@@ -879,28 +879,51 @@ void Event_Options_Dialog::initialize_content() {
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h * 4 + wgt_m * 3;
+	int ch = wgt_h + wgt_m + wgt_h;
+	if (_prefix->visible()) {
+		ch += wgt_h + wgt_m;
+	}
+	if (_suffix->visible()) {
+		ch += wgt_h + wgt_m;
+	}
 	_content->resize(win_m, dy, ww, ch);
 
 	wgt_w = text_width(_line_heading->label(), 6);
 	_macro_heading->resize(win_m, dy, ww-wgt_w, wgt_h);
 	_line_heading->resize(win_m+ww-wgt_w, dy, wgt_w, wgt_h);
+	dy += wgt_h + wgt_m;
 
-	int wgt_off = win_m + MAX(text_width(_prefix->label(), 2), text_width(_suffix->label(), 2));
-	wgt_w = ww - wgt_off + win_m;
-	_prefix->resize(wgt_off, dy+wgt_h+wgt_m, wgt_w, wgt_h);
-	_suffix->resize(wgt_off, dy+(wgt_h+wgt_m)*3, wgt_w, wgt_h);
+	int wgt_off = text_width(_event_x->label(), 2);
+	if (_prefix->visible()) {
+		wgt_off = MAX(wgt_off, text_width(_prefix->label(), 2));
+	}
+	if (_suffix->visible()) {
+		wgt_off = MAX(wgt_off, text_width(_suffix->label(), 2));
+	}
+	wgt_off += win_m;
 
-	dy += (wgt_h + wgt_m) * 2;
+	if (_prefix->visible()) {
+		_prefix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
+		dy += wgt_h + wgt_m;
+	}
 
-	int dx = text_width(_event_y->label(), 2) + win_m;
-	wgt_w = text_width("999", 2) + wgt_h;
-	_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
-	_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
+	if (_event_x->visible()) {
+		int dx = text_width(_event_y->label(), 2) + win_m;
+		wgt_w = text_width("999", 2) + wgt_h;
+		_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
+		_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
+	}
+	else {
+		int dx = text_width(_hex_event_y->label(), 2) + win_m;
+		wgt_w = MAX(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
+		_hex_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
+		_hex_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
+	}
+	dy += wgt_h + wgt_m;
 
-	wgt_w = MAX(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
-	_hex_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
-	_hex_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
+	if (_suffix->visible()) {
+		_suffix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
+	}
 
 	return ch;
 }
