@@ -11,26 +11,34 @@
 
 static const std::unordered_map<std::string, Event_Meta> events_meta = {
 	// pokecrystal
-	{"warp_event",            {TX_PURPLE, 'W', 0, false, 1}},
-	{"coord_event",           {TX_GREEN,  'C', 0, false, 0}},
-	{"bg_event",              {TX_RED,    'B', 0, false, 0}},
-	{"object_event",          {TX_BLUE,   'O', 0, false, 0}},
+	{"warp_event",             {TX_PURPLE, 'W', 0, false, 1}},
+	{"coord_event",            {TX_GREEN,  'C', 0, false, 0}},
+	{"bg_event",               {TX_RED,    'B', 0, false, 0}},
+	{"object_event",           {TX_BLUE,   'O', 0, false, 0}},
 	// old pokecrystal
-	{"warp_def",              {TX_PURPLE, 'W', 0, true,  2}},
-	{"xy_trigger",            {TX_GREEN,  'X', 1, true,  0}},
-	{"signpost",              {TX_RED,    'S', 0, true,  0}},
-	{"person_event",          {TX_BLUE,   'P', 1, true,  0}},
+	{"warp_def",               {TX_PURPLE, 'W', 0, true,  2}},
+	{"xy_trigger",             {TX_GREEN,  'X', 1, true,  0}},
+	{"signpost",               {TX_RED,    'S', 0, true,  0}},
+	{"person_event",           {TX_BLUE,   'P', 1, true,  0}},
 	// Prism
-	{"dummy_warp",            {TX_PURPLE, 'D', 0, true,  0}},
+	{"dummy_warp",             {TX_PURPLE, 'D', 0, true,  0}},
 	// Polished Crystal
-	{"itemball_event",        {TX_AZURE,  'I', 0, false, 0}},
-	{"tmhmball_event",        {TX_AZURE,  'T', 0, false, 0}},
-	{"cuttree_event",         {TX_AZURE,  'C', 0, false, 0}},
-	{"fruittree_event",       {TX_AZURE,  'F', 0, false, 0}},
-	{"strengthboulder_event", {TX_AZURE,  'B', 0, false, 0}},
-	{"smashrock_event",       {TX_AZURE,  'R', 0, false, 0}},
-	{"pc_nurse_event",        {TX_AZURE,  'N', 0, false, 0}},
-	{"mart_clerk_event",      {TX_AZURE,  'M', 0, false, 0}},
+	{"itemball_event",         {TX_AZURE,  'I', 0, false, 0}},
+	{"tmhmball_event",         {TX_AZURE,  'T', 0, false, 0}},
+	{"cuttree_event",          {TX_AZURE,  'C', 0, false, 0}},
+	{"fruittree_event",        {TX_AZURE,  'F', 0, false, 0}},
+	{"strengthboulder_event",  {TX_AZURE,  'B', 0, false, 0}},
+	{"smashrock_event",        {TX_AZURE,  'R', 0, false, 0}},
+	{"pc_nurse_event",         {TX_AZURE,  'N', 0, false, 0}},
+	{"mart_clerk_event",       {TX_AZURE,  'M', 0, false, 0}},
+	// Red++
+	{"pc_chansey_event",       {TX_ORANGE, 'C', 0, false, 0}},
+	{"pc_blissey_event",       {TX_ORANGE, 'B', 0, false, 0}},
+	{"cavebase_event",         {TX_ORANGE, 'V', 0, false, 0}},
+	{"treebase_left_event_1",  {TX_ORANGE, '?', 0, false, 0}},
+	{"treebase_left_event_2",  {TX_ORANGE, '!', 0, false, 0}},
+	{"treebase_right_event_1", {TX_ORANGE, '?', 0, false, 0}},
+	{"treebase_right_event_2", {TX_ORANGE, '!', 0, false, 0}},
 };
 
 Map_Events::Map_Events() : _events(), _result(MAP_EVENTS_NULL), _loaded(false), _modified(false) {}
