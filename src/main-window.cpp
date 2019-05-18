@@ -267,7 +267,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + 'B', (Fl_Callback *)blocks_mode_cb, this,
 			FL_MENU_RADIO | (mode() == Mode::BLOCKS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Events", FL_COMMAND + 'E', (Fl_Callback *)events_mode_cb, this,
-			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : FL_MENU_DIVIDER)),
+			FL_MENU_RADIO | (mode() == Mode::EVENTS ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Switch Mode", FL_Tab, (Fl_Callback *)switch_mode_cb, this, 0),
 		{},
 		OS_SUBMENU("&Tools"),
