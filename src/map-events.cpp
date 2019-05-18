@@ -35,8 +35,8 @@ static const std::unordered_map<std::string, Event_Meta> events_meta = {
 	{"pc_chansey_event",       {TX_ORANGE, 'C', 0, false, 0}},
 	{"pc_blissey_event",       {TX_ORANGE, 'B', 0, false, 0}},
 	{"cavebase_event",         {TX_ORANGE, 'V', 0, false, 0}},
-	{"treebase_left_event_1",  {TX_ORANGE, '?', 0, false, 0}},
-	{"treebase_left_event_2",  {TX_ORANGE, '!', 0, false, 0}},
+	{"treebase_left_event_1",  {TX_ORANGE, '\xbf', 0, false, 0}}, // U+00BF INVERTED QUESTION MARK
+	{"treebase_left_event_2",  {TX_ORANGE, '\xa1', 0, false, 0}}, // U+00A1 INVERTED EXCLAMATION MARK
 	{"treebase_right_event_1", {TX_ORANGE, '?', 0, false, 0}},
 	{"treebase_right_event_2", {TX_ORANGE, '!', 0, false, 0}},
 };
