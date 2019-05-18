@@ -813,8 +813,23 @@ void Event_Options_Dialog::use_event(const Event *e) {
 }
 
 void Event_Options_Dialog::update_event(Event *e) {
-	e->_prefix = _prefix->value();
-	e->_suffix = _suffix->value();
+	if (e->_prefixed) {
+		e->_prefix = _prefix->value();
+		trim(e->_prefix);
+		if (!ends_with(e->_prefix, ",")) {
+			e->_prefix += ",";
+		}
+	}
+	if (e->_suffixed) {
+		e->_suffix = _suffix->value();
+		trim(e->_suffix);
+		if (starts_with(e->_suffix, ";")) {
+			e->_suffix = " " + e->_suffix;
+		}
+		else if (!starts_with(e->_suffix, ",")) {
+			e->_suffix = ", " + e->_suffix;
+		}
+	}
 	if (e->_hex_coords) {
 		e->_event_x = (uint8_t)_hex_event_x->value();
 		e->_event_y = (uint8_t)_hex_event_y->value();
