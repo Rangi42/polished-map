@@ -79,6 +79,7 @@ bool ends_with(const std::wstring &s, const std::wstring &p);
 void trim(std::string &s, const std::string &t = whitespace);
 void remove_comment(std::string &s, char c = ';');
 void remove_dot_ext(const char *f, char *s);
+void add_dot_ext(const char *f, const char *ext, char *s);
 int text_width(const char *l, int pad);
 int text_width(const char *l, int pad = 0);
 bool file_exists(const char *f);

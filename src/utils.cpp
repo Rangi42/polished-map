@@ -49,6 +49,14 @@ void remove_dot_ext(const char *f, char *s) {
 	if (dot) { *dot = '\0'; }
 }
 
+void add_dot_ext(const char *f, const char *ext, char *s) {
+	strcpy(s, f);
+	const char *e = fl_filename_ext(s);
+	if (!e || !strlen(e)) {
+		strcat(s, ext);
+	}
+}
+
 int text_width(const char *l, int pad) {
 	int lw = 0, lh = 0;
 	fl_measure(l, lw, lh, 0);

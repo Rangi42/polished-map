@@ -1941,7 +1941,8 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_blk_save_chooser->show();
 	if (status == 1) { return; }
 
-	const char *filename = mw->_blk_save_chooser->filename();
+	char filename[FL_PATH_MAX] = {};
+	add_dot_ext(mw->_blk_save_chooser->filename(), ".blk", filename);
 	const char *basename = fl_filename_name(filename);
 
 	if (status == -1) {
@@ -1967,15 +1968,9 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	mw->copy_label(buffer);
-	if (ends_with(basename, ".blk")) {
-		sprintf(buffer, "%s", basename);
-		size_t n = strlen(buffer);
-		buffer[n-4] = '\0';
-		strcat(buffer, ".png");
-	}
-	else {
-		sprintf(buffer, "%s.png", basename);
-	}
+
+	strcpy(buffer, basename);
+	fl_filename_setext(buffer, FL_PATH_MAX, ".png");
 	mw->_png_chooser->preset_file(buffer);
 
 	mw->save_map(true);
@@ -2121,7 +2116,8 @@ void Main_Window::export_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_pal_save_chooser->show();
 	if (status == 1) { return; }
 
-	const char *filename = mw->_pal_save_chooser->filename();
+	char filename[FL_PATH_MAX] = {};
+	add_dot_ext(mw->_pal_save_chooser->filename(), ".pal", filename);
 	const char *basename = fl_filename_name(filename);
 
 	if (status == -1) {
@@ -2141,7 +2137,8 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_png_chooser->show();
 	if (status == 1) { return; }
 
-	const char *filename = mw->_png_chooser->filename();
+	char filename[FL_PATH_MAX] = {};
+	add_dot_ext(mw->_png_chooser->filename(), ".png", filename);
 	const char *basename = fl_filename_name(filename);
 
 	if (status == -1) {
