@@ -6,7 +6,7 @@ R"(<html>
 <h1>)" PROGRAM_NAME R"(</h1>
 <p>Copyright © )" CURRENT_YEAR " " PROGRAM_AUTHOR R"(</p>
 <p>A map and tileset editor for <a href="https://github.com/Rangi42/polishedcrystal">Polished Crystal</a> and <a href="https://github.com/TheFakeMateo/RedPlusPlus">Pokémon Red++</a>.</p>
-<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and more focused on graphics than script editing.</p>
+<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and with more functions for graphics editing.</p>
 <p>Source code is available at <a href="https://github.com/Rangi42/polished-map/tree/plusplus">https://github.com/Rangi42/polished-map/tree/plusplus</a>.</p>
 <hr>
 <p>)" PROGRAM_NAME R"( assumes that you have applied two major edits to a <a href="https://github.com/pret/pokecrystal">pokecrystal</a> project:</p>
@@ -52,8 +52,11 @@ R"(<html>
 </ul>
 <p>And in Event mode:</p>
 <ul>
-<li>Middle-click and drag to scroll.</li>
 <li>Hover over an event to see a tooltip with its full definition.</li>
+<li>Right-click to edit an event.</li>
+<li>Double-click an event to open the .asm file in the system text editor. If you use Notepad++, Notepad2, Notepad3, Sublime Text, or VS Code on Windows, then it will also open to the specific event's line number. If you edit and save the .asm file, you can reload it in )" PROGRAM_NAME R"( with File&nbsp;→&nbsp;Reload&nbsp;Event&nbsp;Script or Ctrl+R.</li>
+<li>Middle-click and drag to scroll.</li>
+<li>Hold Shift and left-click a warp event to open the map it warps to. The map's filename is guessed from the warp event's constant. For example, a warp to UNION_CAVE_B1F will try to open UnionCaveB1F.ablk.</li>
 </ul>
 <p>The number keys 0-9 are hotkeys for the sidebar palette.</p>
 <ul>
@@ -61,7 +64,7 @@ R"(<html>
 <li>Press 0-9 to select the block assigned to that key.</li>
 <li>Press Ctrl+Shift+0-9 to unassign that key.</li>
 </ul>
-<p>In Block mode, you can view and edit the map's blocks. In Event mode, you can view the map's events (NPCs, warps, signs, etc) but cannot edit them directly. Instead, you can edit the events' .asm file in a text editor, and then press Ctrl+R to reload the updated file.</p>
+<p>In Block mode, you can view and edit the map's blocks. In Event mode, you can view and edit the map's events (NPCs, warps, signs, etc). Events are also visible in Block mode if View&nbsp;→&nbsp;Show&nbsp;Events is checked.</p>
 <hr>
 <p>The block editor window has some simple mouse controls:</p>
 <ul>
