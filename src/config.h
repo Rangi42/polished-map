@@ -3,7 +3,7 @@
 
 class Config {
 private:
-	static bool _monochrome, _256_tiles;
+	static bool _monochrome, _priority, _256_tiles;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -25,6 +25,8 @@ public:
 	static void roofs_pal_path(char *dest, const char *root);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
+	inline static bool allow_priority(void) { return _priority; }
+	inline static void allow_priority(bool p) { _priority = p; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }
 	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
 };

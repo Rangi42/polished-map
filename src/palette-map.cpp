@@ -61,6 +61,9 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 			else if (token == "PRIORITY_ROOF")   { _palette[_palette_size++] = Palette::PRIORITY_ROOF; }
 			else if (token == "PRIORITY_TEXT")   { _palette[_palette_size++] = Palette::PRIORITY_TEXT; }
 			else                                 { return (_result = BAD_PALETTE_NAME); }
+			if (_palette[_palette_size-1] >= Palette::PRIORITY_GRAY) {
+				Config::allow_priority(true);
+			}
 		}
 	}
 	return (_result = PALETTE_OK);
@@ -89,11 +92,11 @@ bool Palette_Map::write_palette_map(const char *f) {
 	size_t n = MAX_NUM_TILES;
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
 	const char *prefix = Config::palette_macro();
-	bool allow_256_tiles = Config::allow_256_tiles();
-	bool seen_priority = false;
 	for (size_t i = 0; i < n; i++) {
-		if (!allow_256_tiles && (i == 0x60 || i == 0xe0)) {
-			fputs("\nrept 16\n\tdb $ff\nendr\n\n", file);
+		if (!Config::allow_256_tiles() && (i == 0x60 || i == 0xe0)) {
+			fputs(Config::allow_priority()
+				? "\nrept 32\n\tdb $ff\nendr\n\n"
+				: "\nrept 16\n\tdb $ff\nendr\n\n", file);
 			i += 0x1f;
 			continue;
 		}
@@ -112,21 +115,27 @@ bool Palette_Map::write_palette_map(const char *f) {
 		case BROWN:           fputs("BROWN", file); break;
 		case ROOF:            fputs("ROOF", file); break;
 		case TEXT: default:   fputs("TEXT", file); break;
-		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); seen_priority = true; break;
-		case PRIORITY_RED:    fputs("PRIORITY_RED", file); seen_priority = true; break;
-		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); seen_priority = true; break;
-		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); seen_priority = true; break;
-		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); seen_priority = true; break;
-		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); seen_priority = true; break;
-		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); seen_priority = true; break;
-		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); seen_priority = true; break;
+		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); break;
+		case PRIORITY_RED:    fputs("PRIORITY_RED", file); break;
+		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); break;
+		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); break;
+		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); break;
+		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); break;
+		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); break;
+		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); break;
 		}
 		if (i % PALETTES_PER_LINE == PALETTES_PER_LINE - 1) {
 			fputc('\n', file);
 		}
 	}
-	if (n % 2) { fputs(", TEXT", file); }
-	if (!seen_priority && n % PALETTES_PER_LINE) { fputc('\n', file); }
+	if (!Config::allow_priority()) {
+		if (n % 2) {
+			fputs(", TEXT\n", file);
+		}
+		else if (n % PALETTES_PER_LINE) {
+			fputc('\n', file);
+		}
+	}
 	fclose(file);
 	return true;
 }

@@ -46,7 +46,7 @@ private:
 		*_show_events_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
-	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
+	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
 		*_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
@@ -114,6 +114,7 @@ public:
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
+	inline bool allow_priority(void) const { return _allow_priority_mi && !!_allow_priority_mi->value(); }
 	inline bool allow_256_tiles(void) const { return _allow_256_tiles_mi && !!_allow_256_tiles_mi->value(); }
 	inline bool auto_load_events(void) const { return _auto_events_mi && !!_auto_events_mi->value(); }
 	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
@@ -140,6 +141,7 @@ private:
 	inline void mode(Mode m) { _mode = m; }
 	int handle_hotkey(int key);
 	void update_active_controls(void);
+	void update_priority_controls(void);
 	void open_map(const char *directory, const char *filename);
 	void warp_to_map(Event *e);
 	void load_events(const char *filename);
@@ -222,6 +224,7 @@ private:
 	static void edit_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void allow_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw);

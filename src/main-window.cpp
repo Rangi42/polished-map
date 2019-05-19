@@ -52,8 +52,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
+	int allow_priority_config = Preferences::get("prioritize", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
 	Config::monochrome(!!monochrome_config);
+	Config::allow_priority(!!allow_priority_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
 
 	int auto_events_config = Preferences::get("events", 1);
@@ -288,6 +290,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("&Monochrome", 0, (Fl_Callback *)monochrome_cb, this,
 			FL_MENU_TOGGLE | (monochrome_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)allow_priority_cb, this,
+			FL_MENU_TOGGLE | (allow_priority_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
@@ -327,6 +331,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
+	_allow_priority_mi = PM_FIND_MENU_ITEM_CB(allow_priority_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
@@ -745,6 +750,7 @@ void Main_Window::update_event_cursor(Block *b) {
 }
 
 void Main_Window::update_active_controls() {
+	update_priority_controls();
 	if (_map.size()) {
 		_load_event_script_mi->activate();
 		_load_event_script_tb->activate();
@@ -870,6 +876,19 @@ void Main_Window::update_active_controls() {
 		_edit_roof_mi->deactivate();
 		_edit_roof_tb->deactivate();
 		_edit_current_lighting_mi->deactivate();
+	}
+}
+
+void Main_Window::update_priority_controls() {
+	if (Config::allow_priority()) {
+		_allow_priority_mi->set();
+		_show_priority_mi->activate();
+		_show_priority_tb->activate();
+	}
+	else {
+		_allow_priority_mi->clear();
+		_show_priority_mi->deactivate();
+		_show_priority_tb->deactivate();
 	}
 }
 
@@ -1313,6 +1332,10 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::palette_map_path(buffer, directory, tileset_name);
 	Palette_Map::Result rp = tileset->read_palette_map(buffer);
+	if (Config::allow_priority() && !_allow_priority_mi->value()) {
+		update_priority_controls();
+		redraw();
+	}
 	if (rp == Palette_Map::Result::PALETTE_TOO_LONG) {
 		Config::palette_map_path(buffer, "", tileset_name);
 		std::string msg = "Warning: ";
@@ -2204,6 +2227,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("event", mw->show_events());
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("monochrome", mw->monochrome());
+	Preferences::set("prioritize", mw->allow_priority());
 	Preferences::set("all256", mw->allow_256_tiles());
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_lighting());
@@ -2616,6 +2640,12 @@ void Main_Window::edit_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::monochrome(!!m->mvalue()->value());
+	mw->redraw();
+}
+
+void Main_Window::allow_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::allow_priority(!!m->mvalue()->value());
+	mw->update_priority_controls();
 	mw->redraw();
 }
 
