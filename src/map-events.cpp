@@ -87,7 +87,9 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 		_events.push_back(e);
 		prelude.clear();
 	}
-	prelude.pop_back(); // remove extra newline
+	if (!prelude.empty()) {
+		prelude.pop_back(); // remove extra newline
+	}
 	_coda = prelude;
 
 	_loaded = true;
