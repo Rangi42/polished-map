@@ -267,7 +267,8 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 		uint8_t n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
 		for (uint8_t dy = 0; dy < n; dy++) {
 			for (uint8_t dx = 0; dx < n; dx++) {
-				uint8_t y = c->row() + dy, x = c->col() + dx;
+				uint8_t y = c->row() + (bw->_y_flip->value() ? n - dy - 1 : dy);
+				uint8_t x = c->col() + (bw->_x_flip->value() ? n - dx - 1 : dx);
 				bool row_free = y < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW * dy;
 				bool col_free = x < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - dx;
 				if (row_free && col_free) {

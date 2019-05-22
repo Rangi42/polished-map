@@ -82,6 +82,7 @@ R"(<html>
 <li><b>Priority:</b> Display the tile above sprites, including NPCs and the player. (The lightest hue will be transparent to sprites.)</li>
 <li><b>Color:</b> The tile's color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles.</li>
 </ul>
+<p>Selecting the X or Y flip attributes also affects how Ctrl+click and Ctrl+Shift+click place tiles, so large symmetrical designs can be placed more easily.</p>
 <p>You can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
 <p>(Regarding the "extra" tile graphics: these are graphics in VRAM that maps <i>can</i> use, but which pokecrystal reserves for font tiles and NPCs' walking sprites. If your project is modified to use any of these for map tiles, the ★ attribute will let you do so; but )" PROGRAM_NAME R"( can't handle the extra graphics, so it just shows a cyan border around the standard tile.)</p>
 <hr>
