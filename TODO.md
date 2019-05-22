@@ -4,7 +4,6 @@
 
 * Resizing window resets sidebar width to original zoom size (sometimes)
 * Ctrl+C/V/X when editing lighting interferes with regular cut/copy/paste somehow (worked around for now)
-* Projects with `PRIORITY` colors but not 256 tiles still write `rept 16` to palette_map.asm
 
 ## Features
 
