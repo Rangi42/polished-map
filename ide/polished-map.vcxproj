@@ -124,6 +124,7 @@
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\preferences.cpp" />
     <ClCompile Include="..\src\roof-window.cpp" />
+    <ClCompile Include="..\src\screen.cpp" />
     <ClCompile Include="..\src\themes.cpp" />
     <ClCompile Include="..\src\tile.cpp" />
     <ClCompile Include="..\src\tiled-image.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\src\preferences.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\roof-window.h" />
+    <ClInclude Include="..\src\screen.h" />
     <ClInclude Include="..\src\themes.h" />
     <ClInclude Include="..\src\tile.h" />
     <ClInclude Include="..\src\tiled-image.h" />
@@ -189,6 +191,8 @@
     <None Include="..\res\error.xpm" />
     <None Include="..\res\events-disabled.xpm" />
     <None Include="..\res\events.xpm" />
+    <None Include="..\res\gameboy-disabled.xpm" />
+    <None Include="..\res\gameboy.xpm" />
     <None Include="..\res\grid-disabled.xpm" />
     <None Include="..\res\grid.xpm" />
     <None Include="..\res\help.html" />

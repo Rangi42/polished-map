@@ -269,10 +269,12 @@ int Event::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
 		mw->update_status(this);
+		mw->update_gameboy_screen(this);
 		redraw();
 		return 1;
 	case FL_LEAVE:
-		mw->update_status((Event *)NULL);
+		mw->update_status((Block *)NULL);
+		mw->update_gameboy_screen((Block *)NULL);
 		redraw();
 		return 1;
 	case FL_MOVE:
@@ -288,6 +290,7 @@ int Event::handle(int event) {
 			do_callback();
 			update_tooltip();
 			mw->update_event_cursor(this);
+			mw->update_gameboy_screen(this);
 		}
 		return 1;
 	case FL_DRAG:
