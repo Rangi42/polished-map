@@ -4,7 +4,7 @@
 #include <FL/fl_draw.H>
 #pragma warning(pop)
 
-#include "screen.h"
+#include "gbscreen.h"
 
 static uchar screen_png_buffer[96] = {
 	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
@@ -19,18 +19,18 @@ static Fl_PNG_Image screen_png(NULL, screen_png_buffer, 96);
 
 static Fl_Tiled_Image tiled_screen_png(&screen_png);
 
-Screen::Screen() : Fl_Box(0, 0, 0, 0) {
+GBScreen::GBScreen() : Fl_Box(0, 0, 0, 0) {
 	box(FL_NO_BOX);
 	align(FL_ALIGN_INSIDE | FL_ALIGN_CENTER | FL_ALIGN_CLIP);
 	image(tiled_screen_png);
 }
 
-void Screen::draw() {
+void GBScreen::draw() {
 	Fl_Box::draw();
 	fl_rect(x(), y(), w(), h(), FL_BLACK);
 	fl_rect(x()+1, y()+1, w()-2, h()-2, FL_WHITE);
 }
 
-int Screen::handle(int) {
+int GBScreen::handle(int) {
 	return 0;
 }

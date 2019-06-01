@@ -1,5 +1,5 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef GBSCREEN_H
+#define GBSCREEN_H
 
 #pragma warning(push, 0)
 #include <FL/Fl_Box.H>
@@ -8,9 +8,9 @@
 #include "utils.h"
 #include "widgets.h"
 
-class Screen : public Fl_Box {
+class GBScreen : public Fl_Box {
 public:
-	Screen();
+	GBScreen();
 	void draw(void);
 	int handle(int event);
 };

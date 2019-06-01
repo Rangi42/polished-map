@@ -18,7 +18,7 @@
 #include "metatileset.h"
 #include "map.h"
 #include "map-events.h"
-#include "screen.h"
+#include "gbscreen.h"
 #include "help-window.h"
 #include "block-window.h"
 #include "tileset-window.h"
@@ -87,7 +87,7 @@ private:
 	Metatileset _metatileset;
 	Map _map;
 	Map_Events _map_events;
-	Screen *_gameboy_screen;
+	GBScreen *_gameboy_screen;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected = NULL;

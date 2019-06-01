@@ -144,7 +144,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_group = new Fl_Group(wx, wy, 0, 0);
 
 	// GameBoy screen
-	_gameboy_screen = new Screen();
+	_gameboy_screen = new GBScreen();
 	_map_group->end();
 	begin();
 
