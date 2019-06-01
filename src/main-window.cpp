@@ -1558,13 +1558,15 @@ void Main_Window::resize_map(int w, int h) {
 	int sy = _map_scroll->y() - _map_scroll->yposition();
 	for (size_t i = 0; i < n; i++) {
 		Event *e = _map_events.event(i);
-		uint8_t rx = (uint8_t)((int)e->event_x() + dw * 2);
-		uint8_t ry = (uint8_t)((int)e->event_y() + dh * 2);
-		uint8_t ex = MIN(MAX(rx, 0), _map.max_event_x());
-		uint8_t ey = MIN(MAX(ry, 0), _map.max_event_y());
-		e->coords(ex, ey);
-		e->reposition(sx, sy);
-		_map_events.modified(true);
+		if (px || py) {
+			uint8_t rx = (uint8_t)((int)e->event_x() + px * 2);
+			uint8_t ry = (uint8_t)((int)e->event_y() + py * 2);
+			uint8_t ex = MIN(MAX(rx, 0), _map.max_event_x());
+			uint8_t ey = MIN(MAX(ry, 0), _map.max_event_y());
+			e->coords(ex, ey);
+			e->reposition(sx, sy);
+			_map_events.modified(true);
+		}
 		_map_group->add(e);
 	}
 	_map_group->add(_gameboy_screen);
