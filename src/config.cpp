@@ -28,11 +28,15 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 		char *pivot = strrchr(scratch_path, *DIR_SEP);
 		if (!pivot) { return false; }
 		*pivot = '\0';
-		// Make sure there's enough room for "/main.asm\0"
-		if (pivot - scratch_path + 10 > FL_PATH_MAX) { return false; }
+		// Make sure there's enough room for "/main.asm\0" or "/layout.link\0"
+		if (pivot - scratch_path + 13 > FL_PATH_MAX) { return false; }
 		strcpy(main_asm, scratch_path);
 		strcat(main_asm, DIR_SEP "main.asm");
-		if (file_exists(main_asm)) { // the project directory contains main.asm
+		if (!file_exists(main_asm)) {
+			strcpy(main_asm, scratch_path);
+			strcat(main_asm, DIR_SEP "layout.link");
+		}
+		if (file_exists(main_asm)) { // the project directory contains main.asm or layout.link
 			strcat(scratch_path, DIR_SEP);
 			strcpy(project_path, scratch_path);
 			return true;
@@ -87,6 +91,9 @@ bool Config::collisions_path(char *dest, const char *root, const char *tileset) 
 	// try data/tilesets/*_collision.asm (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.asm", root, tileset);
 	if (file_exists(dest)) { return false; }
+	// try data/tilesets/*_collision.inc (SECTION-split pokecrystal)
+	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.inc", root, tileset);
+	if (file_exists(dest)) { return false; }
 	// try tilesets/*_collision.asm (old pokecrystal, converted from .bin)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.asm", root, tileset);
 	if (file_exists(dest)) { return false; }
@@ -99,8 +106,11 @@ void Config::map_constants_path(char *dest, const char *root) {
 	// try constants/map_dimension_constants.asm (Prism)
 	sprintf(dest, "%sconstants" DIR_SEP "map_dimension_constants.asm", root);
 	if (file_exists(dest)) { return; }
-	// last resort: constants/map_constants.asm (pokecrystal)
+	// try constants/map_constants.asm (pokecrystal)
 	sprintf(dest, "%sconstants" DIR_SEP "map_constants.asm", root);
+	if (file_exists(dest)) { return; }
+	// last resort: constants/map_constants.inc (SECTION-split pokecrystal)
+	sprintf(dest, "%sconstants" DIR_SEP "map_constants.inc", root);
 }
 
 void Config::map_headers_path(char *dest, const char *root) {
@@ -118,6 +128,9 @@ void Config::event_script_path(char *dest, const char *root, const char *map_nam
 void Config::tileset_constants_path(char *dest, const char *root) {
 	// try constants/tileset_constants.asm (pokecrystal)
 	sprintf(dest, "%sconstants" DIR_SEP "tileset_constants.asm", root);
+	if (file_exists(dest)) { return; }
+	// try constants/tileset_constants.inc (SECTION-split pokecrystal)
+	sprintf(dest, "%sconstants" DIR_SEP "tileset_constants.inc", root);
 	if (file_exists(dest)) { return; }
 	// last resort: constants/tilemap_constants.asm (old pokecrystal)
 	sprintf(dest, "%sconstants" DIR_SEP "tilemap_constants.asm", root);
