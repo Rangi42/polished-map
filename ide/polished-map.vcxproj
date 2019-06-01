@@ -108,6 +108,7 @@
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\directory-chooser.cpp" />
     <ClCompile Include="..\src\event.cpp" />
+    <ClCompile Include="..\src\gameboy-screen.cpp" />
     <ClCompile Include="..\src\help-window.cpp" />
     <ClCompile Include="..\src\hex-spinner.cpp" />
     <ClCompile Include="..\src\image.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="..\src\config.h" />
     <ClInclude Include="..\src\directory-chooser.h" />
     <ClInclude Include="..\src\event.h" />
+    <ClInclude Include="..\src\gameboy-screen.h" />
     <ClInclude Include="..\src\help-window.h" />
     <ClInclude Include="..\src\hex-spinner.h" />
     <ClInclude Include="..\src\icons.h" />
@@ -189,6 +191,8 @@
     <None Include="..\res\error.xpm" />
     <None Include="..\res\events-disabled.xpm" />
     <None Include="..\res\events.xpm" />
+    <None Include="..\res\gameboy-disabled.xpm" />
+    <None Include="..\res\gameboy.xpm" />
     <None Include="..\res\grid-disabled.xpm" />
     <None Include="..\res\grid.xpm" />
     <None Include="..\res\help.html" />
