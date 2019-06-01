@@ -540,7 +540,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
 
 	_asm_chooser->title("Open Event Script");
-	_asm_chooser->filter("ASM Files\t*.asm\n");
+	_asm_chooser->filter("ASM Files\t*.asm\nINC Files\t*.inc\n");
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
@@ -959,7 +959,7 @@ void Main_Window::open_map(const char *filename) {
 	char directory[FL_PATH_MAX] = {};
 	if (!Config::project_path_from_blk_path(filename, directory)) {
 		std::string msg = "Could not find the project directory for\n";
-		msg = msg + basename + "!\nMake sure it contains a main.asm file.";
+		msg = msg + basename + "!\nMake sure it contains a main.asm or layout.link file.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
