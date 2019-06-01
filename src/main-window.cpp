@@ -136,7 +136,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_scroll->type(Fl_Scroll::BOTH);
 	_map_group = new Fl_Group(wx, wy, 0, 0);
 
-	// GameBoy screen
+	// Game Boy screen
 	_gameboy_screen = new Game_Boy_Screen();
 	_map_group->end();
 	begin();
@@ -254,7 +254,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
 			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Game&Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
+		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
@@ -435,7 +435,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_events_tb->deimage(SHOW_DISABLED_ICON);
 	_show_events_tb->value(show_events());
 
-	_gameboy_screen_tb->tooltip("GameBoy Screen (Ctrl+Shift+M)");
+	_gameboy_screen_tb->tooltip("Game Boy Screen (Ctrl+Shift+M)");
 	_gameboy_screen_tb->callback((Fl_Callback *)gameboy_screen_tb_cb, this);
 	_gameboy_screen_tb->image(GAMEBOY_ICON);
 	_gameboy_screen_tb->deimage(GAMEBOY_DISABLED_ICON);
