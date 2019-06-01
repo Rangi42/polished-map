@@ -18,6 +18,7 @@
 #include "metatileset.h"
 #include "map.h"
 #include "map-events.h"
+#include "gameboy-screen.h"
 #include "help-window.h"
 #include "block-window.h"
 #include "tileset-window.h"
@@ -43,14 +44,14 @@ private:
 	Fl_Menu_Item *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_greybird_theme_mi = NULL, *_blue_theme_mi = NULL,
 		*_dark_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
-		*_show_events_mi = NULL, *_full_screen_mi = NULL;
+		*_show_events_mi = NULL, *_gameboy_screen_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_auto_events_mi = NULL, *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb = NULL, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
-	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_priority_tb, *_show_events_tb;
+	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_priority_tb, *_show_events_tb, *_gameboy_screen_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
@@ -84,6 +85,7 @@ private:
 	Metatileset _metatileset;
 	Map _map;
 	Map_Events _map_events;
+	Game_Boy_Screen *_gameboy_screen;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected = NULL;
@@ -109,6 +111,7 @@ public:
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool show_priority(void) const { return _show_priority_mi && !!_show_priority_mi->value(); }
 	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
+	inline bool gameboy_screen(void) const { return _gameboy_screen_mi && !!_gameboy_screen_mi->value(); }
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool auto_load_events(void) const { return _auto_events_mi && !!_auto_events_mi->value(); }
@@ -123,12 +126,20 @@ public:
 	inline void map_editable(bool e) { _map_editable = e; }
 	const char *modified_filename(void);
 	int handle(int event);
-	void draw_metatile(int x, int y, uint8_t id) const;
+	inline void draw_metatile(int x, int y, uint8_t id) const { _metatileset.draw_metatile(x, y, id, zoom(), show_priority()); }
 	void update_status(Block *b);
 	inline void update_status(Event *e) { update_status(_map.block_under(e)); }
 	void update_event_cursor(Block *b);
 	inline void update_event_cursor(Event *e) { update_event_cursor(_map.block_under(e)); }
+	void update_gameboy_screen(Block *b);
+	inline void update_gameboy_screen(Event *e) { update_gameboy_screen(_map.block_under(e)); }
+	inline void update_gameboy_screen(void) { update_gameboy_screen(dynamic_cast<Block *>(Fl::belowmouse())); }
 	inline void redraw_map(void) { _map_scroll->redraw(); }
+	inline void redraw_gameboy_screen(void) {
+		fl_push_clip(_gameboy_screen->x(), _gameboy_screen->y(), _gameboy_screen->w(), _gameboy_screen->h());
+		redraw_map();
+		fl_pop_clip();
+	}
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void substitute_block(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
@@ -198,6 +209,7 @@ private:
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void morn_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -227,6 +239,7 @@ private:
 	static void hex_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void show_priority_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void show_events_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void gameboy_screen_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void lighting_cb(Dropdown *dd, Main_Window *mw);
 	static void blocks_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
 	static void events_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);

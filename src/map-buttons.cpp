@@ -147,15 +147,21 @@ int Block::handle(int event) {
 			do_callback();
 		}
 		mw->update_status(this);
-		redraw();
+		mw->update_gameboy_screen(this);
 		return 1;
 	case FL_LEAVE:
 		mw->update_status((Block *)NULL);
+		mw->update_gameboy_screen((Block *)NULL);
 		redraw();
 		return 1;
 	case FL_MOVE:
 		mw->update_event_cursor(this);
-		redraw();
+		if (mw->mode() == Mode::EVENTS && mw->gameboy_screen()) {
+			mw->redraw_gameboy_screen();
+		}
+		else {
+			redraw();
+		}
 		return 1;
 	case FL_PUSH:
 		mw->map_editable(true);
