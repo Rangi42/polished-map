@@ -43,11 +43,12 @@
 
 class OS {
 public:
-	enum Theme { AERO, METRO, GREYBIRD, BLUE, DARK };
+	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, DARK };
 private:
 	static Theme global_current_theme;
 public:
 #ifdef _WIN32
+	static bool is_classic_windows(void);
 	static bool is_modern_windows(void);
 #endif
 	inline static Theme current_theme(void) { return global_current_theme; }
@@ -56,9 +57,12 @@ public:
 	static void use_native_colors(void);
 	static void use_native_theme(void);
 	static void use_native_settings(void);
+	static void use_classic_theme(void);
 	static void use_aero_theme(void);
 	static void use_metro_theme(void);
+	static void use_aqua_theme(void);
 	static void use_greybird_theme(void);
+	static void use_metal_theme(void);
 	static void use_blue_theme(void);
 	static void use_dark_theme(void);
 };
