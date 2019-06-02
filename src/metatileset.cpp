@@ -199,7 +199,7 @@ Metatileset::Result Metatileset::read_attributes(const char *f) {
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
 				uchar a = data[y * METATILE_SIZE + x];
-				mt->tile_id(x, y, mt->tile_id(x, y) + (a & BANK_1_MASK ? 0x80 : 0));
+				mt->tile_id(x, y, mt->tile_id(x, y) + ((a & BANK_1_MASK) ? 0x80 : 0));
 				mt->attribute_byte(x, y, a);
 			}
 		}

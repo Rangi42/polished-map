@@ -6,8 +6,8 @@
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
 	_collision_heading(NULL), _tileset_group(NULL), _current_group(NULL), _metatile_group(NULL), _tile_buttons(),
-	_selected(NULL), _chips(), _current(NULL), _x_flip(NULL), _y_flip(NULL), _extra(NULL), _priority(NULL),
-	_collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_selected(NULL), _chips(), _current(NULL), _palette(NULL), _x_flip(NULL), _y_flip(NULL), _extra(NULL),
+	_priority(NULL), _collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;

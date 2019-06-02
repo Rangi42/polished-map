@@ -1785,8 +1785,8 @@ void Main_Window::edit_metatile(Metatile *mt) {
 			mt->attributes(x, y, c);
 			for (int i = 0; i < NUM_QUADRANTS; i++) {
 				Quadrant q = (Quadrant)i;
-				const char *c = _block_window->collision(q);
-				mt->collision(q, c);
+				const char *k = _block_window->collision(q);
+				mt->collision(q, k);
 				uint8_t b = _block_window->bin_collision(q);
 				mt->bin_collision(q, b);
 			}

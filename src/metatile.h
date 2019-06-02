@@ -35,7 +35,7 @@ public:
 	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].byte(); }
 	inline void attribute_byte(int x, int y, uchar a) { _attributes[y][x].byte(a); }
 	inline std::string collision(Quadrant q) const { return _collisions[q]; }
-	inline void collision(Quadrant q, std::string c) { _collisions[q] = c; }
+	inline void collision(Quadrant q, const std::string &c) { _collisions[q] = c; }
 	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[q]; }
 	inline const uint8_t *bin_collisions(void) const { return _bin_collisions; }
 	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[q] = c; }
