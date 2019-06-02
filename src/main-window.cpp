@@ -231,12 +231,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		{},
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Classic", 0, (Fl_Callback *)classic_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::CLASSIC ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Aero", 0, (Fl_Callback *)aero_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::AERO ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Metro", 0, (Fl_Callback *)metro_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::METRO ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("A&qua", 0, (Fl_Callback *)aqua_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::AQUA ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Greybird", 0, (Fl_Callback *)greybird_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::GREYBIRD ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Me&tal", 0, (Fl_Callback *)metal_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::METAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::BLUE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
@@ -304,9 +310,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	// Initialize menu bar items
 #define PM_FIND_MENU_ITEM_CB(c) (const_cast<Fl_Menu_Item *>(_menu_bar->find_item((Fl_Callback *)(c))))
+	_classic_theme_mi = PM_FIND_MENU_ITEM_CB(classic_theme_cb);
 	_aero_theme_mi = PM_FIND_MENU_ITEM_CB(aero_theme_cb);
 	_metro_theme_mi = PM_FIND_MENU_ITEM_CB(metro_theme_cb);
+	_aqua_theme_mi = PM_FIND_MENU_ITEM_CB(aqua_theme_cb);
 	_greybird_theme_mi = PM_FIND_MENU_ITEM_CB(greybird_theme_cb);
+	_metal_theme_mi = PM_FIND_MENU_ITEM_CB(metal_theme_cb);
 	_blue_theme_mi = PM_FIND_MENU_ITEM_CB(blue_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
@@ -2289,6 +2298,12 @@ void Main_Window::swap_metatiles_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::classic_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_classic_theme();
+	mw->_classic_theme_mi->setonly();
+	mw->redraw();
+}
+
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_aero_theme();
 	mw->_aero_theme_mi->setonly();
@@ -2301,9 +2316,21 @@ void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::aqua_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_aqua_theme();
+	mw->_aqua_theme_mi->setonly();
+	mw->redraw();
+}
+
 void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_greybird_theme();
 	mw->_greybird_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_metal_theme();
+	mw->_metal_theme_mi->setonly();
 	mw->redraw();
 }
 
