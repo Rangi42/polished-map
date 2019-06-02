@@ -65,20 +65,22 @@ OS_Button::OS_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y
 }
 
 int OS_Button::handle(int event) {
-	switch (event) {
-	case FL_ENTER:
-		if (active_r()) {
-			box(OS_HOVERED_UP_BOX);
+	if (OS::current_theme() != OS::AQUA) {
+		switch (event) {
+		case FL_ENTER:
+			if (active_r()) {
+				box(OS_HOVERED_UP_BOX);
+				redraw();
+				return 1;
+			}
+			return 0;
+		case FL_LEAVE:
+		case FL_HIDE:
+		case FL_DEACTIVATE:
+			box(OS_BUTTON_UP_BOX);
 			redraw();
 			return 1;
 		}
-		return 0;
-	case FL_LEAVE:
-	case FL_HIDE:
-	case FL_DEACTIVATE:
-		box(OS_BUTTON_UP_BOX);
-		redraw();
-		return 1;
 	}
 	if (event == FL_PUSH) {
 		Fl::focus(this);
@@ -208,7 +210,7 @@ Dropdown::Dropdown(int x, int y, int w, int h, const char *l) : Fl_Choice(x, y, 
 
 void Dropdown::draw() {
 	// Based on Fl_Choice::draw()
-	Fl_Boxtype bb = FL_DOWN_BOX;
+	Fl_Boxtype bb = OS::current_theme() == OS::METAL ? OS_INPUT_THIN_DOWN_BOX : FL_DOWN_BOX;
 	int dx = Fl::box_dx(bb);
 	int dy = Fl::box_dy(bb);
 	int H = h() - 2 * dy;
@@ -391,7 +393,7 @@ Toolbar_Button::Toolbar_Button(int x, int y, int w, int h, const char *l) : Fl_B
 
 void Toolbar_Button::draw() {
 	// Based on Fl_Button::draw()
-	Fl_Color col = value() ? selection_color() : color();
+	Fl_Color col = value() ? (OS::current_theme() == OS::CLASSIC ? fl_lighter(color()) : selection_color()) : color();
 	draw_box(value() ? down_box() ? down_box() : fl_down(box()) : box(), col);
 	draw_backdrop();
 	if (labeltype() == FL_NORMAL_LABEL && value()) {
@@ -410,7 +412,7 @@ int Toolbar_Button::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
 		if (active_r()) {
-			if (OS::current_theme() == OS::DARK) {
+			if (OS::current_theme() == OS::GREYBIRD || OS::current_theme() == OS::DARK) {
 				box(OS_BUTTON_UP_BOX);
 			}
 			else {
