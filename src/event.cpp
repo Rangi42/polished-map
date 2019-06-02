@@ -147,9 +147,9 @@ static Fl_PNG_Image zoomed_texture_images[NUM_EVENT_TEXTURES] = {
 	{NULL, texture_azure32_png_buffer,  107}  // TX_AZURE
 };
 
-Event::Event(size_t line, std::string prelude, std::string macro, Event_Meta meta, std::string tip_) : Fl_Box(0, 0, 0, 0),
-	_line(line), _meta(meta), _event_x(0), _event_y(0), _prelude(prelude), _macro(macro), _prefix(), _suffix(),
-	_tip(tip_), _prefixed(false), _suffixed(false), _hex_coords(false) {
+Event::Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_) :
+	Fl_Box(0, 0, 0, 0), _line(line), _meta(meta), _event_x(0), _event_y(0), _prelude(prelude), _macro(macro), _prefix(),
+	_suffix(), _tip(tip_), _prefixed(false), _suffixed(false), _hex_coords(false) {
 	user_data(NULL);
 	trim(_tip);
 	tip(_tip);

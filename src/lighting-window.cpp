@@ -24,9 +24,9 @@ int Swatch_Window::handle(int event) {
 	return Fl_Double_Window::handle(event);
 }
 
-Abstract_Lighting_Window::Abstract_Lighting_Window(int x, int y) : _dx(x), _dy(y), _canceled(false), _window(NULL),
-	_selected(NULL), _chosen(NULL), _red_spinner(NULL), _green_spinner(NULL), _blue_spinner(NULL), _ok_button(NULL),
-	_cancel_button(NULL), _copied(false), _clipboard() {}
+Abstract_Lighting_Window::Abstract_Lighting_Window(int x, int y) : _dx(x), _dy(y), _current_lighting(), _canceled(false),
+	_window(NULL), _selected(NULL), _chosen(NULL), _red_spinner(NULL), _green_spinner(NULL), _blue_spinner(NULL),
+	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard() {}
 
 Abstract_Lighting_Window::~Abstract_Lighting_Window() {
 	delete _window;

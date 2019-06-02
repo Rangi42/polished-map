@@ -23,7 +23,7 @@ int Hex_Input::handle_paste_text() {
 	const char *t = Fl::event_text();
 	const char *e = t + Fl::event_length();
 	while (e > t && isspace(*(e - 1) & 0xFF)) { e--; }
-	if (!t || e <= t) {
+	if (e <= t) {
 		return 1;
 	}
 	while (isspace(*t & 0xFF) && t < e) { t++; }

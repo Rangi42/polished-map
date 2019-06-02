@@ -42,15 +42,15 @@ public:
 	inline uint8_t width(void) const { return _width; }
 	inline uint8_t height(void) const { return _height; }
 	inline Map_Attributes attributes(void) const { return _attributes; }
-	void attributes(Map_Attributes a) { _attributes = a; }
+	inline void attributes(const Map_Attributes &a) { _attributes = a; }
 	inline uint8_t group(void) const { return _attributes.group; }
 	inline void group(uint8_t g) { _attributes.group = g; }
 	inline std::string environment(void) const { return _attributes.environment; }
-	inline void environment(std::string e) { _attributes.environment = e; }
+	inline void environment(const std::string &e) { _attributes.environment = e; }
 	inline std::string landmark(void) const { return _attributes.landmark; }
-	inline void landmark(std::string l) { _attributes.landmark = l; }
+	inline void landmark(const std::string &l) { _attributes.landmark = l; }
 	inline std::string palette(void) const { return _attributes.palette; }
-	inline void palette(std::string p) { _attributes.palette = p; }
+	inline void palette(const std::string &p) { _attributes.palette = p; }
 	inline bool is_outside(void) const {
 		return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE" ||
 			_attributes.environment == "1" || _attributes.environment == "2"; // TPP:AC uses numbers

@@ -774,7 +774,8 @@ int Roof_Options_Dialog::refresh_content(int ww, int dy) {
 }
 
 Event_Options_Dialog::Event_Options_Dialog(const char *t) : Option_Dialog(300, t), _macro_heading(NULL),
-	_line_heading(NULL), _prefix(NULL), _suffix(NULL), _event_x(NULL), _event_y(NULL) {}
+	_line_heading(NULL), _prefix(NULL), _suffix(NULL), _event_x(NULL), _event_y(NULL),
+	_hex_event_x(NULL), _hex_event_y(NULL) {}
 
 Event_Options_Dialog::~Event_Options_Dialog() {
 	delete _macro_heading;

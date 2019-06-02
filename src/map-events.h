@@ -29,7 +29,7 @@ public:
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
 	inline std::string coda(void) const { return _coda; }
-	inline void coda(std::string c) { _coda = c; }
+	inline void coda(const std::string &c) { _coda = c; }
 	void clear();
 	void resize_events(int x, int y, int s);
 	Result read_events(const char *f, bool allow_warp);

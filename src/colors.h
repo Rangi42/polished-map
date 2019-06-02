@@ -37,7 +37,7 @@ private:
 public:
 	static Hue ordered_hue(int i);
 	static const uchar *color(Lighting l, Palette p, Hue h);
-	static void color(Lighting l, Palette p, Hue h, Fl_Color c);
+	static void color(Lighting l, Palette p, Hue h, Fl_Color f);
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);
 	static PalVec parse_lighting(const char *f);
 	static Lighting read_lighting(const char *f, Lighting lighting);

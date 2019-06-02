@@ -930,16 +930,16 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	size_t i = row * w + col;
 	queue.push(i);
 	while (!queue.empty()) {
-		size_t i = queue.front();
+		size_t j = queue.front();
 		queue.pop();
-		Block *b = _map.block(i);
+		Block *b = _map.block(j);
 		if (b->id() != f) { continue; }
 		b->id(t); // fill
-		uint8_t row = b->row(), col = b->col();
-		if (col > 0) { queue.push(i-1); } // left
-		if (col < w - 1) { queue.push(i+1); } // right
-		if (row > 0) { queue.push(i-w); } // up
-		if (row < h - 1) { queue.push(i+w); } // down
+		uint8_t r = b->row(), c = b->col();
+		if (c > 0) { queue.push(j-1); } // left
+		if (c < w - 1) { queue.push(j+1); } // right
+		if (r > 0) { queue.push(j-w); } // up
+		if (r < h - 1) { queue.push(j+w); } // down
 	}
 }
 
@@ -1702,17 +1702,17 @@ bool Main_Window::save_tileset() {
 
 	if (!Config::monochrome()) {
 		Config::palette_map_path(filename, directory, tileset_name);
-		const char *basename = fl_filename_name(filename);
+		basename = fl_filename_name(filename);
 
 		if (!tileset->palette_map().write_palette_map(filename)) {
-			std::string msg = "Could not write to ";
+			msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
 			_error_dialog->show(this);
 			return false;
 		}
 
-		std::string msg = "Saved ";
+		msg = "Saved ";
 		msg = msg + basename + "!";
 		_success_dialog->message(msg);
 		_success_dialog->show(this);

@@ -256,16 +256,16 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
 	size_t i = row * TILE_SIZE + col;
 	queue.push(i);
 	while (!queue.empty()) {
-		size_t i = queue.front();
+		size_t j = queue.front();
 		queue.pop();
-		Pixel_Button *pb = _pixels[i];
+		Pixel_Button *pb = _pixels[j];
 		if (pb->hue() != f) { continue; }
 		pb->hue(t); // fill
-		int row = pb->row(), col = pb->col();
-		if (col > 0) { queue.push(i-1); } // left
-		if (col < TILE_SIZE - 1) { queue.push(i+1); } // right
-		if (row > 0) { queue.push(i-TILE_SIZE); } // up
-		if (row < TILE_SIZE - 1) { queue.push(i+TILE_SIZE); } // down
+		int r = pb->row(), c = pb->col();
+		if (c > 0) { queue.push(j-1); } // left
+		if (c < TILE_SIZE - 1) { queue.push(j+1); } // right
+		if (r > 0) { queue.push(j-TILE_SIZE); } // up
+		if (r < TILE_SIZE - 1) { queue.push(j+TILE_SIZE); } // down
 	}
 }
 
