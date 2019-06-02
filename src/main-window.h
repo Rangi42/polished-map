@@ -44,7 +44,7 @@ private:
 	Fl_Menu_Item *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_greybird_theme_mi = NULL, *_blue_theme_mi = NULL,
 		*_dark_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
-		*_show_events_mi = NULL, *_gameboy_screen_mi = NULL, *_full_screen_mi = NULL;
+		*_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
@@ -52,7 +52,7 @@ private:
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
-	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_priority_tb, *_show_events_tb, *_gameboy_screen_tb;
+	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_priority_tb, *_gameboy_screen_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
@@ -112,8 +112,8 @@ public:
 	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
 	inline bool show_priority(void) const { return _show_priority_mi && !!_show_priority_mi->value(); }
-	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
 	inline bool gameboy_screen(void) const { return _gameboy_screen_mi && !!_gameboy_screen_mi->value(); }
+	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
 	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
@@ -214,8 +214,8 @@ private:
 	static void ids_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_priority_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void morn_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -247,8 +247,8 @@ private:
 	static void ids_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void hex_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void show_priority_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
-	static void show_events_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void gameboy_screen_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void show_events_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void lighting_cb(Dropdown *dd, Main_Window *mw);
 	static void blocks_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
 	static void events_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
