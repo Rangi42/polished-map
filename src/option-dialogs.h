@@ -157,7 +157,6 @@ public:
 	~Event_Options_Dialog();
 	void use_event(const Event *e);
 	void update_event(Event *e);
-	void limit_event_coords(uint8_t max_x, uint8_t max_y);
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);

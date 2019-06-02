@@ -181,7 +181,7 @@ bool Event::warp_map_name(char *name) const {
 	return true;
 }
 
-static uint8_t parse_coord(std::string s, bool &hex) {
+static int8_t parse_coord(std::string s, bool &hex) {
 	int n = 0;
 	trim(s);
 	if (!s.empty()) {
@@ -198,7 +198,7 @@ static uint8_t parse_coord(std::string s, bool &hex) {
 			n = std::stoi(s, NULL);
 		}
 	}
-	return (uint8_t)n;
+	return (int8_t)n;
 }
 
 void Event::parse(std::istringstream &lss) {

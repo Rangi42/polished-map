@@ -55,8 +55,8 @@ public:
 		return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE" ||
 			_attributes.environment == "1" || _attributes.environment == "2"; // TPP:AC uses numbers
 	}
-	inline uint8_t max_event_x(void) const { return _width < 128 ? _width * 2 - 1 : 255; }
-	inline uint8_t max_event_y(void) const { return _height < 128 ? _height * 2 - 1 : 255; }
+	inline int8_t max_event_x(void) const { return _width < 64 ? (int8_t)(_width - 1) * 2 + 1 : 128; }
+	inline int8_t max_event_y(void) const { return _height < 64 ? (int8_t)(_height - 1) * 2 + 1 : 128; }
 	void size(uint8_t w, uint8_t h);
 	inline size_t size(void) const { return (size_t)_width * (size_t)_height; }
 	inline Block *block(uint8_t x, uint8_t y) const { return _blocks[(size_t)y * _width + (size_t)x]; }

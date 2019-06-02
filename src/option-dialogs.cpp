@@ -863,21 +863,14 @@ void Event_Options_Dialog::update_event(Event *e) {
 		}
 	}
 	if (e->_hex_coords) {
-		e->_event_x = (uint8_t)_hex_event_x->value();
-		e->_event_y = (uint8_t)_hex_event_y->value();
+		e->_event_x = (int8_t)_hex_event_x->value();
+		e->_event_y = (int8_t)_hex_event_y->value();
 	}
 	else {
-		e->_event_x = (uint8_t)_event_x->value();
-		e->_event_y = (uint8_t)_event_y->value();
+		e->_event_x = (int8_t)_event_x->value();
+		e->_event_y = (int8_t)_event_y->value();
 	}
 	e->update_tooltip();
-}
-
-void Event_Options_Dialog::limit_event_coords(uint8_t max_x, uint8_t max_y) {
-	_event_x->range(0, max_x);
-	_event_y->range(0, max_y);
-	_hex_event_x->range(0, max_x);
-	_hex_event_y->range(0, max_y);
 }
 
 void Event_Options_Dialog::initialize_content() {
@@ -892,9 +885,13 @@ void Event_Options_Dialog::initialize_content() {
 	_hex_event_y = new OS_Hex_Spinner(0, 0, 0, 0, "Y:");
 	// Initialize content group's children
 	_event_x->align(FL_ALIGN_LEFT);
+	_event_x->range(INT8_MIN, INT8_MAX);
 	_event_y->align(FL_ALIGN_LEFT);
+	_event_y->range(INT8_MIN, INT8_MAX);
 	_hex_event_x->align(FL_ALIGN_LEFT);
+	_hex_event_x->range(INT8_MIN, INT8_MAX);
 	_hex_event_y->align(FL_ALIGN_LEFT);
+	_hex_event_y->range(INT8_MIN, INT8_MAX);
 }
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {
