@@ -37,7 +37,7 @@ public:
 	static const uchar *monochrome_color(Hue h);
 	static const uchar *undefined_color(Hue h);
 	static const uchar *color(Lighting l, Palette p, Hue h);
-	static void color(Lighting l, Palette p, Hue h, Fl_Color c);
+	static void color(Lighting l, Palette p, Hue h, Fl_Color f);
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);
 	static PalVec parse_lighting(const char *f);
 	static Lighting read_lighting(const char *f, Lighting lighting);

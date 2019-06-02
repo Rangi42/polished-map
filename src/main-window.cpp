@@ -898,16 +898,16 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	size_t i = row * w + col;
 	queue.push(i);
 	while (!queue.empty()) {
-		size_t i = queue.front();
+		size_t j = queue.front();
 		queue.pop();
-		Block *b = _map.block(i);
+		Block *b = _map.block(j);
 		if (b->id() != f) { continue; }
 		b->id(t); // fill
-		uint8_t row = b->row(), col = b->col();
-		if (col > 0) { queue.push(i-1); } // left
-		if (col < w - 1) { queue.push(i+1); } // right
-		if (row > 0) { queue.push(i-w); } // up
-		if (row < h - 1) { queue.push(i+w); } // down
+		uint8_t r = b->row(), c = b->col();
+		if (c > 0) { queue.push(j-1); } // left
+		if (c < w - 1) { queue.push(j+1); } // right
+		if (r > 0) { queue.push(j-w); } // up
+		if (r < h - 1) { queue.push(j+w); } // down
 	}
 }
 

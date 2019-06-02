@@ -34,11 +34,11 @@ public:
 	inline void attributes(int x, int y, const Attributable *a) { _attributes[y][x].copy(*a); }
 	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].byte(); }
 	inline void attribute_byte(int x, int y, uchar a) { _attributes[y][x].byte(a); }
-	std::string collision(Quadrant q) const { return _collisions[q]; }
-	void collision(Quadrant q, std::string c) { _collisions[q] = c; }
-	uint8_t bin_collision(Quadrant q) const { return _bin_collisions[q]; }
-	const uint8_t *bin_collisions(void) const { return _bin_collisions; }
-	void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[q] = c; }
+	inline std::string collision(Quadrant q) const { return _collisions[q]; }
+	inline void collision(Quadrant q, std::string c) { _collisions[q] = c; }
+	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[q]; }
+	inline const uint8_t *bin_collisions(void) const { return _bin_collisions; }
+	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[q] = c; }
 	void clear(void);
 	void copy(const Metatile *src);
 	void swap(Metatile *mt);

@@ -32,7 +32,7 @@ private:
 	bool _prefixed, _suffixed, _hex_coords;
 	friend class Event_Options_Dialog;
 public:
-	Event(size_t line, std::string prelude, std::string macro, Event_Meta meta, std::string tip);
+	Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_);
 	inline size_t line(void) const { return _line; }
 	inline std::string prelude(void) const { return _prelude; }
 	inline uint8_t event_x(void) const { return _event_x; }
@@ -40,7 +40,7 @@ public:
 	inline void coords(uint8_t event_x, uint8_t event_y) { _event_x = event_x; _event_y = event_y; }
 	inline void reposition(int dx, int dy) { position(dx + _event_x * w(), dy + _event_y * h()); }
 	inline std::string tip(void) const { return _tip; }
-	inline void tip(std::string l) { _tip = l; tooltip(_tip.c_str()); }
+	inline void tip(const std::string &l) { _tip = l; tooltip(_tip.c_str()); }
 	bool warp_map_name(char *name) const;
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);

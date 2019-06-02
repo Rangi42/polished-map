@@ -9,8 +9,8 @@ void Map_Attributes::clear() {
 	palette.clear();
 }
 
-Map::Map() : _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false),
-	_history(MAX_HISTORY_SIZE), _future(MAX_HISTORY_SIZE) {}
+Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(MAP_NULL),
+	_modified(false), _history(MAX_HISTORY_SIZE), _future(MAX_HISTORY_SIZE) {}
 
 Map::~Map() {
 	clear();
@@ -30,7 +30,7 @@ void Map::block(uint8_t x, uint8_t y, Block *b) {
 Block *Map::block_under(Event *e) {
 	if (!e) { return NULL; }
 	uint8_t bx = e->event_x() / 2, by = e->event_y() / 2;
-	return 0 <= bx && bx < _width && 0 <= by && by < _height ? block(bx, by) : NULL;
+	return bx < _width && by < _height ? block(bx, by) : NULL;
 }
 
 void Map::clear() {

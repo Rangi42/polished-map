@@ -43,8 +43,7 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 			for (int ty = 0; ty < TILE_SIZE; ty++) {
 				for (int tx = 0; tx < TILE_SIZE; tx++) {
 					long ti = ((y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx)) * d;
-					Hue h = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
-					_tile_hues[hi++] = h;
+					_tile_hues[hi++] = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
 				}
 			}
 		}
