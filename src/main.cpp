@@ -24,14 +24,23 @@
 static void use_theme(OS::Theme theme) {
 	OS::use_native_font();
 	switch (theme) {
+	case OS::Theme::CLASSIC:
+		OS::use_classic_theme();
+		return;
 	case OS::Theme::AERO:
 		OS::use_aero_theme();
 		return;
 	case OS::Theme::METRO:
 		OS::use_metro_theme();
 		return;
+	case OS::Theme::AQUA:
+		OS::use_aqua_theme();
+		return;
 	case OS::Theme::GREYBIRD:
 		OS::use_greybird_theme();
+		return;
+	case OS::Theme::METAL:
+		OS::use_metal_theme();
 		return;
 	case OS::Theme::BLUE:
 		OS::use_blue_theme();
