@@ -27,7 +27,7 @@ class Event : public Fl_Box {
 private:
 	size_t _line;
 	Event_Meta _meta;
-	uint8_t _event_x, _event_y;
+	int8_t _event_x, _event_y;
 	std::string _prelude, _macro, _prefix, _suffix, _tip;
 	bool _prefixed, _suffixed, _hex_coords;
 	friend class Event_Options_Dialog;
@@ -35,9 +35,9 @@ public:
 	Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_);
 	inline size_t line(void) const { return _line; }
 	inline std::string prelude(void) const { return _prelude; }
-	inline uint8_t event_x(void) const { return _event_x; }
-	inline uint8_t event_y(void) const { return _event_y; }
-	inline void coords(uint8_t event_x, uint8_t event_y) { _event_x = event_x; _event_y = event_y; }
+	inline int8_t event_x(void) const { return _event_x; }
+	inline int8_t event_y(void) const { return _event_y; }
+	inline void coords(int8_t event_x, int8_t event_y) { _event_x = event_x; _event_y = event_y; }
 	inline void reposition(int dx, int dy) { position(dx + _event_x * w(), dy + _event_y * h()); }
 	inline std::string tip(void) const { return _tip; }
 	inline void tip(const std::string &l) { _tip = l; tooltip(_tip.c_str()); }

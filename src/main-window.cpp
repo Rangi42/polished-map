@@ -1532,12 +1532,13 @@ void Main_Window::resize_map(int w, int h) {
 	for (size_t i = 0; i < n; i++) {
 		Event *e = _map_events.event(i);
 		if (px || py) {
-			uint8_t rx = (uint8_t)((int)e->event_x() + px * 2);
-			uint8_t ry = (uint8_t)((int)e->event_y() + py * 2);
-			uint8_t ex = MIN(MAX(rx, 0), _map.max_event_x());
-			uint8_t ey = MIN(MAX(ry, 0), _map.max_event_y());
+			int rx = (int)e->event_x() + px * 2;
+			int ry = (int)e->event_y() + py * 2;
+			int8_t ex = (int8_t)MIN(MAX(rx, INT8_MIN), INT8_MAX);
+			int8_t ey = (int8_t)MIN(MAX(ry, INT8_MIN), INT8_MAX);
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
+			e->update_tooltip();
 			_map_events.modified(true);
 		}
 		_map_group->add(e);
@@ -2770,10 +2771,10 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!Fl::event_is_click()) {
 			// Left-drag to move
-			uint8_t rx = (uint8_t)((Fl::event_x() - sx) / e->w());
-			uint8_t ry = (uint8_t)((Fl::event_y() - sy) / e->h());
-			uint8_t ex = MIN(MAX(rx, 0), mw->_map.max_event_x());
-			uint8_t ey = MIN(MAX(ry, 0), mw->_map.max_event_y());
+			int8_t rx = (int8_t)((Fl::event_x() - sx) / e->w());
+			int8_t ry = (int8_t)((Fl::event_y() - sy) / e->h());
+			int8_t ex = MIN(MAX(rx, 0), mw->_map.max_event_x());
+			int8_t ey = MIN(MAX(ry, 0), mw->_map.max_event_y());
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			mw->_map_events.modified(true);
@@ -2791,7 +2792,6 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 	else if (Fl::event_button() == FL_RIGHT_MOUSE && Fl::event_is_click()) {
 		// Right-click to edit
 		mw->_event_options_dialog->use_event(e);
-		mw->_event_options_dialog->limit_event_coords(mw->_map.max_event_x(), mw->_map.max_event_y());
 		mw->_event_options_dialog->show(mw);
 		if (!mw->_event_options_dialog->canceled()) {
 			mw->_event_options_dialog->update_event(e);
