@@ -48,8 +48,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int ids_config = Preferences::get("ids", 0);
 	int hex_config = Preferences::get("hex", 0);
 	int show_priority_config = Preferences::get("priority", 1);
+	int gameboy_screen_config = Preferences::get("gameboy", 0);
 	int show_events_config = Preferences::get("event", 1);
-	int gameboy_screen_config = Preferences::get("gameboy", 1);
 	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
 
 	int auto_events_config = Preferences::get("events", 1);
@@ -85,8 +85,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_gameboy_screen_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
@@ -252,10 +252,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (hex_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Priority", FL_COMMAND + 'P', (Fl_Callback *)show_priority_cb, this,
 			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
-			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
+			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
 			FL_MENU_RADIO | (lighting_config == Lighting::MORN ? FL_MENU_VALUE : 0)),
@@ -314,8 +314,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
 	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
-	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_gameboy_screen_mi = PM_FIND_MENU_ITEM_CB(gameboy_screen_cb);
+	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_lighting_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
@@ -429,17 +429,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_show_priority_tb->deimage(PRIORITY_DISABLED_ICON);
 	_show_priority_tb->value(show_priority());
 
-	_show_events_tb->tooltip("Show Events (Ctrl+Shift+R)");
-	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
-	_show_events_tb->image(SHOW_ICON);
-	_show_events_tb->deimage(SHOW_DISABLED_ICON);
-	_show_events_tb->value(show_events());
-
 	_gameboy_screen_tb->tooltip("Game Boy Screen (Ctrl+Shift+M)");
 	_gameboy_screen_tb->callback((Fl_Callback *)gameboy_screen_tb_cb, this);
 	_gameboy_screen_tb->image(GAMEBOY_ICON);
 	_gameboy_screen_tb->deimage(GAMEBOY_DISABLED_ICON);
 	_gameboy_screen_tb->value(gameboy_screen());
+
+	_show_events_tb->tooltip("Show Events (Ctrl+Shift+R)");
+	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
+	_show_events_tb->image(SHOW_ICON);
+	_show_events_tb->deimage(SHOW_DISABLED_ICON);
+	_show_events_tb->value(show_events());
 
 	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+Shift+B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
@@ -2234,8 +2234,8 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("ids", mw->ids());
 	Preferences::set("hex", mw->hex());
 	Preferences::set("priority", mw->show_priority());
-	Preferences::set("event", mw->show_events());
 	Preferences::set("gameboy", mw->gameboy_screen());
+	Preferences::set("event", mw->show_events());
 	Preferences::set("lighting", mw->lighting());
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_lighting());
@@ -2360,15 +2360,15 @@ void Main_Window::show_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
-	SYNC_TB_WITH_M(mw->_show_events_tb, m);
-	mw->update_labels();
-	mw->redraw();
-}
-
 void Main_Window::gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
 	SYNC_TB_WITH_M(mw->_gameboy_screen_tb, m);
 	mw->update_gameboy_screen();
+	mw->redraw();
+}
+
+void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_show_events_tb, m);
+	mw->update_labels();
 	mw->redraw();
 }
 
@@ -2404,15 +2404,15 @@ void Main_Window::show_priority_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) 
 	mw->redraw();
 }
 
-void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
-	SYNC_MI_WITH_TB(mw->_show_events_tb, mw->_show_events_mi);
-	mw->update_labels();
-	mw->redraw();
-}
-
 void Main_Window::gameboy_screen_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	SYNC_MI_WITH_TB(mw->_gameboy_screen_tb, mw->_gameboy_screen_mi);
 	mw->update_gameboy_screen();
+	mw->redraw();
+}
+
+void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_show_events_tb, mw->_show_events_mi);
+	mw->update_labels();
 	mw->redraw();
 }
 
