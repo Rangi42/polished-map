@@ -2775,10 +2775,10 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 		if (!Fl::event_is_click()) {
 			// Left-drag to move
 			int ox = Fl::event_x() - EVENT_MARGIN * e->w(), oy = Fl::event_y() - EVENT_MARGIN * e->h();
-			int8_t rx = (int8_t)((ox - sx) / e->w() - (ox < sx));
-			int8_t ry = (int8_t)((oy - sy) / e->h() - (oy < sy));
-			int8_t ex = MIN(MAX(rx, -EVENT_MARGIN), mw->_map.max_event_x());
-			int8_t ey = MIN(MAX(ry, -EVENT_MARGIN), mw->_map.max_event_y());
+			int rx = (ox - sx) / e->w() - (ox < sx);
+			int ry = (oy - sy) / e->h() - (oy < sy);
+			int8_t ex = (int8_t)MIN(MAX(rx, -EVENT_MARGIN), mw->_map.max_event_x());
+			int8_t ey = (int8_t)MIN(MAX(ry, -EVENT_MARGIN), mw->_map.max_event_y());
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			mw->_map_events.modified(true);
