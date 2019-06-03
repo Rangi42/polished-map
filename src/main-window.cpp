@@ -1026,7 +1026,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	_map_group->remove(_gameboy_screen);
-	_map_group->size(ms * (int)w, ms * (int)h);
+	_map_group->size(ms * ((int)w + EVENT_MARGIN), ms * ((int)h + EVENT_MARGIN));
 	for (uint8_t y = 0; y < h; y++) {
 		for (uint8_t x = 0; x < w; x++) {
 			Block *block = _map.block(x, y);
@@ -1036,8 +1036,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	_map_group->add(_gameboy_screen);
 	_map.resize_blocks(_map_group->x(), _map_group->y(), ms);
-	_map_scroll->scroll_to(0, 0);
 	_map_scroll->init_sizes();
+	int tx = MIN(MAX(_map_group->w() - _map_scroll->w(), 0), MAP_MARGIN * ms);
+	int ty = MIN(MAX(_map_group->h() - _map_scroll->h(), 0), MAP_MARGIN * ms);
+	_map_scroll->scroll_to(tx, ty);
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
 	// set filenames
@@ -1546,7 +1548,7 @@ void Main_Window::resize_map(int w, int h) {
 	_map_group->add(_gameboy_screen);
 
 	int ms = metatile_size();
-	_map_group->size(ms * (int)w, ms * (int)h);
+	_map_group->size(ms * ((int)w + EVENT_MARGIN), ms * ((int)h + EVENT_MARGIN));
 	_map.size((uint8_t)w, (uint8_t)h);
 	int i = 0;
 	for (int y = 0; y < h; y++) {
@@ -1805,7 +1807,8 @@ void Main_Window::update_zoom() {
 	_map_group->init_sizes();
 	_map_scroll->init_sizes();
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
-	_map_group->resize(_sidebar->w(), _map_group->y(), (int)_map.width() * ms, (int)_map.height() * ms);
+	int gw = ((int)_map.width() + EVENT_MARGIN) * ms, gh = ((int)_map.height() + EVENT_MARGIN) * ms;
+	_map_group->resize(_sidebar->w(), _map_group->y(), gw, gh);
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
@@ -2771,10 +2774,11 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		if (!Fl::event_is_click()) {
 			// Left-drag to move
-			int8_t rx = (int8_t)((Fl::event_x() - sx) / e->w());
-			int8_t ry = (int8_t)((Fl::event_y() - sy) / e->h());
-			int8_t ex = MIN(MAX(rx, 0), mw->_map.max_event_x());
-			int8_t ey = MIN(MAX(ry, 0), mw->_map.max_event_y());
+			int ox = Fl::event_x() - EVENT_MARGIN * e->w(), oy = Fl::event_y() - EVENT_MARGIN * e->h();
+			int8_t rx = (int8_t)((ox - sx) / e->w() - (ox < sx));
+			int8_t ry = (int8_t)((oy - sy) / e->h() - (oy < sy));
+			int8_t ex = MIN(MAX(rx, -EVENT_MARGIN), mw->_map.max_event_x());
+			int8_t ey = MIN(MAX(ry, -EVENT_MARGIN), mw->_map.max_event_y());
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			mw->_map_events.modified(true);
