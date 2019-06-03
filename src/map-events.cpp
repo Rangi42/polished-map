@@ -55,7 +55,9 @@ void Map_Events::resize_events(int x, int y, int s) {
 	size_t n = size();
 	for (size_t i = 0; i < n; i++) {
 		Event *e = _events[i];
-		e->resize(x + e->event_x() * s, y + e->event_y() * s, s, s);
+		int ex = x + ((int)e->event_x() + EVENT_MARGIN) * s;
+		int ey = y + ((int)e->event_y() + EVENT_MARGIN) * s;
+		e->resize(ex, ey, s, s);
 	}
 }
 

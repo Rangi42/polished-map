@@ -48,7 +48,8 @@ void Map::resize_blocks(int x, int y, int s) {
 	size_t n = size();
 	for (size_t i = 0; i < n; i++) {
 		Block *b = _blocks[i];
-		b->resize(x + b->col() * s, y + b->row() * s, s, s);
+		int bx = x + ((int)b->col() + MAP_MARGIN) * s, by = y + ((int)b->row() + MAP_MARGIN) * s;
+		b->resize(bx, by, s, s);
 	}
 }
 

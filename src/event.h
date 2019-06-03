@@ -10,6 +10,9 @@
 
 #include "utils.h"
 
+#define MAP_MARGIN 3
+#define EVENT_MARGIN (MAP_MARGIN * 2)
+
 enum EventTexture { TX_RED, TX_GREEN, TX_BLUE, TX_PURPLE, TX_ORANGE, TX_AZURE };
 
 #define NUM_EVENT_TEXTURES 6
@@ -38,7 +41,9 @@ public:
 	inline int8_t event_x(void) const { return _event_x; }
 	inline int8_t event_y(void) const { return _event_y; }
 	inline void coords(int8_t event_x, int8_t event_y) { _event_x = event_x; _event_y = event_y; }
-	inline void reposition(int dx, int dy) { position(dx + _event_x * w(), dy + _event_y * h()); }
+	inline void reposition(int dx, int dy) {
+		position(dx + ((int)_event_x + EVENT_MARGIN) * w(), dy + ((int)_event_y + EVENT_MARGIN) * h());
+	}
 	inline std::string tip(void) const { return _tip; }
 	inline void tip(const std::string &l) { _tip = l; tooltip(_tip.c_str()); }
 	bool warp_map_name(char *name) const;
