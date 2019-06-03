@@ -1037,8 +1037,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	_map_group->add(_gameboy_screen);
 	_map.resize_blocks(_map_group->x(), _map_group->y(), ms);
 	_map_scroll->init_sizes();
-	int tx = MIN(MAX(_map_group->w() - _map_scroll->w(), 0), MAP_MARGIN * ms);
-	int ty = MIN(MAX(_map_group->h() - _map_scroll->h(), 0), MAP_MARGIN * ms);
+	int kx = _map_group->w() - _map_scroll->w() + Fl::scrollbar_size();
+	int ky = _map_group->h() - _map_scroll->h() + Fl::scrollbar_size();
+	int tx = kx > MAP_MARGIN * ms ? MAP_MARGIN * ms : kx < 0 ? 0 : kx / 2;
+	int ty = ky > MAP_MARGIN * ms ? MAP_MARGIN * ms : ky < 0 ? 0 : ky / 2;
 	_map_scroll->scroll_to(tx, ty);
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 
@@ -1948,6 +1950,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_map_group->add(mw->_gameboy_screen);
 	mw->_map.clear();
 	mw->_map_events.clear();
+	mw->_map_scroll->scroll_to(0, 0);
 	mw->_map_scroll->contents(0, 0);
 	mw->init_sizes();
 	mw->update_status((Block *)NULL);
