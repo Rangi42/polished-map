@@ -9,7 +9,6 @@ class Preferences {
 public:
 	static int get(const char *key, int default_ = 0);
 	static void set(const char *key, int value);
-
 };
 
 #endif
