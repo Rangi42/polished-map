@@ -8,7 +8,6 @@
 #pragma warning(pop)
 
 #include "utils.h"
-#include "math.h"
 #include "themes.h"
 
 #ifdef _WIN32

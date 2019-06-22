@@ -9,7 +9,6 @@
 #include <FL/fl_draw.H>
 #pragma warning(pop)
 
-#include "math.h"
 #include "themes.h"
 #include "widgets.h"
 #include "modal-dialog.h"
