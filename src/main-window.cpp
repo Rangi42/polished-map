@@ -519,6 +519,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.{ablk,blk}\n");
+	_blk_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
 	_blk_save_chooser->preset_file("NewMap.ablk");
 
 	_pal_load_chooser->title("Open Lighting");
@@ -526,6 +527,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_pal_save_chooser->title("Save Lighting");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
+	_pal_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
 	_pal_save_chooser->preset_file("lighting.pal");
 
 	_roof_chooser->title("Open Roof Tiles");
@@ -536,6 +538,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	_png_chooser->title("Print Screenshot");
 	_png_chooser->filter("PNG Files\t*.png\n");
+	_png_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
 	_png_chooser->preset_file("screenshot.png");
 
 	_error_dialog->width_range(280, 700);

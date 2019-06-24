@@ -7,7 +7,6 @@
 
 ## Features
 
-* Confirm overwriting in "Save As" dialogs
 * Copy+paste 8x8 tile graphics from external programs with the system clipboard
 * Drag to move, Ctrl+drag to copy, for tileset tiles, sidebar blocks, and/or palette colors
 * Native-looking build on Mac OS X (issue [#8](https://github.com/Rangi42/polished-map/issues/8); involves publishing an app bundle release, and using the system menu bar)
