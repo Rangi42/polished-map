@@ -9,7 +9,12 @@ Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_
 
 int Tile_Window::handle(int event) {
 	Tileset_Window *tw = (Tileset_Window *)user_data();
-	if (Fl::test_shortcut(FL_COMMAND + 'c')) {
+	if (tw->_debounce) {
+		if (Fl::event() == FL_KEYUP) {
+			tw->_debounce = false;
+		}
+	}
+	else if (Fl::test_shortcut(FL_COMMAND + 'c')) {
 		Tileset_Window::copy_tile_cb(NULL, tw);
 	}
 	else if (Fl::test_shortcut(FL_COMMAND + 'v')) {
@@ -17,6 +22,7 @@ int Tile_Window::handle(int event) {
 	}
 	else if (Fl::test_shortcut(FL_COMMAND + 'x')) {
 		Tileset_Window::swap_tiles_cb(NULL, tw);
+		tw->_debounce = true;
 	}
 	else if (Fl::test_shortcut(FL_Delete)) {
 		Tileset_Window::delete_tile_cb(NULL, tw);
@@ -27,7 +33,8 @@ int Tile_Window::handle(int event) {
 Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _show_priority(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL),
 	_deep_tile_buttons(), _selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL),
-	_chosen(NULL), _palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
+	_chosen(NULL), _palette(NULL), _priority(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0),
+	_debounce() {}
 
 Tileset_Window::~Tileset_Window() {
 	delete _window;
