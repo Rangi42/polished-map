@@ -96,17 +96,27 @@ public:
 };
 
 class Deep_Tile_Button : public Fl_Radio_Button, public Tile {
+private:
+	static Deep_Tile_Button *_dragging;
 public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
 	void copy_pixel(const Pixel_Button *pb);
 	void copy_pixels(Pixel_Button **pbs);
 	void draw(void);
+	int handle(int event);
+private:
+	void drag_to_swap_or_copy(void);
 };
 
 class Color_Button : public Fl_Radio_Button {
+private:
+	static Color_Button *_dragging;
 public:
 	Color_Button(int x, int y, int s, const char *l = NULL);
 	void draw(void);
+	int handle(int event);
+private:
+	void drag_to_swap_or_copy(void);
 };
 
 #endif
