@@ -60,6 +60,8 @@ static void draw_tileset_button(Fl_Widget *wgt, uint8_t id, bool border, bool zo
 	}
 }
 
+Metatile_Button *Metatile_Button::dragging = NULL;
+
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
@@ -98,8 +100,17 @@ int Metatile_Button::handle(int event) {
 		set_changed();
 		return 1;
 	case FL_RELEASE:
+	case FL_PASTE:
 		setonly();
 		do_callback();
+		return 1;
+	case FL_DRAG:
+		dragging = this;
+		Fl::dnd();
+		return 1;
+	case FL_DND_ENTER:
+	case FL_DND_DRAG:
+	case FL_DND_RELEASE:
 		return 1;
 	default:
 		return 0;

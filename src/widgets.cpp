@@ -25,7 +25,7 @@ DnD_Receiver::DnD_Receiver(int x, int y, int w, int h, const char *l) : Fl_Box(x
 }
 
 int DnD_Receiver::handle(int event) {
-	if (event == FL_PASTE) {
+	if (event == FL_PASTE && Fl::event_length()) {
 		_text = Fl::event_text();
 		// Callback deferral technique taken from <http://www.fltk.org/articles.php?L770>
 		if (callback() && ((when() & FL_WHEN_RELEASE) || (when() & FL_WHEN_CHANGED))) {
