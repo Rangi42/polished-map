@@ -12,6 +12,8 @@
 #include "attributable.h"
 
 class Metatile_Button : public Fl_Radio_Button {
+public:
+	static Metatile_Button *dragging;
 private:
 	uint8_t _id;
 public:

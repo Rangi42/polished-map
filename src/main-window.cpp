@@ -188,7 +188,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 #endif
 
 	// Configure workspaces
-	_sidebar->dnd_receiver(_dnd_receiver);
 	_map_scroll->dnd_receiver(_dnd_receiver);
 	_map_scroll->resizable(NULL);
 	_map_group->resizable(NULL);
@@ -2721,6 +2720,20 @@ void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
+	if (Fl::event() == FL_PASTE && mb->dragging && mb->dragging != mb && mb->dragging->active() && mb->active()) {
+		Metatile *mt1 = mw->_metatileset.metatile(mb->id());
+		Metatile *mt2 = mw->_metatileset.metatile(mb->dragging->id());
+		if (Fl::event_ctrl()) {
+			// Ctrl+drag to copy
+			mt1->copy(mt2);
+		}
+		else {
+			// Drag to swap
+			mt1->swap(mt2);
+		}
+		mw->_metatileset.modified(true);
+		mw->redraw();
+	}
 	// Click to select
 	mw->_selected = mb;
 	if (Fl::event_button() == FL_RIGHT_MOUSE) {
