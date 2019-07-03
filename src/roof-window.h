@@ -37,6 +37,7 @@ private:
 	friend class Roof_Tile_Window;
 	bool _copied;
 	Tile _clipboard;
+	bool _debounce;
 public:
 	Roof_Window(int x, int y);
 	~Roof_Window();

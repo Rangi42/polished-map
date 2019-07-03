@@ -11,6 +11,11 @@ int Swatch_Window::handle(int event) {
 	Lighting_Window *lw = (Lighting_Window *)user_data();
 	// FIX: actual cut/copy/paste events interfere here somehow, but not in Tile_Window::handle
 	if (Fl::event_text()) {
+		if (lw->_debounce) {
+			if (Fl::event() == FL_KEYUP) {
+				lw->_debounce = false;
+			}
+		}
 		if (Fl::test_shortcut(FL_COMMAND + 'c')) {
 			Lighting_Window::copy_color_cb(NULL, lw);
 		}
@@ -19,6 +24,7 @@ int Swatch_Window::handle(int event) {
 		}
 		else if (Fl::test_shortcut(FL_COMMAND + 'x')) {
 			Lighting_Window::swap_colors_cb(NULL, lw);
+			lw->_debounce = true;
 		}
 	}
 	return Fl_Double_Window::handle(event);
@@ -26,7 +32,7 @@ int Swatch_Window::handle(int event) {
 
 Abstract_Lighting_Window::Abstract_Lighting_Window(int x, int y) : _dx(x), _dy(y), _current_lighting(), _canceled(false),
 	_window(NULL), _selected(NULL), _chosen(NULL), _red_spinner(NULL), _green_spinner(NULL), _blue_spinner(NULL),
-	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard() {}
+	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(), _debounce() {}
 
 Abstract_Lighting_Window::~Abstract_Lighting_Window() {
 	delete _window;

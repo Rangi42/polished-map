@@ -30,6 +30,7 @@ protected:
 	friend class Swatch_Window;
 	bool _copied;
 	uchar _clipboard[NUM_CHANNELS];
+	bool _debounce;
 public:
 	Abstract_Lighting_Window(int x, int y);
 	virtual ~Abstract_Lighting_Window();

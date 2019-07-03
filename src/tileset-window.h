@@ -38,6 +38,7 @@ private:
 	friend class Tile_Window;
 	bool _copied;
 	Tile _clipboard;
+	bool _debounce;
 public:
 	Tileset_Window(int x, int y);
 	~Tileset_Window();

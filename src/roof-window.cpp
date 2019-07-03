@@ -9,7 +9,12 @@ Roof_Tile_Window::Roof_Tile_Window(int x, int y, int w, int h, const char *l) : 
 
 int Roof_Tile_Window::handle(int event) {
 	Roof_Window *rw = (Roof_Window *)user_data();
-	if (Fl::test_shortcut(FL_COMMAND + 'c')) {
+	if (rw->_debounce) {
+		if (Fl::event() == FL_KEYUP) {
+			rw->_debounce = false;
+		}
+	}
+	else if (Fl::test_shortcut(FL_COMMAND + 'c')) {
 		Roof_Window::copy_tile_cb(NULL, rw);
 	}
 	else if (Fl::test_shortcut(FL_COMMAND + 'v')) {
@@ -17,6 +22,7 @@ int Roof_Tile_Window::handle(int event) {
 	}
 	else if (Fl::test_shortcut(FL_COMMAND + 'x')) {
 		Roof_Window::swap_tiles_cb(NULL, rw);
+		rw->_debounce = true;
 	}
 	return Fl_Double_Window::handle(event);
 }
@@ -24,7 +30,7 @@ int Roof_Tile_Window::handle(int event) {
 Roof_Window::Roof_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
 	_roof_heading(NULL), _tile_heading(NULL), _roof_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
 	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0) {}
+	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0), _debounce() {}
 
 Roof_Window::~Roof_Window() {
 	delete _window;
