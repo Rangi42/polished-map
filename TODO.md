@@ -8,7 +8,7 @@
 ## Features
 
 * Copy+paste 8x8 tile graphics from external programs with the system clipboard
-* Drag to move, Ctrl+drag to copy, for tileset tiles, sidebar blocks, and/or palette colors
+* Drag to move, Ctrl+drag to copy, for sidebar blocks
 * Native-looking build on Mac OS X (issue [#8](https://github.com/Rangi42/polished-map/issues/8); involves publishing an app bundle release, and using the system menu bar)
 * Scale the UI for high-DPI displays
 * Generate map images from the command line (issue [#10](https://github.com/Rangi42/polished-map/issues/10))

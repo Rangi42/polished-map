@@ -274,6 +274,8 @@ int Chip::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
+Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
+
 Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);
@@ -285,12 +287,47 @@ void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 	}
 }
 
+void Deep_Tile_Button::drag_to_swap_or_copy() {
+	if (Fl::event() == FL_PASTE && _dragging && _dragging != this && _dragging->active() && active()) {
+		if (Fl::event_ctrl()) {
+			// Ctrl+drag to copy
+			copy(_dragging);
+		}
+		else {
+			// Drag to swap
+			Tile temp(0);
+			temp.copy(this);
+			copy(_dragging);
+			_dragging->copy(&temp);
+		}
+	}
+	_dragging = NULL;
+}
+
 void Deep_Tile_Button::draw() {
 	const uchar *rgb = _undefined ? _undefined_rgb : _monochrome_rgb;
 	fl_draw_image(rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
+}
+
+int Deep_Tile_Button::handle(int event) {
+	switch (event) {
+	case FL_DRAG:
+		_dragging = this;
+		Fl::dnd();
+		break;
+	case FL_DND_ENTER:
+	case FL_DND_DRAG:
+	case FL_DND_RELEASE:
+		return 1;
+	case FL_PASTE:
+		drag_to_swap_or_copy();
+		do_callback();
+		return 1;
+	}
+	return Fl_Radio_Button::handle(event);
 }
 
 Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _hue() {
@@ -359,10 +396,28 @@ void Swatch::draw() {
 	}
 }
 
+Color_Button *Color_Button::_dragging = NULL;
+
 Color_Button::Color_Button(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s, l) {
 	user_data(NULL);
 	box(FL_FLAT_BOX);
 	down_box(FL_FLAT_BOX);
+}
+
+void Color_Button::drag_to_swap_or_copy() {
+	if (Fl::event() == FL_PASTE && _dragging && _dragging != this && _dragging->active() && active()) {
+		if (Fl::event_ctrl()) {
+			// Ctrl+drag to copy
+			color(_dragging->color());
+		}
+		else {
+			// Drag to swap
+			Fl_Color temp = color();
+			color(_dragging->color());
+			_dragging->color(temp);
+		}
+	}
+	_dragging = NULL;
 }
 
 void Color_Button::draw() {
@@ -370,4 +425,22 @@ void Color_Button::draw() {
 	if (value()) {
 		draw_selection_border(x(), y(), w(), false);
 	}
+}
+
+int Color_Button::handle(int event) {
+	switch (event) {
+	case FL_DRAG:
+		_dragging = this;
+		Fl::dnd();
+		break;
+	case FL_DND_ENTER:
+	case FL_DND_DRAG:
+	case FL_DND_RELEASE:
+		return 1;
+	case FL_PASTE:
+		drag_to_swap_or_copy();
+		do_callback();
+		return 1;
+	}
+	return Fl_Radio_Button::handle(event);
 }
