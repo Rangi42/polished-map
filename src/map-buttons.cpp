@@ -101,7 +101,6 @@ int Metatile_Button::handle(int event) {
 		return 1;
 	case FL_RELEASE:
 	case FL_PASTE:
-		setonly();
 		do_callback();
 		return 1;
 	case FL_DRAG:

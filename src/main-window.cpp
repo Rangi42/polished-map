@@ -2792,16 +2792,21 @@ void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
 		}
 		mw->_metatileset.modified(true);
 		mw->redraw();
+		mw->_selected = mb;
+		mw->_selected->setonly();
 	}
-	// Click to select
-	mw->_selected = mb;
-	if (Fl::event_button() == FL_RIGHT_MOUSE) {
-		// Right-click to edit
-		Metatile *mt = mw->_metatileset.metatile(mb->id());
-		mw->_block_window->metatile(mt, mw->_has_collisions, mw->_metatileset.bin_collisions());
-		mw->_block_window->show(mw, mw->show_priority());
-		if (!mw->_block_window->canceled()) {
-			mw->edit_metatile(mt);
+	else if (Fl::belowmouse() == mb) {
+		// Click to select
+		mw->_selected = mb;
+		mw->_selected->setonly();
+		if (Fl::event_button() == FL_RIGHT_MOUSE) {
+			// Right-click to edit
+			Metatile *mt = mw->_metatileset.metatile(mb->id());
+			mw->_block_window->metatile(mt, mw->_has_collisions, mw->_metatileset.bin_collisions());
+			mw->_block_window->show(mw, mw->show_priority());
+			if (!mw->_block_window->canceled()) {
+				mw->edit_metatile(mt);
+			}
 		}
 	}
 }
