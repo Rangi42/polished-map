@@ -112,9 +112,14 @@ int Metatile_Button::handle(int event) {
 		do_callback();
 		return 1;
 	case FL_DRAG:
-		dragging = this;
-		Fl::dnd();
-		return 1;
+		if (Fl::event_button() == FL_LEFT_MOUSE) {
+			dragging = this;
+			Fl::dnd();
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	case FL_DND_ENTER:
 	case FL_DND_DRAG:
 	case FL_DND_RELEASE:
