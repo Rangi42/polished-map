@@ -1230,7 +1230,7 @@ void Main_Window::warp_to_map(Event *e) {
 }
 
 void Main_Window::load_events(const char *filename) {
-	Map_Events::Result et = _map_events.read_events(filename, monochrome());
+	Map_Events::Result et = _map_events.read_events(filename);
 	if (et) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "Error reading ";

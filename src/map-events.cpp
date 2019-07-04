@@ -61,7 +61,7 @@ void Map_Events::resize_events(int x, int y, int s) {
 	}
 }
 
-Map_Events::Result Map_Events::read_events(const char *f, bool allow_warp) {
+Map_Events::Result Map_Events::read_events(const char *f) {
 	std::ifstream ifs(f);
 	if (!ifs.good()) { return (_result = BAD_MAP_EVENTS_FILE); }
 
@@ -76,10 +76,19 @@ Map_Events::Result Map_Events::read_events(const char *f, bool allow_warp) {
 		std::getline(lss, token, ' ');
 		trim(token);
 		const auto it = events_meta.find(token);
-		if (it == events_meta.end() || token == "warp" && !allow_warp) {
-			// warp is a script command in pokecrystal
+		if (it == events_meta.end()) {
 			prelude += line + '\n';
 			continue;
+		}
+
+		if (token == "warp") {
+			// warp is a script command in pokecrystal, but with 2 commas, not 3
+			std::string tail(lss.str().substr((size_t)lss.tellg()));
+			remove_comment(tail);
+			if (std::count(tail.begin(), tail.end(), ',') != 3) {
+				prelude += line + '\n';
+				continue;
+			}
 		}
 
 		Event *e = new Event(n, prelude, token, it->second, line);

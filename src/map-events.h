@@ -32,7 +32,7 @@ public:
 	inline void coda(const std::string &c) { _coda = c; }
 	void clear();
 	void resize_events(int x, int y, int s);
-	Result read_events(const char *f, bool allow_warp);
+	Result read_events(const char *f);
 public:
 	static const char *error_message(Result result);
 	bool write_event_script(const char *f);
