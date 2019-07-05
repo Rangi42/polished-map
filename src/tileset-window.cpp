@@ -451,11 +451,11 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 		return;
 	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
-	pasted->desaturate();
-	int w = MAX(pasted->w(), TILE_SIZE), h = MAX(pasted->h(), TILE_SIZE);
+	int w = MIN(pasted->w(), TILE_SIZE), h = MIN(pasted->h(), TILE_SIZE);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			uchar c = *(*pasted->data() + (x + y * pasted->w()) * pasted->d());
+			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
+			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
 			const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), e);
 			tw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);

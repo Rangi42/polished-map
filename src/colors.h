@@ -35,6 +35,7 @@ private:
 	static void color(Lighting l, Palette p, Hue h, ColorArray v);
 	static void color(Lighting l, Palette p, HueArray v);
 public:
+	static uchar desaturated(uchar r, uchar g, uchar b);
 	static Hue ordered_hue(int i);
 	static uchar hue_mono(Hue h);
 	static Hue mono_hue(uchar c);

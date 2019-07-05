@@ -91,6 +91,11 @@ static const uchar undefined_colors[NUM_HUES][NUM_CHANNELS] = {
 	RGBX(0xABCDEF), RGBX(0x456789), RGBX(0x789ABC), RGBX(0x123456) // UNDEFINED
 };
 
+uchar Color::desaturated(uchar r, uchar g, uchar b) {
+	// Same formula as Fl_Image::desaturate()
+	return (uchar)((r * 31 + g * 61 + b * 8) / 100);
+}
+
 Hue Color::ordered_hue(int i) {
 	return hue_order[i];
 }
