@@ -186,6 +186,8 @@
     <None Include="..\res\coll-top-left.xpm" />
     <None Include="..\res\coll-top-right-disabled.xpm" />
     <None Include="..\res\coll-top-right.xpm" />
+    <None Include="..\res\copy-disabled.xpm" />
+    <None Include="..\res\copy.xpm" />
     <None Include="..\res\cursor-disabled.xpm" />
     <None Include="..\res\cursor.xpm" />
     <None Include="..\res\error.xpm" />
@@ -210,6 +212,8 @@
     <None Include="..\res\new.xpm" />
     <None Include="..\res\open-disabled.xpm" />
     <None Include="..\res\open.xpm" />
+    <None Include="..\res\paste-disabled.xpm" />
+    <None Include="..\res\paste.xpm" />
     <None Include="..\res\print-disabled.xpm" />
     <None Include="..\res\print.xpm" />
     <None Include="..\res\priority-disabled.xpm" />

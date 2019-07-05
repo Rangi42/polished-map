@@ -1,8 +1,13 @@
 #include <queue>
 #include <utility>
 
+#pragma warning(push, 0)
+#include <FL/Fl_Copy_Surface.H>
+#pragma warning(pop)
+
 #include "themes.h"
 #include "config.h"
+#include "icons.h"
 #include "tileset-window.h"
 
 Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
@@ -32,8 +37,8 @@ int Tile_Window::handle(int event) {
 
 Tileset_Window::Tileset_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
 	_tileset_heading(NULL), _tile_heading(NULL), _tileset_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
-	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0), _debounce() {}
+	_selected(NULL), _pixels(), _copy_tb(NULL), _paste_tb(NULL), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL),
+	_swatch4(NULL), _chosen(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0), _debounce() {}
 
 Tileset_Window::~Tileset_Window() {
 	delete _window;
@@ -41,6 +46,8 @@ Tileset_Window::~Tileset_Window() {
 	delete _tile_heading;
 	delete _tileset_group;
 	delete _tile_group;
+	delete _copy_tb;
+	delete _paste_tb;
 	delete _swatch1;
 	delete _swatch2;
 	delete _swatch3;
@@ -56,13 +63,15 @@ void Tileset_Window::initialize() {
 	// Populate window
 	_window = new Tile_Window(_dx, _dy, 426, 304, "Edit Tileset");
 	_tileset_heading = new Label(10, 10, 258, 22);
-	_tile_heading = new Label(278, 10, 146, 22);
+	_tile_heading = new Label(278, 10, 94, 22);
 	_tileset_group = new Fl_Group(10, 36, 258, 258);
 	_tileset_group->end();
 	_window->begin();
 	_tile_group = new Fl_Group(278, 36, 138, 138);
 	_tile_group->end();
 	_window->begin();
+	_copy_tb = new Toolbar_Button(372, 10, 22, 22);
+	_paste_tb = new Toolbar_Button(394, 10, 22, 22);
 	_swatch1 = new Swatch(278, 184, 22, "1");
 	_swatch2 = new Swatch(306, 184, 22, "2");
 	_swatch3 = new Swatch(334, 184, 22, "3");
@@ -100,6 +109,18 @@ void Tileset_Window::initialize() {
 	// Initialize window's children
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
+	_copy_tb->tooltip("Copy (Ctrl+Shift+C)");
+	_copy_tb->shortcut(FL_COMMAND + 'C');
+	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
+	_copy_tb->image(COPY_ICON);
+	_copy_tb->deimage(COPY_DISABLED_ICON);
+	_copy_tb->hide();
+	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
+	_paste_tb->shortcut(FL_COMMAND + 'V');
+	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
+	_paste_tb->image(PASTE_ICON);
+	_paste_tb->deimage(PASTE_DISABLED_ICON);
+	_paste_tb->hide();
 	_swatch1->shortcut('1');
 	_swatch1->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch1->hue(Hue::WHITE);
@@ -319,4 +340,12 @@ void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	}
 	tw->select(tw->_selected);
 	tw->_window->redraw();
+}
+
+void Tileset_Window::copy_tile_graphics_cb(Toolbar_Button *, Tileset_Window *) {
+	// TODO: copy_tile_graphics_cb
+}
+
+void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *, Tileset_Window *) {
+	// TODO: paste_tile_graphics_cb
 }

@@ -32,6 +32,7 @@ private:
 	Fl_Group *_tileset_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[MAX_NUM_TILES], *_selected;
 	Pixel_Button *_pixels[TILE_AREA];
+	Toolbar_Button *_copy_tb, *_paste_tb;
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
@@ -65,6 +66,8 @@ private:
 	static void paste_tile_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void swap_tiles_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void delete_tile_cb(Fl_Widget *w, Tileset_Window *tw);
+	static void copy_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *tw);
+	static void paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *tw);
 };
 
 #endif
