@@ -16,6 +16,12 @@
 // Internal GB hue order
 static const Hue hue_order[NUM_HUES] = {Hue::WHITE, Hue::LIGHT, Hue::DARK, Hue::BLACK};
 
+// Canonical hue color channels
+static const uchar hue_monos[NUM_HUES] = {0xFF, 0x55, 0xAA, 0x00}; // WHITE, DARK, LIGHT, BLACK
+
+// Monochrome-color-to-hue conversion
+static const Hue mono_hues[NUM_HUES] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE}; // 00-3F, 40-7F, 80-BF, C0-FF
+
 // Lighting x Palette x Hue x RGB
 uchar tileset_colors[NUM_LIGHTINGS][NUM_PALETTES][NUM_HUES][NUM_CHANNELS] = {
 	{ // MORN
@@ -87,6 +93,14 @@ static const uchar undefined_colors[NUM_HUES][NUM_CHANNELS] = {
 
 Hue Color::ordered_hue(int i) {
 	return hue_order[i];
+}
+
+uchar Color::hue_mono(Hue h) {
+	return hue_monos[h];
+}
+
+Hue Color::mono_hue(uchar c) {
+	return mono_hues[c / (0x100 / NUM_HUES)]; // [0, 255] -> [0, 3]
 }
 
 const uchar *Color::monochrome_color(Hue h) {

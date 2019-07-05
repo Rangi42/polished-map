@@ -90,8 +90,11 @@ public:
 class Deep_Tile_Button : public Fl_Radio_Button, public Tile {
 private:
 	static Deep_Tile_Button *_dragging;
+	bool _for_clipboard;
 public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
+	inline bool for_clipboard(void) const { return _for_clipboard; }
+	inline void for_clipboard(bool f) { _for_clipboard = f; }
 	inline void copy_pixel(const Pixel_Button *pb, Lighting l) { render_pixel(pb->col(), pb->row(), l, pb->hue()); }
 	void copy_pixels(Pixel_Button **pbs, Lighting l);
 	void draw(void);

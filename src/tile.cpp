@@ -1,3 +1,7 @@
+#pragma warning(push, 0)
+#include <FL/fl_draw.H>
+#pragma warning(pop)
+
 #include "utils.h"
 #include "tile.h"
 
@@ -58,6 +62,17 @@ void Tile::update_lighting(Lighting l) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = hue(tx, ty);
 			render_pixel(tx, ty, l, h);
+		}
+	}
+}
+
+void Tile::draw_for_clipboard(int x, int y) {
+	for (int ty = 0; ty < TILE_SIZE; ty++) {
+		for (int tx = 0; tx < TILE_SIZE; tx++) {
+			int ti = ty * TILE_SIZE + tx;
+			uchar c = Color::hue_mono(_hues[ti]);
+			fl_color(c, c, c);
+			fl_point(x + tx, y + ty);
 		}
 	}
 }

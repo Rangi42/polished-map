@@ -48,6 +48,7 @@ public:
 	void copy(const Tile *t);
 	void render_pixel(int x, int y, Lighting l, Hue h);
 	void update_lighting(Lighting l);
+	void draw_for_clipboard(int x, int y);
 };
 
 #endif

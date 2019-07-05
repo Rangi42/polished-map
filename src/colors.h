@@ -34,6 +34,8 @@ private:
 	static void color(Lighting l, Palette p, HueArray v);
 public:
 	static Hue ordered_hue(int i);
+	static uchar hue_mono(Hue h);
+	static Hue mono_hue(uchar c);
 	static const uchar *monochrome_color(Hue h);
 	static const uchar *undefined_color(Hue h);
 	static const uchar *color(Lighting l, Palette p, Hue h);
