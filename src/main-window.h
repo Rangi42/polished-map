@@ -42,7 +42,8 @@ private:
 	// GUI inputs
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
-		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_dark_theme_mi = NULL;
+		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_rose_gold_theme_mi = NULL,
+		*_dark_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
 		*_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
@@ -205,6 +206,7 @@ private:
 	static void greybird_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void metal_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void blue_theme_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void rose_gold_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void dark_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void grid_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void zoom_cb(Fl_Menu_ *m, Main_Window *mw);

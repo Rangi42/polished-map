@@ -43,7 +43,7 @@
 
 class OS {
 public:
-	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, DARK };
+	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, ROSE_GOLD, DARK };
 private:
 	static Theme global_current_theme;
 public:
@@ -64,6 +64,7 @@ public:
 	static void use_greybird_theme(void);
 	static void use_metal_theme(void);
 	static void use_blue_theme(void);
+	static void use_rose_gold_theme(void);
 	static void use_dark_theme(void);
 };
 

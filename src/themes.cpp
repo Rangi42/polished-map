@@ -1982,6 +1982,280 @@ void OS::use_blue_theme() {
 	global_current_theme = BLUE;
 }
 
+/********************************** Rose Gold *********************************/
+
+static void rose_gold_button_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xF7, 0xF5)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_yxline(x+1, y+2, y+h/2-1);
+	fl_yxline(x+w-2, y+2, y+h/2-1);
+	fl_point(x+2, y+2);
+	fl_point(x+w-3, y+2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFE)));
+	fl_yxline(x+1, y+h/2, y+h-3);
+	fl_yxline(x+w-2, y+h/2, y+h-3);
+	fl_xyline(x+2, y+h-2, x+w-3);
+	fl_point(x+2, y+h-3);
+	fl_point(x+w-3, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_button_up_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)),
+		activated_color(fl_rgb_color(0xF6, 0xE4, 0xE0)));
+	// bottom gradient
+	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xF1, 0xD9, 0xD2)),
+		activated_color(fl_rgb_color(0xF3, 0xDB, 0xD4)));
+	rose_gold_button_up_frame(x, y, w, h, c);
+}
+
+static void rose_gold_panel_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// top and left borders
+	fl_color(activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)));
+	fl_yxline(x, y+h-2, y, x+w-2);
+	// bottom and right borders
+	fl_color(activated_color(fl_rgb_color(0xDF, 0xC4, 0xBC)));
+	fl_xyline(x, y+h-1, x+w-1, y);
+}
+
+static void rose_gold_panel_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	rose_gold_panel_thin_up_frame(x, y, w, h, c);
+}
+
+static void rose_gold_spacer_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// top and left borders
+	fl_color(activated_color(fl_rgb_color(0xDF, 0xC4, 0xBC)));
+	fl_yxline(x, y+h-2, y, x+w-2);
+	// bottom and right borders
+	fl_color(activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)));
+	fl_xyline(x, y+h-1, x+w-1, y);
+}
+
+static void rose_gold_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	rose_gold_spacer_thin_down_frame(x, y, w, h, c);
+}
+
+static void rose_gold_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x15, 0x81, 0xFA)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xF8, 0xFD, 0xFF)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_yxline(x+1, y+2, y+h/2-1);
+	fl_yxline(x+w-2, y+2, y+h/2-1);
+	fl_point(x+2, y+2);
+	fl_point(x+w-3, y+2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0xE4, 0xF2, 0xFF)));
+	fl_yxline(x+1, y+h/2, y+h-3);
+	fl_yxline(x+w-2, y+h/2, y+h-3);
+	fl_xyline(x+2, y+h-2, x+w-3);
+	fl_point(x+2, y+h-3);
+	fl_point(x+w-3, y+h-3);
+	// corners
+	fl_color(activated_color(fl_rgb_color(0x4D, 0xA1, 0xF3)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_hovered_up_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xE1, 0xF9, 0xFE)),
+		activated_color(fl_rgb_color(0xC5, 0xF1, 0xFC)));
+	// bottom gradient
+	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0x75, 0xCD, 0xFB)),
+		activated_color(fl_rgb_color(0x8D, 0xC6, 0xFD)));
+	rose_gold_hovered_up_frame(x, y, w, h, c);
+}
+
+static void rose_gold_depressed_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x34, 0x85, 0xBE)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner border
+	fl_color(activated_color(fl_rgb_color(0x8B, 0x6C, 0xE0)));
+	fl_xyline(x+2, y+1, x+w-3);
+	// corners
+	fl_color(activated_color(fl_rgb_color(0x5C, 0x9D, 0xC8)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+1, y+2, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0x94, 0xD1, 0xEB)),
+		activated_color(fl_rgb_color(0x82, 0xD0, 0xF1)));
+	// bottom gradient
+	vertical_gradient(x+1, y+h/2, x+w-2, y+h-1, activated_color(fl_rgb_color(0x62, 0xC5, 0xF0)),
+		activated_color(fl_rgb_color(0x81, 0xB6, 0xF9)));
+	rose_gold_depressed_down_frame(x, y, w, h, c);
+}
+
+static void rose_gold_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// border
+	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	rose_gold_group_thin_up_frame(x, y, w, h, c);
+}
+
+static void rose_gold_default_button_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xF7, 0xF6)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_yxline(x+1, y+2, y+h/2-1);
+	fl_yxline(x+w-2, y+2, y+h/2-1);
+	fl_point(x+2, y+2);
+	fl_point(x+w-3, y+2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xFA, 0xFB)));
+	fl_yxline(x+1, y+h/2, y+h-3);
+	fl_yxline(x+w-2, y+h/2, y+h-3);
+	fl_xyline(x+2, y+h-2, x+w-3);
+	fl_point(x+2, y+h-3);
+	fl_point(x+w-3, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_default_button_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xFF, 0xF7, 0xF6)),
+		activated_color(fl_rgb_color(0xFA, 0xED, 0xEC)));
+	// bottom gradient
+	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xF7, 0xE9, 0xE5)),
+		activated_color(fl_rgb_color(0xFB, 0xEC, 0xE9)));
+	rose_gold_default_button_frame(x, y, w, h, c);
+}
+
+static void rose_gold_tabs_frame(int x, int y, int w, int h, Fl_Color) {
+	// border
+	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top corners
+	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	// bottom corners
+	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void rose_gold_tabs_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	rose_gold_tabs_frame(x, y, w, h, c);
+}
+
+static void use_rose_gold_scheme() {
+	Fl::scheme("gtk+");
+	Fl::set_boxtype(OS_BUTTON_UP_BOX, rose_gold_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_BUTTON_UP_FRAME, rose_gold_button_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, aero_check_down_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, rose_gold_panel_thin_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, rose_gold_spacer_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, rose_gold_panel_thin_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, rose_gold_spacer_thin_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, blue_progress_round_up_box, 2, 1, 4, 2);
+	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, rose_gold_hovered_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, rose_gold_depressed_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, rose_gold_hovered_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, rose_gold_depressed_down_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, rose_gold_group_thin_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, aero_input_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, rose_gold_group_thin_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, rose_gold_default_button_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_TABS_BOX, rose_gold_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
+	Fl::set_boxtype(FL_UP_BOX, rose_gold_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
+}
+
+static void use_rose_gold_colors() {
+	Fl::background(0xF5, 0xDD, 0xD6);
+	Fl::background2(0xFF, 0xFF, 0xFF);
+	Fl::foreground(0x4C, 0x1E, 0x12);
+	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x33, 0x33);
+	Fl::set_color(OS_TAB_COLOR, 0xFE, 0xEE, 0xE9);
+	Fl::set_color(OS_PROGRESS_COLOR, 0x15, 0x81, 0xFA);
+	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
+	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
+}
+
+void OS::use_rose_gold_theme() {
+	use_rose_gold_scheme();
+	use_rose_gold_colors();
+	use_native_settings();
+	global_current_theme = ROSE_GOLD;
+}
+
 /************************* Dark (Adobe Photoshop CS6) *************************/
 
 static void dark_button_up_frame(int x, int y, int w, int h, Fl_Color) {
