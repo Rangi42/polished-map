@@ -1,8 +1,13 @@
 #include <queue>
 #include <utility>
 
+#pragma warning(push, 0)
+#include <FL/Fl_Copy_Surface.H>
+#pragma warning(pop)
+
 #include "themes.h"
 #include "config.h"
+#include "icons.h"
 #include "roof-window.h"
 
 Roof_Tile_Window::Roof_Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
@@ -29,8 +34,8 @@ int Roof_Tile_Window::handle(int event) {
 
 Roof_Window::Roof_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _canceled(false), _window(NULL),
 	_roof_heading(NULL), _tile_heading(NULL), _roof_group(NULL), _tile_group(NULL), _deep_tile_buttons(),
-	_selected(NULL), _pixels(), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL), _swatch4(NULL), _chosen(NULL),
-	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0), _debounce() {}
+	_selected(NULL), _pixels(), _copy_tb(NULL), _paste_tb(NULL), _swatch1(NULL), _swatch2(NULL), _swatch3(NULL),
+	_swatch4(NULL), _chosen(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(0), _debounce() {}
 
 Roof_Window::~Roof_Window() {
 	delete _window;
@@ -38,6 +43,8 @@ Roof_Window::~Roof_Window() {
 	delete _tile_heading;
 	delete _roof_group;
 	delete _tile_group;
+	delete _copy_tb;
+	delete _paste_tb;
 	delete _swatch1;
 	delete _swatch2;
 	delete _swatch3;
@@ -65,6 +72,8 @@ void Roof_Window::initialize() {
 	_swatch2 = new Swatch(38, 100, 22, "2");
 	_swatch3 = new Swatch(10, 128, 22, "3");
 	_swatch4 = new Swatch(38, 128, 22, "4");
+	_copy_tb = new Toolbar_Button(16, 160, 22, 22);
+	_paste_tb = new Toolbar_Button(38, 160, 22, 22);
 	_ok_button = new Default_Button(42, 196, 80, 22, "OK");
 	_cancel_button = new OS_Button(136, 196, 80, 22, "Cancel");
 	_window->end();
@@ -108,6 +117,18 @@ void Roof_Window::initialize() {
 	_swatch3->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch4->shortcut('4');
 	_swatch4->callback((Fl_Callback *)choose_swatch_cb, this);
+	_copy_tb->tooltip("Copy (Ctrl+Shift+C)");
+	_copy_tb->shortcut(FL_COMMAND + 'C');
+	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
+	_copy_tb->image(COPY_ICON);
+	_copy_tb->deimage(COPY_DISABLED_ICON);
+	_copy_tb->hide();
+	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
+	_paste_tb->shortcut(FL_COMMAND + 'V');
+	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
+	_paste_tb->image(PASTE_ICON);
+	_paste_tb->deimage(PASTE_DISABLED_ICON);
+	_paste_tb->hide();
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -309,4 +330,12 @@ void Roof_Window::swap_tiles_cb(Fl_Widget *, Roof_Window *rw) {
 	rw->_selected->copy(copied);
 	copied->copy(&temp);
 	rw->_window->redraw();
+}
+
+void Roof_Window::copy_tile_graphics_cb(Toolbar_Button *, Roof_Window *) {
+	// TODO: copy_tile_graphics_cb
+}
+
+void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *, Roof_Window *) {
+	// TODO: paste_tile_graphics_cb
 }

@@ -14,7 +14,7 @@
 #define RGBX(rgb) {(((rgb) & 0xFF0000) >> 16), (((rgb) & 0xFF00) >> 8), ((rgb) & 0xFF)}
 
 // Internal GB hue order
-static const Hue hue_order[4] = {Hue::WHITE, Hue::LIGHT, Hue::DARK, Hue::BLACK};
+static const Hue hue_order[NUM_HUES] = {Hue::WHITE, Hue::LIGHT, Hue::DARK, Hue::BLACK};
 
 // Lighting x Palette x Hue x RGB
 uchar tileset_colors[NUM_LIGHTINGS][NUM_GAME_PALETTES+1][NUM_HUES][NUM_CHANNELS] = {

@@ -397,6 +397,18 @@
     <None Include="..\res\gameboy-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\res\copy.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\copy-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\paste.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\paste-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="polished-map.rc">
