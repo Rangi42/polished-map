@@ -45,6 +45,7 @@ public:
 	void copy(const Tile *t);
 	void update_lighting(Lighting l);
 	void draw_with_priority(int x, int y, int s, bool show_priority) const;
+	void draw_for_clipboard(int x, int y);
 };
 
 #endif

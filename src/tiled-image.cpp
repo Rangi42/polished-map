@@ -35,7 +35,6 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 	delete [] _tile_hues;
 	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
 
-	Hue png_hues[4] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE};
 	size_t hi = 0;
 	int d = png.d();
 	for (int y = 0; y < h; y++) {
@@ -43,7 +42,7 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 			for (int ty = 0; ty < TILE_SIZE; ty++) {
 				for (int tx = 0; tx < TILE_SIZE; tx++) {
 					long ti = ((y * TILE_SIZE + ty) * (w * TILE_SIZE) + (x * TILE_SIZE + tx)) * d;
-					_tile_hues[hi++] = png_hues[png.array[ti] / (0x100 / 4)]; // [0, 255] -> [0, 3]
+					_tile_hues[hi++] = Color::mono_hue(png.array[ti]);
 				}
 			}
 		}

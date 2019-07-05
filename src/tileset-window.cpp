@@ -14,6 +14,10 @@ Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_
 
 int Tile_Window::handle(int event) {
 	Tileset_Window *tw = (Tileset_Window *)user_data();
+	if (event == FL_PASTE && Fl::event_clipboard_type() == Fl::clipboard_image) {
+		Tileset_Window::paste_tile_graphics_cb(NULL, tw);
+		return 1;
+	}
 	if (tw->_debounce) {
 		if (Fl::event() == FL_KEYUP) {
 			tw->_debounce = false;
@@ -120,13 +124,11 @@ void Tileset_Window::initialize() {
 	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
 	_copy_tb->image(COPY_ICON);
 	_copy_tb->deimage(COPY_DISABLED_ICON);
-	_copy_tb->hide();
 	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
 	_paste_tb->shortcut(FL_COMMAND + 'V');
 	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
 	_paste_tb->image(PASTE_ICON);
 	_paste_tb->deimage(PASTE_DISABLED_ICON);
-	_paste_tb->hide();
 	_swatch1->shortcut('1');
 	_swatch1->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch2->shortcut('2');
@@ -430,10 +432,35 @@ void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	tw->_window->redraw();
 }
 
-void Tileset_Window::copy_tile_graphics_cb(Toolbar_Button *, Tileset_Window *) {
-	// TODO: copy_tile_graphics_cb
+void Tileset_Window::copy_tile_graphics_cb(Toolbar_Button *, Tileset_Window *tw) {
+	tw->_selected->for_clipboard(true);
+	Fl_Copy_Surface *surface = new Fl_Copy_Surface(TILE_SIZE, TILE_SIZE);
+	surface->set_current();
+	surface->draw(tw->_selected);
+	delete surface;
+	Fl_Display_Device::display_device()->set_current();
+	tw->_selected->for_clipboard(false);
 }
 
-void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *, Tileset_Window *) {
-	// TODO: paste_tile_graphics_cb
+void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *tw) {
+	if (!tw->_selected || !Fl::clipboard_contains(Fl::clipboard_image)) {
+		return;
+	}
+	if (tb) {
+		Fl::paste(*tw->_window, 1, Fl::clipboard_image);
+		return;
+	}
+	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
+	pasted->desaturate();
+	int w = MAX(pasted->w(), TILE_SIZE), h = MAX(pasted->h(), TILE_SIZE);
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			uchar c = *(*pasted->data() + (x + y * pasted->w()) * pasted->d());
+			Hue e = Color::mono_hue(c);
+			const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), e);
+			tw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);
+		}
+	}
+	tw->select(tw->_selected);
+	tw->_window->redraw();
 }

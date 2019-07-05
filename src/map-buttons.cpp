@@ -242,7 +242,8 @@ int Chip::handle(int event) {
 
 Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
 
-Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id) {
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id),
+	_for_clipboard(false) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);
 }
@@ -278,6 +279,10 @@ void Deep_Tile_Button::drag_to_swap_or_copy() {
 }
 
 void Deep_Tile_Button::draw() {
+	if (_for_clipboard) {
+		draw_for_clipboard(x(), y());
+		return;
+	}
 	Tileset_Window *tw = (Tileset_Window *)user_data();
 	draw_with_priority(x(), y(), TILE_PX_SIZE, tw->show_priority());
 	if (value()) {

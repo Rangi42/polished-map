@@ -36,6 +36,8 @@ private:
 	static void color(Lighting l, Palette p, HueArray v);
 public:
 	static Hue ordered_hue(int i);
+	static uchar hue_mono(Hue h);
+	static Hue mono_hue(uchar c);
 	static const uchar *color(Lighting l, Palette p, Hue h);
 	static void color(Lighting l, Palette p, Hue h, Fl_Color f);
 	static Fl_Color fl_color(Lighting l, Palette p, Hue h);

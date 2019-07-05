@@ -133,3 +133,14 @@ void Tile::draw_with_priority(int x, int y, int s, bool show_priority) const {
 		}
 	}
 }
+
+void Tile::draw_for_clipboard(int x, int y) {
+	for (int ty = 0; ty < TILE_SIZE; ty++) {
+		for (int tx = 0; tx < TILE_SIZE; tx++) {
+			int ti = ty * TILE_SIZE + tx;
+			uchar c = Color::hue_mono(_hues[ti]);
+			fl_color(c, c, c);
+			fl_point(x + tx, y + ty);
+		}
+	}
+}
