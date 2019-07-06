@@ -2057,27 +2057,27 @@ static void rose_gold_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color 
 
 static void rose_gold_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
-	fl_color(activated_color(fl_rgb_color(0x15, 0x81, 0xFA)));
+	fl_color(activated_color(fl_rgb_color(0x6C, 0x80, 0x96)));
 	fl_xyline(x+2, y, x+w-3);
 	fl_xyline(x+2, y+h-1, x+w-3);
 	fl_yxline(x, y+2, y+h-3);
 	fl_yxline(x+w-1, y+2, y+h-3);
 	// top inner borders
-	fl_color(activated_color(fl_rgb_color(0xF8, 0xFD, 0xFF)));
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
 	fl_xyline(x+2, y+1, x+w-3);
 	fl_yxline(x+1, y+2, y+h/2-1);
 	fl_yxline(x+w-2, y+2, y+h/2-1);
 	fl_point(x+2, y+2);
 	fl_point(x+w-3, y+2);
 	// bottom inner borders
-	fl_color(activated_color(fl_rgb_color(0xE4, 0xF2, 0xFF)));
+	fl_color(activated_color(fl_rgb_color(0xEF, 0xF1, 0xF3)));
 	fl_yxline(x+1, y+h/2, y+h-3);
 	fl_yxline(x+w-2, y+h/2, y+h-3);
 	fl_xyline(x+2, y+h-2, x+w-3);
 	fl_point(x+2, y+h-3);
 	fl_point(x+w-3, y+h-3);
 	// corners
-	fl_color(activated_color(fl_rgb_color(0x4D, 0xA1, 0xF3)));
+	fl_color(activated_color(fl_rgb_color(0x8F, 0x9F, 0xAD)));
 	fl_xyline(x, y+1, x+1, y);
 	fl_xyline(x, y+h-2, x+1, y+h-1);
 	fl_yxline(x+w-2, y, y+1, x+w-1);
@@ -2086,26 +2086,26 @@ static void rose_gold_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
 
 static void rose_gold_hovered_up_box(int x, int y, int w, int h, Fl_Color c) {
 	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xE1, 0xF9, 0xFE)),
-		activated_color(fl_rgb_color(0xC5, 0xF1, 0xFC)));
+	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xF0, 0xF4, 0xF5)),
+		activated_color(fl_rgb_color(0xE1, 0xE9, 0xEB)));
 	// bottom gradient
-	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0x75, 0xCD, 0xFB)),
-		activated_color(fl_rgb_color(0x8D, 0xC6, 0xFD)));
+	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xC0, 0xD0, 0xD8)),
+		activated_color(fl_rgb_color(0xBA, 0xC4, 0xCE)));
 	rose_gold_hovered_up_frame(x, y, w, h, c);
 }
 
 static void rose_gold_depressed_down_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
-	fl_color(activated_color(fl_rgb_color(0x34, 0x85, 0xBE)));
+	fl_color(activated_color(fl_rgb_color(0x75, 0x84, 0x8F)));
 	fl_xyline(x+2, y, x+w-3);
 	fl_xyline(x+2, y+h-1, x+w-3);
 	fl_yxline(x, y+2, y+h-3);
 	fl_yxline(x+w-1, y+2, y+h-3);
 	// top inner border
-	fl_color(activated_color(fl_rgb_color(0x8B, 0x6C, 0xE0)));
+	fl_color(activated_color(fl_rgb_color(0xAC, 0xB9, 0xC1)));
 	fl_xyline(x+2, y+1, x+w-3);
 	// corners
-	fl_color(activated_color(fl_rgb_color(0x5C, 0x9D, 0xC8)));
+	fl_color(activated_color(fl_rgb_color(0x90, 0x9C, 0xA4)));
 	fl_xyline(x, y+1, x+1, y);
 	fl_xyline(x, y+h-2, x+1, y+h-1);
 	fl_yxline(x+w-2, y, y+1, x+w-1);
@@ -2114,11 +2114,11 @@ static void rose_gold_depressed_down_frame(int x, int y, int w, int h, Fl_Color)
 
 static void rose_gold_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	// top gradient
-	vertical_gradient(x+1, y+2, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0x94, 0xD1, 0xEB)),
-		activated_color(fl_rgb_color(0x82, 0xD0, 0xF1)));
+	vertical_gradient(x+1, y+2, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0xCA, 0xD8, 0xDF)),
+		activated_color(fl_rgb_color(0xD1, 0xDC, 0xE1)));
 	// bottom gradient
-	vertical_gradient(x+1, y+h/2, x+w-2, y+h-1, activated_color(fl_rgb_color(0x62, 0xC5, 0xF0)),
-		activated_color(fl_rgb_color(0x81, 0xB6, 0xF9)));
+	vertical_gradient(x+1, y+h/2, x+w-2, y+h-1, activated_color(fl_rgb_color(0xB7, 0xC9, 0xD0)),
+		activated_color(fl_rgb_color(0xAF, 0xBA, 0xC3)));
 	rose_gold_depressed_down_frame(x, y, w, h, c);
 }
 
@@ -2242,7 +2242,7 @@ static void use_rose_gold_colors() {
 	Fl::background(0xF5, 0xDD, 0xD6);
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x4C, 0x1E, 0x12);
-	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x33, 0x33);
+	Fl::set_color(FL_SELECTION_COLOR, 0x15, 0x81, 0xFA);
 	Fl::set_color(OS_TAB_COLOR, 0xFE, 0xEE, 0xE9);
 	Fl::set_color(OS_PROGRESS_COLOR, 0x15, 0x81, 0xFA);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));

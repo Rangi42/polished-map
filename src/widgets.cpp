@@ -413,7 +413,7 @@ int Toolbar_Button::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
 		if (active_r()) {
-			if (OS::current_theme() == OS::GREYBIRD || OS::current_theme() == OS::DARK) {
+			if (OS::current_theme() == OS::GREYBIRD || OS::current_theme() == OS::ROSE_GOLD || OS::current_theme() == OS::DARK) {
 				box(OS_BUTTON_UP_BOX);
 			}
 			else {
