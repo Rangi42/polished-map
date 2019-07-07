@@ -87,7 +87,8 @@ void Metatile_Button::id(uint8_t id) {
 
 void Metatile_Button::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
-	draw_map_button(this, _id, !!value());
+	bool outline = value() || (dragging && (this == dragging || this == Fl::belowmouse()));
+	draw_map_button(this, _id, outline);
 	auto s = mw->metatile_hotkey(_id);
 	if (s == mw->no_hotkey()) { return; }
 	int key = s->second;
@@ -102,10 +103,9 @@ int Metatile_Button::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
 	case FL_LEAVE:
-		return 1;
 	case FL_PUSH:
-		value(1);
-		set_changed();
+	case FL_DND_DRAG:
+	case FL_DND_RELEASE:
 		return 1;
 	case FL_RELEASE:
 	case FL_PASTE:
@@ -114,15 +114,20 @@ int Metatile_Button::handle(int event) {
 	case FL_DRAG:
 		if (Fl::event_button() == FL_LEFT_MOUSE) {
 			dragging = this;
+			Fl::copy("", 0, 0);
 			Fl::dnd();
+			dragging = NULL;
+			if (parent()) {
+				parent()->redraw();
+			}
 			return 1;
 		}
 		else {
 			return 0;
 		}
 	case FL_DND_ENTER:
-	case FL_DND_DRAG:
-	case FL_DND_RELEASE:
+	case FL_DND_LEAVE:
+		damage(1);
 		return 1;
 	default:
 		return 0;
@@ -304,7 +309,8 @@ void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
 }
 
 void Deep_Tile_Button::drag_to_swap_or_copy() {
-	if (Fl::event() == FL_PASTE && _dragging && _dragging != this && _dragging->active() && active()) {
+	if ((Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE) && _dragging
+		&& _dragging != this && _dragging->active() && active()) {
 		if (Fl::event_ctrl()) {
 			// Ctrl+drag to copy
 			copy(_dragging);
@@ -327,7 +333,7 @@ void Deep_Tile_Button::draw() {
 	}
 	const uchar *rgb = _undefined ? _undefined_rgb : _monochrome_rgb;
 	fl_draw_image(rgb, x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
-	if (value()) {
+	if (value() || (_dragging && (this == _dragging || this == Fl::belowmouse()))) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
 }
@@ -336,9 +342,17 @@ int Deep_Tile_Button::handle(int event) {
 	switch (event) {
 	case FL_DRAG:
 		_dragging = this;
+		Fl::copy("", 0, 0);
 		Fl::dnd();
+		_dragging = NULL;
+		if (parent()) {
+			parent()->redraw();
+		}
 		break;
 	case FL_DND_ENTER:
+	case FL_DND_LEAVE:
+		damage(1);
+		return 1;
 	case FL_DND_DRAG:
 	case FL_DND_RELEASE:
 		return 1;
@@ -368,7 +382,6 @@ void Pixel_Button::draw() {
 }
 
 int Pixel_Button::handle(int event) {
-	//Tileset_Window *tw = (Tileset_Window *)user_data();
 	switch (event) {
 	case FL_ENTER:
 		if (Fl::event_button1() && !Fl::pushed()) {
@@ -425,7 +438,8 @@ Color_Button::Color_Button(int x, int y, int s, const char *l) : Fl_Radio_Button
 }
 
 void Color_Button::drag_to_swap_or_copy() {
-	if (Fl::event() == FL_PASTE && _dragging && _dragging != this && _dragging->active() && active()) {
+	if ((Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE) && _dragging
+		&& _dragging != this && _dragging->active() && active()) {
 		if (Fl::event_ctrl()) {
 			// Ctrl+drag to copy
 			color(_dragging->color());
@@ -442,7 +456,7 @@ void Color_Button::drag_to_swap_or_copy() {
 
 void Color_Button::draw() {
 	draw_box();
-	if (value()) {
+	if (value() || (_dragging && (this == _dragging || this == Fl::belowmouse()))) {
 		draw_selection_border(x(), y(), w(), false);
 	}
 }
@@ -451,9 +465,17 @@ int Color_Button::handle(int event) {
 	switch (event) {
 	case FL_DRAG:
 		_dragging = this;
+		Fl::copy("", 0, 0);
 		Fl::dnd();
+		_dragging = NULL;
+		if (parent()) {
+			parent()->redraw();
+		}
 		break;
 	case FL_DND_ENTER:
+	case FL_DND_LEAVE:
+		damage(1);
+		return 1;
 	case FL_DND_DRAG:
 	case FL_DND_RELEASE:
 		return 1;

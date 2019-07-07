@@ -2729,7 +2729,8 @@ void Main_Window::about_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::select_metatile_cb(Metatile_Button *mb, Main_Window *mw) {
-	if (Fl::event() == FL_PASTE && mb->dragging && mb->dragging != mb && mb->dragging->active() && mb->active()) {
+	if ((Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE) && mb->dragging
+		&& mb->dragging != mb && mb->dragging->active() && mb->active()) {
 		Metatile *mt1 = mw->_metatileset.metatile(mb->id());
 		Metatile *mt2 = mw->_metatileset.metatile(mb->dragging->id());
 		if (Fl::event_ctrl()) {
