@@ -55,6 +55,7 @@ static void use_theme(OS::Theme theme) {
 
 int main(int argc, char **argv) {
 	std::ios::sync_with_stdio(false);
+	fl_register_images(); // required for Linux/X11 to allow pasting tile graphics
 #ifdef _WIN32
 	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_AUTHOR) L"." MAKE_WSTR(PROGRAM_NAME));
 #endif
