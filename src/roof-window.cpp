@@ -351,6 +351,9 @@ void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
 		Fl::paste(*rw->_window, 1, Fl::clipboard_image);
 		return;
 	}
+	if (rw->_selected->undefined()) {
+		rw->_selected->undefined(false);
+	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
 	int w = MAX(pasted->w(), TILE_SIZE), h = MAX(pasted->h(), TILE_SIZE);
 	for (int y = 0; y < h; y++) {
