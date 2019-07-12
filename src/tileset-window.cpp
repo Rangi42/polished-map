@@ -450,6 +450,9 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 		Fl::paste(*tw->_window, 1, Fl::clipboard_image);
 		return;
 	}
+	if (tw->_selected->palette() == Palette::UNDEFINED) {
+		tw->_selected->palette(Palette::GRAY);
+	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
 	int w = MIN(pasted->w(), TILE_SIZE), h = MIN(pasted->h(), TILE_SIZE);
 	for (int y = 0; y < h; y++) {
