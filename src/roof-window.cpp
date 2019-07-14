@@ -366,6 +366,7 @@ void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
 			rw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);
 		}
 	}
+	delete pasted;
 	rw->select(rw->_selected);
 	rw->_window->redraw();
 }
