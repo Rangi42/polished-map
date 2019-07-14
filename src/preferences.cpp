@@ -20,8 +20,7 @@ void Preferences::set(const char *key, int value) {
 std::string Preferences::get_string(const char *key) {
 	char *value;
 	global_prefs.get(key, value, "");
-	if (!value) { value = ""; }
-	std::string s(value);
+	std::string s(value ? value : "");
 	delete value;
 	return s;
 }
