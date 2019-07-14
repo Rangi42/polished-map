@@ -375,6 +375,7 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 			tw->_selected->render_pixel(x, y, tw->_tileset->lighting(), e);
 		}
 	}
+	delete pasted;
 	tw->select(tw->_selected);
 	tw->_window->redraw();
 }
