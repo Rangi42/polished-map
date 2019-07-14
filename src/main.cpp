@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 #ifdef _WIN32
-	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::BLUE);
+	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::ROSE_GOLD);
 #else
 	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::GREYBIRD);
 #endif
