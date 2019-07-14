@@ -29,6 +29,8 @@
 #define METATILES_PER_ROW 4
 #define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
 
+#define NUM_RECENT 10
+
 enum Mode { BLOCKS, EVENTS };
 
 class Main_Window : public Fl_Double_Window {
@@ -41,6 +43,7 @@ private:
 	Fl_Group *_map_group;
 	// GUI inputs
 	DnD_Receiver *_dnd_receiver;
+	Fl_Menu_Item *_recent_mis[NUM_RECENT];
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
 		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_rose_gold_theme_mi = NULL,
 		*_dark_theme_mi = NULL;
@@ -83,6 +86,7 @@ private:
 	Lighting_Window *_lighting_window;
 	// Data
 	std::string _directory, _blk_file, _asm_file;
+	std::string _recent[NUM_RECENT];
 	Metatileset _metatileset;
 	Map _map;
 	Map_Events _map_events;
@@ -148,7 +152,10 @@ private:
 	inline void mode(Mode m) { _mode = m; }
 	int handle_hotkey(int key);
 	void update_active_controls(void);
+	void store_recent_map(void);
+	void update_recent_maps(void);
 	void open_map(const char *directory, const char *filename);
+	void open_recent(int n);
 	void warp_to_map(Event *e);
 	void load_events(const char *filename);
 	void unload_events(void);
@@ -175,6 +182,17 @@ private:
 	// File menu
 	static void new_cb(Fl_Widget *w, Main_Window *mw);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
+	static void open_recent_0_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_1_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_2_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_3_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_4_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_5_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_6_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_7_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_8_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_9_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void clear_recent_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_as_cb(Fl_Widget *w, Main_Window *mw);

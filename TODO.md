@@ -3,7 +3,7 @@
 ## Bug Fixes
 
 * Resizing window resets sidebar width to original zoom size (sometimes)
-* Copying tile graphics gets 9x9 pixels, not 8x8 (OS-dependent?)
+* Copying tile graphics gets 9x9 pixels, not 8x8 (in paint.net)
 * Ctrl+C/V/X when editing lighting interferes with regular cut/copy/paste somehow (worked around for now)
 
 ## Features
@@ -13,7 +13,6 @@
 * Generate map images from the command line (issue [#10](https://github.com/Rangi42/polished-map/issues/10))
 * Allow undo/redo for resize and event operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
-* File → Open Recent → the last few opened .blk files (issue [#11](https://github.com/Rangi42/polished-map/issues/11))
 
 ## Other Tools
 

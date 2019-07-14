@@ -37,8 +37,8 @@
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
-	_directory(), _blk_file(), _asm_file(), _metatileset(), _map(), _map_events(), _metatile_buttons(), _clipboard(0),
-	_wx(x), _wy(y), _ww(w), _wh(h) {
+	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _metatile_buttons(),
+	_clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	Mode mode_config = (Mode)Preferences::get("mode", Mode::BLOCKS);
 	mode(mode_config);
@@ -55,6 +55,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int auto_events_config = Preferences::get("events", 1);
 	int special_lighting_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
+
+	_recent[0] = Preferences::get_string("recent0");
+	_recent[1] = Preferences::get_string("recent1");
+	_recent[2] = Preferences::get_string("recent2");
+	_recent[3] = Preferences::get_string("recent3");
+	_recent[4] = Preferences::get_string("recent4");
+	_recent[5] = Preferences::get_string("recent5");
+	_recent[6] = Preferences::get_string("recent6");
+	_recent[7] = Preferences::get_string("recent7");
+	_recent[8] = Preferences::get_string("recent8");
+	_recent[9] = Preferences::get_string("recent9");
 
 	// Populate window
 
@@ -202,7 +213,20 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		// label, shortcut, callback, data, flags
 		OS_SUBMENU("&File"),
 		OS_MENU_ITEM("&New...", FL_COMMAND + 'n', (Fl_Callback *)new_cb, this, 0),
-		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Open...", FL_COMMAND + 'o', (Fl_Callback *)open_cb, this, 0),
+		OS_MENU_ITEM("Open Recent", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_0_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_1_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_2_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_3_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_4_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_5_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_6_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_7_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_8_cb, this, 0),
+		OS_NULL_MENU_ITEM(0, (Fl_Callback *)open_recent_9_cb, this, 0),
+		OS_MENU_ITEM("Clear &Recent", 0, (Fl_Callback *)clear_recent_cb, this, 0),
+		{},
 		OS_MENU_ITEM("&Close", FL_COMMAND + 'w', (Fl_Callback *)close_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Save", FL_COMMAND + 's', (Fl_Callback *)save_cb, this, 0),
 		OS_MENU_ITEM("Save &As...", FL_COMMAND + 'S', (Fl_Callback *)save_as_cb, this, 0),
@@ -311,6 +335,16 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	// Initialize menu bar items
 #define PM_FIND_MENU_ITEM_CB(c) (const_cast<Fl_Menu_Item *>(_menu_bar->find_item((Fl_Callback *)(c))))
+	_recent_mis[0] = PM_FIND_MENU_ITEM_CB(open_recent_0_cb);
+	_recent_mis[1] = PM_FIND_MENU_ITEM_CB(open_recent_1_cb);
+	_recent_mis[2] = PM_FIND_MENU_ITEM_CB(open_recent_2_cb);
+	_recent_mis[3] = PM_FIND_MENU_ITEM_CB(open_recent_3_cb);
+	_recent_mis[4] = PM_FIND_MENU_ITEM_CB(open_recent_4_cb);
+	_recent_mis[5] = PM_FIND_MENU_ITEM_CB(open_recent_5_cb);
+	_recent_mis[6] = PM_FIND_MENU_ITEM_CB(open_recent_6_cb);
+	_recent_mis[7] = PM_FIND_MENU_ITEM_CB(open_recent_7_cb);
+	_recent_mis[8] = PM_FIND_MENU_ITEM_CB(open_recent_8_cb);
+	_recent_mis[9] = PM_FIND_MENU_ITEM_CB(open_recent_9_cb);
 	_classic_theme_mi = PM_FIND_MENU_ITEM_CB(classic_theme_cb);
 	_aero_theme_mi = PM_FIND_MENU_ITEM_CB(aero_theme_cb);
 	_metro_theme_mi = PM_FIND_MENU_ITEM_CB(metro_theme_cb);
@@ -564,6 +598,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 #include "help.html" // a C++11 raw string literal
 		);
 
+	update_recent_maps();
 	update_active_controls();
 }
 
@@ -904,6 +939,36 @@ void Main_Window::update_active_controls() {
 	}
 }
 
+void Main_Window::store_recent_map() {
+	std::string last(_blk_file);
+	for (int i = 0; i < NUM_RECENT; i++) {
+		if (_recent[i] == _blk_file) {
+			_recent[i] = last;
+			break;
+		}
+		std::swap(last, _recent[i]);
+	}
+	update_recent_maps();
+}
+
+void Main_Window::update_recent_maps() {
+	int last = -1;
+	for (int i = 0; i < NUM_RECENT; i++) {
+		if (_recent[i].empty()) {
+			_recent_mis[i]->label("");
+			_recent_mis[i]->hide();
+		}
+		else {
+			const char *basename = fl_filename_name(_recent[i].c_str());
+			_recent_mis[i]->label(basename);
+			_recent_mis[i]->show();
+			last = i;
+		}
+		_recent_mis[i]->flags &= ~FL_MENU_DIVIDER;
+	}
+	_recent_mis[last]->flags |= FL_MENU_DIVIDER;
+}
+
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	if (f == t) { return; }
 	std::queue<size_t> queue;
@@ -1162,7 +1227,27 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	update_labels();
 	update_status((Block *)NULL);
 
+	store_recent_map();
+
 	redraw();
+}
+
+void Main_Window::open_recent(int n) {
+	if (n < 0 || n >= NUM_RECENT || _recent[n].empty()) {
+		return;
+	}
+
+	if (unsaved()) {
+		std::string msg = modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Open another map anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return; }
+	}
+
+	const char *filename = _recent[n].c_str();
+	open_map(filename);
 }
 
 void Main_Window::warp_to_map(Event *e) {
@@ -1601,6 +1686,10 @@ bool Main_Window::save_map(bool force) {
 		_map.modified(false);
 	}
 
+	if (force) {
+		store_recent_map();
+	}
+
 	std::string msg = "Saved ";
 	msg = msg + basename + "!";
 	_success_dialog->message(msg);
@@ -1926,6 +2015,53 @@ void Main_Window::open_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	mw->open_map(filename);
+}
+
+void Main_Window::open_recent_0_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(0);
+}
+
+void Main_Window::open_recent_1_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(1);
+}
+
+void Main_Window::open_recent_2_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(2);
+}
+
+void Main_Window::open_recent_3_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(3);
+}
+
+void Main_Window::open_recent_4_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(4);
+}
+
+void Main_Window::open_recent_5_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(5);
+}
+
+void Main_Window::open_recent_6_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(6);
+}
+
+void Main_Window::open_recent_7_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(7);
+}
+
+void Main_Window::open_recent_8_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(8);
+}
+
+void Main_Window::open_recent_9_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->open_recent(9);
+}
+
+void Main_Window::clear_recent_cb(Fl_Menu_ *, Main_Window *mw) {
+	for (int i = 0; i < NUM_RECENT; i++) {
+		mw->_recent[i].clear();
+		mw->_recent_mis[i]->hide();
+	}
 }
 
 void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
@@ -2261,6 +2397,16 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
+	Preferences::set_string("recent0", mw->_recent[0]);
+	Preferences::set_string("recent1", mw->_recent[1]);
+	Preferences::set_string("recent2", mw->_recent[2]);
+	Preferences::set_string("recent3", mw->_recent[3]);
+	Preferences::set_string("recent4", mw->_recent[4]);
+	Preferences::set_string("recent5", mw->_recent[5]);
+	Preferences::set_string("recent6", mw->_recent[6]);
+	Preferences::set_string("recent7", mw->_recent[7]);
+	Preferences::set_string("recent8", mw->_recent[8]);
+	Preferences::set_string("recent9", mw->_recent[9]);
 	if (mw->_resize_dialog->initialized()) {
 		Preferences::set("resize-anchor", mw->_resize_dialog->anchor());
 	}
