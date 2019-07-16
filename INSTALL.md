@@ -14,11 +14,11 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 1. On GitHub, click the green "**Clone or download**" button and click "**Download ZIP**". This will download **polished-map-master.zip**.
 2. Unzip polished-map-master.zip. This will create the **polished-map-master** folder.
 3. Navigate to the polished-map-master folder in Explorer.
-4. Unzip lib/fltk-1.3.5.zip. This will create the lib/**fltk-1.3.5** folder.
-5. Open lib/fltk-1.3.5/ide/VisualC2010/fltk.sln in Visual Studio 2013. (Other versions may or may not work, I haven't tried.)
+4. Unzip lib/fltk-1.3.5-mod.zip. This will create the lib/**fltk-1.3.5-mod** folder.
+5. Open lib/fltk-1.3.5-mod/ide/VisualC2010/fltk.sln in Visual Studio 2013. (Other versions may or may not work, I haven't tried.)
 6. A dialog "Upgrade VS++ Compiler and Libraries" will open, since fltk.sln was made for Visual Studio 2008. Click OK.
 7. Go to **Build → Batch Build…**, check the projects **fltk**, **fltkimages**, **fltkpng**, **fltkjpeg**, and **fltkzlib** in the Release configuration, and click the **Build** button.
-8. Move the .lib files from lib/fltk-1.3.5/lib to lib.
+8. Move the .lib files from lib/fltk-1.3.5-mod/lib to lib.
 9. Open ide/polished-map.sln in Visual Studio 2013.
 10. If the Solution Configuration dropdown on the toolbar says Debug, set it to **Release**.
 11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polishedmap.exe**.
@@ -42,8 +42,8 @@ cd polished-map
 # Build FLTK 1.3.5 with the latest ABI enabled
 # (even if you have libfltk1.3-dev installed--it uses the 1.3.0 ABI)
 pushd lib
-unzip fltk-1.3.5.zip
-cd fltk-1.3.5
+unzip fltk-1.3.5-mod.zip
+cd fltk-1.3.5-mod
 chmod +x configure
 ./configure --prefix="$PWD/.." --with-abiversion=10305
 make
