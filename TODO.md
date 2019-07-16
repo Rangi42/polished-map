@@ -3,7 +3,6 @@
 ## Bug Fixes
 
 * Resizing window resets sidebar width to original zoom size (sometimes)
-* Copying tile graphics gets 9x9 pixels, not 8x8 (in paint.net)
 * Ctrl+C/V/X when editing lighting interferes with regular cut/copy/paste somehow (worked around for now)
 
 ## Features
