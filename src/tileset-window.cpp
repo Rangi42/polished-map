@@ -14,7 +14,12 @@ Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_
 
 int Tile_Window::handle(int event) {
 	Tileset_Window *tw = (Tileset_Window *)user_data();
-	if (event == FL_PASTE && Fl::event_clipboard_type() == Fl::clipboard_image) {
+	if (event == FL_PASTE) {
+#ifdef _WIN32
+		if (Fl::event_clipboard_type() != Fl::clipboard_image) {
+			return 0;
+		}
+#endif
 		Tileset_Window::paste_tile_graphics_cb(NULL, tw);
 		return 1;
 	}
@@ -443,9 +448,14 @@ void Tileset_Window::copy_tile_graphics_cb(Toolbar_Button *, Tileset_Window *tw)
 }
 
 void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *tw) {
-	if (!tw->_selected || !Fl::clipboard_contains(Fl::clipboard_image)) {
+	if (!tw->_selected) {
 		return;
 	}
+#ifdef _WIN32
+	if (!Fl::clipboard_contains(Fl::clipboard_image)) {
+		return;
+	}
+#endif
 	if (tb) {
 		Fl::paste(*tw->_window, 1, Fl::clipboard_image);
 		return;

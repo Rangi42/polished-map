@@ -14,7 +14,12 @@ Roof_Tile_Window::Roof_Tile_Window(int x, int y, int w, int h, const char *l) : 
 
 int Roof_Tile_Window::handle(int event) {
 	Roof_Window *rw = (Roof_Window *)user_data();
-	if (event == FL_PASTE && Fl::event_clipboard_type() == Fl::clipboard_image) {
+	if (event == FL_PASTE) {
+#ifdef _WIN32
+		if (Fl::event_clipboard_type() != Fl::clipboard_image) {
+			return 0;
+		}
+#endif
 		Roof_Window::paste_tile_graphics_cb(NULL, rw);
 		return 1;
 	}
@@ -345,9 +350,14 @@ void Roof_Window::copy_tile_graphics_cb(Toolbar_Button *, Roof_Window *rw) {
 }
 
 void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
-	if (!rw->_selected || !Fl::clipboard_contains(Fl::clipboard_image)) {
+	if (!rw->_selected) {
 		return;
 	}
+#ifdef _WIN32
+	if (!Fl::clipboard_contains(Fl::clipboard_image)) {
+		return;
+	}
+#endif
 	if (tb) {
 		Fl::paste(*rw->_window, 1, Fl::clipboard_image);
 		return;

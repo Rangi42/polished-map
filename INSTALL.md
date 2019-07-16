@@ -39,8 +39,8 @@ sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libx
 git clone https://github.com/Rangi42/polished-map.git
 cd polished-map
 
-# Build FLTK 1.3.5 with the latest ABI enabled
-# (even if you have libfltk1.3-dev installed--it uses the 1.3.0 ABI)
+# Build modified FLTK 1.3.5 with the latest ABI enabled
+# (even if you already have libfltk1.3-dev installed)
 pushd lib
 unzip fltk-1.3.5-mod.zip
 cd fltk-1.3.5-mod
