@@ -31,26 +31,28 @@ R"(<html>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
 <li><b>Auto-Load Events:</b> Automatically loads the .asm file corresponding to the map if one exists. For example, if you open maps)" DIR_SEP "PalletTown.ablk, then this option will automatically try to load maps" DIR_SEP R"(PalletTown.asm.</li>
-<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.ablk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else maps" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
+<li><b>Auto-Load Special Lighting:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.ablk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use File&nbsp;→&nbsp;Load&nbsp;Lighting… to manually load any such .pal file.</li>
 <li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use File&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
-<p>The sidebar palette uses the mouse:</p>
+<p>The sidebar array uses the mouse:</p>
 <ul>
 <li>Left-click to select a block.</li>
+<li>Left-click and drag one block onto another to swap them.</li>
+<li>Hold Ctrl, left-click and drag one block onto another to copy it.</li>
 <li>Right-click to edit a block.</li>
 <li>Middle-click and drag to scroll.</li>
 </ul>
-<p>The map area also uses the mouse, but it depends on the Mode. In Block mode:</p>
+<p>The map area also uses the mouse, but it depends on the Mode. In Block mode (Ctrl+Shift+B or the toolbar's Headbutt tree button):</p>
 <ul>
-<li>Left-click or drag to place the selected block in the sidebar palette.</li>
+<li>Left-click or drag to place the selected block in the sidebar array.</li>
 <li>Right-click to select a block from the map.</li>
 <li>Middle-click and drag to scroll.</li>
 <li>Hold Shift and left-click a group of blocks to flood-fill it.</li>
 <li>Hold Ctrl and left-click a block to replace every block of that type.</li>
 </ul>
-<p>And in Event mode:</p>
+<p>And in Event mode (Ctrl+Shift+T or the toolbar's Kris button):</p>
 <ul>
 <li>Hover over an event to see a tooltip with its full definition.</li>
 <li>Left-click and drag an event to move it. You can drag into the three-block margin around a map.</li>
@@ -59,7 +61,7 @@ R"(<html>
 <li>Middle-click and drag to scroll.</li>
 <li>Hold Shift and left-click a warp event to open the map it warps to. The map's filename is guessed from the warp event's constant. For example, a warp to UNION_CAVE_B1F will try to open UnionCaveB1F.ablk.</li>
 </ul>
-<p>The number keys 0-9 are hotkeys for the sidebar palette.</p>
+<p>The number keys 0-9 are hotkeys for the sidebar array.</p>
 <ul>
 <li>Press Ctrl+0-9 to assign that key to the selected block.</li>
 <li>Press 0-9 to select the block assigned to that key.</li>
@@ -69,9 +71,9 @@ R"(<html>
 <hr>
 <p>The block editor window has some simple mouse controls:</p>
 <ul>
-<li>Left-click the tileset palette to select a tile.</li>
-<li>Left-click or drag in the block area to place the selected tile in the block being edited.</li>
-<li>Right-click to select a tile from the block.</li>
+<li>Left-click the tileset array to select a tile.</li>
+<li>Left-click or drag inside the block area to place the selected tile in the block.</li>
+<li>Right-click inside the block area to select a tile from the block.</li>
 <li>Hold Ctrl and left-click to place four tiles at once: a contiguous 2x2 group, with the selected tile as the top-left.</li>
 <li>Hold Ctrl+Shift and left-click to place sixteen tiles at once: a contiguous 4x4 group, with the selected tile as the top-left.</li>
 </ul>
@@ -87,24 +89,33 @@ R"(<html>
 <p>You can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
 <p>(Regarding the "extra" tile graphics: these are graphics in VRAM that maps <i>can</i> use, but which pokecrystal reserves for font tiles and NPCs' walking sprites. If your project is modified to use any of these for map tiles, the ★ attribute will let you do so; but )" PROGRAM_NAME R"( can't handle the extra graphics, so it just shows a cyan border around the standard tile.)</p>
 <hr>
-<p>The tileset editor window has more mouse controls, similar to the map editor:</p>
+<p>The tileset editor window (Ctrl+T or the toolbar's green puzzle piece button) has more mouse controls, similar to the map editor:</p>
 <ul>
-<li>Left-click the tileset palette to select a tile.</li>
+<li>Left-click the tileset array to select a tile.</li>
+<li>Left-click and drag one tile onto another to swap them.</li>
+<li>Hold Ctrl, left-click and drag one tile onto another to copy it.</li>
 <li>Left-click a swatch, or press the 1/2/3/4 keys, to choose a hue.</li>
-<li>Left-click or drag the tile pixels to draw with the chosen hue in the selected tile.</li>
-<li>Right-click to choose a hue from the tile.</li>
+<li>Left-click or drag inside the pixel area to draw with the chosen hue in the selected tile.</li>
+<li>Right-click inside the pixel area to choose a hue from the tile.</li>
 <li>Hold Shift and left-click a group of pixels to flood-fill it.</li>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
 </ul>
-<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar palette. Delete will clear a tile's graphics.</p>
+<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics.</p>
+<p>The Copy and Paste buttons, or Ctrl+Shift+C and Ctrl+Shift+V, will copy and paste the tile graphics using the system clipboard. Tile graphics can be pasted as any color; they get converted to four-hue monochrome. (So you can easily rip tiles from full-color game screenshots.)</p>
 <hr>
 <p>Tilesets can be augmented by roofs. A roof is assumed to take up the nine tiles from $0A to $12. When a roof is loaded, it visibly affects the map and the block editor, but not the tileset editor. Thus you can edit the tileset without the loaded roof overwriting those nine tiles.</p>
 <p>When you open a map the roof selection always defaults to none, even if the map uses a roof. This is because pokecrystal only loads roofs for certain tilesets, which are <a href="https://github.com/pret/pokecrystal/wiki/Hard-coded-logic#tilesets-that-have-per-mapgroup-roofs">hard-coded</a> instead of being defined in a data table. This makes it impractical to automatically detect a map's roof type, so you'll have to manually specify it.</p>
-<p>The roof editor window is similar to the tileset editor. However, it does not support Delete.</p>
+<p>The roof editor window (Ctrl+F or the toolbar's green roof button) is similar to the tileset editor. However, it does not support Delete.</p>
 <hr>
 <p>The colors' exact appearance depends on the current lighting: MORN, DAY, NITE, INDOOR, or CUSTOM. The default set of lighting colors is based on pokecrystal, but custom ones will be read from gfx)" DIR_SEP "tilesets" DIR_SEP "bg_tiles.pal (or tilesets" DIR_SEP R"(bg.pal for backwards compatibility with older pokecrystal versions) if it exists.</p>
 <p>When a map <var>MapName</var>.ablk is opened with the tileset <var>tileset</var>.png, )" PROGRAM_NAME R"( will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Lighting.</p>
-<p>In the lighting editor, Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
+<p>The lighting editor window (Ctrl+Shift+L or the toolbar's lightbulb button) has some mouse controls:</p>
+<ul>
+<li>Left-click the palette array to select a color.</li>
+<li>Left-click and drag one color onto another to swap them.</li>
+<li>Hold Ctrl, left-click and drag one color onto another to copy it.</li>
+</ul>
+<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
 <p>Edited lighting colors can be exported, but only one at a time; so if you load a multi-lighting .pal file (like bg_tiles.pal, which defines MORN, DAY, NITE, and INDOOR lighting colors), do not overwrite it when exporting your edits.</p>
 </body>
 </html>)"
