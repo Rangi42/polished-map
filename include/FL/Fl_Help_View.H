@@ -66,7 +66,7 @@ struct Fl_Help_Block {
 /** Definition of a link for the html viewer. */
 struct Fl_Help_Link {
   char		filename[192],	///< Reference filename
-		name[32];	///< Link target (blank if none)
+		name[64];	///< Link target (blank if none)
   int		x,		///< X offset of link text
 		y,		///< Y offset of link text
 		w,		///< Width of link text
