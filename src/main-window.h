@@ -182,16 +182,7 @@ private:
 	// File menu
 	static void new_cb(Fl_Widget *w, Main_Window *mw);
 	static void open_cb(Fl_Widget *w, Main_Window *mw);
-	static void open_recent_0_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_1_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_2_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_3_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_4_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_5_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_6_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_7_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_8_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void open_recent_9_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void open_recent_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void clear_recent_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void close_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_cb(Fl_Widget *w, Main_Window *mw);
