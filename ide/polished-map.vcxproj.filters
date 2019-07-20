@@ -102,6 +102,9 @@
     <ClCompile Include="..\src\gameboy-screen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ruler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\image.h">
@@ -195,6 +198,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\gameboy-screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ruler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -407,6 +413,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\paste-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\rulers.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\rulers-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

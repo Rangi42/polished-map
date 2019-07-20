@@ -38,12 +38,13 @@
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _metatile_buttons(),
-	_clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_status_event_x(INT_MIN), _status_event_y(INT_MIN), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
 	Mode mode_config = (Mode)Preferences::get("mode", Mode::BLOCKS);
 	mode(mode_config);
 
 	int grid_config = Preferences::get("grid", 1);
+	int rulers_config = Preferences::get("rulers", 0);
 	int zoom_config = Preferences::get("zoom", 0);
 	int ids_config = Preferences::get("ids", 0);
 	int hex_config = Preferences::get("hex", 0);
@@ -92,6 +93,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_rulers_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_hex_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -141,6 +143,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_sidebar->type(Fl_Scroll::VERTICAL_ALWAYS);
 	_sidebar->end();
 	begin();
+
+	// Rulers
+	int rs = Fl::scrollbar_size();
+	_hor_ruler = new Ruler(wx+rs, wy, ww-rs, rs);
+	_ver_ruler = new Ruler(wx, wy+rs, rs, wh-rs);
+	_corner_ruler = new Ruler(wx, wy, rs, rs);
+	if (rulers_config) {
+		wx += _ver_ruler->w();
+		ww -= _ver_ruler->w();
+		wy += _hor_ruler->h();
+		wh -= _hor_ruler->h();
+	}
 
 	// Map
 	_map_scroll = new Workspace(wx, wy, ww, wh);
@@ -199,8 +213,24 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	icon((const void *)_icon_pixmap);
 #endif
 
+	// Configure rulers
+	_hor_ruler->direction(Ruler::HORIZONTAL);
+	_ver_ruler->direction(Ruler::VERTICAL);
+	_corner_ruler->direction(Ruler::CORNER);
+	_hor_ruler->user_data(this);
+	_ver_ruler->user_data(this);
+	_corner_ruler->user_data(this);
+	if (!rulers_config) {
+		_hor_ruler->hide();
+		_ver_ruler->hide();
+		_corner_ruler->hide();
+	}
+
 	// Configure workspaces
 	_map_scroll->dnd_receiver(_dnd_receiver);
+	_map_scroll->add_correlate(_hor_ruler);
+	_map_scroll->add_correlate(_ver_ruler);
+	_map_scroll->add_correlate(_corner_ruler);
 	_map_scroll->resizable(NULL);
 	_map_group->resizable(NULL);
 	_map_group->clip_children(1);
@@ -277,6 +307,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		{},
 		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this,
 			FL_MENU_TOGGLE | (grid_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Rulers", FL_COMMAND + 'R', (Fl_Callback *)rulers_cb, this,
+			FL_MENU_TOGGLE | (rulers_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Zoom", FL_COMMAND + '=', (Fl_Callback *)zoom_cb, this,
 			FL_MENU_TOGGLE | (zoom_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Block &IDs", FL_COMMAND + 'i', (Fl_Callback *)ids_cb, this,
@@ -287,7 +319,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (show_priority_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'R', (Fl_Callback *)show_events_cb, this,
+		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'V', (Fl_Callback *)show_events_cb, this,
 			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
@@ -357,6 +389,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_rose_gold_theme_mi = PM_FIND_MENU_ITEM_CB(rose_gold_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
+	_rulers_mi = PM_FIND_MENU_ITEM_CB(rulers_cb);
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
 	_ids_mi = PM_FIND_MENU_ITEM_CB(ids_cb);
 	_hex_mi = PM_FIND_MENU_ITEM_CB(hex_cb);
@@ -454,6 +487,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_grid_tb->image(GRID_ICON);
 	_grid_tb->deimage(GRID_DISABLED_ICON);
 	_grid_tb->value(grid());
+
+	_rulers_tb->callback((Fl_Callback *)rulers_tb_cb, this);
+	_rulers_tb->image(RULERS_ICON);
+	_rulers_tb->deimage(RULERS_DISABLED_ICON);
+	_rulers_tb->value(rulers());
 
 	_zoom_tb->tooltip("Zoom (Ctrl+=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
@@ -755,8 +793,11 @@ void Main_Window::update_status(Block *b) {
 		_map_dimensions->label("");
 		_hover_id->label("");
 		_hover_xy->label("");
+		_status_event_x = _status_event_y = INT_MIN;
 		_hover_event->label("");
 		_status_bar->redraw();
+		_hor_ruler->redraw();
+		_ver_ruler->redraw();
 		return;
 	}
 	char buffer[64] = {};
@@ -771,8 +812,11 @@ void Main_Window::update_status(Block *b) {
 		_map_dimensions->copy_label(buffer);
 		_hover_id->label("");
 		_hover_xy->label("");
+		_status_event_x = _status_event_y = INT_MIN;
 		_hover_event->label("");
 		_status_bar->redraw();
+		_hor_ruler->redraw();
+		_ver_ruler->redraw();
 		return;
 	}
 	uint8_t row = b->row(), col = b->col(), id = b->id();
@@ -786,15 +830,21 @@ void Main_Window::update_status(Block *b) {
 
 void Main_Window::update_event_cursor(Block *b) {
 	if (_mode != Mode::EVENTS || !b) {
+		_status_event_x = _status_event_y = INT_MIN;
 		_hover_event->label("");
 		_status_bar->redraw();
+		_hor_ruler->redraw();
+		_ver_ruler->redraw();
 		return;
 	}
 	char buffer[64] = {};
-	int ey = (int)b->row() * 2 + b->bottom_half(), ex = (int)b->col() * 2 + b->right_half();
-	sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), ex, ey);
+	_status_event_x = (int)b->col() * 2 + b->right_half();
+	_status_event_y = (int)b->row() * 2 + b->bottom_half();
+	sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), _status_event_x, _status_event_y);
 	_hover_event->copy_label(buffer);
 	_status_bar->redraw();
+	_hor_ruler->redraw();
+	_ver_ruler->redraw();
 }
 
 void Main_Window::update_gameboy_screen(Block *b) {
@@ -1920,14 +1970,44 @@ void Main_Window::edit_metatile(Metatile *mt) {
 	redraw();
 }
 
+void Main_Window::update_rulers() {
+	if (rulers()) {
+		_hor_ruler->show();
+		_ver_ruler->show();
+		_corner_ruler->show();
+	}
+	else {
+		_hor_ruler->hide();
+		_ver_ruler->hide();
+		_corner_ruler->hide();
+	}
+	update_layout();
+}
+
 void Main_Window::update_zoom() {
+	int sx = _map_scroll->xposition(), sy = _map_scroll->yposition();
+	if (zoom()) {
+		_map_scroll->scroll_to(sx * 2, sy * 2);
+	}
+	else {
+		_map_scroll->scroll_to(sx / 2, sy / 2);
+	}
+	update_layout();
+}
+
+void Main_Window::update_layout() {
 	init_sizes();
 	int ms = metatile_size();
 	size_t n = _metatileset.size();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
-	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
+	int ox = _sidebar->w() + (rulers() ? _ver_ruler->w() : 0);
+	int oy = rulers() ? _hor_ruler->h() : 0;
+	_hor_ruler->resize(ox, _hor_ruler->y(), w() - ox, _hor_ruler->h());
+	_ver_ruler->resize(_sidebar->w(), _ver_ruler->y(), _ver_ruler->w(), _ver_ruler->h());
+	_corner_ruler->resize(_sidebar->w(), _corner_ruler->y(), _corner_ruler->w(), _corner_ruler->h());
+	_map_scroll->resize(ox, _sidebar->y() + oy, w() - ox, _sidebar->h() - oy);
 	int gw = ((int)_map.width() + EVENT_MARGIN) * ms, gh = ((int)_map.height() + EVENT_MARGIN) * ms;
-	_map_group->resize(_sidebar->w(), _map_group->y(), gw, gh);
+	_map_group->resize(ox - _map_scroll->xposition(), _sidebar->y() + oy - _map_scroll->yposition(), gw, gh);
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)n + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 	_map_scroll->contents(_map_group->w(), _map_group->h());
 	int sx = _sidebar->x(), sy = _sidebar->y();
@@ -2376,6 +2456,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("h", mw->h());
 	Preferences::set("mode", (int)mw->mode());
 	Preferences::set("grid", mw->grid());
+	Preferences::set("rulers", mw->rulers());
 	Preferences::set("zoom", mw->zoom());
 	Preferences::set("ids", mw->ids());
 	Preferences::set("hex", mw->hex());
@@ -2513,6 +2594,12 @@ void Main_Window::grid_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::rulers_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_rulers_tb, m);
+	mw->update_rulers();
+	mw->redraw();
+}
+
 void Main_Window::zoom_cb(Fl_Menu_ *m, Main_Window *mw) {
 	SYNC_TB_WITH_M(mw->_zoom_tb, m);
 	mw->update_zoom();
@@ -2554,6 +2641,12 @@ void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::grid_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	SYNC_MI_WITH_TB(mw->_grid_tb, mw->_grid_mi);
+	mw->redraw();
+}
+
+void Main_Window::rulers_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_rulers_tb, mw->_rulers_mi);
+	mw->update_rulers();
 	mw->redraw();
 }
 
