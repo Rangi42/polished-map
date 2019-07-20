@@ -132,6 +132,8 @@ public:
 	inline int map_scroll_y(void) const { return _map_scroll->yposition(); }
 	inline int status_event_x(void) const { return _status_event_x; }
 	inline int status_event_y(void) const { return _status_event_y; }
+	inline int max_ruler_x(void) const { return _map.size() ? (int)_map.max_event_x() : INT_MAX; }
+	inline int max_ruler_y(void) const { return _map.size() ? (int)_map.max_event_y() : INT_MAX; }
 	bool unsaved(void) const;
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
 	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }

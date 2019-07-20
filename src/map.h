@@ -52,8 +52,8 @@ public:
 	inline std::string palette(void) const { return _attributes.palette; }
 	inline void palette(const std::string &p) { _attributes.palette = p; }
 	inline bool is_outside(void) const { return _attributes.environment == "TOWN" || _attributes.environment == "ROUTE"; }
-	inline int8_t max_event_x(void) const { return _width < (64 - MAP_MARGIN) ? (int8_t)_width * 2 + EVENT_MARGIN - 1 : INT8_MAX; }
-	inline int8_t max_event_y(void) const { return _height < (64 - MAP_MARGIN) ? (int8_t)_height * 2 + EVENT_MARGIN - 1 : INT8_MAX; }
+	inline int8_t max_event_x(void) const { return _width < 64 - MAP_MARGIN ? (int8_t)_width * 2 + EVENT_MARGIN - 1 : INT8_MAX; }
+	inline int8_t max_event_y(void) const { return _height < 64 - MAP_MARGIN ? (int8_t)_height * 2 + EVENT_MARGIN - 1 : INT8_MAX; }
 	void size(uint8_t w, uint8_t h);
 	inline size_t size(void) const { return (size_t)_width * (size_t)_height; }
 	inline Block *block(uint8_t x, uint8_t y) const { return _blocks[(size_t)y * _width + (size_t)x]; }
