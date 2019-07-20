@@ -58,8 +58,9 @@ void Ruler::draw() {
 		fl_font(FL_COURIER, 9);
 		fl_color(FL_FOREGROUND_COLOR);
 		int en = mw->status_event_x();
+		int mn = mw->max_ruler_x();
 		int n = mx / es - EVENT_MARGIN;
-		for (int i = S-r-1; i < W && n <= INT8_MAX; i += S, n++) {
+		for (int i = S-r-1; i < W && n <= mn; i += S, n++) {
 			print_tick_label(t, n, hex);
 			if (n == en) {
 				fl_rectf(X+i-S+1, Y, S-1, H-1);
@@ -86,8 +87,9 @@ void Ruler::draw() {
 		fl_font(FL_COURIER, 9);
 		fl_color(FL_FOREGROUND_COLOR);
 		int en = mw->status_event_y();
+		int mn = mw->max_ruler_y();
 		int n = my / es - EVENT_MARGIN;
-		for (int i = S-r-1; i < H && n <= INT8_MAX; i += S, n++) {
+		for (int i = S-r-1; i < H && n <= mn; i += S, n++) {
 			print_tick_label(t, n, hex);
 			if (n == en) {
 				fl_rectf(X, Y+i-S+1, W-1, S-1);
