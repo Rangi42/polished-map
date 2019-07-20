@@ -15,6 +15,7 @@
 #include "widgets.h"
 #include "modal-dialog.h"
 #include "option-dialogs.h"
+#include "ruler.h"
 #include "metatileset.h"
 #include "map.h"
 #include "map-events.h"
@@ -47,18 +48,20 @@ private:
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
 		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_rose_gold_theme_mi = NULL,
 		*_dark_theme_mi = NULL;
-	Fl_Menu_Item *_grid_mi = NULL, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
-		*_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
+	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL,
+		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_auto_events_mi = NULL, *_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb = NULL, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
-	Toolbar_Toggle_Button *_grid_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_priority_tb, *_gameboy_screen_tb;
+	Toolbar_Toggle_Button *_grid_tb, *_rulers_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_priority_tb,
+		*_gameboy_screen_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_lighting;
 	// GUI outputs
+	Ruler *_hor_ruler, *_ver_ruler, *_corner_ruler;
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
 	Fl_Menu_Item *_load_event_script_mi = NULL, *_view_event_script_mi, *_reload_event_script_mi = NULL,
@@ -91,6 +94,7 @@ private:
 	Map _map;
 	Map_Events _map_events;
 	Game_Boy_Screen *_gameboy_screen;
+	int _status_event_x, _status_event_y;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
 	Metatile_Button *_selected = NULL;
@@ -111,6 +115,7 @@ public:
 	~Main_Window();
 	void show(void);
 	inline bool grid(void) const { return _grid_mi && !!_grid_mi->value(); }
+	inline bool rulers(void) const { return _rulers_mi && !!_rulers_mi->value(); }
 	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
 	inline bool ids(void) const { return _ids_mi && !!_ids_mi->value(); }
 	inline bool hex(void) const { return _hex_mi && !!_hex_mi->value(); }
@@ -123,6 +128,10 @@ public:
 	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
+	inline int map_scroll_x(void) const { return _map_scroll->xposition(); }
+	inline int map_scroll_y(void) const { return _map_scroll->yposition(); }
+	inline int status_event_x(void) const { return _status_event_x; }
+	inline int status_event_y(void) const { return _status_event_y; }
 	bool unsaved(void) const;
 	inline std::unordered_map<uint8_t, int>::const_iterator metatile_hotkey(uint8_t id) const { return _metatile_hotkeys.find(id); }
 	inline std::unordered_map<uint8_t, int>::const_iterator no_hotkey(void) const { return _metatile_hotkeys.end(); }
@@ -173,7 +182,9 @@ private:
 	bool save_event_script(void);
 	bool export_lighting(const char *filename, Lighting l);
 	void edit_metatile(Metatile *mt);
+	void update_rulers(void);
 	void update_zoom(void);
+	void update_layout(void);
 	void update_labels(void);
 	void update_lighting(void);
 	void select_metatile(Metatile_Button *mb);
@@ -218,6 +229,7 @@ private:
 	static void rose_gold_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void dark_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void grid_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void rulers_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void zoom_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void ids_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void hex_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -248,6 +260,7 @@ private:
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void rulers_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void zoom_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void ids_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void hex_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

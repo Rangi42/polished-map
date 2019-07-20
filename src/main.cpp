@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 #else
 	int x = Preferences::get("x", 48), y = Preferences::get("y", 48);
 #endif
-	int w = Preferences::get("w", 800), h = Preferences::get("h", 600);
+	int w = Preferences::get("w", 810), h = Preferences::get("h", 600);
 	Main_Window window(x, y, w, h);
 	window.show();
 

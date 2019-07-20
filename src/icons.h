@@ -23,6 +23,8 @@
 #include "redo-disabled.xpm"
 #include "grid.xpm"
 #include "grid-disabled.xpm"
+#include "rulers.xpm"
+#include "rulers-disabled.xpm"
 #include "zoom.xpm"
 #include "zoom-disabled.xpm"
 #include "ids.xpm"
@@ -86,6 +88,8 @@ static Fl_Pixmap REDO_ICON(REDO_XPM);
 static Fl_Pixmap REDO_DISABLED_ICON(REDO_DISABLED_XPM);
 static Fl_Pixmap GRID_ICON(GRID_XPM);
 static Fl_Pixmap GRID_DISABLED_ICON(GRID_DISABLED_XPM);
+static Fl_Pixmap RULERS_ICON(RULERS_XPM);
+static Fl_Pixmap RULERS_DISABLED_ICON(RULERS_DISABLED_XPM);
 static Fl_Pixmap ZOOM_ICON(ZOOM_XPM);
 static Fl_Pixmap ZOOM_DISABLED_ICON(ZOOM_DISABLED_XPM);
 static Fl_Pixmap IDS_ICON(IDS_XPM);

@@ -277,10 +277,12 @@ OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y
 }
 
 Workspace::Workspace(int x, int y, int w, int h, const char *l) : OS_Scroll(x, y, w, h, l),
-	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0), _dnd_receiver(NULL) {
+	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0), _dnd_receiver(NULL), _correlates() {
 	labeltype(FL_NO_LABEL);
 	box(FL_NO_BOX);
 	color(FL_INACTIVE_COLOR);
+	hscrollbar.callback((Fl_Callback *)hscrollbar_cb);
+	scrollbar.callback((Fl_Callback *)scrollbar_cb);
 }
 
 int Workspace::handle(int event) {
@@ -317,6 +319,23 @@ int Workspace::handle(int event) {
 		return 1;
 	}
 	return Fl_Scroll::handle(event);
+}
+
+void Workspace::scroll_to(int x, int y) {
+	Fl_Scroll::scroll_to(x, y);
+	for (Fl_Widget *wgt : _correlates) {
+		wgt->damage(1);
+	}
+}
+
+void Workspace::hscrollbar_cb(Fl_Scrollbar *sb, void *) {
+	Workspace *ws = (Workspace *)(sb->parent());
+	ws->scroll_to(sb->value(), ws->yposition());
+}
+
+void Workspace::scrollbar_cb(Fl_Scrollbar *sb, void *) {
+	Workspace *ws = (Workspace *)(sb->parent());
+	ws->scroll_to(ws->xposition(), sb->value());
 }
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Group(x, y, w, h, l), _spacer(0, 0, 0, 0) {

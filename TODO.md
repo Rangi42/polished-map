@@ -11,7 +11,6 @@
 * Generate map images from the command line (issue [#10](https://github.com/Rangi42/polished-map/issues/10))
 * Allow undo/redo for resize and event operations
 * Show a mini-palette of hotkeyed blocks, which the scroll wheel can cycle through
-* Edge rulers with block and/or event coordinates
 
 ## Other Tools
 

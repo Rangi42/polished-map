@@ -62,9 +62,9 @@ static void draw_map_button(Fl_Widget *wgt, uint8_t id, bool border) {
 	}
 	if (!mw->ids()) { return; }
 	const char *l = wgt->label();
-	int cx = x + (mw->zoom() ? 2 : 1) + 2, cy = y + (mw->zoom() ? 2 : 1);
+	int z = mw->zoom() ? ZOOM_FACTOR : 1;
 	fl_font(FL_COURIER_BOLD, 14);
-	draw_outlined_text(l, cx, cy, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE,
+	draw_outlined_text(l, x+z+2, y+z, wgt->w(), wgt->h(), FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE,
 		border ? wgt->labelcolor() : FL_WHITE, FL_BLACK);
 }
 
