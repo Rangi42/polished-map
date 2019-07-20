@@ -1883,13 +1883,10 @@ void Main_Window::edit_metatile(Metatile *mt) {
 }
 
 void Main_Window::update_zoom() {
-	// FIX: resizing window after this resets sidebar width to original zoom size
+	init_sizes();
 	int ms = metatile_size();
 	size_t n = _metatileset.size();
-	_sidebar->init_sizes();
 	_sidebar->size(ms * METATILES_PER_ROW + Fl::scrollbar_size(), _sidebar->h());
-	_map_group->init_sizes();
-	_map_scroll->init_sizes();
 	_map_scroll->resize(_sidebar->w(), _map_scroll->y(), w() - _sidebar->w(), _map_scroll->h());
 	int gw = ((int)_map.width() + EVENT_MARGIN) * ms, gh = ((int)_map.height() + EVENT_MARGIN) * ms;
 	_map_group->resize(_sidebar->w(), _map_group->y(), gw, gh);
