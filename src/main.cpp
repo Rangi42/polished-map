@@ -22,7 +22,7 @@
 #endif
 
 static void use_theme(OS::Theme theme) {
-	OS::use_native_font();
+	OS::use_native_fonts();
 	switch (theme) {
 	case OS::Theme::CLASSIC:
 		OS::use_classic_theme();

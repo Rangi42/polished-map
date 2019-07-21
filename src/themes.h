@@ -38,21 +38,20 @@
 #define OS_SWATCH_FRAME FL_ENGRAVED_FRAME
 #define OS_SWATCH_BOX FL_ENGRAVED_BOX
 
-#define OS_PROGRESS_COLOR FL_FREE_COLOR
-#define OS_TAB_COLOR (FL_FREE_COLOR+1)
-
 class OS {
 public:
 	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, ROSE_GOLD, DARK };
 private:
-	static Theme global_current_theme;
+	static Theme _current_theme;
+	static bool _is_consolas;
 public:
 #ifdef _WIN32
 	static bool is_classic_windows(void);
 	static bool is_modern_windows(void);
 #endif
-	inline static Theme current_theme(void) { return global_current_theme; }
-	static void use_native_font(void);
+	inline static Theme current_theme(void) { return _current_theme; }
+	inline static bool is_consolas(void) { return _is_consolas; }
+	static void use_native_fonts(void);
 	static void use_native_scheme(void);
 	static void use_native_colors(void);
 	static void use_native_theme(void);
