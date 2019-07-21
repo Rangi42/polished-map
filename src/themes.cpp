@@ -7,6 +7,10 @@
 #include <FL/Fl_Tooltip.H>
 #pragma warning(pop)
 
+#ifdef _WIN32
+#include <WinUser.h>
+#endif
+
 #include "utils.h"
 #include "themes.h"
 
@@ -52,20 +56,25 @@ bool OS::is_modern_windows() {
 
 #endif
 
-static void use_font(const char *font, const char *alt_font) {
-	Fl::set_font(OS_FONT, FL_HELVETICA);
+static bool use_font(Fl_Font font, const char *system_name) {
 	int num_fonts = Fl::set_fonts(NULL);
 	for (Fl_Font f = 0; f < num_fonts; f++) {
 		const char *name = Fl::get_font_name(f);
-		if (!strcmp(name, alt_font)) {
-			Fl::set_font(OS_FONT, name);
-		}
-		if (!strcmp(name, font)) {
-			Fl::set_font(OS_FONT, name);
-			break;
+		if (!strcmp(name, system_name)) {
+			Fl::set_font(font, name);
+			return true;
 		}
 	}
-	fl_font(OS_FONT, OS_FONT_SIZE);
+	return false;
+}
+
+static int use_any_font(Fl_Font font, const char **font_names, int n) {
+	for (int i = 0; i < n; i++) {
+		if (use_font(font, font_names[i])) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 static Fl_Color activated_color(Fl_Color c) {
@@ -205,8 +214,6 @@ static void use_classic_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_SELECTION_COLOR, 0x0A, 0x24, 0x6A);
-	Fl::set_color(OS_TAB_COLOR, 0xD4, 0xD0, 0xC8);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x0A, 0x24, 0x6A);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xE1));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -215,7 +222,7 @@ void OS::use_classic_theme() {
 	use_classic_scheme();
 	use_classic_colors();
 	use_native_settings();
-	global_current_theme = CLASSIC;
+	_current_theme = CLASSIC;
 }
 
 /****************************** Aero (Windows 7) ******************************/
@@ -622,8 +629,6 @@ static void use_aero_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x99, 0xFF);
-	Fl::set_color(OS_TAB_COLOR, 0xFF, 0xFF, 0xFF);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x00, 0xFF, 0x4C);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xF0));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -632,7 +637,7 @@ void OS::use_aero_theme() {
 	use_aero_scheme();
 	use_aero_colors();
 	use_native_settings();
-	global_current_theme = AERO;
+	_current_theme = AERO;
 }
 
 /****************************** Metro (Windows 8) *****************************/
@@ -772,8 +777,6 @@ static void use_metro_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x99, 0xFF);
-	Fl::set_color(OS_TAB_COLOR, 0xFF, 0xFF, 0xFF);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x00, 0xB2, 0x3A);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -782,7 +785,7 @@ void OS::use_metro_theme() {
 	use_metro_scheme();
 	use_metro_colors();
 	use_native_settings();
-	global_current_theme = METRO;
+	_current_theme = METRO;
 }
 
 /**************************** Aqua (Mac OS X Lion) ****************************/
@@ -1143,8 +1146,6 @@ static void use_aqua_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_SELECTION_COLOR, 0x30, 0x60, 0xF6);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x00, 0x7B, 0xFF);
-	Fl::set_color(OS_TAB_COLOR, 0xFB, 0xFB, 0xFB);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xC7));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -1153,7 +1154,7 @@ void OS::use_aqua_theme() {
 	use_aqua_scheme();
 	use_aqua_colors();
 	use_native_settings();
-	global_current_theme = AQUA;
+	_current_theme = AQUA;
 }
 
 /**************************** Greybird (Linux GTK+) ***************************/
@@ -1505,8 +1506,6 @@ static void use_greybird_colors() {
 	Fl::background2(0xFC, 0xFC, 0xFC);
 	Fl::foreground(0x3C, 0x3C, 0x3C);
 	Fl::set_color(FL_SELECTION_COLOR, 0x50, 0xA0, 0xF4);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x3D, 0x90, 0xE8);
-	Fl::set_color(OS_TAB_COLOR, 0xD9, 0xD9, 0xD9);
 	Fl_Tooltip::color(fl_rgb_color(0x0A, 0x0A, 0x0A));
 	Fl_Tooltip::textcolor(fl_rgb_color(0xFF, 0xFF, 0xFF));
 }
@@ -1515,7 +1514,7 @@ void OS::use_greybird_theme() {
 	use_greybird_scheme();
 	use_greybird_colors();
 	use_native_settings();
-	global_current_theme = GREYBIRD;
+	_current_theme = GREYBIRD;
 }
 
 /***************************** Metal (Java Swing) *****************************/
@@ -1650,8 +1649,6 @@ static void use_metal_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x33, 0x33, 0x33);
 	Fl::set_color(FL_SELECTION_COLOR, 0xA3, 0xB8, 0xCC);
-	Fl::set_color(OS_TAB_COLOR, 0xC8, 0XDD, 0xF2);
-	Fl::set_color(OS_PROGRESS_COLOR, 0xA3, 0xB8, 0xCC);
 	Fl_Tooltip::color(fl_rgb_color(0xB8, 0xCF, 0xE5));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -1660,7 +1657,7 @@ void OS::use_metal_theme() {
 	use_metal_scheme();
 	use_metal_colors();
 	use_native_settings();
-	global_current_theme = METAL;
+	_current_theme = METAL;
 }
 
 /************************** Blue (Windows Calculator) *************************/
@@ -1969,8 +1966,6 @@ static void use_blue_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x1E, 0x39, 0x5B);
 	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x33, 0x33);
-	Fl::set_color(OS_TAB_COLOR, 0xEA, 0xF1, 0xFA);
-	Fl::set_color(OS_PROGRESS_COLOR, 0xFF, 0xDB, 0x00);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -1979,7 +1974,7 @@ void OS::use_blue_theme() {
 	use_blue_scheme();
 	use_blue_colors();
 	use_native_settings();
-	global_current_theme = BLUE;
+	_current_theme = BLUE;
 }
 
 /********************************** Rose Gold *********************************/
@@ -2243,8 +2238,6 @@ static void use_rose_gold_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x4C, 0x1E, 0x12);
 	Fl::set_color(FL_SELECTION_COLOR, 0x15, 0x81, 0xFA);
-	Fl::set_color(OS_TAB_COLOR, 0xFE, 0xEE, 0xE9);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x15, 0x81, 0xFA);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -2253,7 +2246,7 @@ void OS::use_rose_gold_theme() {
 	use_rose_gold_scheme();
 	use_rose_gold_colors();
 	use_native_settings();
-	global_current_theme = ROSE_GOLD;
+	_current_theme = ROSE_GOLD;
 }
 
 /************************* Dark (Adobe Photoshop CS6) *************************/
@@ -2502,8 +2495,6 @@ static void use_dark_colors() {
 	Fl::background2(0x3A, 0x3A, 0x3A);
 	Fl::foreground(0xFF, 0xFF, 0xFF);
 	Fl::set_color(FL_SELECTION_COLOR, 0xD6, 0xD6, 0xD6);
-	Fl::set_color(OS_TAB_COLOR, 0x53, 0x53, 0x53);
-	Fl::set_color(OS_PROGRESS_COLOR, 0x44, 0x6E, 0x99);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xCC));
 	Fl_Tooltip::textcolor(fl_rgb_color(0x00, 0x00, 0x00));
 }
@@ -2512,24 +2503,64 @@ void OS::use_dark_theme() {
 	use_dark_scheme();
 	use_dark_colors();
 	use_native_settings();
-	global_current_theme = DARK;
+	_current_theme = DARK;
 }
 
 /********************************** OS Native *********************************/
 
 #ifdef _WIN32
-OS::Theme OS::global_current_theme = is_classic_windows() ? CLASSIC : is_modern_windows() ? METRO : AERO;
+OS::Theme OS::_current_theme = is_classic_windows() ? CLASSIC : is_modern_windows() ? METRO : AERO;
 #else
-OS::Theme OS::global_current_theme = GREYBIRD;
+OS::Theme OS::_current_theme = GREYBIRD;
 #endif
 
-void OS::use_native_font() {
+bool OS::_is_consolas = false;
+
+void OS::use_native_fonts() {
+	Fl::set_font(OS_FONT, FL_HELVETICA);
 #ifdef _WIN32
-	use_font("Segoe UI", "Tahoma");
-
+	// Use system UI font
+	NONCLIENTMETRICS metrics;
+	metrics.cbSize = sizeof(NONCLIENTMETRICS);
+	SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
+	char system_font[256] = {};
+	int n = wcstombs(system_font, metrics.lfMessageFont.lfFaceName, sizeof(system_font));
+	if (n == sizeof(system_font)) {
+		system_font[sizeof(system_font)-1] = '\0';
+	}
+	bool found = n > 0;
+	if (found) {
+		found = use_font(OS_FONT, system_font);
+	}
+	if (!found) {
+		const char *system_fonts[3] = {"Segoe UI", "Tahoma", "MS Sans Serif"};
+		use_any_font(OS_FONT, system_fonts, sizeof(system_fonts));
+	}
+	// Use common monospace font
+	const char *monospace_fonts[3] = {"Consolas", "Lucida Console", "Courier New"};
+	int monospace_i = use_any_font(FL_COURIER, monospace_fonts, sizeof(monospace_fonts));
+	if (monospace_i == 0) { _is_consolas = true; }
+	// Use common bold monospace font
+	const char *bold_monospace_fonts[3] = {"Consolas bold", "Lucida Console bold", "Courier New bold"};
+	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, sizeof(bold_monospace_fonts));
 #else
-	use_font("Noto Sans", "Droid Sans");
+	// Use common system UI font
+	const char *system_fonts[4] = {
+		"Ubuntu", "Noto Sans", "Droid Sans", "DejaVu Sans"
+	};
+	use_any_font(OS_FONT, system_fonts, sizeof(system_fonts));
+	// Use common monospace font
+	const char *monospace_fonts[4] = {
+		"Ubuntu Mono", "Noto Sans Mono", "Droid Sans Mono", "DejaVu Sans Mono"
+	};
+	use_any_font(FL_COURIER, monospace_fonts, sizeof(monospace_fonts));
+	// Use common bold monospace font
+	const char *bold_monospace_fonts[4] = {
+		"Ubuntu Mono bold", "Noto Sans Mono bold", "Droid Sans Mono bold", "DejaVu Sans Mono bold"
+	};
+	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, sizeof(bold_monospace_fonts));
 #endif
+	fl_font(OS_FONT, OS_FONT_SIZE);
 }
 
 void OS::use_native_scheme() {
