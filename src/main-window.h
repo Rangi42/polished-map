@@ -2,6 +2,7 @@
 #define MAIN_WINDOW_H
 
 #include <unordered_map>
+#include <climits>
 
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
