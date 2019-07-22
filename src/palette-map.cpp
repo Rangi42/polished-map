@@ -24,14 +24,16 @@ void Palette_Map::clear() {
 Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
 
+	std::ifstream ifs(f);
+	if (!ifs.good()) {
+		Config::monochrome(true);
+	}
+
 	if (Config::monochrome()) {
 		_palette_size = Config::allow_256_tiles() ? MAX_NUM_TILES : 0x60;
 		FILL(_palette, Palette::MONOCHROME, _palette_size);
 		return (_result = PALETTE_OK);
 	}
-
-	std::ifstream ifs(f);
-	if (!ifs.good()) { return (_result = BAD_PALETTE_FILE); }
 	std::string prefix(Config::palette_macro());
 	while (ifs.good()) {
 		std::string line;

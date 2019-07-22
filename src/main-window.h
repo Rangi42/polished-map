@@ -170,6 +170,7 @@ private:
 	int handle_hotkey(int key);
 	void update_active_controls(void);
 	void update_priority_controls(void);
+	void update_monochrome_controls(void);
 	void store_recent_map(void);
 	void update_recent_maps(void);
 	void open_map(const char *directory, const char *filename);

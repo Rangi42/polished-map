@@ -1009,6 +1009,15 @@ void Main_Window::update_priority_controls() {
 	}
 }
 
+void Main_Window::update_monochrome_controls() {
+	if (Config::monochrome()) {
+		_monochrome_mi->set();
+	}
+	else {
+		_monochrome_mi->clear();
+	}
+}
+
 void Main_Window::store_recent_map() {
 	std::string last(_blk_file);
 	for (int i = 0; i < NUM_RECENT; i++) {
@@ -1507,6 +1516,9 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::palette_map_path(buffer, directory, tileset_name);
 	Palette_Map::Result rp = tileset->read_palette_map(buffer);
+	// 'monochrome' becomes true if the palette map could not be read
+	update_monochrome_controls();
+	// 'allow_priority' become true if a PRIORITY_* color was used
 	if (Config::allow_priority() && !_allow_priority_mi->value()) {
 		update_priority_controls();
 		redraw();
