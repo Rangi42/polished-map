@@ -48,9 +48,9 @@ void Ruler::draw() {
 		int es = mw->metatile_size() / 2;
 		int r = mx % es;
 		// tick marks
-		int d = 6;
-		for (int i = S-r-1; i < W; i += S, d = d ? 0 : 6) {
-			fl_yxline(X+i, Y+d+2, Y+H-1);
+		int d = (mx / es) % 2 ? 0 : H / 2;
+		for (int i = S-r-1; i < W; i += S, d = d ? 0 : H / 2) {
+			fl_yxline(X+i, Y+d, Y+H-1);
 		}
 		// labels
 		char t[8] = {};
@@ -79,9 +79,9 @@ void Ruler::draw() {
 		int es = mw->metatile_size() / 2;
 		int r = my % es;
 		// tick marks
-		int d = 6;
-		for (int i = S-r-1; i < H; i += S, d = d ? 0 : 6) {
-			fl_xyline(X+d+2, Y+i, X+W-1);
+		int d = (my / es) % 2 ? 0 : W / 2;
+		for (int i = S-r-1; i < H; i += S, d = d ? 0 : W / 2) {
+			fl_xyline(X+d, Y+i, X+W-1);
 		}
 		// labels
 		char t[8] = {};

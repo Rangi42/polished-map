@@ -45,6 +45,9 @@ static void use_theme(OS::Theme theme) {
 	case OS::Theme::BLUE:
 		OS::use_blue_theme();
 		return;
+	case OS::Theme::OLIVE:
+		OS::use_olive_theme();
+		return;
 	case OS::Theme::ROSE_GOLD:
 		OS::use_rose_gold_theme();
 		return;

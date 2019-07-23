@@ -97,8 +97,8 @@ Default_Button::Default_Button(int x, int y, int w, int h, const char *l) : Fl_B
 }
 
 int Default_Button::handle(int event) {
-	if (OS::current_theme() == OS::AERO || OS::current_theme() == OS::METRO || OS::current_theme() == OS::BLUE
-		|| OS::current_theme() == OS::ROSE_GOLD) {
+	if (OS::current_theme() == OS::AERO || OS::current_theme() == OS::METRO || OS::current_theme() == OS::BLUE ||
+		OS::current_theme() == OS::OLIVE || OS::current_theme() == OS::ROSE_GOLD) {
 		switch (event) {
 		case FL_ENTER:
 			if (active_r()) {
@@ -169,12 +169,12 @@ OS_Spinner::OS_Spinner(int x, int y, int w, int h, const char *l) : Fl_Spinner(x
 	input_.box(OS_INPUT_THIN_DOWN_BOX);
 	up_button_.labelfont(OS_FONT);
 	up_button_.labelsize(OS_FONT_SIZE);
-	up_button_.box(OS_BUTTON_UP_BOX);
-	up_button_.down_box(OS_DEPRESSED_DOWN_BOX);
+	up_button_.box(OS_MINI_BUTTON_UP_BOX);
+	up_button_.down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 	down_button_.labelfont(OS_FONT);
 	down_button_.labelsize(OS_FONT_SIZE);
-	down_button_.box(OS_BUTTON_UP_BOX);
-	down_button_.down_box(OS_DEPRESSED_DOWN_BOX);
+	down_button_.box(OS_MINI_BUTTON_UP_BOX);
+	down_button_.down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 }
 
 OS_Hex_Spinner::OS_Hex_Spinner(int x, int y, int w, int h, const char *l) : Hex_Spinner(x, y, w, h, l) {
@@ -186,16 +186,18 @@ OS_Hex_Spinner::OS_Hex_Spinner(int x, int y, int w, int h, const char *l) : Hex_
 	_input.box(OS_INPUT_THIN_DOWN_BOX);
 	_up_button.labelfont(OS_FONT);
 	_up_button.labelsize(OS_FONT_SIZE);
-	_up_button.box(OS_BUTTON_UP_BOX);
-	_up_button.down_box(OS_DEPRESSED_DOWN_BOX);
+	_up_button.box(OS_MINI_BUTTON_UP_BOX);
+	_up_button.down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 	_down_button.labelfont(OS_FONT);
 	_down_button.labelsize(OS_FONT_SIZE);
-	_down_button.box(OS_BUTTON_UP_BOX);
-	_down_button.down_box(OS_DEPRESSED_DOWN_BOX);
+	_down_button.box(OS_MINI_BUTTON_UP_BOX);
+	_down_button.down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 }
 
 HTML_View::HTML_View(int x, int y, int w, int h, const char *l) : Fl_Help_View(x, y, w, h, l) {
 	box(OS_INPUT_THIN_DOWN_BOX);
+	// TODO: scrollbar_.slider(OS_MINI_BUTTON_UP_BOX);
+	// TODO: hscrollbar_.slider(OS_MINI_BUTTON_UP_BOX);
 	textsize(16);
 }
 
@@ -211,7 +213,8 @@ Dropdown::Dropdown(int x, int y, int w, int h, const char *l) : Fl_Choice(x, y, 
 
 void Dropdown::draw() {
 	// Based on Fl_Choice::draw()
-	Fl_Boxtype bb = OS::current_theme() == OS::METAL ? OS_INPUT_THIN_DOWN_BOX : FL_DOWN_BOX;
+	Fl_Boxtype bb = OS::current_theme() == OS::METAL ? OS_INPUT_THIN_DOWN_BOX :
+		OS::current_theme() == OS::OLIVE ? OS_SWATCH_BOX : FL_DOWN_BOX;
 	int dx = Fl::box_dx(bb);
 	int dy = Fl::box_dy(bb);
 	int H = h() - 2 * dy;
@@ -235,7 +238,7 @@ void Dropdown::draw() {
 	}
 	else {
 		draw_box(bb, fl_contrast(textcolor(), FL_BACKGROUND2_COLOR) == textcolor() ? FL_BACKGROUND2_COLOR : fl_lighter(color()));
-		draw_box(FL_UP_BOX, X, Y, W, H, color());
+		draw_box(OS_MINI_BUTTON_UP_BOX, X, Y, W, H, color());
 		fl_color(active_r() ? labelcolor() : fl_inactive(labelcolor()));
 		fl_polygon(x1, y1, x1 + w1, y1 + w1, x1 + 2 * w1, y1);
 	}
@@ -272,8 +275,8 @@ void Dropdown::draw() {
 }
 
 OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y, w, h, l) {
-	scrollbar.slider(OS_BUTTON_UP_BOX);
-	hscrollbar.slider(OS_BUTTON_UP_BOX);
+	scrollbar.slider(OS_MINI_BUTTON_UP_BOX);
+	hscrollbar.slider(OS_MINI_BUTTON_UP_BOX);
 }
 
 Workspace::Workspace(int x, int y, int w, int h, const char *l) : OS_Scroll(x, y, w, h, l),
@@ -404,7 +407,7 @@ void Toolbar::draw() {
 Toolbar_Button::Toolbar_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y, w, h, l) {
 	box(FL_FLAT_BOX);
 	color(FL_BACKGROUND_COLOR);
-	down_box(OS_DEPRESSED_DOWN_BOX);
+	down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 	down_color(FL_SELECTION_COLOR);
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
@@ -414,7 +417,8 @@ Toolbar_Button::Toolbar_Button(int x, int y, int w, int h, const char *l) : Fl_B
 void Toolbar_Button::draw() {
 	// Based on Fl_Button::draw()
 	Fl_Color col = value() ? (OS::current_theme() == OS::CLASSIC ? fl_lighter(color()) : selection_color()) : color();
-	draw_box(value() ? down_box() ? down_box() : fl_down(box()) : box(), col);
+	draw_box(value() ? OS::current_theme() == OS::OLIVE ? OS_MINI_BUTTON_UP_BOX :
+		down_box() ? down_box() : fl_down(box()) : box(), col);
 	draw_backdrop();
 	if (labeltype() == FL_NORMAL_LABEL && value()) {
 		Fl_Color c = labelcolor();
@@ -432,12 +436,8 @@ int Toolbar_Button::handle(int event) {
 	switch (event) {
 	case FL_ENTER:
 		if (active_r()) {
-			if (OS::current_theme() == OS::GREYBIRD || OS::current_theme() == OS::ROSE_GOLD || OS::current_theme() == OS::DARK) {
-				box(OS_BUTTON_UP_BOX);
-			}
-			else {
-				color(FL_LIGHT3);
-			}
+			color(FL_LIGHT3);
+			box(OS_TOOLBAR_BUTTON_HOVER_BOX);
 			redraw();
 			return 1;
 		}
