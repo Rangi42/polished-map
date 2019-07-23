@@ -81,28 +81,42 @@ static Fl_Color activated_color(Fl_Color c) {
 	return Fl::draw_box_active() ? c : fl_inactive(c);
 }
 
-static Fl_Color desaturated(Fl_Color c, float a) {
-	return fl_color_average(FL_WHITE, c, a);
-}
-
 static Fl_Color devalued(Fl_Color c, float a) {
 	return fl_color_average(FL_BLACK, c, a);
 }
 
 static void vertical_gradient(int x1, int y1, int x2, int y2, Fl_Color c1, Fl_Color c2) {
-	int imax = y2-y1;
+	int imax = y2 - y1;
 	if (Fl::draw_box_active()) {
 		for (int i = 0; i <= imax; i++) {
-			float w = 1.0f-(float)i / imax;
+			float w = 1.0f - (float)i / imax;
 			fl_color(fl_color_average(c1, c2, w));
 			fl_xyline(x1, y1+i, x2);
 		}
 	}
 	else {
 		for (int i = 0; i <= imax; i++) {
-			float w = 1.0f-(float)i / imax;
+			float w = 1.0f - (float)i / imax;
 			fl_color(fl_inactive(fl_color_average(c1, c2, w)));
 			fl_xyline(x1, y1+i, x2);
+		}
+	}
+}
+
+static void horizontal_gradient(int x1, int y1, int x2, int y2, Fl_Color c1, Fl_Color c2) {
+	int imax = x2 - x1;
+	if (Fl::draw_box_active()) {
+		for (int i = 0; i <= imax; i++) {
+			float w = 1.0f - (float)i / imax;
+			fl_color(fl_color_average(c1, c2, w));
+			fl_yxline(x1+i, y1, y2);
+		}
+	}
+	else {
+		for (int i = 0; i <= imax; i++) {
+			float w = 1.0f - (float)i / imax;
+			fl_color(fl_inactive(fl_color_average(c1, c2, w)));
+			fl_yxline(x1+i, y1, y2);
 		}
 	}
 }
@@ -170,16 +184,6 @@ static void classic_radio_round_down_box(int x, int y, int w, int h, Fl_Color c)
 	classic_radio_round_down_frame(x, y, w, h, c);
 }
 
-static void classic_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_frame2("WWMMMMWW", x, y, w, h);
-}
-
-static void classic_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+2, y+2, w-4, h-4);
-	classic_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void use_classic_scheme() {
 	Fl::scheme("none");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, classic_button_up_box, 2, 2, 4, 4);
@@ -190,20 +194,21 @@ static void use_classic_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, classic_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, classic_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, classic_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, classic_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, classic_radio_round_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, classic_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, classic_check_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, classic_button_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, classic_check_down_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, classic_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, classic_check_down_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, classic_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, classic_check_down_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, classic_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_TABS_BOX, classic_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, classic_check_down_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, classic_check_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, classic_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, classic_check_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, classic_button_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, classic_check_down_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_UP_BOX, classic_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, classic_check_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, classic_radio_round_down_box, 2, 2, 4, 4);
@@ -259,12 +264,22 @@ static void aero_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void aero_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xF1, 0xF1, 0xF1)),
-		activated_color(fl_rgb_color(0xEA, 0xEA, 0xEA)));
-	// bottom gradient
-	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xDC, 0xDC, 0xDC)),
-		activated_color(fl_rgb_color(0xCE, 0xCE, 0xCE)));
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xF1, 0xF1, 0xF1)),
+			activated_color(fl_rgb_color(0xEA, 0xEA, 0xEA)));
+		// bottom gradient
+		vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xDC, 0xDC, 0xDC)),
+			activated_color(fl_rgb_color(0xCE, 0xCE, 0xCE)));
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+2, y+2, x+w/2-1, y+h-3, activated_color(fl_rgb_color(0xF1, 0xF1, 0xF1)),
+			activated_color(fl_rgb_color(0xEA, 0xEA, 0xEA)));
+		// right gradient
+		horizontal_gradient(x+w/2, y+2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xDC, 0xDC, 0xDC)),
+			activated_color(fl_rgb_color(0xCE, 0xCE, 0xCE)));
+	}
 	aero_button_up_frame(x, y, w, h, c);
 }
 
@@ -317,51 +332,6 @@ static void aero_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	aero_spacer_thin_down_frame(x, y, w, h, c);
-}
-
-static void aero_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
-	// top outer borders
-	fl_color(activated_color(fl_rgb_color(0xB2, 0xB2, 0xB2)));
-	fl_xyline(x+2, y, x+w-3);
-	// side outer borders
-	fl_color(activated_color(fl_rgb_color(0x9F, 0x9F, 0x9F)));
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// bottom outer border
-	fl_color(activated_color(fl_rgb_color(0x8C, 0x8C, 0x8C)));
-	fl_xyline(x+2, y+h-1, x+w-3);
-	// side inner top borders
-	fl_color(activated_color(devalued(desaturated(c, 0.27f), 0.07f)));
-	fl_yxline(x+1, y+2, y+h/2-1);
-	fl_yxline(x+w-2, y+2, y+h/2-1);
-	// side inner bottom borders
-	fl_color(activated_color(devalued(c, 0.19f)));
-	fl_yxline(x+1, y+h/2, y+h-3);
-	fl_yxline(x+w-2, y+h/2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xC9, 0xC9, 0xC9)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xA1, 0xA1, 0xA1)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void aero_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top fill
-	fl_color(activated_color(devalued(desaturated(c, 0.52f), 0.06f)));
-	fl_rectf(x+2, y+1, w-4, h/2-1);
-	// top gradient
-	vertical_gradient(x+2, y+1, x+w-3, y+6, activated_color(desaturated(c, 0.77f)),
-		activated_color(devalued(desaturated(c, 0.52f), 0.06f)));
-	// bottom fill
-	fl_color(activated_color(devalued(c, 0.16f)));
-	fl_rectf(x+2, y+h/2, w-4, h/2-1);
-	// bottom gradient
-	vertical_gradient(x+2, y+h-7, x+w-3, y+h-2, activated_color(devalued(c, 0.16f)),
-		activated_color(devalued(c, 0.07f)));
-	aero_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void aero_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
@@ -462,37 +432,6 @@ static void aero_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	aero_depressed_down_frame(x, y, w, h, c);
 }
 
-static void aero_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// outer borders
-	fl_color(activated_color(fl_rgb_color(0xD5, 0xDF, 0xE5)));
-	fl_xyline(x+2, y, x+w-3);
-	fl_xyline(x+2, y+h-2, x+w-3);
-	fl_yxline(x, y+2, y+h-4);
-	fl_yxline(x+w-1, y+2, y+h-4);
-	// corners
-	fl_point(x+1, y+1);
-	fl_point(x+w-2, y+1);
-	fl_point(x+w-2, y+h-3);
-	fl_point(x+1, y+h-3);
-	// inner borders
-	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
-	fl_xyline(x+2, y+1, x+w-3);
-	fl_xyline(x+2, y+h-1, x+w-3);
-	fl_yxline(x+1, y+2, y+h-4);
-	fl_yxline(x+w-2, y+2, y+h-4);
-	// inner corners
-	fl_point(x+w-1, y+h-3);
-	fl_point(x+w-2, y+h-2);
-	fl_point(x+1, y+h-2);
-	fl_point(x, y+h-3);
-}
-
-static void aero_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+2, w-2, h-4);
-	aero_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void aero_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
 	// top border
 	fl_color(activated_color(fl_rgb_color(0xAA, 0xAC, 0xB2)));
@@ -569,17 +508,6 @@ static void aero_default_button_box(int x, int y, int w, int h, Fl_Color c) {
 	aero_default_button_frame(x, y, w, h, c);
 }
 
-static void aero_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_color(activated_color(fl_rgb_color(0x88, 0x8B, 0x94)));
-	fl_rect(x, y, w, h);
-}
-
-static void aero_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	aero_tabs_frame(x, y, w, h, c);
-}
-
 static void aero_swatch_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
 	fl_color(activated_color(fl_rgb_color(0xA0, 0xA0, 0xA0)));
@@ -605,23 +533,24 @@ static void use_aero_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, aero_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, aero_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, aero_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, aero_progress_round_up_box, 2, 1, 4, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, aero_hovered_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, aero_depressed_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, aero_hovered_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, aero_depressed_down_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, aero_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, aero_input_thin_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, aero_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, aero_default_button_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_TABS_BOX, aero_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, aero_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_aero_colors() {
@@ -648,8 +577,14 @@ static void metro_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void metro_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	vertical_gradient(x+1, y+1, x+w-2, y+h-2, activated_color(fl_rgb_color(0xF0, 0xF0, 0xF0)),
-		activated_color(fl_rgb_color(0xE5, 0xE5, 0xE5)));
+	if (w >= h) {
+		vertical_gradient(x+1, y+1, x+w-2, y+h-2, activated_color(fl_rgb_color(0xF0, 0xF0, 0xF0)),
+			activated_color(fl_rgb_color(0xE5, 0xE5, 0xE5)));
+	}
+	else {
+		horizontal_gradient(x+1, y+1, x+w-2, y+h-2, activated_color(fl_rgb_color(0xF0, 0xF0, 0xF0)),
+			activated_color(fl_rgb_color(0xE5, 0xE5, 0xE5)));
+	}
 	metro_button_up_frame(x, y, w, h, c);
 }
 
@@ -662,17 +597,6 @@ static void metro_check_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	metro_check_down_frame(x, y, w, h, c);
-}
-
-static void metro_progress_round_up_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_color(activated_color(fl_rgb_color(0xBB, 0xBB, 0xBB)));
-	fl_rect(x, y, w, h);
-}
-
-static void metro_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	metro_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void metro_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
@@ -708,18 +632,6 @@ static void metro_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	metro_depressed_down_frame(x, y, w, h, c);
 }
 
-static void metro_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_color(activated_color(fl_rgb_color(0xDD, 0xDD, 0xDD)));
-	fl_rect(x, y, w, h);
-}
-
-static void metro_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	metro_group_thin_up_frame(x, y, w, h, c);
-}
-
-
 static void metro_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
 	fl_color(activated_color(fl_rgb_color(0xAB, 0xAD, 0xB3)));
 	fl_rect(x, y, w, h);
@@ -752,23 +664,24 @@ static void use_metro_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, aero_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, aero_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, aero_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, metro_progress_round_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, metro_radio_round_down_box, 3, 3, 6, 6);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, metro_hovered_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, metro_depressed_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, metro_hovered_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, metro_depressed_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, metro_group_thin_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, metro_input_thin_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, metro_group_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, metro_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, metro_default_button_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_TABS_BOX, aero_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, metro_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_DOWN_BOX, metro_check_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, metro_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_metro_colors() {
@@ -824,14 +737,26 @@ static void aqua_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void aqua_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, fl_rgb_color(0xFF, 0xFF, 0xFF), fl_rgb_color(0xF6, 0xF5, 0xF4));
-	// bottom fill
-	fl_color(activated_color(fl_rgb_color(0xED, 0xEC, 0xEA)));
-	fl_rectf(x+2, y+h/2, w-4, h-h/2-3);
-	// bottom gradient
-	fl_color(activated_color(fl_rgb_color(0xEF, 0xEE, 0xEC)));
-	fl_xyline(x+2, y+h-3, x+w-3);
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, fl_rgb_color(0xFF, 0xFF, 0xFF), fl_rgb_color(0xF6, 0xF5, 0xF4));
+		// bottom fill
+		fl_color(activated_color(fl_rgb_color(0xED, 0xEC, 0xEA)));
+		fl_rectf(x+2, y+h/2, w-4, h-h/2-3);
+		// bottom gradient
+		fl_color(activated_color(fl_rgb_color(0xEF, 0xEE, 0xEC)));
+		fl_xyline(x+2, y+h-3, x+w-3);
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+2, y+2, x+w/2-1, y+h-3, fl_rgb_color(0xFF, 0xFF, 0xFF), fl_rgb_color(0xF6, 0xF5, 0xF4));
+		// right fill
+		fl_color(activated_color(fl_rgb_color(0xED, 0xEC, 0xEA)));
+		fl_rectf(x+w/2, y+2, w-w/2-3, h-4);
+		// right gradient
+		fl_color(activated_color(fl_rgb_color(0xEF, 0xEE, 0xEC)));
+		fl_yxline(x+w-3, y+2, y+h-3);
+	}
 	aqua_button_up_frame(x, y, w, h, c);
 }
 
@@ -859,44 +784,6 @@ static void aqua_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	aqua_spacer_thin_down_frame(x, y, w, h, c);
-}
-
-static void aqua_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
-	// top border
-	fl_color(activated_color(devalued(desaturated(c, 0.27f), 0.25f)));
-	fl_xyline(x+1, y, x+w-2);
-	// side borders
-	fl_color(activated_color(fl_rgb_color(0xD4, 0xD4, 0xD4)));
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// bottom border
-	fl_color(activated_color(fl_rgb_color(0xAE, 0xAE, 0xAE)));
-	fl_xyline(x+1, y+h-1, x+w-2);
-	// corners
-	fl_color(activated_color(fl_rgb_color(0xE3, 0xE3, 0xE3)));
-	fl_point(x, y);
-	fl_point(x+w-1, y);
-	fl_point(x, y+h-1);
-	fl_point(x+w-1, y+h-1);
-	// corner gradients
-	fl_color(activated_color(fl_rgb_color(0xD9, 0xD9, 0xD9)));
-	fl_point(x, y+1);
-	fl_point(x+w-1, y+1);
-	fl_point(x, y+h-2);
-	fl_point(x+w-1, y+h-2);
-}
-
-static void aqua_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top inner border
-	fl_color(activated_color(desaturated(devalued(c, 0.15f), 0.58f)));
-	fl_xyline(x+1, y+1, x+w-2);
-	// top gradient
-	vertical_gradient(x+1, y+2, x+w-2, y+h/2, activated_color(desaturated(devalued(c, 0.11f), 0.67f)),
-		activated_color(desaturated(devalued(c, 0.08f), 0.33f)));
-	// bottom gradient
-	vertical_gradient(x+1, y+h/2+1, x+w-2, y+h-2, activated_color(desaturated(devalued(c, 0.08f), 0.33f)),
-		activated_color(desaturated(c, 0.59f)));
-	aqua_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void aqua_radio_round_down_frame(int x, int y, int w, int h, Fl_Color c) {
@@ -962,43 +849,6 @@ static void aqua_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	aqua_depressed_down_frame(x, y, w, h, c);
 }
 
-static void aqua_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// top outer border
-	fl_color(activated_color(fl_rgb_color(0xC2, 0xC2, 0xC2)));
-	fl_xyline(x+3, y, x+w-4);
-	// side outer borders
-	fl_color(activated_color(fl_rgb_color(0xC9, 0xC9, 0xC9)));
-	fl_yxline(x, y+3, y+h-4);
-	fl_yxline(x+w-1, y+3, y+h-4);
-	// bottom outer border
-	fl_color(activated_color(fl_rgb_color(0xCF, 0xCF, 0xCF)));
-	fl_xyline(x+3, y+h-1, x+w-4);
-	// top inner border
-	fl_color(activated_color(fl_rgb_color(0xD6, 0xD6, 0xD6)));
-	fl_xyline(x+3, y+1, x+w-4);
-	// side inner borders
-	fl_color(activated_color(fl_rgb_color(0xDB, 0xDB, 0xDB)));
-	fl_yxline(x+1, y+3, y+h-4);
-	fl_yxline(x+w-2, y+3, y+h-4);
-	// bottom inner border
-	fl_color(activated_color(fl_rgb_color(0xDE, 0xDE, 0xDE)));
-	fl_xyline(x+3, y+h-2, x+w-4);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xC7, 0xC7, 0xC7)));
-	fl_arc(x, y, 8, 8, 90.0, 180.0);
-	fl_arc(x+w-8, y, 8, 8, 0.0, 90.0);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xCD, 0xCD, 0xCD)));
-	fl_arc(x, y+h-8, 8, 8, 180.0, 270.0);
-	fl_arc(x+w-8, y+h-8, 8, 8, 270.0, 360.0);
-}
-
-static void aqua_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(fl_rgb_color(0xE3, 0xE3, 0xE3)));
-	fl_rectf(x+2, y+2, w-4, h-4);
-	aqua_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void aqua_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
 	// top outer border
 	fl_color(activated_color(fl_rgb_color(0x9B, 0x9B, 0x9B)));
@@ -1060,43 +910,6 @@ static void aqua_default_button_box(int x, int y, int w, int h, Fl_Color c) {
 	aqua_default_button_frame(x, y, w, h, c);
 }
 
-static void aqua_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	// top outer border
-	fl_color(activated_color(fl_rgb_color(0xAE, 0xAE, 0xAE)));
-	fl_xyline(x+3, y, x+w-4);
-	// side outer borders
-	fl_color(activated_color(fl_rgb_color(0x9E, 0x9E, 0x9E)));
-	fl_yxline(x, y+3, y+h-4);
-	fl_yxline(x+w-1, y+3, y+h-4);
-	// bottom outer border
-	fl_color(activated_color(fl_rgb_color(0x8E, 0x8E, 0x8E)));
-	fl_xyline(x+3, y+h-1, x+w-4);
-	// top inner border
-	fl_color(activated_color(fl_rgb_color(0xFA, 0xFA, 0xFA)));
-	fl_xyline(x+3, y+1, x+w-4);
-	// side inner borders
-	fl_color(activated_color(fl_rgb_color(0xF6, 0xF6, 0xF6)));
-	fl_yxline(x+1, y+3, y+h-4);
-	fl_yxline(x+w-2, y+3, y+h-4);
-	// bottom inner border
-	fl_color(activated_color(fl_rgb_color(0xF2, 0xF2, 0xF2)));
-	fl_xyline(x+3, y+h-2, x+w-4);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xA4, 0xA4, 0xA4)));
-	fl_arc(x, y, 8, 8, 90.0, 180.0);
-	fl_arc(x+w-8, y, 8, 8, 0.0, 90.0);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0x94, 0x94, 0x94)));
-	fl_arc(x, y+h-8, 8, 8, 180.0, 270.0);
-	fl_arc(x+w-8, y+h-8, 8, 8, 270.0, 360.0);
-}
-
-static void aqua_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+2, y+2, w-4, h-4);
-	aqua_tabs_frame(x, y, w, h, c);
-}
-
 static void aqua_swatch_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
 	fl_color(activated_color(fl_rgb_color(0xA3, 0xA3, 0xA3)));
@@ -1115,30 +928,31 @@ static void aqua_swatch_box(int x, int y, int w, int h, Fl_Color c) {
 static void use_aqua_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, aqua_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_BOX, aqua_button_up_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_BUTTON_UP_FRAME, aqua_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, aqua_button_up_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, OS_BUTTON_UP_FRAME);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, aqua_panel_thin_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, aqua_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, aqua_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, aqua_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, aqua_progress_round_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, aqua_radio_round_down_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_HOVERED_UP_BOX, aqua_button_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, aqua_depressed_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_HOVERED_UP_FRAME, aqua_button_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, OS_BUTTON_UP_FRAME);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, aqua_depressed_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, aqua_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, aqua_input_thin_down_box, 2, 3, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, aqua_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aqua_input_thin_down_frame, 2, 3, 4, 4);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, aqua_default_button_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, aqua_swatch_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aqua_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_TABS_BOX, aqua_tabs_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, aqua_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_DOWN_BOX, aqua_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, aqua_radio_round_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_aqua_colors() {
@@ -1188,8 +1002,14 @@ static void greybird_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void greybird_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	vertical_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0xDB, 0xDB, 0xDB)),
-		activated_color(fl_rgb_color(0xCC, 0xCC, 0xCC)));
+	if (w >= h) {
+		vertical_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0xDB, 0xDB, 0xDB)),
+			activated_color(fl_rgb_color(0xCC, 0xCC, 0xCC)));
+	}
+	else {
+		horizontal_gradient(x+2, y+2, x+w-3, y+h-2, activated_color(fl_rgb_color(0xDB, 0xDB, 0xDB)),
+			activated_color(fl_rgb_color(0xCC, 0xCC, 0xCC)));
+	}
 	greybird_button_up_frame(x, y, w, h, c);
 }
 
@@ -1248,26 +1068,6 @@ static void greybird_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	greybird_spacer_thin_down_frame(x, y, w, h, c);
-}
-
-static void greybird_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
-	// border
-	fl_color(activated_color(devalued(c, 0.3f)));
-	fl_xyline(x+3, y, x+w-4);
-	fl_yxline(x, y+3, y+h-4);
-	fl_yxline(x+w-1, y+3, y+h-4);
-	fl_xyline(x+3, y+h-1, x+w-4);
-	// corners
-	fl_color(activated_color(devalued(c, 0.3f)));
-	fl_yxline(x+1, y+2, y+1, x+2);
-	fl_xyline(x+w-3, y+1, x+w-2, y+2);
-	fl_yxline(x+w-2, y+h-3, y+h-2, x+w-3);
-	fl_xyline(x+2, y+h-2, x+1, y+h-3);
-}
-
-static void greybird_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	vertical_gradient(x+1, y+1, x+w-2, y+h-2, activated_color(desaturated(c, 0.315789f)), activated_color(c));
-	greybird_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void greybird_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
@@ -1345,27 +1145,6 @@ static void greybird_depressed_down_box(int x, int y, int w, int h, Fl_Color c) 
 	greybird_depressed_down_frame(x, y, w, h, c);
 }
 
-static void greybird_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// outer border
-	fl_color(activated_color(fl_rgb_color(0xBA, 0xBA, 0xBA)));
-	fl_xyline(x+1, y, x+w-2);
-	fl_yxline(x, y+1, y+h-2);
-	fl_xyline(x+1, y+h-1, x+w-2);
-	fl_yxline(x+w-1, y+1, y+h-2);
-	// top and left inner borders
-	fl_color(activated_color(fl_rgb_color(0xC6, 0xC6, 0xC6)));
-	fl_yxline(x+1, y+h-2, y+1, x+w-2);
-	// bottom and right inner borders
-	fl_color(activated_color(fl_rgb_color(0xDA, 0xDA, 0xDA)));
-	fl_xyline(x+2, y+h-2, x+w-2, y+2);
-}
-
-static void greybird_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+2, y+2, w-4, h-4);
-	greybird_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void greybird_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
 	// top outer border
 	fl_color(activated_color(fl_rgb_color(0x84, 0x84, 0x84)));
@@ -1432,46 +1211,6 @@ static void greybird_default_button_box(int x, int y, int w, int h, Fl_Color c) 
 	greybird_default_button_frame(x, y, w, h, c);
 }
 
-static void greybird_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	// top outer border
-	fl_color(activated_color(fl_rgb_color(0xA6, 0xA6, 0xA6)));
-	fl_xyline(x+2, y, x+w-3);
-	// side outer borders
-	fl_color(activated_color(fl_rgb_color(0x96, 0x96, 0x96)));
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// bottom outer border
-	fl_color(activated_color(fl_rgb_color(0x87, 0x87, 0x87)));
-	fl_xyline(x+2, y+h-1, x+w-3);
-	// top inner border
-	fl_color(activated_color(fl_rgb_color(0xEE, 0xEE, 0xEE)));
-	fl_xyline(x+2, y+1, x+w-3);
-	// side inner borders
-	fl_color(activated_color(fl_rgb_color(0xE4, 0xE4, 0xE4)));
-	fl_yxline(x+1, y+2, y+h-3);
-	fl_yxline(x+w-2, y+2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xB8, 0xB8, 0xB8)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xA0, 0xA0, 0xA0)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void greybird_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(fl_rgb_color(0xD9, 0xD9, 0xD9)));
-	fl_rectf(x+2, y+2, w-3, h-2);
-	greybird_tabs_frame(x, y, w, h, c);
-}
-
-static void greybird_swatch_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	greybird_spacer_thin_down_frame(x, y, w, h, c);
-}
-
 static void use_greybird_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, greybird_button_up_box, 2, 2, 4, 4);
@@ -1482,23 +1221,24 @@ static void use_greybird_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, greybird_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, greybird_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, greybird_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, greybird_progress_round_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, greybird_radio_round_down_box, 3, 3, 6, 6);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, greybird_hovered_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, greybird_depressed_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, greybird_hovered_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, greybird_depressed_down_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, greybird_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, greybird_input_thin_down_box, 2, 3, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, greybird_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, greybird_input_thin_down_frame, 2, 3, 4, 4);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, greybird_default_button_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_SWATCH_FRAME, greybird_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_SWATCH_BOX, greybird_swatch_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_TABS_BOX, greybird_tabs_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, greybird_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_DOWN_BOX, greybird_check_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, greybird_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_SWATCH_FRAME, OS_SPACER_THIN_DOWN_FRAME);
+	Fl::set_boxtype(OS_SWATCH_BOX, OS_SPACER_THIN_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_greybird_colors() {
@@ -1525,13 +1265,24 @@ static void metal_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void metal_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	int m = h * 3 / 10;
-	// top gradient
-	vertical_gradient(x+1, y+1, x+w-2, y+m, activated_color(fl_rgb_color(0xDF, 0xE9, 0xF3)),
-		activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
-	// bottom gradient
-	vertical_gradient(x+1, y+m, x+w-2, y+h-2, activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)),
-		activated_color(fl_rgb_color(0xBB, 0xD1, 0xE6)));
+	if (w >= h) {
+		int m = h * 3 / 10;
+		// top gradient
+		vertical_gradient(x+1, y+1, x+w-2, y+m, activated_color(fl_rgb_color(0xDF, 0xE9, 0xF3)),
+			activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
+		// bottom gradient
+		vertical_gradient(x+1, y+m, x+w-2, y+h-2, activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)),
+			activated_color(fl_rgb_color(0xBB, 0xD1, 0xE6)));
+	}
+	else {
+		int m = w * 3 / 10;
+		// left gradient
+		horizontal_gradient(x+1, y+1, x+m, y+h-2, activated_color(fl_rgb_color(0xDF, 0xE9, 0xF3)),
+			activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
+		// right gradient
+		horizontal_gradient(x+m, y+1, x+w-2, y+h-2, activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)),
+			activated_color(fl_rgb_color(0xBB, 0xD1, 0xE6)));
+	}
 	metal_button_up_frame(x, y, w, h, c);
 }
 
@@ -1581,7 +1332,7 @@ static void metal_radio_round_down_box(int x, int y, int w, int h, Fl_Color c) {
 	metal_radio_round_down_frame(x, y, w, h, c);
 }
 
-static void metal_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
+static void metal_input_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	metal_button_up_frame(x, y, w, h, c);
@@ -1593,55 +1344,34 @@ static void metal_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	metal_button_up_frame(x, y, w, h, c);
 }
 
-static void metal_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_color(activated_color(fl_rgb_color(0xB8, 0xCF, 0xE5)));
-	fl_rect(x, y, w, h);
-}
-
-static void metal_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	metal_group_thin_up_frame(x, y, w, h, c);
-}
-
-static void metal_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	fl_color(activated_color(fl_rgb_color(0x63, 0x82, 0xBF)));
-	fl_rect(x, y, w, h);
-}
-
-static void metal_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	metal_tabs_frame(x, y, w, h, c);
-}
-
 static void use_metal_scheme() {
 	Fl::scheme("none");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, metal_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_BOX, metal_button_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, metal_depressed_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_BUTTON_UP_FRAME, metal_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, metal_button_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, OS_BUTTON_UP_FRAME);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, metal_panel_thin_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, metal_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, metal_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, metal_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, metal_progress_round_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, metal_radio_round_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_HOVERED_UP_BOX, metal_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, metal_depressed_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_HOVERED_UP_FRAME, metal_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, metal_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, metal_group_thin_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, metal_progress_round_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, metal_group_thin_up_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, metal_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, metal_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_TABS_BOX, metal_tabs_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_SWATCH_FRAME, metal_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_SWATCH_BOX, metal_progress_round_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_UP_BOX, metal_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_DOWN_BOX, metal_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, metal_radio_round_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, metal_input_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
+	Fl::set_boxtype(OS_SWATCH_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_SWATCH_BOX, OS_INPUT_THIN_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_metal_colors() {
@@ -1694,12 +1424,22 @@ static void blue_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void blue_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xF0, 0xF6, 0xFB)),
-		activated_color(fl_rgb_color(0xE2, 0xEA, 0xF3)));
-	// bottom gradient
-	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xD5, 0xE0, 0xED)),
-		activated_color(fl_rgb_color(0xD7, 0xE2, 0xEF)));
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xF0, 0xF6, 0xFB)),
+			activated_color(fl_rgb_color(0xE2, 0xEA, 0xF3)));
+		// bottom gradient
+		vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xD5, 0xE0, 0xED)),
+			activated_color(fl_rgb_color(0xD7, 0xE2, 0xEF)));
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+2, y+2, x+w/2-1, y+h-3, activated_color(fl_rgb_color(0xF0, 0xF6, 0xFB)),
+			activated_color(fl_rgb_color(0xE2, 0xEA, 0xF3)));
+		// right gradient
+		horizontal_gradient(x+w/2, y+2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xD5, 0xE0, 0xED)),
+			activated_color(fl_rgb_color(0xD7, 0xE2, 0xEF)));
+	}
 	blue_button_up_frame(x, y, w, h, c);
 }
 
@@ -1731,51 +1471,6 @@ static void blue_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	blue_spacer_thin_down_frame(x, y, w, h, c);
-}
-
-static void blue_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
-	// top outer borders
-	fl_color(activated_color(fl_rgb_color(0xB2, 0xB2, 0xB2)));
-	fl_xyline(x+2, y, x+w-3);
-	// side outer borders
-	fl_color(activated_color(fl_rgb_color(0x9F, 0x9F, 0x9F)));
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// bottom outer border
-	fl_color(activated_color(fl_rgb_color(0x8C, 0x8C, 0x8C)));
-	fl_xyline(x+2, y+h-1, x+w-3);
-	// side inner top borders
-	fl_color(activated_color(devalued(desaturated(c, 0.27f), 0.07f)));
-	fl_yxline(x+1, y+2, y+h/2-1);
-	fl_yxline(x+w-2, y+2, y+h/2-1);
-	// side inner bottom borders
-	fl_color(activated_color(devalued(c, 0.19f)));
-	fl_yxline(x+1, y+h/2, y+h-3);
-	fl_yxline(x+w-2, y+h/2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xC9, 0xC9, 0xC9)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xA1, 0xA1, 0xA1)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void blue_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top fill
-	fl_color(activated_color(devalued(desaturated(c, 0.52f), 0.06f)));
-	fl_rectf(x+2, y+1, w-4, h/2-1);
-	// top gradient
-	vertical_gradient(x+2, y+1, x+w-3, y+6, activated_color(desaturated(c, 0.77f)),
-		activated_color(devalued(desaturated(c, 0.52f), 0.06f)));
-	// bottom fill
-	fl_color(activated_color(devalued(c, 0.16f)));
-	fl_rectf(x+2, y+h/2, w-4, h/2-1);
-	// bottom gradient
-	vertical_gradient(x+2, y+h-7, x+w-3, y+h-2, activated_color(devalued(c, 0.16f)),
-		activated_color(devalued(c, 0.07f)));
-	blue_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void blue_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
@@ -1845,29 +1540,6 @@ static void blue_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	blue_depressed_down_frame(x, y, w, h, c);
 }
 
-static void blue_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// border
-	fl_color(activated_color(fl_rgb_color(0x87, 0x97, 0xAA)));
-	fl_xyline(x+2, y, x+w-3);
-	fl_xyline(x+2, y+h-1, x+w-3);
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0x9B, 0xAA, 0xBB)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xA1, 0xAE, 0xBD)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void blue_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	blue_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void blue_default_button_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
 	fl_color(activated_color(fl_rgb_color(0x87, 0x97, 0xAA)));
@@ -1909,29 +1581,6 @@ static void blue_default_button_box(int x, int y, int w, int h, Fl_Color c) {
 	blue_default_button_frame(x, y, w, h, c);
 }
 
-static void blue_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	// border
-	fl_color(activated_color(fl_rgb_color(0x87, 0x97, 0xAA)));
-	fl_xyline(x+2, y, x+w-3);
-	fl_xyline(x+2, y+h-1, x+w-3);
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0x9B, 0xAA, 0xBB)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xA1, 0xAE, 0xBD)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void blue_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	blue_tabs_frame(x, y, w, h, c);
-}
-
 static void use_blue_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, blue_button_up_box, 2, 2, 4, 4);
@@ -1942,23 +1591,24 @@ static void use_blue_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, blue_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, blue_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, blue_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, blue_progress_round_up_box, 2, 1, 4, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, blue_hovered_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, blue_depressed_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, blue_hovered_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, blue_depressed_down_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, blue_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, aero_input_thin_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, blue_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, blue_default_button_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_TABS_BOX, blue_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, blue_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_blue_colors() {
@@ -1975,6 +1625,413 @@ void OS::use_blue_theme() {
 	use_blue_colors();
 	use_native_settings();
 	_current_theme = BLUE;
+}
+
+/***************************** Olive (Windows XP) *****************************/
+
+static void olive_button_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	if (w >= h) {
+		// top inner borders
+		fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xF6)));
+		fl_xyline(x+3, y+1, x+w-4);
+		fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xF5)));
+		fl_xyline(x+2, y+2, x+w-3);
+		// bottom inner borders
+		fl_color(activated_color(fl_rgb_color(0xEC, 0xE1, 0xC9)));
+		fl_xyline(x+2, y+h-3, x+w-3);
+		fl_color(activated_color(fl_rgb_color(0xE3, 0xD1, 0xB8)));
+		fl_xyline(x+3, y+h-2, x+w-4);
+	}
+	else {
+		// left inner borders
+		fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xF6)));
+		fl_yxline(x+1, y+3, y+h-4);
+		fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xF5)));
+		fl_yxline(x+2, y+2, y+h-3);
+		// right inner borders
+		fl_color(activated_color(fl_rgb_color(0xEC, 0xE1, 0xC9)));
+		fl_yxline(x+w-3, y+2, y+h-3);
+		fl_color(activated_color(fl_rgb_color(0xE3, 0xD1, 0xB8)));
+		fl_yxline(x+w-2, y+3, y+h-4);
+	}
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+	if (w >= h) {
+		// top inner corners
+		fl_color(activated_color(fl_rgb_color(0xE4, 0xDD, 0xB4)));
+		fl_point(x+2, y+1);
+		fl_point(x+w-3, y+1);
+		fl_point(x+1, y+2);
+		fl_point(x+w-2, y+2);
+		// bottom inner corners
+		fl_color(activated_color(fl_rgb_color(0xC9, 0xB1, 0xA4)));
+		fl_point(x+1, y+h-3);
+		fl_point(x+w-2, y+h-3);
+		fl_point(x+2, y+h-2);
+		fl_point(x+w-3, y+h-2);
+	}
+	else {
+		// left inner corners
+		fl_color(activated_color(fl_rgb_color(0xE4, 0xDD, 0xB4)));
+		fl_point(x+2, y+1);
+		fl_point(x+1, y+h-3);
+		fl_point(x+1, y+2);
+		fl_point(x+2, y+h-2);
+		// right inner corners
+		fl_color(activated_color(fl_rgb_color(0xC9, 0xB1, 0xA4)));
+		fl_point(x+w-3, y+1);
+		fl_point(x+w-2, y+h-3);
+		fl_point(x+w-2, y+2);
+		fl_point(x+w-3, y+h-2);
+	}
+
+}
+
+static void olive_button_up_box(int x, int y, int w, int h, Fl_Color c) {
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+1, y+3, x+w-2, y+h/3, activated_color(fl_rgb_color(0xFE, 0xFF, 0xF2)),
+			activated_color(fl_rgb_color(0xFA, 0xF9, 0xE9)));
+		// bottom gradient
+		vertical_gradient(x+1, y+h/3, x+w-2, y+h-4, activated_color(fl_rgb_color(0xFB, 0xFA, 0xE8)),
+			activated_color(fl_rgb_color(0xF3, 0xEE, 0xDB)));
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+3, y+1, x+w/3, y+h-2, activated_color(fl_rgb_color(0xFE, 0xFF, 0xF2)),
+			activated_color(fl_rgb_color(0xFA, 0xF9, 0xE9)));
+		// right gradient
+		horizontal_gradient(x+w/3, y+1, x+w-4, y+h-2, activated_color(fl_rgb_color(0xFB, 0xFA, 0xE8)),
+			activated_color(fl_rgb_color(0xF3, 0xEE, 0xDB)));
+	}
+	olive_button_up_frame(x, y, w, h, c);
+}
+
+static void olive_button_down_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xDB, 0xD1, 0xAD)));
+	fl_xyline(x+3, y+1, x+w-4);
+	fl_color(activated_color(fl_rgb_color(0xDD, 0xDA, 0xBB)));
+	fl_xyline(x+2, y+2, x+w-3);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0xE8, 0xE7, 0xDB)));
+	fl_xyline(x+2, y+h-3, x+w-3);
+	fl_color(activated_color(fl_rgb_color(0xF3, 0xF2, 0xE6)));
+	fl_xyline(x+3, y+h-2, x+w-4);
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+	// top inner corners
+	fl_color(activated_color(fl_rgb_color(0xC9, 0xB1, 0xA4)));
+	fl_point(x+2, y+1);
+	fl_point(x+w-3, y+1);
+	fl_point(x+1, y+2);
+	fl_point(x+w-2, y+2);
+	// bottom inner corners
+	fl_color(activated_color(fl_rgb_color(0xE4, 0xDD, 0xB4)));
+	fl_point(x+1, y+h-3);
+	fl_point(x+w-2, y+h-3);
+	fl_point(x+2, y+h-2);
+	fl_point(x+w-3, y+h-2);
+
+}
+
+static void olive_button_down_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+1, y+3, x+w-2, y+h/3, activated_color(fl_rgb_color(0xDC, 0xE1, 0xD0)),
+		activated_color(fl_rgb_color(0xDF, 0xE1, 0xC8)));
+	// bottom gradient
+	vertical_gradient(x+1, y+h/3, x+w-2, y+h-4, activated_color(fl_rgb_color(0xDF, 0xE1, 0xC8)),
+		activated_color(fl_rgb_color(0xD8, 0xDF, 0xC8)));
+	olive_button_down_frame(x, y, w, h, c);
+}
+
+static void olive_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xF9, 0xEF, 0xCB)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_color(activated_color(fl_rgb_color(0xFA, 0xCF, 0x70)));
+	fl_xyline(x+1, y+2, x+w-2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0xF5, 0xA5, 0x10)));
+	fl_xyline(x+1, y+h-3, x+w-2);
+	fl_color(activated_color(fl_rgb_color(0xE4, 0x88, 0x01)));
+	fl_xyline(x+2, y+h-2, x+w-3);
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void olive_hovered_up_box(int x, int y, int w, int h, Fl_Color c) {
+	// edges' top gradient
+	vertical_gradient(x+1, y+3, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0xF7, 0xC7, 0x61)),
+		activated_color(fl_rgb_color(0xF7, 0xC3, 0x59)));
+	// edges' bottom gradient
+	vertical_gradient(x+1, y+h/2, x+w-2, y+h-4, activated_color(fl_rgb_color(0xF7, 0xBF, 0x52)),
+		activated_color(fl_rgb_color(0xF2, 0xA8, 0x13)));
+	fl_push_clip(x+3, y+3, w-6, h-6);
+	// top gradient
+	vertical_gradient(x+1, y+3, x+w-2, y+h/3, activated_color(fl_rgb_color(0xFE, 0xFF, 0xF2)),
+		activated_color(fl_rgb_color(0xFA, 0xF9, 0xE9)));
+	// bottom gradient
+	vertical_gradient(x+1, y+h/3, x+w-2, y+h-4, activated_color(fl_rgb_color(0xFB, 0xFA, 0xE8)),
+		activated_color(fl_rgb_color(0xF3, 0xEE, 0xDB)));
+	fl_pop_clip();
+	olive_hovered_up_frame(x, y, w, h, c);
+}
+
+static void olive_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_arc(x, y, w, h, 0.0, 360.0);
+}
+
+static void olive_radio_round_down_box(int x, int y, int w, int h, Fl_Color c) {
+	// bottom fill
+	fl_color(activated_color(fl_rgb_color(0xF7, 0xF7, 0xF7)));
+	fl_pie(x, y, w, h, 0.0, 360.0);
+	// top edges
+	fl_color(activated_color(fl_rgb_color(0xDC, 0xDA, 0xDC)));
+	fl_arc(x+1, y+1, w-2, h-2, 0.0, 180.0);
+	// top gradient
+	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, fl_rgb_color(0xDE, 0xE2, 0xE1), fl_rgb_color(0xF4, 0xF7, 0xF6));
+	olive_radio_round_down_frame(x, y, w, h, c);
+}
+
+static void olive_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
+	fl_color(activated_color(fl_rgb_color(0xA4, 0xB9, 0x7F)));
+	fl_rect(x, y, w, h);
+}
+
+static void olive_input_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+1, y+1, w-2, h-2);
+	olive_input_thin_down_frame(x, y, w, h, c);
+}
+
+static void olive_default_button_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xC2, 0xD1, 0x8F)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_color(activated_color(fl_rgb_color(0xB1, 0xCB, 0x80)));
+	fl_xyline(x+1, y+2, x+w-2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0x90, 0xC1, 0x54)));
+	fl_xyline(x+1, y+h-3, x+w-2);
+	fl_color(activated_color(fl_rgb_color(0xA8, 0xA7, 0x66)));
+	fl_xyline(x+2, y+h-2, x+w-3);
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+
+}
+
+static void olive_default_button_up_box(int x, int y, int w, int h, Fl_Color c) {
+	// edges' top gradient
+	vertical_gradient(x+1, y+3, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0xB0, 0xCC, 0x7D)),
+		activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)));
+	// edges' bottom gradient
+	vertical_gradient(x+1, y+h/2, x+w-2, y+h-4, activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)),
+		activated_color(fl_rgb_color(0x90, 0xC1, 0x54)));
+	fl_push_clip(x+3, y+3, w-6, h-6);
+	// top gradient
+	vertical_gradient(x+1, y+3, x+w-2, y+h/3, activated_color(fl_rgb_color(0xFE, 0xFF, 0xF2)),
+		activated_color(fl_rgb_color(0xFA, 0xF9, 0xE9)));
+	// bottom gradient
+	vertical_gradient(x+1, y+h/3, x+w-2, y+h-4, activated_color(fl_rgb_color(0xFB, 0xFA, 0xE8)),
+		activated_color(fl_rgb_color(0xF3, 0xEE, 0xDB)));
+	fl_pop_clip();
+	olive_default_button_up_frame(x, y, w, h, c);
+}
+
+static void olive_toolbar_button_hover_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner border
+	fl_color(activated_color(FL_LIGHT3));
+	fl_xyline(x+2, y+1, x+w-3);
+	// bottom inner border
+	fl_color(activated_color(FL_DARK3));
+	fl_xyline(x+2, y+h-2, x+w-3);
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+}
+
+static void olive_toolbar_button_hover_box(int x, int y, int w, int h, Fl_Color c) {
+	// top gradient
+	vertical_gradient(x+1, y+2, x+w-2, y+h/3, activated_color(FL_LIGHT2), activated_color(FL_BACKGROUND_COLOR));
+	// bottom gradient
+	vertical_gradient(x+1, y+h/3, x+w-2, y+h-3, activated_color(FL_BACKGROUND_COLOR), activated_color(FL_DARK2));
+	olive_toolbar_button_hover_frame(x, y, w, h, c);
+}
+
+static void olive_check_down_frame(int x, int y, int w, int h, Fl_Color) {
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_rect(x, y, w, h);
+}
+
+static void olive_check_down_box(int x, int y, int w, int h, Fl_Color c) {
+	// top edge
+	fl_color(activated_color(fl_rgb_color(0xDC, 0xDA, 0xDC)));
+	fl_xyline(x+1, y+1, x+w-2);
+	fl_arc(x+1, y+1, w-2, h-2, 0.0, 180.0);
+	// top gradient
+	vertical_gradient(x+1, y+2, x+w-2, y+h/2-1, fl_rgb_color(0xDE, 0xE2, 0xE1), fl_rgb_color(0xF4, 0xF7, 0xF6));
+	// bottom fill
+	fl_color(activated_color(fl_rgb_color(0xF7, 0xF7, 0xF7)));
+	fl_rectf(x+1, y+h/2, w-2, h-h/2-1);
+	olive_check_down_frame(x, y, w, h, c);
+}
+
+static void olive_swatch_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0xA4, 0xB9, 0x7F)));
+	fl_rect(x, y, w, h);
+	// inner border
+	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
+	fl_rect(x+1, y+1, w-2, h-2);
+}
+
+static void olive_swatch_box(int x, int y, int w, int h, Fl_Color c) {
+	fl_color(activated_color(c));
+	fl_rectf(x+2, y+2, w-4, h-4);
+	olive_swatch_frame(x, y, w, h, c);
+}
+
+static void olive_mini_button_up_frame(int x, int y, int w, int h, Fl_Color) {
+	// outer border
+	fl_color(activated_color(fl_rgb_color(0x37, 0x62, 0x06)));
+	fl_xyline(x+2, y, x+w-3);
+	fl_xyline(x+2, y+h-1, x+w-3);
+	fl_yxline(x, y+2, y+h-3);
+	fl_yxline(x+w-1, y+2, y+h-3);
+	// top inner borders
+	fl_color(activated_color(fl_rgb_color(0xC2, 0xD1, 0x8F)));
+	fl_xyline(x+2, y+1, x+w-3);
+	fl_color(activated_color(fl_rgb_color(0xB1, 0xCB, 0x80)));
+	fl_xyline(x+1, y+2, x+w-2);
+	// bottom inner borders
+	fl_color(activated_color(fl_rgb_color(0x90, 0xC1, 0x54)));
+	fl_xyline(x+1, y+h-3, x+w-2);
+	fl_color(activated_color(fl_rgb_color(0xA8, 0xA7, 0x66)));
+	fl_xyline(x+2, y+h-2, x+w-3);
+	// outer corners
+	fl_color(activated_color(fl_rgb_color(0x6D, 0x8A, 0x4D)));
+	fl_xyline(x, y+1, x+1, y);
+	fl_yxline(x+w-2, y, y+1, x+w-1);
+	fl_xyline(x, y+h-2, x+1, y+h-1);
+	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
+
+}
+
+static void olive_mini_button_up_box(int x, int y, int w, int h, Fl_Color c) {
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+1, y+3, x+w-2, y+h/2-1, activated_color(fl_rgb_color(0xB0, 0xCC, 0x7D)),
+			activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)));
+		// bottom gradient
+		vertical_gradient(x+1, y+h/2, x+w-2, y+h-4, activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)),
+			activated_color(fl_rgb_color(0x90, 0xC1, 0x54)));
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+1, y+3, x+w/2-1, y+h-2, activated_color(fl_rgb_color(0xB0, 0xCC, 0x7D)),
+			activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)));
+		// right gradient
+		horizontal_gradient(x+w/2, y+3, x+w-2, y+h-4, activated_color(fl_rgb_color(0xA0, 0xC7, 0x67)),
+			activated_color(fl_rgb_color(0x90, 0xC1, 0x54)));
+	}
+	olive_mini_button_up_frame(x, y, w, h, c);
+}
+
+static void use_olive_scheme() {
+	Fl::scheme("none");
+	Fl::set_boxtype(OS_BUTTON_UP_BOX, olive_button_up_box, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, olive_button_down_box, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_BUTTON_UP_FRAME, olive_button_up_frame, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, olive_button_down_frame, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, classic_panel_thin_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, classic_spacer_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, classic_panel_thin_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, classic_spacer_thin_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, olive_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, olive_hovered_up_box, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, olive_hovered_up_frame, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, OS_CHECK_DOWN_FRAME);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, olive_input_thin_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, olive_input_thin_down_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, olive_default_button_up_box, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, olive_toolbar_button_hover_box, 1, 2, 2, 4);
+	Fl::set_boxtype(OS_SWATCH_FRAME, olive_swatch_frame, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_SWATCH_BOX, olive_swatch_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, olive_mini_button_up_box, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_MINI_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, olive_mini_button_up_frame, 1, 3, 2, 6);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_MINI_BUTTON_UP_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, olive_check_down_box, 1, 1, 2, 2);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+}
+
+static void use_olive_colors() {
+	Fl::background(0xD9, 0xE2, 0xB4);
+	Fl::background2(0xFF, 0xFF, 0xFF);
+	Fl::foreground(0x41, 0x40, 0x0A);
+	Fl::set_color(FL_SELECTION_COLOR, 0xCC, 0x45, 0x18);
+	Fl_Tooltip::color(fl_rgb_color(0xE9, 0xF2, 0xC7));
+	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
+}
+
+void OS::use_olive_theme() {
+	use_olive_scheme();
+	use_olive_colors();
+	use_native_settings();
+	_current_theme = OLIVE;
 }
 
 /********************************** Rose Gold *********************************/
@@ -2011,12 +2068,22 @@ static void rose_gold_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void rose_gold_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)),
-		activated_color(fl_rgb_color(0xF6, 0xE4, 0xE0)));
-	// bottom gradient
-	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xF1, 0xD9, 0xD2)),
-		activated_color(fl_rgb_color(0xF3, 0xDB, 0xD4)));
+	if (w >= h) {
+		// top gradient
+		vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)),
+			activated_color(fl_rgb_color(0xF6, 0xE4, 0xE0)));
+		// bottom gradient
+		vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xF1, 0xD9, 0xD2)),
+			activated_color(fl_rgb_color(0xF3, 0xDB, 0xD4)));
+	}
+	else {
+		// left gradient
+		horizontal_gradient(x+2, y+2, x+w/2-1, y+h-3, activated_color(fl_rgb_color(0xFD, 0xF0, 0xEF)),
+			activated_color(fl_rgb_color(0xF6, 0xE4, 0xE0)));
+		// right gradient
+		horizontal_gradient(x+w/2, y+2, x+w-3, y+h-3, activated_color(fl_rgb_color(0xF1, 0xD9, 0xD2)),
+			activated_color(fl_rgb_color(0xF3, 0xDB, 0xD4)));
+	}
 	rose_gold_button_up_frame(x, y, w, h, c);
 }
 
@@ -2117,29 +2184,6 @@ static void rose_gold_depressed_down_box(int x, int y, int w, int h, Fl_Color c)
 	rose_gold_depressed_down_frame(x, y, w, h, c);
 }
 
-static void rose_gold_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// border
-	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
-	fl_xyline(x+2, y, x+w-3);
-	fl_xyline(x+2, y+h-1, x+w-3);
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void rose_gold_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	rose_gold_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void rose_gold_default_button_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
 	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
@@ -2181,29 +2225,6 @@ static void rose_gold_default_button_box(int x, int y, int w, int h, Fl_Color c)
 	rose_gold_default_button_frame(x, y, w, h, c);
 }
 
-static void rose_gold_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	// border
-	fl_color(activated_color(fl_rgb_color(0xB0, 0x8C, 0x83)));
-	fl_xyline(x+2, y, x+w-3);
-	fl_xyline(x+2, y+h-1, x+w-3);
-	fl_yxline(x, y+2, y+h-3);
-	fl_yxline(x+w-1, y+2, y+h-3);
-	// top corners
-	fl_color(activated_color(fl_rgb_color(0xC1, 0x9F, 0x97)));
-	fl_xyline(x, y+1, x+1, y);
-	fl_yxline(x+w-2, y, y+1, x+w-1);
-	// bottom corners
-	fl_color(activated_color(fl_rgb_color(0xC3, 0xA6, 0x9E)));
-	fl_xyline(x, y+h-2, x+1, y+h-1);
-	fl_yxline(x+w-2, y+h-1, y+h-2, x+w-1);
-}
-
-static void rose_gold_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	rose_gold_tabs_frame(x, y, w, h, c);
-}
-
 static void use_rose_gold_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, rose_gold_button_up_box, 2, 2, 4, 4);
@@ -2214,23 +2235,24 @@ static void use_rose_gold_scheme() {
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, rose_gold_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, rose_gold_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, rose_gold_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, blue_progress_round_up_box, 2, 1, 4, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
 	Fl::set_boxtype(OS_HOVERED_UP_BOX, rose_gold_hovered_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, rose_gold_depressed_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_HOVERED_UP_FRAME, rose_gold_hovered_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, rose_gold_depressed_down_frame, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, rose_gold_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, aero_input_thin_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, rose_gold_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, aero_input_thin_down_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, rose_gold_default_button_box, 2, 2, 4, 4);
-	Fl::set_boxtype(OS_TABS_BOX, rose_gold_tabs_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, aero_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, aero_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, rose_gold_button_up_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_DOWN_BOX, aero_check_down_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, aero_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_rose_gold_colors() {
@@ -2274,8 +2296,14 @@ static void dark_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 }
 
 static void dark_button_up_box(int x, int y, int w, int h, Fl_Color c) {
-	vertical_gradient(x+1, y+2, x+w-2, y+h-1, activated_color(fl_rgb_color(0x75, 0x75, 0x75)),
-		activated_color(fl_rgb_color(0x62, 0x62, 0x62)));
+	if (w >= h) {
+		vertical_gradient(x+1, y+2, x+w-2, y+h-1, activated_color(fl_rgb_color(0x75, 0x75, 0x75)),
+			activated_color(fl_rgb_color(0x62, 0x62, 0x62)));
+	}
+	else {
+		horizontal_gradient(x+1, y+2, x+w-2, y+h-1, activated_color(fl_rgb_color(0x75, 0x75, 0x75)),
+			activated_color(fl_rgb_color(0x62, 0x62, 0x62)));
+	}
 	dark_button_up_frame(x, y, w, h, c);
 }
 
@@ -2307,35 +2335,6 @@ static void dark_spacer_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	fl_color(activated_color(c));
 	fl_rectf(x+1, y+1, w-2, h-2);
 	dark_spacer_thin_down_frame(x, y, w, h, c);
-}
-
-static void dark_progress_round_up_frame(int x, int y, int w, int h, Fl_Color c) {
-	// outer border
-	fl_color(activated_color(fl_rgb_color(0x1A, 0x1A, 0x1A)));
-	fl_xyline(x+1, y, x+w-2);
-	fl_xyline(x+1, y+h-1, x+w-2);
-	fl_yxline(x, y+1, y+h-2);
-	fl_yxline(x+w-1, y+1, y+h-2);
-	// top and side inner borders
-	fl_color(activated_color(desaturated(c, 0.62f)));
-	fl_xyline(x+1, y+1, x+w-2);
-	fl_yxline(x+1, y+2, y+h/2-1);
-	fl_yxline(x+w-2, y+2, y+h/2-1);
-	// bottom and side inner borders
-	fl_color(activated_color(desaturated(c, 0.28f)));
-	fl_xyline(x+1, y+h-2, x+w-2);
-	fl_yxline(x+1, y+h/2, y+h-3);
-	fl_yxline(x+w-2, y+h/2, y+h-3);
-}
-
-static void dark_progress_round_up_box(int x, int y, int w, int h, Fl_Color c) {
-	// top gradient
-	vertical_gradient(x+2, y+2, x+w-3, y+h/2-1, activated_color(desaturated(c, 0.48f)),
-		activated_color(desaturated(c, 0.35f)));
-	// bottom gradient
-	vertical_gradient(x+2, y+h/2, x+w-3, y+h-3, activated_color(desaturated(c, 0.29f)),
-		activated_color(desaturated(c, 0.16f)));
-	dark_progress_round_up_frame(x, y, w, h, c);
 }
 
 static void dark_radio_round_down_frame(int x, int y, int w, int h, Fl_Color) {
@@ -2388,21 +2387,6 @@ static void dark_depressed_down_box(int x, int y, int w, int h, Fl_Color c) {
 	dark_depressed_down_frame(x, y, w, h, c);
 }
 
-static void dark_group_thin_up_frame(int x, int y, int w, int h, Fl_Color) {
-	// outer border
-	fl_color(activated_color(fl_rgb_color(0x6A, 0x6A, 0x6A)));
-	fl_rect(x, y, w, h);
-	// inner border
-	fl_color(activated_color(fl_rgb_color(0x28, 0x28, 0x28)));
-	fl_rect(x+1, y+1, w-2, h-2);
-}
-
-static void dark_group_thin_up_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+2, y+2, w-4, h-4);
-	dark_group_thin_up_frame(x, y, w, h, c);
-}
-
 static void dark_input_thin_down_frame(int x, int y, int w, int h, Fl_Color) {
 	// top and side outer borders
 	fl_color(activated_color(fl_rgb_color(0x30, 0x30, 0x30)));
@@ -2428,24 +2412,6 @@ static void dark_input_thin_down_box(int x, int y, int w, int h, Fl_Color c) {
 	dark_input_thin_down_frame(x, y, w, h, c);
 }
 
-static void dark_tabs_frame(int x, int y, int w, int h, Fl_Color) {
-	// outer border
-	fl_color(activated_color(fl_rgb_color(0x28, 0x28, 0x28)));
-	fl_xyline(x+1, y, x+w-2);
-	fl_xyline(x+1, y+h-1, x+w-2);
-	fl_yxline(x, y+1, y+h-2);
-	fl_yxline(x+w-1, y+1, y+h-2);
-	// top inner border
-	fl_color(activated_color(fl_rgb_color(0x6A, 0x6A, 0x6A)));
-	fl_xyline(x+2, y+1, x+w-3);
-}
-
-static void dark_tabs_box(int x, int y, int w, int h, Fl_Color c) {
-	fl_color(activated_color(c));
-	fl_rectf(x+1, y+1, w-2, h-2);
-	dark_tabs_frame(x, y, w, h, c);
-}
-
 static void dark_swatch_frame(int x, int y, int w, int h, Fl_Color) {
 	// outer border
 	fl_color(activated_color(fl_rgb_color(0x25, 0x25, 0x25)));
@@ -2464,30 +2430,31 @@ static void dark_swatch_box(int x, int y, int w, int h, Fl_Color c) {
 static void use_dark_scheme() {
 	Fl::scheme("gtk+");
 	Fl::set_boxtype(OS_BUTTON_UP_BOX, dark_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_BOX, dark_button_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_CHECK_DOWN_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_BUTTON_UP_FRAME, dark_button_up_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, dark_button_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_CHECK_DOWN_FRAME, OS_BUTTON_UP_FRAME);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_BOX, dark_panel_thin_up_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_BOX, dark_spacer_thin_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_PANEL_THIN_UP_FRAME, dark_panel_thin_up_frame, 1, 1, 2, 2);
 	Fl::set_boxtype(OS_SPACER_THIN_DOWN_FRAME, dark_spacer_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_PROGRESS_ROUND_UP_BOX, dark_progress_round_up_box, 2, 1, 4, 2);
 	Fl::set_boxtype(OS_RADIO_ROUND_DOWN_BOX, dark_radio_round_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_HOVERED_UP_BOX, dark_button_up_box, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_HOVERED_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_BOX, dark_depressed_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_HOVERED_UP_FRAME, dark_button_up_frame, 1, 1, 2, 2);
+	Fl::set_boxtype(OS_HOVERED_UP_FRAME, OS_BUTTON_UP_FRAME);
 	Fl::set_boxtype(OS_DEPRESSED_DOWN_FRAME, dark_depressed_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_BOX, dark_group_thin_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_BOX, dark_input_thin_down_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_GROUP_THIN_UP_FRAME, dark_group_thin_up_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_INPUT_THIN_DOWN_FRAME, dark_input_thin_down_frame, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, dark_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(OS_TABS_BOX, dark_tabs_box, 1, 2, 2, 4);
+	Fl::set_boxtype(OS_DEFAULT_BUTTON_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BUTTON_HOVER_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(OS_SWATCH_FRAME, dark_swatch_frame, 2, 2, 4, 4);
 	Fl::set_boxtype(OS_SWATCH_BOX, dark_swatch_box, 2, 2, 4, 4);
-	Fl::set_boxtype(FL_UP_BOX, dark_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_DOWN_BOX, dark_button_up_box, 1, 1, 2, 2);
-	Fl::set_boxtype(FL_ROUND_DOWN_BOX, dark_radio_round_down_box, 3, 3, 6, 6);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_BOX, OS_DEPRESSED_DOWN_BOX);
+	Fl::set_boxtype(OS_MINI_BUTTON_UP_FRAME, OS_BUTTON_UP_FRAME);
+	Fl::set_boxtype(OS_MINI_DEPRESSED_DOWN_FRAME, OS_DEPRESSED_DOWN_FRAME);
+	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
+	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
 }
 
 static void use_dark_colors() {

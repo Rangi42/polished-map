@@ -292,6 +292,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (OS::current_theme() == OS::METAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::BLUE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Olive", 0, (Fl_Callback *)olive_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::OLIVE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Rose Gold", 0, (Fl_Callback *)rose_gold_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::ROSE_GOLD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
@@ -372,6 +374,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_greybird_theme_mi = PM_FIND_MENU_ITEM_CB(greybird_theme_cb);
 	_metal_theme_mi = PM_FIND_MENU_ITEM_CB(metal_theme_cb);
 	_blue_theme_mi = PM_FIND_MENU_ITEM_CB(blue_theme_cb);
+	_olive_theme_mi = PM_FIND_MENU_ITEM_CB(olive_theme_cb);
 	_rose_gold_theme_mi = PM_FIND_MENU_ITEM_CB(rose_gold_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
@@ -2521,6 +2524,12 @@ void Main_Window::metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::blue_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_blue_theme();
 	mw->_blue_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::olive_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_olive_theme();
+	mw->_olive_theme_mi->setonly();
 	mw->redraw();
 }
 
