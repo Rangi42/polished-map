@@ -683,7 +683,7 @@ void Main_Window::show() {
 #endif
 }
 
-bool Main_Window::unsaved(void) const {
+bool Main_Window::unsaved() const {
 	return _map.modified() || _map_events.modified() || _metatileset.modified() ||
 		_metatileset.const_tileset()->modified() || _metatileset.const_tileset()->modified_roof();
 }
