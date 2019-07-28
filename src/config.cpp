@@ -8,6 +8,8 @@
 #include "utils.h"
 #include "config.h"
 
+bool Config::_drag_and_drop = true;
+
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;
 }

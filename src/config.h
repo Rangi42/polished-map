@@ -2,6 +2,8 @@
 #define CONFIG_H
 
 class Config {
+private:
+	static bool _drag_and_drop;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -20,6 +22,8 @@ public:
 	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
+	inline static bool drag_and_drop(void) { return _drag_and_drop; }
+	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
 };
 
 #endif
