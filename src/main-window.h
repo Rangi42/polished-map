@@ -54,7 +54,7 @@ private:
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
-		*_special_lighting_mi = NULL, *_roof_colors_mi = NULL;
+		*_special_lighting_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
@@ -133,6 +133,7 @@ public:
 	inline bool auto_load_events(void) const { return _auto_events_mi && !!_auto_events_mi->value(); }
 	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
+	inline bool drag_and_drop(void) const { return _drag_and_drop_mi && !!_drag_and_drop_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
 	inline int map_scroll_x(void) const { return _map_scroll->xposition(); }
 	inline int map_scroll_y(void) const { return _map_scroll->yposition(); }
@@ -272,6 +273,7 @@ private:
 	static void auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void rulers_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);

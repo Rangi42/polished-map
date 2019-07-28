@@ -3,7 +3,7 @@
 
 class Config {
 private:
-	static bool _monochrome, _priority, _256_tiles;
+	static bool _monochrome, _priority, _256_tiles, _drag_and_drop;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -29,6 +29,8 @@ public:
 	inline static void allow_priority(bool p) { _priority = p; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }
 	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
+	inline static bool drag_and_drop(void) { return _drag_and_drop; }
+	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
 };
 
 #endif

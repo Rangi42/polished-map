@@ -104,7 +104,7 @@ int Metatile_Button::handle(int event) {
 		do_callback();
 		return 1;
 	case FL_DRAG:
-		if (Fl::event_button() == FL_LEFT_MOUSE) {
+		if (Config::drag_and_drop() && Fl::event_button() == FL_LEFT_MOUSE) {
 			dragging = this;
 			Fl::copy("", 0, 0);
 			Fl::dnd();
@@ -299,12 +299,14 @@ void Deep_Tile_Button::draw() {
 int Deep_Tile_Button::handle(int event) {
 	switch (event) {
 	case FL_DRAG:
-		_dragging = this;
-		Fl::copy("", 0, 0);
-		Fl::dnd();
-		_dragging = NULL;
-		if (parent()) {
-			parent()->redraw();
+		if (Config::drag_and_drop() && Fl::event_button() == FL_LEFT_MOUSE) {
+			_dragging = this;
+			Fl::copy("", 0, 0);
+			Fl::dnd();
+			_dragging = NULL;
+			if (parent()) {
+				parent()->redraw();
+			}
 		}
 		break;
 	case FL_DND_ENTER:
@@ -426,12 +428,14 @@ void Color_Button::draw() {
 int Color_Button::handle(int event) {
 	switch (event) {
 	case FL_DRAG:
-		_dragging = this;
-		Fl::copy("", 0, 0);
-		Fl::dnd();
-		_dragging = NULL;
-		if (parent()) {
-			parent()->redraw();
+		if (Config::drag_and_drop() && Fl::event_button() == FL_LEFT_MOUSE) {
+			_dragging = this;
+			Fl::copy("", 0, 0);
+			Fl::dnd();
+			_dragging = NULL;
+			if (parent()) {
+				parent()->redraw();
+			}
 		}
 		break;
 	case FL_DND_ENTER:

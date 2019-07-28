@@ -56,9 +56,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_priority_config = Preferences::get("prioritize", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
+	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_priority(!!allow_priority_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
+	Config::drag_and_drop(!!drag_and_drop_config);
 
 	int auto_events_config = Preferences::get("events", 1);
 	int special_lighting_config = Preferences::get("special", 1);
@@ -365,7 +367,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
 			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
-			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0)),
+			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Drag and Drop", 0, (Fl_Callback *)drag_and_drop_option_cb, this,
+			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -413,6 +417,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
+	_drag_and_drop_mi = PM_FIND_MENU_ITEM_CB(drag_and_drop_option_cb);
 	// Conditional menu items
 	_load_event_script_mi = PM_FIND_MENU_ITEM_CB(load_event_script_cb);
 	_view_event_script_mi = PM_FIND_MENU_ITEM_CB(view_event_script_cb);
@@ -2486,6 +2491,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
+	Preferences::set("drag", mw->drag_and_drop());
 	for (int i = 0; i < NUM_RECENT; i++) {
 		Preferences::set_string(Fl_Preferences::Name("recent%d", i), mw->_recent[i]);
 	}
@@ -2982,6 +2988,10 @@ void Main_Window::auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw) {
 	if (mw->auto_load_roof_colors() == !m->mvalue()->value()) {
 		mw->redraw();
 	}
+}
+
+void Main_Window::drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *) {
+	Config::drag_and_drop(!!m->mvalue()->value());
 }
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {

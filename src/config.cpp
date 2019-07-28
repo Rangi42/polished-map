@@ -20,7 +20,7 @@ static char *trim_suffix(const char *s) {
 	return t;
 }
 
-bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles = false;
+bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles = false, Config::_drag_and_drop = true;
 
 const char *Config::gfx_tileset_dir() {
 	return "gfx" DIR_SEP "tilesets" DIR_SEP;
