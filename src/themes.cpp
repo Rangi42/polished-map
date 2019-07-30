@@ -2023,7 +2023,7 @@ static void use_olive_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x41, 0x40, 0x0A);
 	Fl::set_color(FL_SELECTION_COLOR, 0xCC, 0x45, 0x18);
-	Fl_Tooltip::color(fl_rgb_color(0xE9, 0xF2, 0xC7));
+	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xE1));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
 
