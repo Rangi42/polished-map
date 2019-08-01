@@ -248,8 +248,9 @@ void Dropdown::draw() {
 		if (active_r()) { m.activate(); }
 		else { m.deactivate(); }
 		int xx = x() + dx, yy = y() + dy + 1, ww = w() - W, hh = H - 2;
-		fl_push_clip(xx, yy, ww, hh);
 		if (Fl::scheme()) {
+			ww += x1 - X - 5;
+			fl_push_clip(xx, yy, ww-4, hh);
 			Fl_Label l;
 			l.value = m.text;
 			l.image = 0;
@@ -260,16 +261,18 @@ void Dropdown::draw() {
 			l.color= m.labelcolor_ ? m.labelcolor_ : textcolor();
 			if (!m.active()) l.color = fl_inactive((Fl_Color)l.color);
 			fl_draw_shortcut = 2; // hack value to make '&' disappear
-			l.draw(xx+3, yy, ww > 6 ? ww-6 : 0, hh, FL_ALIGN_LEFT);
+			l.draw(xx+3, yy, ww, hh, FL_ALIGN_LEFT);
 			fl_draw_shortcut = 0;
+			fl_pop_clip();
 			if (Fl::focus() == this) { draw_focus(box(), xx, yy, ww, hh); }
 		}
 		else {
+			fl_push_clip(xx, yy, ww, hh);
 			fl_draw_shortcut = 2; // hack value to make '&' disappear
 			m.draw(xx, yy, ww, hh, this, Fl::focus() == this);
 			fl_draw_shortcut = 0;
+			fl_pop_clip();
 		}
-		fl_pop_clip();
 	}
 	draw_label();
 }
