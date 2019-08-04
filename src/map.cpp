@@ -9,8 +9,8 @@ void Map_Attributes::clear() {
 	palette.clear();
 }
 
-Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(MAP_NULL),
-	_modified(false), _history(MAX_HISTORY_SIZE), _future(MAX_HISTORY_SIZE) {}
+Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false),
+	_history(), _future() {}
 
 Map::~Map() {
 	clear();
