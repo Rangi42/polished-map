@@ -53,7 +53,8 @@ private:
 	int _max_tileset_name_length, _max_roof_name_length;
 	Label *_map_header, *_map_size;
 	OS_Spinner *_map_width, *_map_height;
-	Dropdown *_tileset, *_roof;
+	Dropdown *_map_sizes, *_tileset, *_roof;
+	std::vector<std::pair<int, int>> _valid_sizes;
 	Dictionary _original_names;
 	friend class Tileset_Options_Dialog;
 	friend class Roof_Options_Dialog;
@@ -73,9 +74,15 @@ private:
 	void guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 	std::string add_roof(const char *r, int ext_len);
+	int add_map_size(int w, int h);
+	int add_valid_sizes(size_t n);
+	void select_map_size(int i) { _map_sizes->value(i); _map_sizes->do_callback(); }
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
+private:
+	static inline bool valid_size(int w, int h) { return 1 <= w && w <= 255 && 1 <= h && h <= 255; }
+	static void select_valid_size_cb(Dropdown *d, Map_Options_Dialog *md);
 };
 
 class Anchor_Button;
