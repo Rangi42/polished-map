@@ -392,7 +392,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	initialize();
 
 	// Initialize map size
-	if (!guess_map_size(filename, directory, attrs)) {
+	if (!guess_map_size(filename, directory, attrs) && _valid_sizes.empty()) {
 		_map_width->value(1);
 		_map_height->value(1);
 	}
@@ -571,6 +571,7 @@ void Map_Options_Dialog::select_valid_size_cb(Dropdown *, Map_Options_Dialog *md
 	int i = md->_map_sizes->value();
 	int w, h;
 	std::tie(w, h) = md->_valid_sizes[i];
+	fprintf(stderr, "%d = %d x %d\n", i, w, h);
 	md->_map_width->value(w);
 	md->_map_height->value(h);
 }
