@@ -626,8 +626,8 @@ void Resize_Dialog::anchor_label(int x, int y, const char *l) {
 
 void Resize_Dialog::initialize_content() {
 	// Populate content group
-	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
-	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
+	_map_width = new Default_Spinner(0, 0, 0, 0, "Width:");
+	_map_height = new Default_Spinner(0, 0, 0, 0, "Height:");
 	for (int i = 0; i < 9; i++) {
 		Anchor_Button *ab = new Anchor_Button(i);
 		ab->callback((Fl_Callback *)anchor_button_cb, this);
@@ -692,7 +692,7 @@ Add_Sub_Dialog::~Add_Sub_Dialog() {
 
 void Add_Sub_Dialog::initialize_content() {
 	// Populate content group
-	_num_metatiles = new OS_Spinner(0, 0, 0, 0, "Blocks:");
+	_num_metatiles = new Default_Spinner(0, 0, 0, 0, "Blocks:");
 	// Initialize content group's children
 	_num_metatiles->align(FL_ALIGN_LEFT);
 	_num_metatiles->range(1, 256);
@@ -859,8 +859,8 @@ void Event_Options_Dialog::use_event(const Event *e) {
 	}
 	_suffix->position(0);
 
-	_event_x->value(e->_event_x);
-	_hex_event_x->value(e->_event_x);
+	_event_x->default_value(e->_event_x);
+	_hex_event_x->default_value(e->_event_x);
 	if (e->_hex_coords) {
 		_event_x->hide();
 		_hex_event_x->show();
@@ -870,8 +870,8 @@ void Event_Options_Dialog::use_event(const Event *e) {
 		_hex_event_x->hide();
 	}
 
-	_event_y->value(e->_event_y);
-	_hex_event_y->value(e->_event_y);
+	_event_y->default_value(e->_event_y);
+	_hex_event_y->default_value(e->_event_y);
 	if (e->_hex_coords) {
 		_event_y->hide();
 		_hex_event_y->show();
@@ -917,10 +917,10 @@ void Event_Options_Dialog::initialize_content() {
 	_line_heading = new Label(0, 0, 0, 0);
 	_prefix = new OS_Input(0, 0, 0, 0, "Prefix:");
 	_suffix = new OS_Input(0, 0, 0, 0, "Suffix:");
-	_event_x = new OS_Spinner(0, 0, 0, 0, "X:");
-	_event_y = new OS_Spinner(0, 0, 0, 0, "Y:");
-	_hex_event_x = new OS_Hex_Spinner(0, 0, 0, 0, "X:");
-	_hex_event_y = new OS_Hex_Spinner(0, 0, 0, 0, "Y:");
+	_event_x = new Default_Spinner(0, 0, 0, 0, "X:");
+	_event_y = new Default_Spinner(0, 0, 0, 0, "Y:");
+	_hex_event_x = new Default_Hex_Spinner(0, 0, 0, 0, "X:");
+	_hex_event_y = new Default_Hex_Spinner(0, 0, 0, 0, "Y:");
 	// Initialize content group's children
 	_event_x->align(FL_ALIGN_LEFT);
 	_event_x->range(INT8_MIN, INT8_MAX);

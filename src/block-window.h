@@ -33,7 +33,7 @@ private:
 	Dropdown *_palette;
 	OS_Check_Button *_x_flip, *_y_flip, *_extra, *_priority;
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
-	OS_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
+	Default_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 public:

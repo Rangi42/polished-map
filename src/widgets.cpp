@@ -194,6 +194,48 @@ OS_Hex_Spinner::OS_Hex_Spinner(int x, int y, int w, int h, const char *l) : Hex_
 	_down_button.down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 }
 
+Default_Spinner::Default_Spinner(int x, int y, int w, int h, const char *l) : OS_Spinner(x, y, w, h, l),
+	_default_value(0.0) {}
+
+int Default_Spinner::handle(int event) {
+	switch (event) {
+	case FL_PUSH:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 1;
+		}
+		break;
+	case FL_RELEASE:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			value(_default_value);
+			do_callback();
+			return 1;
+		}
+		break;
+	}
+	return Fl_Spinner::handle(event);
+}
+
+Default_Hex_Spinner::Default_Hex_Spinner(int x, int y, int w, int h, const char *l) : OS_Hex_Spinner(x, y, w, h, l),
+	_default_value(0) {}
+
+int Default_Hex_Spinner::handle(int event) {
+	switch (event) {
+	case FL_PUSH:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 1;
+		}
+		break;
+	case FL_RELEASE:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			value(_default_value);
+			do_callback();
+			return 1;
+		}
+		break;
+	}
+	return Hex_Spinner::handle(event);
+}
+
 HTML_View::HTML_View(int x, int y, int w, int h, const char *l) : Fl_Help_View(x, y, w, h, l) {
 	box(OS_INPUT_THIN_DOWN_BOX);
 	// TODO: scrollbar_.slider(OS_MINI_BUTTON_UP_BOX);
