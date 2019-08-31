@@ -95,13 +95,15 @@ void Option_Dialog::cancel_cb(Fl_Widget *, Option_Dialog *od) {
 }
 
 Map_Options_Dialog::Map_Options_Dialog(const char *t) : Option_Dialog(300, t), _max_tileset_name_length(0), _max_roof_name_length(0),
-	_map_header(NULL), _map_size(NULL), _map_width(NULL), _map_height(NULL), _tileset(NULL), _roof(NULL) {}
+	_map_header(NULL), _map_size(NULL), _map_width(NULL), _map_height(NULL), _map_sizes(NULL), _tileset(NULL), _roof(NULL),
+	_valid_sizes(), _original_names() {}
 
 Map_Options_Dialog::~Map_Options_Dialog() {
 	delete _map_header;
 	delete _map_size;
 	delete _map_width;
 	delete _map_height;
+	delete _map_sizes;
 	delete _tileset;
 	delete _roof;
 }
@@ -146,6 +148,9 @@ static void guess_map_constant(const char *name, char *constant) {
 }
 
 bool Map_Options_Dialog::guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs) {
+	_map_sizes->clear();
+	_valid_sizes.clear();
+
 	if (!filename) {
 		_map_header->label(NEW_MAP_NAME ":");
 		_map_size->label(NULL);
@@ -165,6 +170,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	sprintf(buffer, "(%u B)", (uint32_t)fs);
 #endif
 	_map_size->copy_label(buffer);
+	add_valid_sizes(fs);
 
 	std::cmatch cm;
 	std::regex rx(".+\\.([0-9]+)x([0-9]+)(?:\\.[A-Za-z0-9_-]+)?\\.[Aa]?[Bb][Ll][Kk]");
@@ -172,8 +178,9 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	size_t n = cm.size();
 	if (n == 3) {
 		std::string sw(cm[1]), sh(cm[2]);
-		_map_width->value(std::stoi(sw));
-		_map_height->value(std::stoi(sh));
+		int w = std::stoi(sw), h = std::stoi(sh);
+		int i = add_map_size(w, h);
+		select_map_size(i);
 		return true;
 	}
 
@@ -219,11 +226,12 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 		else {
 			lss >> h >> comma >> w;
 		}
-		if (1 <= w && w <= 255 && 1 <= h && h <= 255) {
-			_map_width->value(w);
-			_map_height->value(h);
+		if (valid_size(w, h)) {
+			int i = add_map_size(w, h);
+			select_map_size(i);
 			return true;
 		}
+
 		return false;
 	}
 
@@ -460,12 +468,37 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	return true;
 }
 
+int Map_Options_Dialog::add_map_size(int w, int h) {
+	std::pair<int, int> s(w, h);
+	std::vector<std::pair<int, int>>::iterator it = std::find(_valid_sizes.begin(), _valid_sizes.end(), s);
+	if (it == _valid_sizes.end()) {
+		_valid_sizes.push_back(s);
+		char buffer[128] = {};
+		sprintf(buffer, "%d x %d", w, h);
+		_map_sizes->add(buffer);
+		return (int)_valid_sizes.size() - 1;
+	}
+	return std::distance(_valid_sizes.begin(), it);
+}
+
+int Map_Options_Dialog::add_valid_sizes(size_t n) {
+	int s = (int)n;
+	for (int w = s; w >= 1; w--) {
+		int h = s / w;
+		if (valid_size(w, h) && w * h == s) {
+			add_map_size(w, h);
+		}
+	}
+	return !_valid_sizes.empty() ? (int)_valid_sizes.size() / 2 : -1;
+}
+
 void Map_Options_Dialog::initialize_content() {
 	// Populate content group
 	_map_header = new Label(0, 0, 0, 0);
 	_map_size = new Label(0, 0, 0, 0);
 	_map_width = new OS_Spinner(0, 0, 0, 0, "Width:");
 	_map_height = new OS_Spinner(0, 0, 0, 0, "Height:");
+	_map_sizes = new Dropdown(0, 0, 0, 0, "Size:");
 	_tileset = new Dropdown(0, 0, 0, 0, "Tileset:");
 	_roof = new Dropdown(0, 0, 0, 0, "Roof:");
 	// Initialize content group's children
@@ -473,9 +506,12 @@ void Map_Options_Dialog::initialize_content() {
 	_map_width->range(1, 255);
 	_map_height->align(FL_ALIGN_LEFT);
 	_map_height->range(1, 255);
+	_map_sizes->align(FL_ALIGN_LEFT);
+	_map_sizes->callback((Fl_Callback *)select_valid_size_cb, this);
 	_tileset->align(FL_ALIGN_LEFT);
 	_roof->align(FL_ALIGN_LEFT);
 	// Initialize data
+	_valid_sizes.clear();
 	_original_names.clear();
 }
 
@@ -487,15 +523,37 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	_map_header->resize(win_m, dy, ww, wgt_h);
 	dy += _map_header->h() + wgt_m;
 
-	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
+	int wgt_off;
+	if (_valid_sizes.empty()) {
+		_map_width->set_visible();
+		_map_height->set_visible();
+		_map_sizes->clear_visible();
 
-	wgt_w = text_width("999", 2) + wgt_h;
-	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
-	_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
+		wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
 
-	int mso = _map_height->x() + _map_height->w();
-	_map_size->resize(mso + 10, dy, ww - mso, wgt_h);
-	dy += _map_height->h() + wgt_m;
+		wgt_w = text_width("999", 2) + wgt_h;
+		_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
+		_map_height->resize(_map_width->x() + _map_width->w() + 10 + text_width("Height:"), dy, wgt_w, wgt_h);
+
+		int mso = _map_height->x() + _map_height->w();
+		_map_size->resize(mso + 10, dy, ww - mso, wgt_h);
+		dy += _map_height->h() + wgt_m;
+	}
+	else {
+		_map_width->clear_visible();
+		_map_height->clear_visible();
+		_map_sizes->set_visible();
+
+		wgt_off = win_m + MAX(text_width(_map_sizes->label(), 2), text_width(_tileset->label(), 2));
+
+		wgt_w = text_width("9999 x 9999", 2) + wgt_h;
+		_map_sizes->resize(wgt_off, dy, wgt_w, wgt_h);
+
+		int mso = _map_sizes->x() + _map_sizes->w();
+		_map_size->resize(mso + 10, dy, ww - mso, wgt_h);
+		dy += _map_sizes->h() + wgt_m;
+	}
+
 
 	wgt_w = _max_tileset_name_length + wgt_h;
 	_tileset->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -505,6 +563,14 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 	_roof->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return ch;
+}
+
+void Map_Options_Dialog::select_valid_size_cb(Dropdown *, Map_Options_Dialog *md) {
+	int i = md->_map_sizes->value();
+	int w, h;
+	std::tie(w, h) = md->_valid_sizes[i];
+	md->_map_width->value(w);
+	md->_map_height->value(h);
 }
 
 class Anchor_Button : public OS_Button {
