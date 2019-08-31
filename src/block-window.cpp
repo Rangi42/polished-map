@@ -42,10 +42,10 @@ void Block_Window::initialize() {
 	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
 	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
-	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new OS_Hex_Spinner(300, 144, bsw, 22);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new OS_Hex_Spinner(332+bsw, 144, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new OS_Hex_Spinner(300, 170, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new OS_Hex_Spinner(332+bsw, 170, bsw, 22);
+	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new Default_Hex_Spinner(300, 144, bsw, 22);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 144, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new Default_Hex_Spinner(300, 170, bsw, 22);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new Default_Hex_Spinner(332+bsw, 170, bsw, 22);
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
 	_window->end();
@@ -134,13 +134,13 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
 		OS_Input *cin = _collision_inputs[i];
-		OS_Hex_Spinner *bin = _bin_collision_spinners[i];
+		Default_Hex_Spinner *bin = _bin_collision_spinners[i];
 		if (bin_collisions) {
 			cin->hide();
 			cin->deactivate();
 			bin->show();
 			if (has_collisions) {
-				bin->value(mt->bin_collision((Quadrant)i));
+				bin->default_value(mt->bin_collision((Quadrant)i));
 				bin->activate();
 			}
 			else {

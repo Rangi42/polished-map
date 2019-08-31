@@ -25,7 +25,7 @@ protected:
 	bool _canceled;
 	Swatch_Window *_window;
 	Color_Button *_selected, *_chosen;
-	OS_Spinner *_red_spinner, *_green_spinner, *_blue_spinner;
+	Default_Spinner *_red_spinner, *_green_spinner, *_blue_spinner;
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 	friend class Swatch_Window;
@@ -50,9 +50,9 @@ protected:
 	static void close_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
 	static void cancel_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
 	static void select_color_cb(Color_Button *cb, Abstract_Lighting_Window *alw);
-	static void change_red_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw);
-	static void change_green_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw);
-	static void change_blue_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw);
+	static void change_red_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
+	static void change_green_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
+	static void change_blue_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
 	static void copy_color_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
 	static void paste_color_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
 	static void swap_colors_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);

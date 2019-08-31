@@ -83,9 +83,9 @@ void Abstract_Lighting_Window::select(Color_Button *cb) {
 	_selected->setonly();
 	uchar r, g, b;
 	Fl::get_color(cb->color(), r, g, b);
-	_red_spinner->value(CRGB5(r));
-	_green_spinner->value(CRGB5(g));
-	_blue_spinner->value(CRGB5(b));
+	_red_spinner->default_value(CRGB5(r));
+	_green_spinner->default_value(CRGB5(g));
+	_blue_spinner->default_value(CRGB5(b));
 }
 
 void Abstract_Lighting_Window::close_cb(Fl_Widget *, Abstract_Lighting_Window *alw) {
@@ -103,7 +103,7 @@ void Abstract_Lighting_Window::select_color_cb(Color_Button *cb, Abstract_Lighti
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_red_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Lighting_Window::change_red_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -112,7 +112,7 @@ void Abstract_Lighting_Window::change_red_cb(OS_Spinner *sp, Abstract_Lighting_W
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_green_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Lighting_Window::change_green_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -121,7 +121,7 @@ void Abstract_Lighting_Window::change_green_cb(OS_Spinner *sp, Abstract_Lighting
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_blue_cb(OS_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Lighting_Window::change_blue_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -179,9 +179,9 @@ void Lighting_Window::initial_setup() {
 	_window->begin();
 	int rgblw = MAX(MAX(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
 	int rgbsw = text_width("99", 2) + 22;
-	_red_spinner = new OS_Spinner(107 + hhgw + rgblw, 10, rgbsw, 22, "R:");
-	_green_spinner = new OS_Spinner(107 + hhgw + rgblw, 36, rgbsw, 22, "G:");
-	_blue_spinner = new OS_Spinner(107 + hhgw + rgblw, 62, rgbsw, 22, "B:");
+	_red_spinner = new Default_Spinner(107 + hhgw + rgblw, 10, rgbsw, 22, "R:");
+	_green_spinner = new Default_Spinner(107 + hhgw + rgblw, 36, rgbsw, 22, "G:");
+	_blue_spinner = new Default_Spinner(107 + hhgw + rgblw, 62, rgbsw, 22, "B:");
 	_ok_button = new Default_Button(111 + hhgw, 120, 80, 22, "OK");
 	_cancel_button = new OS_Button(111 + hhgw, 159, 80, 22, "Cancel");
 	_window->end();
@@ -249,9 +249,9 @@ void Monochrome_Lighting_Window::initial_setup() {
 	_window->begin();
 	int rlw = text_width("R:", 2), gblw = MAX(text_width("G:", 2), text_width("B:", 2));
 	int rgbsw = text_width("99", 2) + 22;
-	_red_spinner = new OS_Spinner(10+rlw, 44, rgbsw, 22, "R:");
-	_green_spinner = new OS_Spinner(20+rlw+rgbsw+gblw, 44, rgbsw, 22, "G:");
-	_blue_spinner = new OS_Spinner(30+rlw+(rgbsw+gblw)*2, 44, rgbsw, 22, "B:");
+	_red_spinner = new Default_Spinner(10+rlw, 44, rgbsw, 22, "R:");
+	_green_spinner = new Default_Spinner(20+rlw+rgbsw+gblw, 44, rgbsw, 22, "G:");
+	_blue_spinner = new Default_Spinner(30+rlw+(rgbsw+gblw)*2, 44, rgbsw, 22, "B:");
 	_ok_button = new Default_Button(-77+phlw, 83, 80, 22, "OK");
 	_cancel_button = new OS_Button(17+phlw, 83, 80, 22, "Cancel");
 	_window->end();

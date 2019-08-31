@@ -92,14 +92,14 @@ public:
 	enum Hor_Align { LEFT, CENTER, RIGHT };
 	enum Vert_Align { TOP, MIDDLE, BOTTOM };
 private:
-	OS_Spinner *_map_width, *_map_height;
+	Default_Spinner *_map_width, *_map_height;
 	Anchor_Button *_anchor_buttons[9];
 public:
 	Resize_Dialog(const char *t);
 	~Resize_Dialog();
 	inline uint8_t map_width(void) const { return (uint8_t)_map_width->value(); }
 	inline uint8_t map_height(void) const { return (uint8_t)_map_height->value(); }
-	inline void map_size(uint8_t w, uint8_t h) { initialize(); _map_width->value(w); _map_height->value(h); }
+	inline void map_size(uint8_t w, uint8_t h) { initialize(); _map_width->default_value(w); _map_height->default_value(h); }
 	Hor_Align horizontal_anchor(void) const;
 	Vert_Align vertical_anchor(void) const;
 	int anchor(void) const;
@@ -114,12 +114,12 @@ private:
 
 class Add_Sub_Dialog : public Option_Dialog {
 private:
-	OS_Spinner *_num_metatiles;
+	Default_Spinner *_num_metatiles;
 public:
 	Add_Sub_Dialog(const char *t);
 	~Add_Sub_Dialog();
 	inline size_t num_metatiles(void) const { return (size_t)_num_metatiles->value(); }
-	inline void num_metatiles(size_t n) { initialize(); _num_metatiles->value((double)n); }
+	inline void num_metatiles(size_t n) { initialize(); _num_metatiles->default_value((double)n); }
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
@@ -157,8 +157,8 @@ class Event_Options_Dialog : public Option_Dialog {
 private:
 	Label *_macro_heading, *_line_heading;
 	OS_Input *_prefix, *_suffix;
-	OS_Spinner *_event_x, *_event_y;
-	OS_Hex_Spinner *_hex_event_x, *_hex_event_y;
+	Default_Spinner *_event_x, *_event_y;
+	Default_Hex_Spinner *_hex_event_x, *_hex_event_y;
 public:
 	Event_Options_Dialog(const char *t);
 	~Event_Options_Dialog();
