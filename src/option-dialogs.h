@@ -75,7 +75,7 @@ private:
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
 	std::string add_roof(const char *r, int ext_len);
 	int add_map_size(int w, int h);
-	int add_valid_sizes(size_t n);
+	void add_valid_sizes(size_t n);
 	void select_map_size(int i) { _map_sizes->value(i); _map_sizes->do_callback(); }
 protected:
 	void initialize_content(void);
