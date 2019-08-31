@@ -481,7 +481,7 @@ int Map_Options_Dialog::add_map_size(int w, int h) {
 	return std::distance(_valid_sizes.begin(), it);
 }
 
-int Map_Options_Dialog::add_valid_sizes(size_t n) {
+void Map_Options_Dialog::add_valid_sizes(size_t n) {
 	int s = (int)n;
 	for (int w = s; w >= 1; w--) {
 		int h = s / w;
@@ -489,7 +489,9 @@ int Map_Options_Dialog::add_valid_sizes(size_t n) {
 			add_map_size(w, h);
 		}
 	}
-	return !_valid_sizes.empty() ? (int)_valid_sizes.size() / 2 : -1;
+	if (!_valid_sizes.empty()) {
+		select_map_size((int)_valid_sizes.size() / 2);
+	}
 }
 
 void Map_Options_Dialog::initialize_content() {
