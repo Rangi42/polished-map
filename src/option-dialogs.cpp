@@ -58,6 +58,7 @@ void Option_Dialog::refresh() {
 	_canceled = false;
 	_dialog->copy_label(_title);
 	// Refresh widget positions and sizes
+	fl_font(OS_FONT, OS_FONT_SIZE);
 	int dy = 10;
 	dy += refresh_content(_width - 20, dy) + 16;
 #ifdef _WIN32
@@ -1062,6 +1063,7 @@ void Print_Options_Dialog::refresh() {
 	_copied = _canceled = false;
 	_dialog->copy_label(_title);
 	// Refresh widget positions and sizes
+	fl_font(OS_FONT, OS_FONT_SIZE);
 	int btn_w = 80, wgt_h = 22, win_m = 10, wgt_m = 4;
 	int dx = win_m, dy = win_m;
 	int wgt_w = text_width(_show_heading->label(), 4);
