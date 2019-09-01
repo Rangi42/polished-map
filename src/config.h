@@ -3,7 +3,7 @@
 
 class Config {
 private:
-	static bool _monochrome, _priority, _256_tiles, _drag_and_drop;
+	static bool _monochrome, _priority, _256_tiles, _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -31,6 +31,14 @@ public:
 	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
 	inline static bool drag_and_drop(void) { return _drag_and_drop; }
 	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
+	inline static bool print_grid(void) { return _print_grid; }
+	inline static void print_grid(bool p) { _print_grid = p; }
+	inline static bool print_ids(void) { return _print_ids; }
+	inline static void print_ids(bool p) { _print_ids = p; }
+	inline static bool print_priority(void) { return _print_priority; }
+	inline static void print_priority(bool p) { _print_priority = p; }
+	inline static bool print_events(void) { return _print_events; }
+	inline static void print_events(bool p) { _print_events = p; }
 };
 
 #endif

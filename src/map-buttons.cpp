@@ -150,6 +150,21 @@ void Block::draw() {
 	draw_selection_border(hx, hy, hs, mw->zoom());
 }
 
+void Block::print() {
+	Main_Window *mw = (Main_Window *)user_data();
+	int X = (int)_col * METATILE_PX_SIZE, Y = (int)_row * METATILE_PX_SIZE;
+	mw->print_metatile(X, Y, _id);
+	if (Config::print_grid()) {
+		fl_color(FL_INACTIVE_COLOR);
+		fl_xyline(X, Y+METATILE_PX_SIZE-1, X+METATILE_PX_SIZE-1, Y);
+	}
+	if (Config::print_ids()) {
+		fl_font(FL_COURIER_BOLD, 14);
+		draw_outlined_text(label(), X+3, Y+1, METATILE_PX_SIZE, METATILE_PX_SIZE, FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE,
+			FL_WHITE, FL_BLACK);
+	}
+}
+
 int Block::handle(int event) {
 	Main_Window *mw = (Main_Window *)user_data();
 	switch (event) {

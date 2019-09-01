@@ -29,7 +29,6 @@
 #include "directory-chooser.h"
 
 #define METATILES_PER_ROW 4
-#define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
 
 #define NUM_RECENT 10
 
@@ -82,6 +81,7 @@ private:
 	Tileset_Options_Dialog *_tileset_options_dialog;
 	Roof_Options_Dialog *_roof_options_dialog;
 	Event_Options_Dialog *_event_options_dialog;
+	Print_Options_Dialog *_print_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Add_Sub_Dialog *_add_sub_dialog;
 	Help_Window *_help_window;
@@ -150,6 +150,7 @@ public:
 	const char *modified_filename(void);
 	int handle(int event);
 	inline void draw_metatile(int x, int y, uint8_t id) const { _metatileset.draw_metatile(x, y, id, zoom(), show_priority()); }
+	inline void print_metatile(int x, int y, uint8_t id) const { _metatileset.draw_metatile(x, y, id, false, Config::print_priority()); }
 	void update_status(Block *b);
 	inline void update_status(Event *e) { update_status(_map.block_under(e)); }
 	void update_event_cursor(Block *b);
@@ -192,6 +193,7 @@ private:
 	bool save_roof(void);
 	bool save_event_script(void);
 	bool export_lighting(const char *filename, Lighting l);
+	void print_map(void);
 	void edit_metatile(Metatile *mt);
 	void update_rulers(void);
 	void update_zoom(void);
