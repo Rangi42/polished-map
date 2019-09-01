@@ -39,6 +39,7 @@ public:
 	inline bool bottom_half(void) const { return Fl::event_y() >= y() + h() / 2; }
 	void update_label(void);
 	void draw(void);
+	void print(void);
 	int handle(int event);
 };
 

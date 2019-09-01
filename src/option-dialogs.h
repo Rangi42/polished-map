@@ -169,4 +169,39 @@ protected:
 	int refresh_content(int ww, int dy);
 };
 
+class Print_Options_Dialog {
+private:
+	const char *_title;
+	bool _copied, _canceled;
+	Fl_Double_Window *_dialog;
+	Label *_show_heading;
+	OS_Check_Button *_grid, *_ids, *_priority, *_events;
+	Default_Button *_export_button;
+	OS_Button *_copy_button, *_cancel_button;
+public:
+	Print_Options_Dialog(const char *t = NULL);
+	~Print_Options_Dialog();
+	inline bool copied(void) const { return _copied; }
+	inline void copied(bool c) { _copied = c; }
+	inline bool canceled(void) const { return _canceled; }
+	inline void canceled(bool c) { _canceled = c; }
+	inline bool grid(void) { return !!_grid->value(); }
+	inline void grid(bool g) { initialize(); _grid->value(g); }
+	inline bool ids(void) { return !!_ids->value(); }
+	inline void ids(bool d) { initialize(); _ids->value(d); }
+	inline bool priority(void) { return !!_priority->value(); }
+	inline void priority(bool p) { initialize(); _priority->value(p); }
+	inline bool events(void) { return !!_events->value(); }
+	inline void events(bool e) { initialize(); _events->value(e); }
+private:
+	void initialize(void);
+	void refresh(void);
+public:
+	inline bool initialized(void) const { return !!_dialog; }
+	void show(const Fl_Widget *p);
+private:
+	static void close_cb(Fl_Widget *, Print_Options_Dialog *pd);
+	static void copy_cb(Fl_Widget *, Print_Options_Dialog *pd);
+	static void cancel_cb(Fl_Widget *, Print_Options_Dialog *pd);
+};
 #endif

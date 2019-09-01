@@ -10,6 +10,8 @@
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
+#include <FL/Fl_Copy_Surface.H>
+#include <FL/Fl_Image_Surface.H>
 #pragma warning(pop)
 
 #include "version.h"
@@ -55,6 +57,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 
 	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::drag_and_drop(!!drag_and_drop_config);
+
+	int print_grid_config = Preferences::get("print-grid", 0);
+	int print_ids_config = Preferences::get("print-ids", 0);
+	int print_priority_config = Preferences::get("print-priority", 0);
+	int print_events_config = Preferences::get("print-events", 0);
+	Config::print_grid(!!print_grid_config);
+	Config::print_ids(!!print_ids_config);
+	Config::print_priority(!!print_priority_config);
+	Config::print_events(!!print_events_config);
 
 	int auto_events_config = Preferences::get("events", 1);
 	int special_lighting_config = Preferences::get("special", 1);
@@ -180,6 +191,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_tileset_options_dialog = new Tileset_Options_Dialog("Change Tileset", _map_options_dialog);
 	_roof_options_dialog = new Roof_Options_Dialog("Change Roof", _map_options_dialog);
 	_event_options_dialog = new Event_Options_Dialog("Edit Event");
+	_print_options_dialog = new Print_Options_Dialog("Print Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
@@ -617,6 +629,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_success_dialog->width_range(280, 700);
 	_unsaved_dialog->width_range(280, 700);
 
+	_print_options_dialog->grid(Config::print_grid());
+	_print_options_dialog->ids(Config::print_ids());
+	_print_options_dialog->priority(Config::print_priority());
+	_print_options_dialog->events(Config::print_events());
+
 	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
 		"Copyright \xc2\xa9 " CURRENT_YEAR " " PROGRAM_AUTHOR ".\n"
 		"\n"
@@ -659,6 +676,7 @@ Main_Window::~Main_Window() {
 	delete _tileset_options_dialog;
 	delete _roof_options_dialog;
 	delete _event_options_dialog;
+	delete _print_options_dialog;
 	delete _resize_dialog;
 	delete _add_sub_dialog;
 	delete _help_window;
@@ -1923,6 +1941,21 @@ bool Main_Window::export_lighting(const char *filename, Lighting l) {
 	return true;
 }
 
+void Main_Window::print_map() {
+	size_t nb = _map.size();
+	for (size_t i = 0; i < nb; i++) {
+		Block *b = _map.block(i);
+		b->print();
+	}
+	if (Config::print_events()) {
+		size_t ne = _map_events.size();
+		for (size_t i = 0; i < ne; i++) {
+			Event *e = _map_events.event(i);
+			e->print();
+		}
+	}
+}
+
 void Main_Window::edit_metatile(Metatile *mt) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
@@ -2369,33 +2402,61 @@ void Main_Window::export_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	int status = mw->_png_chooser->show();
-	if (status == 1) { return; }
+	mw->_print_options_dialog->show(mw);
+	Config::print_grid(mw->_print_options_dialog->grid());
+	Config::print_ids(mw->_print_options_dialog->ids());
+	Config::print_priority(mw->_print_options_dialog->priority());
+	Config::print_events(mw->_print_options_dialog->events());
+	if (mw->_print_options_dialog->canceled()) { return; }
 
-	char filename[FL_PATH_MAX] = {};
-	add_dot_ext(mw->_png_chooser->filename(), ".png", filename);
-	const char *basename = fl_filename_name(filename);
+	int w = (int)mw->_map.width() * METATILE_PX_SIZE, h = (int)mw->_map.height() * METATILE_PX_SIZE;
+	if (mw->_print_options_dialog->copied()) {
+		Fl_Copy_Surface *surface = new Fl_Copy_Surface(w, h);
+		surface->set_current();
+		mw->print_map();
+		delete surface;
+		Fl_Display_Device::display_device()->set_current();
 
-	if (status == -1) {
-		std::string msg = "Could not print to ";
-		msg = msg + basename + "!\n\n" + mw->_png_chooser->errmsg();
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
-	}
-
-	Image::Result result = Image::write_map_image(filename, mw->_map, mw->_metatileset);
-	if (result) {
-		std::string msg = "Could not print to ";
-		msg = msg + basename + "!\n\n" + Image::error_message(result);
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-	}
-	else {
-		std::string msg = "Printed ";
-		msg = msg + basename + "!";
+		std::string msg = "Copied to clipboard!";
 		mw->_success_dialog->message(msg);
 		mw->_success_dialog->show(mw);
+	}
+	else {
+		int status = mw->_png_chooser->show();
+		if (status == 1) { return; }
+
+		char filename[FL_PATH_MAX] = {};
+		add_dot_ext(mw->_png_chooser->filename(), ".png", filename);
+		const char *basename = fl_filename_name(filename);
+
+		if (status == -1) {
+			std::string msg = "Could not print to ";
+			msg = msg + basename + "!\n\n" + mw->_png_chooser->errmsg();
+			mw->_error_dialog->message(msg);
+			mw->_error_dialog->show(mw);
+			return;
+		}
+
+		Fl_Image_Surface *surface = new Fl_Image_Surface(w, h);
+		surface->set_current();
+		mw->print_map();
+		Fl_RGB_Image *image = surface->image();
+		delete surface;
+		Fl_Display_Device::display_device()->set_current();
+
+		Image::Result result = Image::write_rgb_image(filename, image);
+		if (result) {
+			std::string msg = "Could not print to ";
+			msg = msg + basename + "!\n\n" + Image::error_message(result);
+			mw->_error_dialog->message(msg);
+			mw->_error_dialog->show(mw);
+		}
+		else {
+			std::string msg = "Printed ";
+			msg = msg + basename + "!";
+			mw->_success_dialog->message(msg);
+			mw->_success_dialog->show(mw);
+		}
 	}
 }
 
@@ -2440,6 +2501,10 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("special", mw->auto_load_special_lighting());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	Preferences::set("drag", mw->drag_and_drop());
+	Preferences::set("print-grid", Config::print_grid());
+	Preferences::set("print-ids", Config::print_ids());
+	Preferences::set("print-priority", Config::print_priority());
+	Preferences::set("print-events", Config::print_events());
 	for (int i = 0; i < NUM_RECENT; i++) {
 		Preferences::set_string(Fl_Preferences::Name("recent%d", i), mw->_recent[i]);
 	}

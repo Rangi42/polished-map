@@ -14,11 +14,13 @@
 #include "image.h"
 #include "config.h"
 
-Image::Result Image::write_map_image(const char *f, const Map &map, const Metatileset &mt) {
-	size_t w = map.width() * METATILE_SIZE * TILE_SIZE;
-	size_t h = map.height() * METATILE_SIZE * TILE_SIZE;
-	uchar *buffer = mt.print_rgb(map);
-	return write_image(f, w, h, buffer);
+Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
+	if (!image) { return IMAGE_BAD_DATA; }
+	size_t w = (size_t)image->w(), h = (size_t)image->h();
+	uchar *buffer = (uchar *)image->data()[0];
+	int d = image->d(), ld = image->ld();
+	int pd = d > 1;
+	return write_image(f, w, h, buffer, pd, d, ld);
 }
 
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
@@ -37,7 +39,8 @@ Image::Result Image::write_roof_image(const char *f, const Tileset &tileset) {
 	return write_image(f, w, h, buffer);
 }
 
-Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer) {
+Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, int pd, int d, int ld) {
+	if (!ld) { ld = (int)w * d; }
 	Result result = IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { result = IMAGE_BAD_FILE; goto cleanup1; }
@@ -64,13 +67,12 @@ Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffe
 		size_t row_size = NUM_CHANNELS * w;
 		png_bytep png_row = new png_byte[row_size];
 		for (size_t i = 0; i < h; i++) {
-			size_t row = row_size * i;
 			for (size_t j = 0; j < w; j++) {
-				size_t col = NUM_CHANNELS * j;
-				size_t px = row + col;
-				png_row[col] = buffer[px];
-				png_row[col+1] = buffer[px+1];
-				png_row[col+2] = buffer[px+2];
+				size_t rd = NUM_CHANNELS * j;
+				size_t px = ld * i + d * j;
+				png_row[rd] = buffer[px];
+				png_row[rd+1] = buffer[px+pd];
+				png_row[rd+2] = buffer[px+pd+pd];
 			}
 			png_write_row(png, png_row);
 		}
@@ -90,6 +92,8 @@ const char *Image::error_message(Result result) {
 	switch (result) {
 	case IMAGE_OK:
 		return "OK.";
+	case IMAGE_BAD_DATA:
+		return "Cannot read image data.";
 	case IMAGE_BAD_FILE:
 		return "Cannot open file.";
 	case IMAGE_BAD_PNG:

@@ -50,6 +50,7 @@ public:
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);
 	void draw(void);
+	void print(void);
 	int handle(int event);
 };
 

@@ -263,6 +263,16 @@ void Event::draw() {
 	}
 }
 
+void Event::print() {
+	int X = (int)_event_x * EVENT_PX_SIZE, Y = (int)_event_y * EVENT_PX_SIZE;
+	texture_images[_meta.texture].draw(X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE);
+	fl_font(FL_HELVETICA_BOLD, 14);
+	fl_color(FL_WHITE);
+	char buffer[2] = {_meta.symbol, '\0'};
+	fl_draw(buffer, X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE, FL_ALIGN_CENTER);
+	fl_font(OS_FONT, OS_FONT_SIZE);
+}
+
 int Event::handle(int event) {
 	Main_Window *mw = (Main_Window *)user_data();
 	if (mw->mode() != Mode::EVENTS) { return 0; }

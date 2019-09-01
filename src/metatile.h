@@ -15,6 +15,7 @@ enum Quadrant { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
 #define NUM_QUADRANTS 4
 
 #define METATILE_SIZE 4
+#define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
 
 class Metatile {
 private:

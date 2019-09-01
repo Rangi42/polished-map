@@ -111,7 +111,7 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_p
 
 uchar *Metatileset::print_rgb(const Map &map) const {
 	int w = map.width(), h = map.height();
-	int bw = w * METATILE_SIZE * TILE_SIZE, bh = h * METATILE_SIZE * TILE_SIZE;
+	int bw = w * METATILE_PX_SIZE, bh = h * METATILE_PX_SIZE;
 	uchar *buffer = new uchar[bw * bh * NUM_CHANNELS]();
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {

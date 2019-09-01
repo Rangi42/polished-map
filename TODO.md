@@ -6,7 +6,6 @@
 
 ## Features
 
-* Include optional overlays in screenshots (events, grid, etc), as well as Copy+Export alternatives
 * Native-looking build on Mac OS X (issue [#8](https://github.com/Rangi42/polished-map/issues/8); involves publishing an app bundle release, and using the system menu bar)
 * Scale the UI for high-DPI displays
 * Generate map images from the command line (issue [#10](https://github.com/Rangi42/polished-map/issues/10))
