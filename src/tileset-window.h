@@ -56,6 +56,7 @@ public:
 	void choose(Swatch *swatch);
 	void flood_fill(Pixel_Button *pb, Hue f, Hue t);
 	void substitute_hue(Hue f, Hue t);
+	void swap_hues(Hue f, Hue t);
 private:
 	static void close_cb(Fl_Widget *w, Tileset_Window *tw);
 	static void cancel_cb(Fl_Widget *w, Tileset_Window *tw);
