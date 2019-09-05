@@ -1105,6 +1105,20 @@ void Main_Window::substitute_block(uint8_t f, uint8_t t) {
 	}
 }
 
+void Main_Window::swap_blocks(uint8_t f, uint8_t t) {
+	if (f == t) { return; }
+	size_t n = _map.size();
+	for (size_t i = 0; i < n; i++) {
+		Block *b = _map.block(i);
+		if (b->id() == f) {
+			b->id(t);
+		}
+		else if (b->id() == t) {
+			b->id(f);
+		}
+	}
+}
+
 void Main_Window::open_map(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
@@ -3119,6 +3133,13 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			mw->substitute_block(b->id(), mw->_selected->id());
+			mw->_map_group->redraw();
+			mw->_map.modified(true);
+			mw->update_status(b);
+		}
+		else if (Fl::event_alt()) {
+			// Alt+left-click to replace
+			mw->swap_blocks(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
 			mw->_map.modified(true);
 			mw->update_status(b);

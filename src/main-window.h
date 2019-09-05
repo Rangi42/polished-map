@@ -166,6 +166,7 @@ public:
 	}
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void substitute_block(uint8_t f, uint8_t t);
+	void swap_blocks(uint8_t f, uint8_t t);
 	void open_map(const char *filename);
 private:
 	inline void mode(Mode m) { _mode = m; }

@@ -313,6 +313,19 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) {
 	}
 }
 
+void Tileset_Window::swap_hues(Hue f, Hue t) {
+	if (f == t) { return; }
+	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+		Pixel_Button *pb = _pixels[i];
+		if (pb->hue() == f) {
+			pb->hue(t);
+		}
+		else if (pb->hue() == t) {
+			pb->hue(f);
+		}
+	}
+}
+
 void Tileset_Window::palette(Palette p) {
 	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
 		_pixels[i]->palette(p);
@@ -360,6 +373,13 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			tw->substitute_hue(pb->hue(), tw->_chosen->hue());
+			tw->_tile_group->redraw();
+			tw->_selected->copy_pixels(tw->_pixels);
+			tw->_selected->redraw();
+		}
+		else if (Fl::event_alt()) {
+			// Alt+left-click to swap
+			tw->swap_hues(pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
 			tw->_selected->copy_pixels(tw->_pixels);
 			tw->_selected->redraw();

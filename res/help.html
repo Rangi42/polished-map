@@ -46,8 +46,9 @@ R"(<html>
 <li>Left-click or drag to place the selected block in the sidebar array.</li>
 <li>Right-click to select a block from the map.</li>
 <li>Middle-click and drag to scroll.</li>
-<li>Hold Shift and left-click a group of blocks to flood-fill it.</li>
-<li>Hold Ctrl and left-click a block to replace every block of that type.</li>
+<li>Hold Shift and left-click a group of blocks to flood-fill it with the selected block.</li>
+<li>Hold Ctrl and left-click a block to replace every block of that type with the selected type.</li>
+<li>Hold Alt and left-click a block to swap every block of that type and every block of the selected type.</li>
 </ul>
 <p>And in Event mode (Ctrl+Shift+T or the toolbar's Kris button):</p>
 <ul>
@@ -84,8 +85,9 @@ R"(<html>
 <li>Left-click a swatch, or press the 1/2/3/4 keys, to choose a hue.</li>
 <li>Left-click or drag inside the pixel area to draw with the chosen hue in the selected tile.</li>
 <li>Right-click inside the pixel area to choose a hue from the tile.</li>
-<li>Hold Shift and left-click a group of pixels to flood-fill it.</li>
-<li>Hold Ctrl and left-click a pixel to replace every pixel of that hue.</li>
+<li>Hold Shift and left-click a group of pixels to flood-fill it with the selected hue.</li>
+<li>Hold Ctrl and left-click a pixel to replace every pixel of that hue with the selected hue.</li>
+<li>Hold Alt and left-click a pixel to swap every pixel of that hue and every pixel of the selected hue.</li>
 </ul>
 <p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
 <p>The Copy and Paste buttons, or Ctrl+Shift+C and Ctrl+Shift+V, will copy and paste the tile graphics using the system clipboard. Tile graphics are always copied in monochrome grayscale, just like the tileset PNGs. Graphics can be pasted as any color; they get converted to four-hue monochrome when pasted. (So you can easily rip tiles from full-color game screenshots.)</p>
