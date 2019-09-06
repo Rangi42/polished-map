@@ -456,7 +456,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_edit_tileset_mi = PM_FIND_MENU_ITEM_CB(edit_tileset_cb);
 	_change_roof_mi = PM_FIND_MENU_ITEM_CB(change_roof_cb);
 	_edit_roof_mi = PM_FIND_MENU_ITEM_CB(edit_roof_cb);
-	_edit_current_lighting_mi = PM_FIND_MENU_ITEM_CB(edit_current_lighting_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
 	// Configure toolbar buttons
@@ -978,7 +977,6 @@ void Main_Window::update_active_controls() {
 			_edit_roof_mi->deactivate();
 			_edit_roof_tb->deactivate();
 		}
-		_edit_current_lighting_mi->activate();
 	}
 	else {
 		_load_event_script_mi->deactivate();
@@ -1018,7 +1016,6 @@ void Main_Window::update_active_controls() {
 		_change_roof_tb->deactivate();
 		_edit_roof_mi->deactivate();
 		_edit_roof_tb->deactivate();
-		_edit_current_lighting_mi->deactivate();
 	}
 }
 
