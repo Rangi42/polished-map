@@ -206,7 +206,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_dnd_receiver->user_data(this);
 
 	// Configure window
-	size_range(384, 256);
+	size_range(335, 262);
 	resizable(_map_scroll);
 	callback((Fl_Callback *)exit_cb, this);
 	xclass(PROGRAM_NAME);
