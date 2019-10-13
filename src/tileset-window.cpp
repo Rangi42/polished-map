@@ -242,7 +242,7 @@ void Tileset_Window::apply_modifications() {
 		Tile *rt = _tileset->roof_tile(id);
 		if (rt) {
 			rt->palette(t->palette());
-			rt->update_lighting(_tileset->lighting());
+			rt->update_palettes(_tileset->palettes());
 		}
 	}
 	_tileset->modified(true);
@@ -256,7 +256,7 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 	sprintf(buffer, "Tile: $%02X", _selected->id());
 	_tile_heading->copy_label(buffer);
 
-	Lighting l = _tileset->lighting();
+	Palettes l = _tileset->palettes();
 	Palette p = _selected->palette();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
@@ -330,7 +330,7 @@ void Tileset_Window::palette(Palette p) {
 	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
 		_pixels[i]->palette(p);
 	}
-	Lighting l = _tileset->lighting();
+	Palettes l = _tileset->palettes();
 	_swatch1->coloring(l, p, Hue::WHITE);
 	_swatch2->coloring(l, p, Hue::LIGHT);
 	_swatch3->coloring(l, p, Hue::DARK);
@@ -447,7 +447,7 @@ void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_selected) { return; }
 	tw->_selected->palette(Palette::UNDEFINED);
-	const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), Hue::WHITE);
+	const uchar *rgb = Color::color(tw->_tileset->palettes(), tw->_selected->palette(), Hue::WHITE);
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
 			tw->_selected->pixel(x, y, Hue::WHITE, rgb[0], rgb[1], rgb[2]);
@@ -490,7 +490,7 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			const uchar *rgb = Color::color(tw->_tileset->lighting(), tw->_selected->palette(), e);
+			const uchar *rgb = Color::color(tw->_tileset->palettes(), tw->_selected->palette(), e);
 			tw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);
 		}
 	}

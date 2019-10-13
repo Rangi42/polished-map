@@ -2,7 +2,7 @@
 #include "tileset.h"
 #include "image.h"
 
-Tileset::Tileset() : _name(), _lighting(), _palette_map(), _tiles(), _num_tiles(0), _num_roof_tiles(0),
+Tileset::Tileset() : _name(), _palettes(), _palette_map(), _tiles(), _num_tiles(0), _num_roof_tiles(0),
 	_result(GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
@@ -38,13 +38,13 @@ void Tileset::clear_roof_graphics() {
 	}
 }
 
-void Tileset::update_lighting(Lighting l) {
-	_lighting = l;
+void Tileset::update_palettes(Palettes l) {
+	_palettes = l;
 	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
-		_tiles[j]->update_lighting(l);
-		_roof_tiles[j]->update_lighting(l);
+		_tiles[j]->update_palettes(l);
+		_roof_tiles[j]->update_palettes(l);
 	}
 }
 
@@ -79,7 +79,7 @@ void Tileset::read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j) {
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = ti.tile_hue(j, tx, ty);
-			const uchar *rgb = Color::color(_lighting, p, h);
+			const uchar *rgb = Color::color(_palettes, p, h);
 			t->pixel(tx, ty, h, rgb[0], rgb[1], rgb[2]);
 		}
 	}
@@ -104,7 +104,7 @@ void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer
 	}
 }
 
-Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
+Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	if (!_palette_map.size()) { return (_result = GFX_NO_PALETTE); } // no colors
 
 	Tiled_Image ti(f);
@@ -123,7 +123,7 @@ Tileset::Result Tileset::read_graphics(const char *f, Lighting l) {
 
 	_num_tiles = ti.num_tiles();
 
-	_lighting = l;
+	_palettes = l;
 	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;

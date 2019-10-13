@@ -22,8 +22,8 @@ static const uchar hue_monos[NUM_HUES] = {0xFF, 0x55, 0xAA, 0x00}; // WHITE, DAR
 // Monochrome-color-to-hue conversion
 static const Hue mono_hues[NUM_HUES] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE}; // 00-3F, 40-7F, 80-BF, C0-FF
 
-// Lighting x Palette x Hue x RGB
-uchar tileset_colors[NUM_LIGHTINGS][NUM_GAME_PALETTES+1][NUM_HUES][NUM_CHANNELS] = {
+// Paletteset x Palette x Hue x RGB
+uchar tileset_colors[NUM_PALETTE_SETS][NUM_GAME_PALETTES+1][NUM_HUES][NUM_CHANNELS] = {
 	{ // MORN
 		// WHITE, DARK, LIGHT, BLACK
 		{RGB5(28,31,16), RGB5(13,13,13), RGB5(21,21,21), RGB5( 7, 7, 7)}, // GRAY, PRIORITY_GRAY
@@ -108,19 +108,19 @@ Hue Color::mono_hue(uchar c) {
 	return mono_hues[c / (0x100 / NUM_HUES)]; // [0, 255] -> [0, 3]
 }
 
-const uchar *Color::color(Lighting l, Palette p, Hue h) {
+const uchar *Color::color(Palettes l, Palette p, Hue h) {
 	int c = (int)p & 0xf;
 	return p == Palette::UNDEFINED ? undefined_colors[h] : tileset_colors[l][c][h];
 }
 
-void Color::color(Lighting l, Palette p, Hue h, ColorArray v) {
+void Color::color(Palettes l, Palette p, Hue h, ColorArray v) {
 	int c = (int)p & 0xf;
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		tileset_colors[l][c][h][i] = RGB5C(v[i]);
 	}
 }
 
-void Color::color(Lighting l, Palette p, Hue h, Fl_Color f) {
+void Color::color(Palettes l, Palette p, Hue h, Fl_Color f) {
 	uchar r, g, b;
 	Fl::get_color(f, r, g, b);
 	int c = (int)p & 0xf;
@@ -129,18 +129,18 @@ void Color::color(Lighting l, Palette p, Hue h, Fl_Color f) {
 	tileset_colors[l][c][h][2] = b;
 }
 
-void Color::color(Lighting l, Palette p, HueArray v) {
+void Color::color(Palettes l, Palette p, HueArray v) {
 	for (int i = 0; i < NUM_HUES; i++) {
 		color(l, p, (Hue)i, v[i]);
 	}
 }
 
-Fl_Color Color::fl_color(Lighting l, Palette p, Hue h) {
+Fl_Color Color::fl_color(Palettes l, Palette p, Hue h) {
 	const uchar *rgb = color(l, p, h);
 	return fl_rgb_color(rgb[0], rgb[1], rgb[2]);
 }
 
-PalVec Color::parse_lighting(const char *f) {
+PalVec Color::parse_palettes(const char *f) {
 	PalVec colors;
 	int palette = 0, hue = 0, channel = 0;
 	std::ifstream ifs(f);
@@ -173,85 +173,85 @@ PalVec Color::parse_lighting(const char *f) {
 	return colors;
 }
 
-Lighting Color::read_lighting(const char *f, Lighting lighting) {
-	PalVec custom_colors = parse_lighting(f);
+Palettes Color::read_palettes(const char *f, Palettes pals) {
+	PalVec custom_colors = parse_palettes(f);
 	size_t n = custom_colors.size();
 	switch (n) {
 	// MONOCHROME cases
 	case 1: // CUSTOM
-		color(Lighting::CUSTOM, Palette::MONOCHROME, custom_colors[0]);
-		lighting = Lighting::CUSTOM;
+		color(Palettes::CUSTOM, Palette::MONOCHROME, custom_colors[0]);
+		pals = Palettes::CUSTOM;
 		break;
 	case 2: // DAY, NITE
-		color(Lighting::DAY,  Palette::MONOCHROME, custom_colors[0]);
-		color(Lighting::NITE, Palette::MONOCHROME, custom_colors[1]);
-		if (lighting != Lighting::NITE) {
-			lighting = Lighting::DAY;
+		color(Palettes::DAY,  Palette::MONOCHROME, custom_colors[0]);
+		color(Palettes::NITE, Palette::MONOCHROME, custom_colors[1]);
+		if (pals != Palettes::NITE) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 3: // MORN, DAY, NITE
 		for (int l = 0; l < 3; l++) {
-			color((Lighting)l, Palette::MONOCHROME, custom_colors[l]);
+			color((Palettes)l, Palette::MONOCHROME, custom_colors[l]);
 		}
-		if (lighting != Lighting::MORN && lighting != Lighting::NITE) {
-			lighting = Lighting::DAY;
+		if (pals != Palettes::MORN && pals != Palettes::NITE) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 4: // MORN, DAY, NITE, INDOOR
 		for (int l = 0; l < 4; l++) {
-			color((Lighting)l, Palette::MONOCHROME, custom_colors[l]);
+			color((Palettes)l, Palette::MONOCHROME, custom_colors[l]);
 		}
-		if (lighting == Lighting::CUSTOM) {
-			lighting = Lighting::DAY;
+		if (pals == Palettes::CUSTOM) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 5: // MORN, DAY, NITE, INDOOR, CUSTOM
 		for (int l = 0; l < 5; l++) {
-			color((Lighting)l, Palette::MONOCHROME, custom_colors[l]);
+			color((Palettes)l, Palette::MONOCHROME, custom_colors[l]);
 		}
 		break;
 	// colored (GRAY-TEXT) cases
 	case 1 * NUM_GAME_PALETTES: // CUSTOM
 		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-			color(Lighting::CUSTOM, (Palette)p, custom_colors[p]);
+			color(Palettes::CUSTOM, (Palette)p, custom_colors[p]);
 		}
-		lighting = Lighting::CUSTOM;
+		pals = Palettes::CUSTOM;
 		break;
 	case 2 * NUM_GAME_PALETTES: // DAY, NITE
 		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-			color(Lighting::DAY, (Palette)p, custom_colors[p]);
+			color(Palettes::DAY, (Palette)p, custom_colors[p]);
 		}
 		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-			color(Lighting::NITE, (Palette)p, custom_colors[p+NUM_GAME_PALETTES]);
+			color(Palettes::NITE, (Palette)p, custom_colors[p+NUM_GAME_PALETTES]);
 		}
-		if (lighting != Lighting::NITE) {
-			lighting = Lighting::DAY;
+		if (pals != Palettes::NITE) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 3 * NUM_GAME_PALETTES: // MORN, DAY, NITE
 		for (int l = 0; l < 3; l++) {
 			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-				color((Lighting)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
 			}
 		}
-		if (lighting != Lighting::MORN && lighting != Lighting::NITE) {
-			lighting = Lighting::DAY;
+		if (pals != Palettes::MORN && pals != Palettes::NITE) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 4 * NUM_GAME_PALETTES: // MORN, DAY, NITE, INDOOR
 		for (int l = 0; l < 4; l++) {
 			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-				color((Lighting)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
 			}
 		}
-		if (lighting == Lighting::CUSTOM) {
-			lighting = Lighting::DAY;
+		if (pals == Palettes::CUSTOM) {
+			pals = Palettes::DAY;
 		}
 		break;
 	case 5 * NUM_GAME_PALETTES: // MORN, DAY, NITE, INDOOR, CUSTOM
 		for (int l = 0; l < 5; l++) {
 			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-				color((Lighting)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
 			}
 		}
 		break;
@@ -259,47 +259,47 @@ Lighting Color::read_lighting(const char *f, Lighting lighting) {
 	case 5 * NUM_GAME_PALETTES + 3: // MORN, DAY, NITE, (DARKNESS), INDOOR, MORN WATER, DAY WATER, NITE WATER
 		for (int l = 0; l < 3; l++) {
 			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-				color((Lighting)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
 			}
 		}
 		// skip DARKNESS
 		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
-			color(Lighting::INDOOR, (Palette)p, custom_colors[p+4*NUM_GAME_PALETTES]);
+			color(Palettes::INDOOR, (Palette)p, custom_colors[p+4*NUM_GAME_PALETTES]);
 		}
 		// apply separate WATER hues
 		bool two_waters = n == 5 * NUM_GAME_PALETTES + 2;
-		color(Lighting::MORN, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5]);
-		color(Lighting::DAY,  Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 0 : 1)]);
-		color(Lighting::NITE, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 1 : 2)]);
-		if (lighting == Lighting::CUSTOM) {
-			lighting = Lighting::DAY;
+		color(Palettes::MORN, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5]);
+		color(Palettes::DAY,  Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 0 : 1)]);
+		color(Palettes::NITE, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 1 : 2)]);
+		if (pals == Palettes::CUSTOM) {
+			pals = Palettes::DAY;
 		}
 		break;
 	}
-	return lighting;
+	return pals;
 }
 
 bool Color::read_roof_colors(const char *f, uint8_t map_group) {
-	PalVec roof_colors = parse_lighting(f);
+	PalVec roof_colors = parse_palettes(f);
 	if (roof_colors.size() < (size_t)map_group + 1) { return false; }
 
 	// Each HueArray in a PalVec contains 4 RGB hues, so treat them as <DAY LIGHT, NITE LIGHT, DAY DARK, NITE DARK>
-	color(Lighting::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
-	color(Lighting::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
-	color(Lighting::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
-	color(Lighting::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
-	color(Lighting::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(2)]);
-	color(Lighting::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(3)]);
+	color(Palettes::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
+	color(Palettes::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
+	color(Palettes::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
+	color(Palettes::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
+	color(Palettes::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(2)]);
+	color(Palettes::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(3)]);
 
 	return true;
 }
 
-bool Color::write_lighting(const char *f, Lighting lighting) {
+bool Color::write_palettes(const char *f, Palettes pals) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	if (Config::monochrome()) {
 		for (int h = 0; h < NUM_HUES; h++) {
-			const uchar *rgb = color(lighting, Palette::MONOCHROME, ordered_hue(h));
+			const uchar *rgb = color(pals, Palette::MONOCHROME, ordered_hue(h));
 			fprintf(file, "\tRGB %02u, %02u, %02u\n", CRGB5(rgb[0]), CRGB5(rgb[1]), CRGB5(rgb[2]));
 		}
 	}
@@ -308,7 +308,7 @@ bool Color::write_lighting(const char *f, Lighting lighting) {
 		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
 			fprintf(file, "; %s\n", names[p]);
 			for (int h = 0; h < NUM_HUES; h++) {
-				const uchar *rgb = color(lighting, (Palette)p, ordered_hue(h));
+				const uchar *rgb = color(pals, (Palette)p, ordered_hue(h));
 				fprintf(file, "\tRGB %02u, %02u, %02u\n", CRGB5(rgb[0]), CRGB5(rgb[1]), CRGB5(rgb[2]));
 			}
 		}

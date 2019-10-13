@@ -22,7 +22,7 @@ public:
 		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name, _roof_name;
-	Lighting _lighting;
+	Palettes _palettes;
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
 	size_t _num_tiles, _num_roof_tiles;
@@ -36,7 +36,7 @@ public:
 	inline const char *roof_name(void) const { return _roof_name.c_str(); }
 	inline void roof_name(const char *m) { _roof_name = m ? m : ""; }
 	inline bool has_roof(void) const { return !_roof_name.empty(); }
-	inline Lighting lighting(void) const { return _lighting; }
+	inline Palettes palettes(void) const { return _palettes; }
 	inline Palette_Map &palette_map(void) { return _palette_map; }
 	inline Tile *tile(uint8_t i) { return _tiles[i]; }
 	inline Tile *roof_tile(uint8_t i) { return _roof_tiles[i]; }
@@ -58,11 +58,11 @@ private:
 public:
 	void clear(void);
 	void clear_roof_graphics(void);
-	void update_lighting(Lighting l);
+	void update_palettes(Palettes l);
 	uchar *print_rgb(size_t w, size_t h, size_t n) const;
 	uchar *print_roof_rgb(size_t w, size_t h) const;
 	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
-	Result read_graphics(const char *f, Lighting l);
+	Result read_graphics(const char *f, Palettes l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);
 	bool write_graphics(const char *f);

@@ -197,7 +197,7 @@ void Roof_Window::select(Deep_Tile_Button *dtb) {
 	sprintf(buffer, "Tile: $%02X", _selected->id());
 	_tile_heading->copy_label(buffer);
 
-	Lighting l = _tileset->lighting();
+	Palettes l = _tileset->palettes();
 	Palette p = _selected->palette();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
@@ -372,7 +372,7 @@ void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			const uchar *rgb = Color::color(rw->_tileset->lighting(), rw->_selected->palette(), e);
+			const uchar *rgb = Color::color(rw->_tileset->palettes(), rw->_selected->palette(), e);
 			rw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);
 		}
 	}

@@ -54,10 +54,10 @@
 #include "tileset-disabled.xpm"
 #include "roof.xpm"
 #include "roof-disabled.xpm"
-#include "load-lighting.xpm"
-#include "load-lighting-disabled.xpm"
-#include "lighting.xpm"
-#include "lighting-disabled.xpm"
+#include "load-palettes.xpm"
+#include "load-palettes-disabled.xpm"
+#include "palettes.xpm"
+#include "palettes-disabled.xpm"
 #include "copy.xpm"
 #include "copy-disabled.xpm"
 #include "paste.xpm"
@@ -120,10 +120,10 @@ static Fl_Pixmap TILESET_ICON(TILESET_XPM);
 static Fl_Pixmap TILESET_DISABLED_ICON(TILESET_DISABLED_XPM);
 static Fl_Pixmap ROOF_ICON(ROOF_XPM);
 static Fl_Pixmap ROOF_DISABLED_ICON(ROOF_DISABLED_XPM);
-static Fl_Pixmap LIGHTING_ICON(LIGHTING_XPM);
-static Fl_Pixmap LIGHTING_DISABLED_ICON(LIGHTING_DISABLED_XPM);
-static Fl_Pixmap LOAD_LIGHTING_ICON(LOAD_LIGHTING_XPM);
-static Fl_Pixmap LOAD_LIGHTING_DISABLED_ICON(LOAD_LIGHTING_DISABLED_XPM);
+static Fl_Pixmap PALETTES_ICON(PALETTES_XPM);
+static Fl_Pixmap PALETTES_DISABLED_ICON(PALETTES_DISABLED_XPM);
+static Fl_Pixmap LOAD_PALETTES_ICON(LOAD_PALETTES_XPM);
+static Fl_Pixmap LOAD_PALETTES_DISABLED_ICON(LOAD_PALETTES_DISABLED_XPM);
 static Fl_Pixmap COPY_ICON(COPY_XPM);
 static Fl_Pixmap COPY_DISABLED_ICON(COPY_DISABLED_XPM);
 static Fl_Pixmap PASTE_ICON(PASTE_XPM);

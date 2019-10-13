@@ -2,7 +2,7 @@
 
 ## Bug Fixes
 
-* Ctrl+C/V/X when editing lighting interferes with regular cut/copy/paste somehow (worked around for now)
+* Ctrl+C/V/X when editing palettes interferes with regular cut/copy/paste somehow (worked around for now)
 
 ## Features
 

@@ -25,7 +25,7 @@
 #include "block-window.h"
 #include "tileset-window.h"
 #include "roof-window.h"
-#include "lighting-window.h"
+#include "palette-window.h"
 #include "directory-chooser.h"
 
 #define METATILES_PER_ROW 4
@@ -53,14 +53,14 @@ private:
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
-		*_special_lighting_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL;
+		*_special_palettes_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
-		*_edit_roof_tb, *_load_lighting_tb, *_edit_current_lighting_tb;
+		*_edit_roof_tb, *_load_palettes_tb, *_edit_current_palettes_tb;
 	Toolbar_Toggle_Button *_grid_tb, *_rulers_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_priority_tb,
 		*_gameboy_screen_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
-	Dropdown *_lighting;
+	Dropdown *_palettes;
 	// GUI outputs
 	Ruler *_hor_ruler, *_ver_ruler, *_corner_ruler;
 	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
@@ -88,8 +88,8 @@ private:
 	Block_Window *_block_window;
 	Tileset_Window *_tileset_window;
 	Roof_Window *_roof_window;
-	Lighting_Window *_lighting_window;
-	Monochrome_Lighting_Window *_monochrome_lighting_window;
+	Palette_Window *_palette_window;
+	Monochrome_Palette_Window *_monochrome_palette_window;
 	// Data
 	std::string _directory, _blk_file, _asm_file;
 	std::string _recent[NUM_RECENT];
@@ -103,7 +103,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
-	bool _has_collisions = false, _edited_lighting = false, _copied = false, _map_editable = false;
+	bool _has_collisions = false, _edited_palettes = false, _copied = false, _map_editable = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
@@ -125,13 +125,13 @@ public:
 	inline bool show_priority(void) const { return _show_priority_mi && !!_show_priority_mi->value(); }
 	inline bool gameboy_screen(void) const { return _gameboy_screen_mi && !!_gameboy_screen_mi->value(); }
 	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
-	inline Lighting lighting(void) const { return (Lighting)_lighting->value(); }
+	inline Palettes palettes(void) const { return (Palettes)_palettes->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
 	inline bool allow_priority(void) const { return _allow_priority_mi && !!_allow_priority_mi->value(); }
 	inline bool allow_256_tiles(void) const { return _allow_256_tiles_mi && !!_allow_256_tiles_mi->value(); }
 	inline bool auto_load_events(void) const { return _auto_events_mi && !!_auto_events_mi->value(); }
-	inline bool auto_load_special_lighting(void) const { return _special_lighting_mi && !!_special_lighting_mi->value(); }
+	inline bool auto_load_special_palettes(void) const { return _special_palettes_mi && !!_special_palettes_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
 	inline bool drag_and_drop(void) const { return _drag_and_drop_mi && !!_drag_and_drop_mi->value(); }
 	inline int metatile_size(void) const { return METATILE_PX_SIZE * (zoom() ? ZOOM_FACTOR : 1); }
@@ -182,7 +182,7 @@ private:
 	void load_events(const char *filename);
 	void unload_events(void);
 	void view_event_script(Event *e);
-	void load_lighting(const char *filename);
+	void load_palettes(const char *filename);
 	void load_roof_colors(bool quiet);
 	bool read_metatile_data(const char *tileset_name, const char *roof_name);
 	void add_sub_metatiles(size_t n);
@@ -193,14 +193,14 @@ private:
 	bool save_tileset(void);
 	bool save_roof(void);
 	bool save_event_script(void);
-	bool export_lighting(const char *filename, Lighting l);
+	bool export_palettes(const char *filename, Palettes l);
 	void print_map(void);
 	void edit_metatile(Metatile *mt);
 	void update_rulers(void);
 	void update_zoom(void);
 	void update_layout(void);
 	void update_labels(void);
-	void update_lighting(void);
+	void update_palettes(void);
 	void select_metatile(Metatile_Button *mb);
 	// Drag-and-drop
 	static void drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw);
@@ -225,8 +225,8 @@ private:
 	static void unload_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
-	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
-	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
+	static void load_palettes_cb(Fl_Widget *w, Main_Window *mw);
+	static void export_current_palettes_cb(Fl_Widget *w, Main_Window *mw);
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);
@@ -252,11 +252,11 @@ private:
 	static void show_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void morn_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void day_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void night_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void indoor_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void custom_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void morn_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void day_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void night_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void indoor_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void custom_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Mode menu
 	static void blocks_mode_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -269,13 +269,13 @@ private:
 	static void change_roof_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void edit_roof_cb(Fl_Widget *w, Main_Window *mw);
-	static void edit_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
+	static void edit_current_palettes_cb(Fl_Widget *w, Main_Window *mw);
 	// Options menu
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void auto_load_special_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
@@ -287,7 +287,7 @@ private:
 	static void show_priority_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void gameboy_screen_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void show_events_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
-	static void lighting_cb(Dropdown *dd, Main_Window *mw);
+	static void palettes_cb(Dropdown *dd, Main_Window *mw);
 	static void blocks_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
 	static void events_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
 	// Help menu

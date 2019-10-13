@@ -81,9 +81,6 @@
     <ClCompile Include="..\src\directory-chooser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\lighting-window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\preferences.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,6 +100,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ruler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\palette-window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -179,9 +179,6 @@
     <ClInclude Include="..\src\directory-chooser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\lighting-window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\preferences.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -201,6 +198,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ruler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\palette-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -271,9 +271,6 @@
     <None Include="..\res\events.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\lighting.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\load.xpm">
       <Filter>Resource Files</Filter>
     </None>
@@ -328,9 +325,6 @@
     <None Include="..\res\ids-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\lighting-disabled.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\load-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
@@ -341,12 +335,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\print-disabled.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\load-lighting.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\load-lighting-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\coll-bottom-left.xpm">
@@ -422,6 +410,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\blank.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load-palettes.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\load-palettes-disabled.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\palettes.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\palettes-disabled.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

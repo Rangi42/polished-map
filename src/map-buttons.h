@@ -71,7 +71,7 @@ public:
 class Pixel_Button : public Fl_Box {
 private:
 	int _x, _y;
-	Lighting _lighting;
+	Palettes _palettes;
 	Palette _palette;
 	Hue _hue;
 public:
@@ -80,10 +80,10 @@ public:
 	inline int col(void) const { return _x; }
 	inline void coords(int x, int y) { _x = x; _y = y; }
 	inline Palette palette(void) const { return _palette; }
-	inline void palette(Palette p) { coloring(_lighting, p, _hue); }
+	inline void palette(Palette p) { coloring(_palettes, p, _hue); }
 	inline Hue hue(void) const { return _hue; }
-	inline void hue(Hue h) { coloring(_lighting, _palette, h); }
-	void coloring(Lighting l, Palette p, Hue h);
+	inline void hue(Hue h) { coloring(_palettes, _palette, h); }
+	void coloring(Palettes l, Palette p, Hue h);
 	void draw(void);
 	int handle(int event);
 };
@@ -94,7 +94,7 @@ private:
 public:
 	Swatch(int x, int y, int s, const char *l = NULL);
 	inline Hue hue(void) const { return _hue; }
-	void coloring(Lighting l, Palette p, Hue h);
+	void coloring(Palettes l, Palette p, Hue h);
 	void draw(void);
 };
 

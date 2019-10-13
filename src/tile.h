@@ -43,7 +43,7 @@ public:
 	void pixel(int x, int y, Hue h, uchar r, uchar g, uchar b);
 	void clear(void);
 	void copy(const Tile *t);
-	void update_lighting(Lighting l);
+	void update_palettes(Palettes l);
 	void draw_with_priority(int x, int y, int s, bool show_priority) const;
 	void draw_for_clipboard(int x, int y);
 };

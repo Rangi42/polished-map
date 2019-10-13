@@ -86,7 +86,7 @@ void Tile::copy(const Tile *t) {
 	memcpy(_rgb, t->_rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
 }
 
-void Tile::update_lighting(Lighting l) {
+void Tile::update_palettes(Palettes l) {
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = hue(tx, ty);

@@ -339,13 +339,13 @@ int Deep_Tile_Button::handle(int event) {
 	return Fl_Radio_Button::handle(event);
 }
 
-Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _lighting(), _palette(), _hue() {
+Pixel_Button::Pixel_Button(int x, int y, int s) : Fl_Box(x, y, s, s), _x(), _y(), _palettes(), _palette(), _hue() {
 	user_data(NULL);
 	box(FL_FLAT_BOX);
 }
 
-void Pixel_Button::coloring(Lighting l, Palette p, Hue h) {
-	_lighting = l;
+void Pixel_Button::coloring(Palettes l, Palette p, Hue h) {
+	_palettes = l;
 	_palette = p;
 	_hue = h;
 	const uchar *rgb = Color::color(l, p, h);
@@ -393,7 +393,7 @@ Swatch::Swatch(int x, int y, int s, const char *l) : Fl_Radio_Button(x, y, s, s,
 	box(OS_SWATCH_BOX);
 }
 
-void Swatch::coloring(Lighting l, Palette p, Hue h) {
+void Swatch::coloring(Palettes l, Palette p, Hue h) {
 	_hue = h;
 	const uchar *rgb = Color::color(l, p, h);
 	color(fl_rgb_color(rgb[0], rgb[1], rgb[2]));
