@@ -113,7 +113,7 @@
     <ClCompile Include="..\src\help-window.cpp" />
     <ClCompile Include="..\src\hex-spinner.cpp" />
     <ClCompile Include="..\src\image.cpp" />
-    <ClCompile Include="..\src\lighting-window.cpp" />
+    <ClCompile Include="..\src\palette-window.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\main-window.cpp" />
     <ClCompile Include="..\src\map-buttons.cpp" />
@@ -146,7 +146,7 @@
     <ClInclude Include="..\src\hex-spinner.h" />
     <ClInclude Include="..\src\icons.h" />
     <ClInclude Include="..\src\image.h" />
-    <ClInclude Include="..\src\lighting-window.h" />
+    <ClInclude Include="..\src\palette-window.h" />
     <ClInclude Include="..\src\main-window.h" />
     <ClInclude Include="..\src\map-buttons.h" />
     <ClInclude Include="..\src\map-events.h" />
@@ -205,11 +205,11 @@
     <None Include="..\res\hex.xpm" />
     <None Include="..\res\ids-disabled.xpm" />
     <None Include="..\res\ids.xpm" />
-    <None Include="..\res\lighting-disabled.xpm" />
-    <None Include="..\res\lighting.xpm" />
+    <None Include="..\res\palettes-disabled.xpm" />
+    <None Include="..\res\palettes.xpm" />
     <None Include="..\res\load-disabled.xpm" />
-    <None Include="..\res\load-lighting-disabled.xpm" />
-    <None Include="..\res\load-lighting.xpm" />
+    <None Include="..\res\load-palettes-disabled.xpm" />
+    <None Include="..\res\load-palettes.xpm" />
     <None Include="..\res\load.xpm" />
     <None Include="..\res\new-disabled.xpm" />
     <None Include="..\res\new.xpm" />

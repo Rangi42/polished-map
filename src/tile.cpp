@@ -31,7 +31,7 @@ static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 void Tile::clear() {
 	_undefined = true;
 	FILL(_hues, Hue::WHITE, TILE_AREA);
-	update_lighting(Lighting::DAY);
+	update_palettes(Palettes::DAY);
 }
 
 void Tile::copy(const Tile *t) {
@@ -44,7 +44,7 @@ void Tile::copy(const Tile *t) {
 	memcpy(_undefined_rgb, t->_undefined_rgb, TILE_BYTES);
 }
 
-void Tile::render_pixel(int x, int y, Lighting l, Hue h) {
+void Tile::render_pixel(int x, int y, Palettes l, Hue h) {
 	_hues[y * TILE_SIZE + x] = h;
 	for (int pi = 0; pi < NUM_PALETTES; pi++) {
 		Palette p = (Palette)pi;
@@ -57,7 +57,7 @@ void Tile::render_pixel(int x, int y, Lighting l, Hue h) {
 	fill_tile_pixel(_undefined_rgb, x, y, rgb);
 }
 
-void Tile::update_lighting(Lighting l) {
+void Tile::update_palettes(Palettes l) {
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = hue(tx, ty);

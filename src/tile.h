@@ -46,8 +46,8 @@ public:
 	inline const uchar *const_undefined_pixel(int x, int y) const { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
 	void clear(void);
 	void copy(const Tile *t);
-	void render_pixel(int x, int y, Lighting l, Hue h);
-	void update_lighting(Lighting l);
+	void render_pixel(int x, int y, Palettes l, Hue h);
+	void update_palettes(Palettes l);
 	void draw_for_clipboard(int x, int y);
 };
 

@@ -3,12 +3,12 @@
 
 #include "themes.h"
 #include "config.h"
-#include "lighting-window.h"
+#include "palette-window.h"
 
 Swatch_Window::Swatch_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
 
 int Swatch_Window::handle(int event) {
-	Lighting_Window *lw = (Lighting_Window *)user_data();
+	Palette_Window *lw = (Palette_Window *)user_data();
 	// FIX: actual cut/copy/paste events interfere here somehow, but not in Tile_Window::handle
 	if (Fl::event_text()) {
 		if (lw->_debounce) {
@@ -17,24 +17,24 @@ int Swatch_Window::handle(int event) {
 			}
 		}
 		if (Fl::test_shortcut(FL_COMMAND + 'c')) {
-			Lighting_Window::copy_color_cb(NULL, lw);
+			Palette_Window::copy_color_cb(NULL, lw);
 		}
 		else if (Fl::test_shortcut(FL_COMMAND + 'v')) {
-			Lighting_Window::paste_color_cb(NULL, lw);
+			Palette_Window::paste_color_cb(NULL, lw);
 		}
 		else if (Fl::test_shortcut(FL_COMMAND + 'x')) {
-			Lighting_Window::swap_colors_cb(NULL, lw);
+			Palette_Window::swap_colors_cb(NULL, lw);
 			lw->_debounce = true;
 		}
 	}
 	return Fl_Double_Window::handle(event);
 }
 
-Abstract_Lighting_Window::Abstract_Lighting_Window(int x, int y) : _dx(x), _dy(y), _current_lighting(), _canceled(false),
+Abstract_Palette_Window::Abstract_Palette_Window(int x, int y) : _dx(x), _dy(y), _current_palettes(), _canceled(false),
 	_window(NULL), _selected(NULL), _chosen(NULL), _red_spinner(NULL), _green_spinner(NULL), _blue_spinner(NULL),
 	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(), _debounce() {}
 
-Abstract_Lighting_Window::~Abstract_Lighting_Window() {
+Abstract_Palette_Window::~Abstract_Palette_Window() {
 	delete _window;
 	delete _red_spinner;
 	delete _green_spinner;
@@ -43,7 +43,7 @@ Abstract_Lighting_Window::~Abstract_Lighting_Window() {
 	delete _cancel_button;
 }
 
-void Abstract_Lighting_Window::initialize() {
+void Abstract_Palette_Window::initialize() {
 	if (_window) { return; }
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
@@ -67,7 +67,7 @@ void Abstract_Lighting_Window::initialize() {
 	Fl_Group::current(prev_current);
 }
 
-void Abstract_Lighting_Window::show(const Fl_Widget *p) {
+void Abstract_Palette_Window::show(const Fl_Widget *p) {
 	initialize();
 	refresh();
 	int x = p->x() + (p->w() - _window->w()) / 2;
@@ -78,7 +78,7 @@ void Abstract_Lighting_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Abstract_Lighting_Window::select(Color_Button *cb) {
+void Abstract_Palette_Window::select(Color_Button *cb) {
 	_selected = cb;
 	_selected->setonly();
 	uchar r, g, b;
@@ -88,22 +88,22 @@ void Abstract_Lighting_Window::select(Color_Button *cb) {
 	_blue_spinner->default_value(CRGB5(b));
 }
 
-void Abstract_Lighting_Window::close_cb(Fl_Widget *, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::close_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
 	alw->_window->hide();
 }
 
-void Abstract_Lighting_Window::cancel_cb(Fl_Widget *w, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::cancel_cb(Fl_Widget *w, Abstract_Palette_Window *alw) {
 	alw->_canceled = true;
 	close_cb(w, alw);
 }
 
-void Abstract_Lighting_Window::select_color_cb(Color_Button *cb, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::select_color_cb(Color_Button *cb, Abstract_Palette_Window *alw) {
 	// Click to select
 	alw->select(cb);
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_red_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::change_red_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -112,7 +112,7 @@ void Abstract_Lighting_Window::change_red_cb(Default_Spinner *sp, Abstract_Light
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_green_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::change_green_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -121,7 +121,7 @@ void Abstract_Lighting_Window::change_green_cb(Default_Spinner *sp, Abstract_Lig
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::change_blue_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::change_blue_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -130,7 +130,7 @@ void Abstract_Lighting_Window::change_blue_cb(Default_Spinner *sp, Abstract_Ligh
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::copy_color_cb(Fl_Widget *, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::copy_color_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
 	uchar r, g, b;
 	Fl::get_color(alw->_selected->color(), r, g, b);
@@ -141,7 +141,7 @@ void Abstract_Lighting_Window::copy_color_cb(Fl_Widget *, Abstract_Lighting_Wind
 	alw->_copied = true;
 }
 
-void Abstract_Lighting_Window::paste_color_cb(Fl_Widget *, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::paste_color_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
 	if (!alw->_copied || !alw->_selected) { return; }
 	uchar r = RGB5C(alw->_clipboard[0]), g = RGB5C(alw->_clipboard[1]), b = RGB5C(alw->_clipboard[2]);
 	alw->_selected->color(fl_rgb_color(r, g, b));
@@ -149,7 +149,7 @@ void Abstract_Lighting_Window::paste_color_cb(Fl_Widget *, Abstract_Lighting_Win
 	alw->_window->redraw();
 }
 
-void Abstract_Lighting_Window::swap_colors_cb(Fl_Widget *, Abstract_Lighting_Window *alw) {
+void Abstract_Palette_Window::swap_colors_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
 	if (!alw->_copied || !alw->_selected || !alw->_chosen) { return; }
 	Fl_Color cc = alw->_chosen->color();
 	Fl_Color sc = alw->_selected->color();
@@ -159,18 +159,18 @@ void Abstract_Lighting_Window::swap_colors_cb(Fl_Widget *, Abstract_Lighting_Win
 	alw->_window->redraw();
 }
 
-Lighting_Window::Lighting_Window(int x, int y) : Abstract_Lighting_Window(x, y), _palette_heading_group(NULL),
+Palette_Window::Palette_Window(int x, int y) : Abstract_Palette_Window(x, y), _palette_heading_group(NULL),
 	_color_group(NULL), _palette_headings(), _color_buttons() {}
 
-Lighting_Window::~Lighting_Window() {
+Palette_Window::~Palette_Window() {
 	delete _palette_heading_group;
 	delete _color_group;
 }
 
-void Lighting_Window::initial_setup() {
+void Palette_Window::initial_setup() {
 	// Populate window
 	int hhgw = text_width("YELLOW:", 2);
-	_window = new Swatch_Window(_dx, _dy, 201+hhgw, 191, "Edit Current Lighting");
+	_window = new Swatch_Window(_dx, _dy, 201+hhgw, 191, "Edit Current Palettes");
 	_palette_heading_group = new Fl_Group(10, 10, hhgw, 171);
 	_palette_heading_group->end();
 	_window->begin();
@@ -199,7 +199,7 @@ void Lighting_Window::initial_setup() {
 	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
 			Color_Button *cb = new Color_Button(_color_group->x()+2+21*x, _color_group->y()+2+21*y, 20);
-			cb->color(Color::fl_color(_current_lighting, (Palette)y, Color::ordered_hue(x)));
+			cb->color(Color::fl_color(_current_palettes, (Palette)y, Color::ordered_hue(x)));
 			cb->callback((Fl_Callback *)select_color_cb, this);
 			_color_buttons[y][x] = cb;
 		}
@@ -210,23 +210,23 @@ void Lighting_Window::initial_setup() {
 	_color_group->box(OS_SPACER_THIN_DOWN_BOX);
 }
 
-void Lighting_Window::refresh() {
+void Palette_Window::refresh() {
 	_canceled = false;
 	_copied = false;
 	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
-			Fl_Color c = Color::fl_color(_current_lighting, (Palette)y, Color::ordered_hue(x));
+			Fl_Color c = Color::fl_color(_current_palettes, (Palette)y, Color::ordered_hue(x));
 			_color_buttons[y][x]->color(c);
 		}
 	}
 	select(_color_buttons[0][0]);
 }
 
-void Lighting_Window::apply_modifications() {
+void Palette_Window::apply_modifications() {
 	for (int y = 0; y < NUM_PALETTES; y++) {
 		for (int x = 0; x < NUM_HUES; x++) {
 			Color_Button *cb = _color_buttons[y][x];
-			Color::color(_current_lighting, (Palette)y, Color::ordered_hue(x), cb->color());
+			Color::color(_current_palettes, (Palette)y, Color::ordered_hue(x), cb->color());
 		}
 	}
 }

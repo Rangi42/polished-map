@@ -1,5 +1,5 @@
 /* XPM */
-static const char *LIGHTING_DISABLED_XPM[] = {
+static const char *PALETTES_DISABLED_XPM[] = {
 "16 16 10 1",
 "  c None",
 "# c #505050",

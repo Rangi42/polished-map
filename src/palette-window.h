@@ -1,5 +1,5 @@
-#ifndef LIGHTING_WINDOW_H
-#define LIGHTING_WINDOW_H
+#ifndef PALETTE_WINDOW_H
+#define PALETTE_WINDOW_H
 
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
@@ -17,10 +17,10 @@ public:
 	int handle(int event);
 };
 
-class Abstract_Lighting_Window {
+class Abstract_Palette_Window {
 protected:
 	int _dx, _dy;
-	Lighting _current_lighting;
+	Palettes _current_palettes;
 	bool _canceled;
 	Swatch_Window *_window;
 	Color_Button *_selected, *_chosen;
@@ -32,39 +32,39 @@ protected:
 	uchar _clipboard[NUM_CHANNELS];
 	bool _debounce;
 public:
-	Abstract_Lighting_Window(int x, int y);
-	virtual ~Abstract_Lighting_Window();
+	Abstract_Palette_Window(int x, int y);
+	virtual ~Abstract_Palette_Window();
 protected:
 	void initialize(void);
 	virtual void initial_setup(void) = 0;
 	virtual void refresh(void) = 0;
 public:
-	inline void current_lighting(Lighting l) { _current_lighting = l; }
+	inline void current_palettes(Palettes l) { _current_palettes = l; }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
 	virtual void apply_modifications(void) = 0;
 	void select(Color_Button *cb);
 protected:
-	static void close_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
-	static void cancel_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
-	static void select_color_cb(Color_Button *cb, Abstract_Lighting_Window *alw);
-	static void change_red_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
-	static void change_green_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
-	static void change_blue_cb(Default_Spinner *sp, Abstract_Lighting_Window *alw);
-	static void copy_color_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
-	static void paste_color_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
-	static void swap_colors_cb(Fl_Widget *w, Abstract_Lighting_Window *alw);
+	static void close_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
+	static void cancel_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
+	static void select_color_cb(Color_Button *cb, Abstract_Palette_Window *alw);
+	static void change_red_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
+	static void change_green_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
+	static void change_blue_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
+	static void copy_color_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
+	static void paste_color_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
+	static void swap_colors_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 };
 
-class Lighting_Window : public Abstract_Lighting_Window {
+class Palette_Window : public Abstract_Palette_Window {
 private:
 	Fl_Group *_palette_heading_group, *_color_group;
 	Label *_palette_headings[NUM_PALETTES];
 	Color_Button *_color_buttons[NUM_PALETTES][NUM_HUES];
 public:
-	Lighting_Window(int x, int y);
-	~Lighting_Window();
+	Palette_Window(int x, int y);
+	~Palette_Window();
 private:
 	void initial_setup(void);
 	void refresh(void);

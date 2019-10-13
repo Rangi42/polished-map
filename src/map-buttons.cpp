@@ -317,7 +317,7 @@ Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_B
 	when(FL_WHEN_RELEASE);
 }
 
-void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Lighting l) {
+void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs, Palettes l) {
 	for (int i = 0; i < TILE_AREA; i++) {
 		copy_pixel(pbs[i], l);
 	}

@@ -54,7 +54,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	int show_priority_config = Preferences::get("priority", 1);
 	int gameboy_screen_config = Preferences::get("gameboy", 0);
 	int show_events_config = Preferences::get("event", 1);
-	Lighting lighting_config = (Lighting)Preferences::get("lighting", Lighting::DAY);
+	Palettes palettes_config = (Palettes)Preferences::get("palettes", Palettes::DAY);
 
 	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::drag_and_drop(!!drag_and_drop_config);
@@ -69,7 +69,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	Config::print_events(!!print_events_config);
 
 	int auto_events_config = Preferences::get("events", 1);
-	int special_lighting_config = Preferences::get("special", 1);
+	int special_palettes_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
 	for (int i = 0; i < NUM_RECENT; i++) {
@@ -112,10 +112,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
-	new Label(0, 0, text_width("Lighting:", 3), 24, "Lighting:");
-	_lighting = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
-	_load_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
-	_edit_current_lighting_tb = new Toolbar_Button(0, 0, 24, 24);
+	new Label(0, 0, text_width("Palettes:", 3), 24, "Palettes:");
+	_palettes = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
+	_load_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
+	_edit_current_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
@@ -199,7 +199,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_block_window = new Block_Window(48, 48);
 	_tileset_window = new Tileset_Window(48, 48);
 	_roof_window = new Roof_Window(48, 48);
-	_lighting_window = new Lighting_Window(48, 48);
+	_palette_window = new Palette_Window(48, 48);
 
 	// Drag-and-drop receiver
 	_dnd_receiver = new DnD_Receiver(0, 0, 0, 0);
@@ -283,8 +283,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("V&iew Event Script", FL_COMMAND + 'u', (Fl_Callback *)view_event_script_cb, this, 0),
 		OS_MENU_ITEM("Reloa&d Event Script", FL_COMMAND + 'r', (Fl_Callback *)reload_event_script_cb, this, 0),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'W', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Load &Lighting...", FL_COMMAND + 'l', (Fl_Callback *)load_lighting_cb, this, 0),
-		OS_MENU_ITEM("Export Current Li&ghting...", 0, (Fl_Callback *)export_current_lighting_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Load &Palettes...", FL_COMMAND + 'l', (Fl_Callback *)load_palettes_cb, this, 0),
+		OS_MENU_ITEM("Export Current Pa&lettes...", 0, (Fl_Callback *)export_current_palettes_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load Roo&f Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, 0),
 		{},
 		OS_SUBMENU("&Edit"),
@@ -333,17 +333,17 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'V', (Fl_Callback *)show_events_cb, this,
 			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
-		OS_MENU_ITEM("&Lighting", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
-		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::MORN ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Day", 0, (Fl_Callback *)day_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::DAY ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::NITE ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::INDOOR ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_lighting_cb, this,
-			FL_MENU_RADIO | (lighting_config == Lighting::CUSTOM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Pa&lettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::MORN ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Day", 0, (Fl_Callback *)day_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::DAY ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::INDOOR ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
 		{},
@@ -361,13 +361,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("C&hange Roof...", FL_COMMAND + 'H', (Fl_Callback *)change_roof_cb, this, 0),
 		OS_MENU_ITEM("Edit &Roof...", FL_COMMAND + 'f', (Fl_Callback *)edit_roof_cb, this, FL_MENU_DIVIDER),
-		OS_MENU_ITEM("Edit Current &Lighting...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_lighting_cb, this, 0),
+		OS_MENU_ITEM("Edit Current &Palettes...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_palettes_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Auto-Load &Special Lighting", 0, (Fl_Callback *)auto_load_special_lighting_cb, this,
-			FL_MENU_TOGGLE | (special_lighting_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
+			FL_MENU_TOGGLE | (special_palettes_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
 			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Drag and Drop", 0, (Fl_Callback *)drag_and_drop_option_cb, this,
@@ -406,15 +406,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_gameboy_screen_mi = PM_FIND_MENU_ITEM_CB(gameboy_screen_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
-	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_lighting_cb);
-	_day_mi = PM_FIND_MENU_ITEM_CB(day_lighting_cb);
-	_night_mi = PM_FIND_MENU_ITEM_CB(night_lighting_cb);
-	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_lighting_cb);
-	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_lighting_cb);
+	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_palettes_cb);
+	_day_mi = PM_FIND_MENU_ITEM_CB(day_palettes_cb);
+	_night_mi = PM_FIND_MENU_ITEM_CB(night_palettes_cb);
+	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_palettes_cb);
+	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_palettes_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
-	_special_lighting_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_lighting_cb);
+	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
 	_drag_and_drop_mi = PM_FIND_MENU_ITEM_CB(drag_and_drop_option_cb);
 	// Conditional menu items
@@ -563,13 +563,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_events_mode_tb->deimage(EVENTS_DISABLED_ICON);
 	_events_mode_tb->value(mode() == Mode::EVENTS);
 
-	_lighting->add("Morn");   // Lighting::MORN
-	_lighting->add("Day");    // Lighting::DAY
-	_lighting->add("Night");  // Lighting::NITE
-	_lighting->add("Indoor"); // Lighting::INDOOR
-	_lighting->add("Custom"); // Lighting::CUSTOM
-	_lighting->value(lighting_config);
-	_lighting->callback((Fl_Callback *)lighting_cb, this);
+	_palettes->add("Morn");   // Palettes::MORN
+	_palettes->add("Day");    // Palettes::DAY
+	_palettes->add("Night");  // Palettes::NITE
+	_palettes->add("Indoor"); // Palettes::INDOOR
+	_palettes->add("Custom"); // Palettes::CUSTOM
+	_palettes->value(palettes_config);
+	_palettes->callback((Fl_Callback *)palettes_cb, this);
 
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
@@ -601,15 +601,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_edit_roof_tb->image(ROOF_ICON);
 	_edit_roof_tb->deimage(ROOF_DISABLED_ICON);
 
-	_load_lighting_tb->tooltip("Load Lighting... (Ctrl+L)");
-	_load_lighting_tb->callback((Fl_Callback *)load_lighting_cb, this);
-	_load_lighting_tb->image(LOAD_LIGHTING_ICON);
-	_load_lighting_tb->deimage(LOAD_LIGHTING_DISABLED_ICON);
+	_load_palettes_tb->tooltip("Load Palettes... (Ctrl+L)");
+	_load_palettes_tb->callback((Fl_Callback *)load_palettes_cb, this);
+	_load_palettes_tb->image(LOAD_PALETTES_ICON);
+	_load_palettes_tb->deimage(LOAD_PALETTES_DISABLED_ICON);
 
-	_edit_current_lighting_tb->tooltip("Edit Current Lighting... (Ctrl+Shift+L)");
-	_edit_current_lighting_tb->callback((Fl_Callback *)edit_current_lighting_cb, this);
-	_edit_current_lighting_tb->image(LIGHTING_ICON);
-	_edit_current_lighting_tb->deimage(LIGHTING_DISABLED_ICON);
+	_edit_current_palettes_tb->tooltip("Edit Current Palettes... (Ctrl+Shift+L)");
+	_edit_current_palettes_tb->callback((Fl_Callback *)edit_current_palettes_cb, this);
+	_edit_current_palettes_tb->image(PALETTES_ICON);
+	_edit_current_palettes_tb->deimage(PALETTES_DISABLED_ICON);
 
 	// Configure dialogs
 
@@ -623,13 +623,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_blk_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
 	_blk_save_chooser->preset_file("NewMap.ablk");
 
-	_pal_load_chooser->title("Open Lighting");
+	_pal_load_chooser->title("Open Palettes");
 	_pal_load_chooser->filter("PAL Files\t*.pal\n");
 
-	_pal_save_chooser->title("Save Lighting");
+	_pal_save_chooser->title("Save Palettes");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
 	_pal_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
-	_pal_save_chooser->preset_file("lighting.pal");
+	_pal_save_chooser->preset_file("custom.pal");
 
 	_roof_chooser->title("Open Roof Tiles");
 	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
@@ -701,7 +701,7 @@ Main_Window::~Main_Window() {
 	delete _block_window;
 	delete _tileset_window;
 	delete _roof_window;
-	delete _lighting_window;
+	delete _palette_window;
 }
 
 void Main_Window::show() {
@@ -1258,19 +1258,19 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 
 	// load default palettes
 	Config::bg_tiles_pal_path(buffer, directory);
-	load_lighting(buffer);
+	load_palettes(buffer);
 
-	if (auto_load_special_lighting()) {
+	if (auto_load_special_palettes()) {
 		// load unique tileset palettes if they exist
 		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
 		if (file_exists(buffer)) {
-			load_lighting(buffer);
+			load_palettes(buffer);
 		}
 		// load unique landmark palettes if they exist
 		if (_map.landmark() != tileset_name) {
 			sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
 			if (file_exists(buffer)) {
-				load_lighting(buffer);
+				load_palettes(buffer);
 			}
 		}
 		// load unique map palettes if they exist
@@ -1278,36 +1278,36 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 			strcpy(buffer, filename);
 			fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
 			if (file_exists(buffer)) {
-				load_lighting(buffer);
+				load_palettes(buffer);
 			}
 		}
 	}
 
-	// use lighting coresponding to palette
-	Lighting new_lighting = lighting();
-	if (new_lighting != Lighting::CUSTOM) {
+	// use palettes coresponding to palette
+	Palettes new_palettes = palettes();
+	if (new_palettes != Palettes::CUSTOM) {
 		if (_map.palette() == "PALETTE_NITE" || _map.palette() == "PALETTE_DARK" ||
 			_map.palette() == "2" || _map.palette() == "4") {
-			new_lighting = Lighting::NITE;
+			new_palettes = Palettes::NITE;
 		}
 		else if (_map.environment() == "INDOOR" || _map.environment() == "GATE" ||
 			_map.environment() == "3" || _map.environment() == "6") {
-			new_lighting = Lighting::INDOOR;
+			new_palettes = Palettes::INDOOR;
 		}
 		else if (_map.palette() == "PALETTE_MORN" || _map.palette() == "3") {
-			new_lighting = Lighting::MORN;
+			new_palettes = Palettes::MORN;
 		}
 		else {
-			new_lighting = Lighting::DAY;
+			new_palettes = Palettes::DAY;
 		}
 	}
-	if (new_lighting != lighting()) {
-		_lighting->value(new_lighting);
-		lighting_cb(NULL, this);
-		update_lighting();
+	if (new_palettes != palettes()) {
+		_palettes->value(new_palettes);
+		palettes_cb(NULL, this);
+		update_palettes();
 	}
 
-	// load roof palettes if applicable
+	// load roof colors if applicable
 	if (auto_load_roof_colors() && _map.group() && _map.is_outside()) {
 		load_roof_colors(true);
 	}
@@ -1471,32 +1471,32 @@ void Main_Window::view_event_script(Event *e) {
 #endif
 }
 
-void Main_Window::load_lighting(const char *filename) {
-	if (_edited_lighting) {
+void Main_Window::load_palettes(const char *filename) {
+	if (_edited_palettes) {
 		const char *basename = fl_filename_name(filename);
-		std::string msg = "The lighting has been edited!\n\n";
+		std::string msg = "The palettes have been edited!\n\n";
 		msg = msg + "Load " + basename + " anyway?";
 		_unsaved_dialog->message(msg);
 		_unsaved_dialog->show(this);
 		if (_unsaved_dialog->canceled()) { return; }
 	}
 
-	Lighting new_lighting = Color::read_lighting(filename, lighting());
-	_edited_lighting = false;
-	if (new_lighting != lighting()) {
-		_lighting->value(new_lighting);
-		lighting_cb(NULL, this);
+	Palettes new_palettes = Color::read_palettes(filename, palettes());
+	_edited_palettes = false;
+	if (new_palettes != palettes()) {
+		_palettes->value(new_palettes);
+		palettes_cb(NULL, this);
 	}
-	update_lighting();
+	update_palettes();
 }
 
 void Main_Window::load_roof_colors(bool quiet) {
 	char buffer[FL_PATH_MAX] = {};
 	Config::roofs_pal_path(buffer, _directory.c_str());
 
-	if (_edited_lighting) {
+	if (_edited_palettes) {
 		const char *basename = fl_filename_name(buffer);
-		std::string msg = "The lighting has been edited!\n\n";
+		std::string msg = "The palettes have been edited!\n\n";
 		msg = msg + "Load " + basename + " anyway?";
 		_unsaved_dialog->message(msg);
 		_unsaved_dialog->show(this);
@@ -1519,7 +1519,7 @@ void Main_Window::load_roof_colors(bool quiet) {
 		}
 	}
 	else {
-		update_lighting();
+		update_palettes();
 		if (!quiet) {
 			std::string msg = "Loaded roof colors for map group ";
 			msg = msg + std::to_string(_map.group()) + "!";
@@ -1539,7 +1539,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	const char *directory = _directory.c_str();
 
 	Config::tileset_path(buffer, directory, tileset_name);
-	Tileset::Result rt = tileset->read_graphics(buffer, lighting());
+	Tileset::Result rt = tileset->read_graphics(buffer, palettes());
 	if (rt) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1959,10 +1959,10 @@ bool Main_Window::save_event_script() {
 	return true;
 }
 
-bool Main_Window::export_lighting(const char *filename, Lighting l) {
+bool Main_Window::export_palettes(const char *filename, Palettes l) {
 	const char *basename = fl_filename_name(filename);
 
-	if (!Color::write_lighting(filename, l)) {
+	if (!Color::write_palettes(filename, l)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -1975,7 +1975,7 @@ bool Main_Window::export_lighting(const char *filename, Lighting l) {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
-	_edited_lighting = false;
+	_edited_palettes = false;
 	return true;
 }
 
@@ -2076,9 +2076,9 @@ void Main_Window::update_labels() {
 	redraw();
 }
 
-void Main_Window::update_lighting() {
+void Main_Window::update_palettes() {
 	Tileset *tileset = _metatileset.tileset();
-	tileset->update_lighting(lighting());
+	tileset->update_palettes(palettes());
 	redraw();
 }
 
@@ -2398,7 +2398,7 @@ void Main_Window::load_roof_colors_cb(Fl_Widget *, Main_Window *mw) {
 	mw->load_roof_colors(false);
 }
 
-void Main_Window::load_lighting_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::load_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_pal_load_chooser->show();
 	if (status == 1) { return; }
 
@@ -2412,13 +2412,13 @@ void Main_Window::load_lighting_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->load_lighting(filename);
+	mw->load_palettes(filename);
 
 	mw->update_active_controls();
 	mw->redraw();
 }
 
-void Main_Window::export_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::export_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_pal_save_chooser->show();
 	if (status == 1) { return; }
 
@@ -2434,7 +2434,7 @@ void Main_Window::export_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->export_lighting(filename, mw->lighting());
+	mw->export_palettes(filename, mw->palettes());
 }
 
 void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
@@ -2511,8 +2511,8 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	/*if (mw->_edited_lighting) {
-		std::string msg = "The lighting has been edited!\n\n"
+	/*if (mw->_edited_palettes) {
+		std::string msg = "The palettes have been edited!\n\n"
 			"Exit anyway?";
 		mw->_unsaved_dialog->message(msg);
 		mw->_unsaved_dialog->show(mw);
@@ -2534,9 +2534,9 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("priority", mw->show_priority());
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
-	Preferences::set("lighting", mw->lighting());
+	Preferences::set("palettes", mw->palettes());
 	Preferences::set("events", mw->auto_load_events());
-	Preferences::set("special", mw->auto_load_special_lighting());
+	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	Preferences::set("drag", mw->drag_and_drop());
 	Preferences::set("print-grid", Config::print_grid());
@@ -2766,46 +2766,46 @@ void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 
 #undef SYNC_MI_WITH_TB
 
-void Main_Window::morn_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::MORN);
-	mw->update_lighting();
+void Main_Window::morn_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value(Palettes::MORN);
+	mw->update_palettes();
 	mw->redraw();
 }
 
-void Main_Window::day_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::DAY);
-	mw->update_lighting();
+void Main_Window::day_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value(Palettes::DAY);
+	mw->update_palettes();
 	mw->redraw();
 }
 
-void Main_Window::night_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::NITE);
-	mw->update_lighting();
+void Main_Window::night_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value(Palettes::NITE);
+	mw->update_palettes();
 	mw->redraw();
 }
 
-void Main_Window::indoor_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::INDOOR);
-	mw->update_lighting();
+void Main_Window::indoor_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value(Palettes::INDOOR);
+	mw->update_palettes();
 	mw->redraw();
 }
 
-void Main_Window::custom_lighting_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_lighting->value(Lighting::CUSTOM);
-	mw->update_lighting();
+void Main_Window::custom_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value(Palettes::CUSTOM);
+	mw->update_palettes();
 	mw->redraw();
 }
 
-void Main_Window::lighting_cb(Dropdown *, Main_Window *mw) {
-	Lighting lighting = (Lighting)mw->_lighting->value();
-	switch (lighting) {
-	case Lighting::MORN:   mw->_morn_mi->setonly(); break;
-	case Lighting::DAY:    mw->_day_mi->setonly(); break;
-	case Lighting::NITE:   mw->_night_mi->setonly(); break;
-	case Lighting::INDOOR: mw->_indoor_mi->setonly(); break;
-	case Lighting::CUSTOM: mw->_custom_mi->setonly(); break;
+void Main_Window::palettes_cb(Dropdown *, Main_Window *mw) {
+	Palettes palettes = (Palettes)mw->_palettes->value();
+	switch (palettes) {
+	case Palettes::MORN:   mw->_morn_mi->setonly(); break;
+	case Palettes::DAY:    mw->_day_mi->setonly(); break;
+	case Palettes::NITE:   mw->_night_mi->setonly(); break;
+	case Palettes::INDOOR: mw->_indoor_mi->setonly(); break;
+	case Palettes::CUSTOM: mw->_custom_mi->setonly(); break;
 	}
-	mw->update_lighting();
+	mw->update_palettes();
 	mw->redraw();
 }
 
@@ -2993,15 +2993,15 @@ void Main_Window::edit_roof_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::edit_current_lighting_cb(Fl_Widget *, Main_Window *mw) {
-	mw->_lighting_window->current_lighting(mw->lighting());
-	mw->_lighting_window->show(mw);
-	bool canceled = mw->_lighting_window->canceled();
+void Main_Window::edit_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
+	mw->_palette_window->current_palettes(mw->palettes());
+	mw->_palette_window->show(mw);
+	bool canceled = mw->_palette_window->canceled();
 	if (canceled) { return; }
 
-	mw->_edited_lighting = true;
-	mw->_lighting_window->apply_modifications();
-	mw->update_lighting();
+	mw->_edited_palettes = true;
+	mw->_palette_window->apply_modifications();
+	mw->update_palettes();
 	mw->redraw();
 }
 
@@ -3011,8 +3011,8 @@ void Main_Window::auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw) {
 	}
 }
 
-void Main_Window::auto_load_special_lighting_cb(Fl_Menu_ *m, Main_Window *mw) {
-	if (mw->auto_load_special_lighting() == !m->mvalue()->value()) {
+void Main_Window::auto_load_special_palettes_cb(Fl_Menu_ *m, Main_Window *mw) {
+	if (mw->auto_load_special_palettes() == !m->mvalue()->value()) {
 		mw->redraw();
 	}
 }

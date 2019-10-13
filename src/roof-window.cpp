@@ -273,14 +273,14 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 			// Shift+left-click to flood fill
 			rw->flood_fill(pb, pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
-			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->lighting());
+			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->palettes());
 			rw->_selected->redraw();
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			rw->substitute_hue(pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
-			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->lighting());
+			rw->_selected->copy_pixels(rw->_pixels, rw->_tileset->palettes());
 			rw->_selected->redraw();
 		}
 		else {
@@ -288,7 +288,7 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 			Hue h = rw->_chosen->hue();
 			pb->hue(h);
 			pb->damage(1);
-			rw->_selected->copy_pixel(pb, rw->_tileset->lighting());
+			rw->_selected->copy_pixel(pb, rw->_tileset->palettes());
 			rw->_selected->redraw();
 		}
 	}
@@ -371,7 +371,7 @@ void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			rw->_selected->render_pixel(x, y, rw->_tileset->lighting(), e);
+			rw->_selected->render_pixel(x, y, rw->_tileset->palettes(), e);
 		}
 	}
 	delete pasted;

@@ -285,21 +285,21 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 			// Shift+left-click to flood fill
 			tw->flood_fill(pb, pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
-			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->lighting());
+			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->palettes());
 			tw->_selected->redraw();
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			tw->substitute_hue(pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
-			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->lighting());
+			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->palettes());
 			tw->_selected->redraw();
 		}
 		else if (Fl::event_alt()) {
 			// Alt+left-click to swap
 			tw->swap_hues(pb->hue(), tw->_chosen->hue());
 			tw->_tile_group->redraw();
-			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->lighting());
+			tw->_selected->copy_pixels(tw->_pixels, tw->_tileset->palettes());
 			tw->_selected->redraw();
 		}
 		else {
@@ -307,7 +307,7 @@ void Tileset_Window::change_pixel_cb(Pixel_Button *pb, Tileset_Window *tw) {
 			Hue h = tw->_chosen->hue();
 			pb->hue(h);
 			pb->damage(1);
-			tw->_selected->copy_pixel(pb, tw->_tileset->lighting());
+			tw->_selected->copy_pixel(pb, tw->_tileset->palettes());
 			tw->_selected->redraw();
 		}
 	}
@@ -359,7 +359,7 @@ void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_selected) { return; }
 	tw->_selected->undefined(true);
-	Lighting l = tw->_tileset->lighting();
+	Palettes l = tw->_tileset->palettes();
 	for (int y = 0; y < TILE_SIZE; y++) {
 		for (int x = 0; x < TILE_SIZE; x++) {
 			tw->_selected->render_pixel(x, y, l, Hue::WHITE);
@@ -402,7 +402,7 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			tw->_selected->render_pixel(x, y, tw->_tileset->lighting(), e);
+			tw->_selected->render_pixel(x, y, tw->_tileset->palettes(), e);
 		}
 	}
 	delete pasted;

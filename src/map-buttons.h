@@ -96,8 +96,8 @@ public:
 	Deep_Tile_Button(int x, int y, int s, uint8_t id);
 	inline bool for_clipboard(void) const { return _for_clipboard; }
 	inline void for_clipboard(bool f) { _for_clipboard = f; }
-	inline void copy_pixel(const Pixel_Button *pb, Lighting l) { render_pixel(pb->col(), pb->row(), l, pb->hue()); }
-	void copy_pixels(Pixel_Button **pbs, Lighting l);
+	inline void copy_pixel(const Pixel_Button *pb, Palettes l) { render_pixel(pb->col(), pb->row(), l, pb->hue()); }
+	void copy_pixels(Pixel_Button **pbs, Palettes l);
 	void draw(void);
 	int handle(int event);
 private:
