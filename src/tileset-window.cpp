@@ -88,8 +88,8 @@ void Tileset_Window::initialize() {
 	_swatch2 = new Swatch(434, 64, 22, "2");
 	_swatch3 = new Swatch(434, 92, 22, "3");
 	_swatch4 = new Swatch(434, 120, 22, "4");
-	int off = text_width("Color:", 3);
-	_palette = new Dropdown(278 + off, 192, 146 - off, 22, "Color:");
+	int off = text_width("Palette:", 3);
+	_palette = new Dropdown(278 + off, 192, 146 - off, 22, "Palette:");
 	_priority = new OS_Check_Button(278, 218, 178, 22, "Priority (above sprites)");
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
