@@ -174,6 +174,7 @@
     <None Include="..\res\add-sub.xpm" />
     <None Include="..\res\app.ico" />
     <None Include="..\res\app.xpm" />
+    <None Include="..\res\blank.xpm" />
     <None Include="..\res\blocks-disabled.xpm" />
     <None Include="..\res\blocks.xpm" />
     <None Include="..\res\change-disabled.xpm" />
