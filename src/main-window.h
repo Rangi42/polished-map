@@ -216,6 +216,9 @@ private:
 	static void save_metatiles_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_tileset_cb(Fl_Widget *w, Main_Window *mw);
 	static void save_roof_cb(Fl_Widget *w, Main_Window *mw);
+	static void print_cb(Fl_Widget *w, Main_Window *mw);
+	static void exit_cb(Fl_Widget *w, Main_Window *mw);
+	// Data menu
 	static void load_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void view_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void reload_event_script_cb(Fl_Widget *w, Main_Window *mw);
@@ -224,8 +227,6 @@ private:
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_lighting_cb(Fl_Widget *w, Main_Window *mw);
 	static void export_current_lighting_cb(Fl_Widget *w, Main_Window *mw);
-	static void print_cb(Fl_Widget *w, Main_Window *mw);
-	static void exit_cb(Fl_Widget *w, Main_Window *mw);
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);
