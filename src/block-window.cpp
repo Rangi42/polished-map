@@ -49,8 +49,8 @@ void Block_Window::initialize() {
 	_metatile_group = new Fl_Group(322, 36, 130, 130);
 	_metatile_group->end();
 	_window->begin();
-	int off = text_width("Color:", 3);
-	_palette = new Dropdown(278+off, 176, 174-off, 22, "Color:");
+	int off = text_width("Palette:", 3);
+	_palette = new Dropdown(278+off, 176, 174-off, 22, "Palette:");
 	off = MAX(text_width("X flip", 3), text_width("Y flip", 3));
 	_x_flip = new OS_Check_Button(278, 202, 22+off, 22, "X flip");
 	_y_flip = new OS_Check_Button(304+off, 202, 22+off, 22, "Y flip");
