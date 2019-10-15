@@ -10,8 +10,8 @@
 
 #include "utils.h"
 
-#define RGB5C(x) (uchar)((x) * 8) // (uchar)((x) * 33 / 4) for BGB instead of VBA
-#define CRGB5(c) (uchar)((c) / 8)
+#define RGB5C(x) (uchar)((x) * 33 / 4) // 5-bit to 8-bit
+#define CRGB5(c) (uchar)((c) / 8)      // 8-bit to 5-bit
 
 enum Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
 
