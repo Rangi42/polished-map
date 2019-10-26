@@ -255,7 +255,7 @@ Dropdown::Dropdown(int x, int y, int w, int h, const char *l) : Fl_Choice(x, y, 
 
 void Dropdown::draw() {
 	// Based on Fl_Choice::draw()
-	Fl_Boxtype bb = OS::current_theme() == OS::METAL ? OS_INPUT_THIN_DOWN_BOX :
+	Fl_Boxtype bb = OS::current_theme() == OS::METAL || OS::current_theme() == OS::HIGH_CONTRAST ? OS_INPUT_THIN_DOWN_BOX :
 		OS::current_theme() == OS::OLIVE ? OS_SWATCH_BOX : FL_DOWN_BOX;
 	int dx = Fl::box_dx(bb);
 	int dy = Fl::box_dy(bb);

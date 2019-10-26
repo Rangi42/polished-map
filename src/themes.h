@@ -41,7 +41,7 @@
 
 class OS {
 public:
-	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, OLIVE, ROSE_GOLD, DARK };
+	enum Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, OLIVE, ROSE_GOLD, DARK, HIGH_CONTRAST };
 private:
 	static Theme _current_theme;
 	static bool _is_consolas;
@@ -67,6 +67,7 @@ public:
 	static void use_olive_theme(void);
 	static void use_rose_gold_theme(void);
 	static void use_dark_theme(void);
+	static void use_high_contrast_theme(void);
 };
 
 #endif

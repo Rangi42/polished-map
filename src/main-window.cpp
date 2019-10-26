@@ -316,6 +316,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 			FL_MENU_RADIO | (OS::current_theme() == OS::ROSE_GOLD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::DARK ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&High Contrast", 0, (Fl_Callback *)high_contrast_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::HIGH_CONTRAST ? FL_MENU_VALUE : 0)),
 		{},
 		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this,
 			FL_MENU_TOGGLE | (grid_config ? FL_MENU_VALUE : 0)),
@@ -397,6 +399,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_olive_theme_mi = PM_FIND_MENU_ITEM_CB(olive_theme_cb);
 	_rose_gold_theme_mi = PM_FIND_MENU_ITEM_CB(rose_gold_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
+	_high_contrast_theme_mi = PM_FIND_MENU_ITEM_CB(high_contrast_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
 	_rulers_mi = PM_FIND_MENU_ITEM_CB(rulers_cb);
 	_zoom_mi = PM_FIND_MENU_ITEM_CB(zoom_cb);
@@ -2652,6 +2655,12 @@ void Main_Window::rose_gold_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_dark_theme();
 	mw->_dark_theme_mi->setonly();
+	mw->redraw();
+}
+
+void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_high_contrast_theme();
+	mw->_high_contrast_theme_mi->setonly();
 	mw->redraw();
 }
 
