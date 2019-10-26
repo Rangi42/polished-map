@@ -20,7 +20,7 @@ Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
 	uchar *buffer = (uchar *)image->data()[0];
 	int d = image->d(), ld = image->ld();
 	int pd = d > 1;
-	return write_image(f, w, h, buffer, pd, d, ld);
+	return write_image(f, w, h, buffer, false, pd, d, ld);
 }
 
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
@@ -31,17 +31,17 @@ Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) 
 	bool allow_256 = Config::allow_256_tiles();
 	if (!allow_256 && h > 6 * TILE_SIZE) { h -= 2 * TILE_SIZE; } // skip tiles $60 to $7F
 	uchar *buffer = tileset.print_rgb(w, h, n);
-	return write_image(f, w, h, buffer);
+	return write_image(f, w, h, buffer, true);
 }
 
 Image::Result Image::write_roof_image(const char *f, const Tileset &tileset) {
 	size_t w = ROOF_TILES_PER_ROW * TILE_SIZE;
 	size_t h = ROOF_TILES_PER_COL * TILE_SIZE;
 	uchar *buffer = tileset.print_roof_rgb(w, h);
-	return write_image(f, w, h, buffer);
+	return write_image(f, w, h, buffer, true);
 }
 
-Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, int pd, int d, int ld) {
+Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, bool grayscale, int pd, int d, int ld) {
 	if (!ld) { ld = (int)w * d; }
 	Result result = IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
@@ -61,20 +61,21 @@ Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffe
 		png_set_compression_method(png, Z_DEFLATED);
 		png_set_compression_buffer_size(png, 8192);
 		// Write the PNG IHDR chunk
-		png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, PNG_COLOR_TYPE_RGB,
+		png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, grayscale ? PNG_COLOR_TYPE_GRAY : PNG_COLOR_TYPE_RGB,
 			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 		// Write the other PNG header chunks
 		png_write_info(png, info);
 		// Write the RGB pixels in row-major order from top to bottom
-		size_t row_size = NUM_CHANNELS * w;
+		size_t pc = grayscale ? 1 : 3;
+		size_t row_size = pc * w;
 		png_bytep png_row = new png_byte[row_size];
 		for (size_t i = 0; i < h; i++) {
 			for (size_t j = 0; j < w; j++) {
-				size_t rd = NUM_CHANNELS * j;
+				size_t rd = pc * j;
 				size_t px = ld * i + d * j;
-				png_row[rd] = buffer[px];
-				png_row[rd+1] = buffer[px+pd];
-				png_row[rd+2] = buffer[px+pd+pd];
+				for (size_t k = 0; k < pc; k++) {
+					png_row[rd+k] = buffer[px+pd*k];
+				}
 			}
 			png_write_row(png, png_row);
 		}
