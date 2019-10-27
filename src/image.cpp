@@ -41,7 +41,7 @@ Image::Result Image::write_roof_image(const char *f, const Tileset &tileset) {
 	return write_image(f, w, h, buffer, true);
 }
 
-Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, bool grayscale, int pd, int d, int ld) {
+Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, bool is_2bpp, int pd, int d, int ld) {
 	if (!ld) { ld = (int)w * d; }
 	Result result = IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
@@ -61,23 +61,39 @@ Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffe
 		png_set_compression_method(png, Z_DEFLATED);
 		png_set_compression_buffer_size(png, 8192);
 		// Write the PNG IHDR chunk
-		png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8, grayscale ? PNG_COLOR_TYPE_GRAY : PNG_COLOR_TYPE_RGB,
+		png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, is_2bpp ? 2 : 8,
+			is_2bpp ? PNG_COLOR_TYPE_GRAY : PNG_COLOR_TYPE_RGB,
 			PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 		// Write the other PNG header chunks
 		png_write_info(png, info);
 		// Write the RGB pixels in row-major order from top to bottom
-		size_t pc = grayscale ? 1 : 3;
-		size_t row_size = pc * w;
-		png_bytep png_row = new png_byte[row_size];
-		for (size_t i = 0; i < h; i++) {
-			for (size_t j = 0; j < w; j++) {
-				size_t rd = pc * j;
-				size_t px = ld * i + d * j;
-				for (size_t k = 0; k < pc; k++) {
-					png_row[rd+k] = buffer[px+pd*k];
+		size_t rs = is_2bpp ? w / 4 : w * NUM_CHANNELS;
+		png_bytep png_row = new png_byte[rs];
+		if (is_2bpp) {
+			for (size_t i = 0; i < h; i++) {
+				for (size_t j = 0; j < rs; j++) {
+					uchar pp = 0;
+					for (size_t k = 0; k < 4; k++) {
+						size_t px = ld * i + d * (j * 4 + k);
+						uchar v = buffer[px] / (0x100 / 4); // [0, 255] -> [0, 3]
+						pp = (pp << 2) | v;
+					}
+					png_row[j] = pp;
 				}
+				png_write_row(png, png_row);
 			}
-			png_write_row(png, png_row);
+		}
+		else {
+			for (size_t i = 0; i < h; i++) {
+				for (size_t j = 0; j < w; j++) {
+					size_t rd = NUM_CHANNELS * j;
+					size_t px = ld * i + d * j;
+					for (size_t k = 0; k < NUM_CHANNELS; k++) {
+						png_row[rd+k] = buffer[px+pd*k];
+					}
+				}
+				png_write_row(png, png_row);
+			}
 		}
 		png_write_end(png, NULL);
 		delete [] png_row;
