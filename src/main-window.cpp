@@ -1991,6 +1991,11 @@ void Main_Window::edit_metatile(Metatile *mt) {
 }
 
 void Main_Window::update_icons() {
+	bool dark = OS::is_dark_theme(OS::current_theme());
+	_grid_tb->image(dark ? GRID_DARK_ICON : GRID_ICON);
+	_ids_tb->image(dark ? IDS_DARK_ICON : IDS_ICON);
+	_hex_tb->image(dark ? HEX_DARK_ICON : HEX_ICON);
+	_blocks_mode_tb->image(dark ? BLOCKS_DARK_ICON : BLOCKS_ICON);
 	Image::make_deimage(_new_tb);
 	Image::make_deimage(_open_tb);
 	Image::make_deimage(_load_event_script_tb);

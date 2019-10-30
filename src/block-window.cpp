@@ -141,6 +141,15 @@ void Block_Window::refresh() {
 
 void Block_Window::update_icons() {
 	initialize();
+	bool dark = OS::is_dark_theme(OS::current_theme());
+	_collision_inputs[Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
+	_collision_inputs[Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
+	_collision_inputs[Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
+	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
+	_bin_collision_spinners[Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
+	_bin_collision_spinners[Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
+	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
 	Image::make_deimage(_collision_inputs[Quadrant::TOP_LEFT]);
 	Image::make_deimage(_collision_inputs[Quadrant::TOP_RIGHT]);
 	Image::make_deimage(_collision_inputs[Quadrant::BOTTOM_LEFT]);
