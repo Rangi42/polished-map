@@ -122,3 +122,19 @@ const char *Image::error_message(Result result) {
 	}
 }
 
+bool Image::make_deimage(Fl_Widget *wgt) {
+	if (!wgt || !wgt->image()) {
+		return false;
+	}
+	Fl_Image *deimg = wgt->image()->copy();
+	if (!deimg) {
+		return false;
+	}
+	deimg->desaturate();
+	deimg->color_average(FL_GRAY, 0.5f);
+	if (wgt->deimage()) {
+		delete wgt->deimage();
+	}
+	wgt->deimage(deimg);
+	return true;
+}

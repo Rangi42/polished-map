@@ -37,6 +37,7 @@ private:
 	void initialize(void);
 	void refresh(void);
 public:
+	void update_icons(void);
 	void tileset(const Tileset *t);
 	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }

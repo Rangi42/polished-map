@@ -16,6 +16,7 @@ public:
 	static Result write_tileset_image(const char *f, const Tileset &tileset);
 	static Result write_roof_image(const char *f, const Tileset &tileset);
 	static const char *error_message(Result result);
+	static bool make_deimage(Fl_Widget *wgt);
 private:
 	static Result write_image(const char *f, size_t w, size_t h, uchar *buffer, bool is_2bpp = false,
 		int pd = 1, int d = 3, int ld = 0);

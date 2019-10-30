@@ -8,6 +8,7 @@
 #include "themes.h"
 #include "config.h"
 #include "icons.h"
+#include "image.h"
 #include "tileset-window.h"
 
 Tile_Window::Tile_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
@@ -128,12 +129,10 @@ void Tileset_Window::initialize() {
 	_copy_tb->shortcut(FL_COMMAND + 'C');
 	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
 	_copy_tb->image(COPY_ICON);
-	_copy_tb->deimage(COPY_DISABLED_ICON);
 	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
 	_paste_tb->shortcut(FL_COMMAND + 'V');
 	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
 	_paste_tb->image(PASTE_ICON);
-	_paste_tb->deimage(PASTE_DISABLED_ICON);
 	_swatch1->shortcut('1');
 	_swatch1->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch2->shortcut('2');
@@ -168,6 +167,12 @@ void Tileset_Window::refresh() {
 	_copied = false;
 	select(_deep_tile_buttons[0]);
 	choose(_swatch1);
+}
+
+void Tileset_Window::update_icons() {
+	initialize();
+	Image::make_deimage(_copy_tb);
+	Image::make_deimage(_paste_tb);
 }
 
 void Tileset_Window::tileset(Tileset *t) {
