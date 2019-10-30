@@ -47,6 +47,7 @@ private:
 	void initialize(void);
 	void refresh(void);
 public:
+	void update_icons(void);
 	void tileset(Tileset *t);
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }

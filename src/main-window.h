@@ -189,6 +189,7 @@ private:
 	bool export_palettes(const char *filename, Palettes l);
 	void print_map(void);
 	void edit_metatile(Metatile *mt);
+	void update_icons(void);
 	void update_rulers(void);
 	void update_zoom(void);
 	void update_layout(void);

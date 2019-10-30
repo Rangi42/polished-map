@@ -1,7 +1,8 @@
 #include "themes.h"
 #include "tile.h"
-#include "block-window.h"
 #include "icons.h"
+#include "image.h"
+#include "block-window.h"
 
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
@@ -116,21 +117,13 @@ void Block_Window::initialize() {
 	_y_flip->callback((Fl_Callback *)change_attributes_cb, this);
 	_extra->callback((Fl_Callback *)change_attributes_cb, this);
 	_collision_inputs[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
-	_collision_inputs[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
 	_collision_inputs[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
-	_collision_inputs[Quadrant::TOP_RIGHT]->deimage(COLL_TOP_RIGHT_DISABLED_ICON);
 	_collision_inputs[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_LEFT]->deimage(COLL_BOTTOM_LEFT_DISABLED_ICON);
 	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_RIGHT]->deimage(COLL_BOTTOM_RIGHT_DISABLED_ICON);
 	_bin_collision_spinners[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_LEFT]->deimage(COLL_TOP_LEFT_DISABLED_ICON);
 	_bin_collision_spinners[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]->deimage(COLL_TOP_RIGHT_DISABLED_ICON);
 	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->deimage(COLL_BOTTOM_LEFT_DISABLED_ICON);
 	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->deimage(COLL_BOTTOM_RIGHT_DISABLED_ICON);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -144,6 +137,18 @@ void Block_Window::refresh() {
 	Tile_Button *tb = _tile_buttons[0];
 	tb->Attributable::clear();
 	select(tb);
+}
+
+void Block_Window::update_icons() {
+	initialize();
+	Image::make_deimage(_collision_inputs[Quadrant::TOP_LEFT]);
+	Image::make_deimage(_collision_inputs[Quadrant::TOP_RIGHT]);
+	Image::make_deimage(_collision_inputs[Quadrant::BOTTOM_LEFT]);
+	Image::make_deimage(_collision_inputs[Quadrant::BOTTOM_RIGHT]);
+	Image::make_deimage(_bin_collision_spinners[Quadrant::TOP_LEFT]);
+	Image::make_deimage(_bin_collision_spinners[Quadrant::TOP_RIGHT]);
+	Image::make_deimage(_bin_collision_spinners[Quadrant::BOTTOM_LEFT]);
+	Image::make_deimage(_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]);
 }
 
 void Block_Window::tileset(const Tileset *t) {

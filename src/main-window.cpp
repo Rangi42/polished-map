@@ -469,101 +469,83 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_new_tb->tooltip("New... (Ctrl+N)");
 	_new_tb->callback((Fl_Callback *)new_cb, this);
 	_new_tb->image(NEW_ICON);
-	_new_tb->deimage(NEW_DISABLED_ICON);
 	_new_tb->take_focus();
 
 	_open_tb->tooltip("Open... (Ctrl+O)");
 	_open_tb->callback((Fl_Callback *)open_cb, this);
 	_open_tb->image(OPEN_ICON);
-	_open_tb->deimage(OPEN_DISABLED_ICON);
 
 	_load_event_script_tb->tooltip("Load Event Script... (Ctrl+A)");
 	_load_event_script_tb->callback((Fl_Callback *)load_event_script_cb, this);
 	_load_event_script_tb->image(LOAD_ICON);
-	_load_event_script_tb->deimage(LOAD_DISABLED_ICON);
 
 	_reload_event_script_tb->tooltip("Reload Event Script... (Ctrl+R)");
 	_reload_event_script_tb->callback((Fl_Callback *)reload_event_script_cb, this);
 	_reload_event_script_tb->image(RELOAD_ICON);
-	_reload_event_script_tb->deimage(RELOAD_DISABLED_ICON);
 
 	_save_tb->tooltip("Save (Ctrl+S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
 	_save_tb->image(SAVE_ICON);
-	_save_tb->deimage(SAVE_DISABLED_ICON);
 
 	_print_tb->tooltip("Print (Ctrl+P)");
 	_print_tb->callback((Fl_Callback *)print_cb, this);
 	_print_tb->image(PRINT_ICON);
-	_print_tb->deimage(PRINT_DISABLED_ICON);
 
 	_undo_tb->tooltip("Undo (Ctrl+Z)");
 	_undo_tb->callback((Fl_Callback *)undo_cb, this);
 	_undo_tb->image(UNDO_ICON);
-	_undo_tb->deimage(UNDO_DISABLED_ICON);
 
 	_redo_tb->tooltip("Redo (Ctrl+Y)");
 	_redo_tb->callback((Fl_Callback *)redo_cb, this);
 	_redo_tb->image(REDO_ICON);
-	_redo_tb->deimage(REDO_DISABLED_ICON);
 
 	_grid_tb->tooltip("Grid (Ctrl+G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
 	_grid_tb->image(GRID_ICON);
-	_grid_tb->deimage(GRID_DISABLED_ICON);
 	_grid_tb->value(grid());
 
 	_rulers_tb->callback((Fl_Callback *)rulers_tb_cb, this);
 	_rulers_tb->image(RULERS_ICON);
-	_rulers_tb->deimage(RULERS_DISABLED_ICON);
 	_rulers_tb->value(rulers());
 
 	_zoom_tb->tooltip("Zoom (Ctrl+=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
 	_zoom_tb->image(ZOOM_ICON);
-	_zoom_tb->deimage(ZOOM_DISABLED_ICON);
 	_zoom_tb->value(zoom());
 
 	_ids_tb->tooltip("Block IDs (Ctrl+I)");
 	_ids_tb->callback((Fl_Callback *)ids_tb_cb, this);
 	_ids_tb->image(IDS_ICON);
-	_ids_tb->deimage(IDS_DISABLED_ICON);
 	_ids_tb->value(ids());
 
 	_hex_tb->tooltip("Hexadecimal (Ctrl+$)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
-	_hex_tb->deimage(HEX_DISABLED_ICON);
 	_hex_tb->value(hex());
 
 	_show_priority_tb->tooltip("Show Priority (Ctrl+Shift+P)");
 	_show_priority_tb->callback((Fl_Callback *)show_priority_tb_cb, this);
 	_show_priority_tb->image(PRIORITY_ICON);
-	_show_priority_tb->deimage(PRIORITY_DISABLED_ICON);
 	_show_priority_tb->value(show_priority());
 
 	_gameboy_screen_tb->tooltip("Game Boy Screen (Ctrl+Shift+M)");
 	_gameboy_screen_tb->callback((Fl_Callback *)gameboy_screen_tb_cb, this);
 	_gameboy_screen_tb->image(GAMEBOY_ICON);
-	_gameboy_screen_tb->deimage(GAMEBOY_DISABLED_ICON);
 	_gameboy_screen_tb->value(gameboy_screen());
 
 	_show_events_tb->tooltip("Show Events (Ctrl+Shift+R)");
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
-	_show_events_tb->deimage(SHOW_DISABLED_ICON);
 	_show_events_tb->value(show_events());
 
 	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+Shift+B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
 	_blocks_mode_tb->image(BLOCKS_ICON);
-	_blocks_mode_tb->deimage(BLOCKS_DISABLED_ICON);
 	_blocks_mode_tb->value(mode() == Mode::BLOCKS);
 
 	_events_mode_tb->tooltip("Events Mode (Ctrl+Shift+E)");
 	_events_mode_tb->callback((Fl_Callback *)events_mode_tb_cb, this);
 	_events_mode_tb->image(EVENTS_ICON);
-	_events_mode_tb->deimage(EVENTS_DISABLED_ICON);
 	_events_mode_tb->value(mode() == Mode::EVENTS);
 
 	_palettes->add("Morn");   // Palettes::MORN
@@ -577,42 +559,34 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
 	_add_sub_tb->image(ADD_SUB_ICON);
-	_add_sub_tb->deimage(ADD_SUB_DISABLED_ICON);
 
 	_resize_tb->tooltip("Resize Map... (Ctrl+E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
-	_resize_tb->deimage(RESIZE_DISABLED_ICON);
 
 	_change_tileset_tb->tooltip("Change Tileset... (Ctrl+H)");
 	_change_tileset_tb->callback((Fl_Callback *)change_tileset_cb, this);
 	_change_tileset_tb->image(CHANGE_ICON);
-	_change_tileset_tb->deimage(CHANGE_DISABLED_ICON);
 
 	_edit_tileset_tb->tooltip("Edit Tileset... (Ctrl+T)");
 	_edit_tileset_tb->callback((Fl_Callback *)edit_tileset_cb, this);
 	_edit_tileset_tb->image(TILESET_ICON);
-	_edit_tileset_tb->deimage(TILESET_DISABLED_ICON);
 
 	_change_roof_tb->tooltip("Change Roof... (Ctrl+Shift+H)");
 	_change_roof_tb->callback((Fl_Callback *)change_roof_cb, this);
 	_change_roof_tb->image(CHANGE_ROOF_ICON);
-	_change_roof_tb->deimage(CHANGE_ROOF_DISABLED_ICON);
 
 	_edit_roof_tb->tooltip("Edit Roof... (Ctrl+F)");
 	_edit_roof_tb->callback((Fl_Callback *)edit_roof_cb, this);
 	_edit_roof_tb->image(ROOF_ICON);
-	_edit_roof_tb->deimage(ROOF_DISABLED_ICON);
 
 	_load_palettes_tb->tooltip("Load Palettes... (Ctrl+L)");
 	_load_palettes_tb->callback((Fl_Callback *)load_palettes_cb, this);
 	_load_palettes_tb->image(LOAD_PALETTES_ICON);
-	_load_palettes_tb->deimage(LOAD_PALETTES_DISABLED_ICON);
 
 	_edit_current_palettes_tb->tooltip("Edit Current Palettes... (Ctrl+Shift+L)");
 	_edit_current_palettes_tb->callback((Fl_Callback *)edit_current_palettes_cb, this);
 	_edit_current_palettes_tb->image(PALETTES_ICON);
-	_edit_current_palettes_tb->deimage(PALETTES_DISABLED_ICON);
 
 	// Configure dialogs
 
@@ -671,6 +645,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 #include "help.html" // a C++11 raw string literal
 		);
 
+	update_icons();
 	update_recent_maps();
 	update_active_controls();
 }
@@ -2015,6 +1990,38 @@ void Main_Window::edit_metatile(Metatile *mt) {
 	redraw();
 }
 
+void Main_Window::update_icons() {
+	Image::make_deimage(_new_tb);
+	Image::make_deimage(_open_tb);
+	Image::make_deimage(_load_event_script_tb);
+	Image::make_deimage(_reload_event_script_tb);
+	Image::make_deimage(_save_tb);
+	Image::make_deimage(_print_tb);
+	Image::make_deimage(_undo_tb);
+	Image::make_deimage(_redo_tb);
+	Image::make_deimage(_grid_tb);
+	Image::make_deimage(_rulers_tb);
+	Image::make_deimage(_zoom_tb);
+	Image::make_deimage(_ids_tb);
+	Image::make_deimage(_hex_tb);
+	Image::make_deimage(_show_priority_tb);
+	Image::make_deimage(_gameboy_screen_tb);
+	Image::make_deimage(_show_events_tb);
+	Image::make_deimage(_blocks_mode_tb);
+	Image::make_deimage(_events_mode_tb);
+	Image::make_deimage(_add_sub_tb);
+	Image::make_deimage(_resize_tb);
+	Image::make_deimage(_change_tileset_tb);
+	Image::make_deimage(_edit_tileset_tb);
+	Image::make_deimage(_change_roof_tb);
+	Image::make_deimage(_edit_roof_tb);
+	Image::make_deimage(_load_palettes_tb);
+	Image::make_deimage(_edit_current_palettes_tb);
+	_block_window->update_icons();
+	_tileset_window->update_icons();
+	_roof_window->update_icons();
+}
+
 void Main_Window::update_rulers() {
 	if (rulers()) {
 		_hor_ruler->show();
@@ -2601,66 +2608,77 @@ void Main_Window::swap_metatiles_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::classic_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_classic_theme();
 	mw->_classic_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_aero_theme();
 	mw->_aero_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_metro_theme();
 	mw->_metro_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::aqua_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_aqua_theme();
 	mw->_aqua_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_greybird_theme();
 	mw->_greybird_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_metal_theme();
 	mw->_metal_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::blue_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_blue_theme();
 	mw->_blue_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::olive_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_olive_theme();
 	mw->_olive_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::rose_gold_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_rose_gold_theme();
 	mw->_rose_gold_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_dark_theme();
 	mw->_dark_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 
 void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_high_contrast_theme();
 	mw->_high_contrast_theme_mi->setonly();
+	mw->update_icons();
 	mw->redraw();
 }
 

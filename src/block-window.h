@@ -43,6 +43,7 @@ private:
 	void initialize(void);
 	void refresh(void);
 public:
+	void update_icons(void);
 	inline const Tileset *tileset(void) const { return _tileset; }
 	void tileset(const Tileset *t);
 	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
