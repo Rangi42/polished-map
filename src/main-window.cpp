@@ -1275,6 +1275,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		else if (_map.palette() == "PALETTE_MORN" || _map.palette() == "3") {
 			new_palettes = Palettes::MORN;
 		}
+		else if (OS::is_dark_theme(OS::current_theme())) {
+			new_palettes = Palettes::NITE;
+		}
 		else {
 			new_palettes = Palettes::DAY;
 		}
