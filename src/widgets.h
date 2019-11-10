@@ -130,6 +130,8 @@ private:
 public:
 	Workspace(int x, int y, int w, int h, const char *l = NULL);
 	inline void contents(int w, int h) { _content_w = w; _content_h = h; }
+	inline bool has_x_scroll(void) const { return !!hscrollbar.visible(); }
+	inline bool has_y_scroll(void) const { return !!scrollbar.visible(); }
 	inline void dnd_receiver(DnD_Receiver *dndr) { _dnd_receiver = dndr; }
 	inline void add_correlate(Fl_Widget *wgt) { _correlates.push_back(wgt); }
 	inline void clear_correlates(void) { _correlates.clear(); }

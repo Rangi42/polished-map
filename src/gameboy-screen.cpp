@@ -18,11 +18,10 @@ static uchar screen_png_buffer[118] = {
 
 static Fl_PNG_Image screen_png(NULL, screen_png_buffer, 118);
 
-Game_Boy_Screen::Game_Boy_Screen() : Fl_Box(0, 0, 0, 0) {}
+int Game_Boy_Screen::_x = 0, Game_Boy_Screen::_y = 0, Game_Boy_Screen::_w = 0, Game_Boy_Screen::_h = 0;
 
 void Game_Boy_Screen::draw() {
-	int X = x(), Y = y(), W = w(), H = h();
-	screen_png.draw(X, Y, W, H);
-	fl_rect(X, Y, W, H, FL_BLACK);
-	fl_rect(X+1, Y+1, W-2, H-2, FL_WHITE);
+	screen_png.draw(_x, _y, _w, _h);
+	fl_rect(_x, _y, _w, _h, FL_BLACK);
+	fl_rect(_x+1, _y+1, _w-2, _h-2, FL_WHITE);
 }

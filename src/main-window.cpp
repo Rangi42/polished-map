@@ -6,7 +6,7 @@
 
 #pragma warning(push, 0)
 #include <FL/Fl.H>
-#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Overlay_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
@@ -39,7 +39,7 @@
 #include "app-icon.xpm"
 #endif
 
-Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_Window(x, y, w, h, PROGRAM_NAME),
+Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _metatile_buttons(),
 	_status_event_x(INT_MIN), _status_event_y(INT_MIN), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
@@ -174,9 +174,6 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Double_W
 	_map_scroll = new Workspace(wx, wy, ww, wh);
 	_map_scroll->type(Fl_Scroll::BOTH);
 	_map_group = new Fl_Group(wx, wy, 0, 0);
-
-	// Game Boy screen
-	_gameboy_screen = new Game_Boy_Screen();
 	_map_group->end();
 	begin();
 
@@ -672,7 +669,6 @@ Main_Window::~Main_Window() {
 	delete _sidebar; // includes metatiles
 	delete _status_bar; // includes status bar fields
 	delete _map_scroll; // includes map and blocks
-	delete _gameboy_screen;
 	delete _dnd_receiver;
 	delete _blk_open_chooser;
 	delete _blk_save_chooser;
@@ -700,7 +696,7 @@ Main_Window::~Main_Window() {
 }
 
 void Main_Window::show() {
-	Fl_Double_Window::show();
+	Fl_Overlay_Window::show();
 #ifdef _WIN32
 	// Fix for 16x16 icon from <http://www.fltk.org/str.php?L925>
 	HWND hwnd = fl_xid(this);
@@ -748,6 +744,16 @@ const char *Main_Window::modified_filename() {
 	return fl_filename_name(buffer);
 }
 
+void Main_Window::draw_overlay() {
+	if (_gameboy_screen) {
+		int sw = _map_scroll->w() - (_map_scroll->has_y_scroll() ? Fl::scrollbar_size() : 0);
+		int sh = _map_scroll->h() - (_map_scroll->has_x_scroll() ? Fl::scrollbar_size() : 0);
+		fl_push_clip(_map_scroll->x(), _map_scroll->y(), sw, sh);
+		Game_Boy_Screen::draw();
+		fl_pop_clip();
+	}
+}
+
 int Main_Window::handle(int event) {
 	int key = 0;
 	switch (event) {
@@ -760,7 +766,7 @@ int Main_Window::handle(int event) {
 		if (handle_hotkey(key)) { return 1; }
 		// fall through
 	default:
-		return Fl_Double_Window::handle(event);
+		return Fl_Overlay_Window::handle(event);
 	}
 }
 
@@ -871,16 +877,14 @@ void Main_Window::update_event_cursor(Block *b) {
 
 void Main_Window::update_gameboy_screen(Block *b) {
 	if (_mode == Mode::EVENTS && b && gameboy_screen()) {
-		if (!_gameboy_screen->visible()) {
-			_gameboy_screen->show();
-		}
 		int hx = b->x() + b->right_half() * b->w() / 2, hy = b->y() + b->bottom_half() * b->h() / 2;
 		int hs = metatile_size() / 2;
-		_gameboy_screen->resize(hx-hs*4, hy-hs*4, hs*10, hs*9);
-		redraw_gameboy_screen();
+		Game_Boy_Screen::resize(hx-hs*4, hy-hs*4, hs*10, hs*9);
+		_gameboy_screen = true;
+		redraw_overlay();
 	}
-	else if (_gameboy_screen->visible()) {
-		_gameboy_screen->hide();
+	else if (_gameboy_screen) {
+		_gameboy_screen = false;
 		redraw_map();
 	}
 	else if (b) {
@@ -1216,7 +1220,6 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		}
 	}
 
-	_map_group->remove(_gameboy_screen);
 	_map_group->size(ms * ((int)w + EVENT_MARGIN), ms * ((int)h + EVENT_MARGIN));
 	for (uint8_t y = 0; y < h; y++) {
 		for (uint8_t x = 0; x < w; x++) {
@@ -1225,7 +1228,6 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 			_map_group->add(block);
 		}
 	}
-	_map_group->add(_gameboy_screen);
 	_map.resize_blocks(_map_group->x(), _map_group->y(), ms);
 	_map_scroll->init_sizes();
 	int kx = _map_group->w() - _map_scroll->w() + Fl::scrollbar_size();
@@ -1420,7 +1422,6 @@ void Main_Window::load_events(const char *filename) {
 		return;
 	}
 
-	_map_group->remove(_gameboy_screen);
 	_map_events.resize_events(_map_group->x(), _map_group->y(), metatile_size() / 2);
 	size_t n = _map_events.size();
 	for (size_t i = 0; i < n; i++) {
@@ -1428,7 +1429,6 @@ void Main_Window::load_events(const char *filename) {
 		event->callback((Fl_Callback *)change_event_cb, this);
 		_map_group->add(event);
 	}
-	_map_group->add(_gameboy_screen);
 
 	_asm_file = filename;
 }
@@ -1768,7 +1768,6 @@ void Main_Window::resize_map(int w, int h) {
 		}
 		_map_group->add(e);
 	}
-	_map_group->add(_gameboy_screen);
 
 	int ms = metatile_size();
 	_map_group->size(ms * ((int)w + EVENT_MARGIN), ms * ((int)h + EVENT_MARGIN));
@@ -2264,10 +2263,8 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_copied = false;
 	mw->_hotkey_metatiles.clear();
 	mw->_metatile_hotkeys.clear();
-	mw->_map_group->remove(mw->_gameboy_screen);
 	mw->_map_group->clear();
 	mw->_map_group->size(0, 0);
-	mw->_map_group->add(mw->_gameboy_screen);
 	mw->_map.clear();
 	mw->_map_events.clear();
 	mw->_map_scroll->scroll_to(0, 0);
