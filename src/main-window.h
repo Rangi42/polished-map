@@ -5,7 +5,7 @@
 #include <climits>
 
 #pragma warning(push, 0)
-#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Overlay_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Native_File_Chooser.H>
@@ -34,7 +34,7 @@
 
 enum Mode { BLOCKS, EVENTS };
 
-class Main_Window : public Fl_Double_Window {
+class Main_Window : public Fl_Overlay_Window {
 private:
 	// GUI containers
 	Fl_Menu_Bar *_menu_bar;
@@ -94,7 +94,7 @@ private:
 	Metatileset _metatileset;
 	Map _map;
 	Map_Events _map_events;
-	Game_Boy_Screen *_gameboy_screen;
+	bool _gameboy_screen;
 	int _status_event_x, _status_event_y;
 	// Metatile button properties
 	Metatile_Button *_metatile_buttons[MAX_NUM_METATILES];
@@ -143,6 +143,7 @@ public:
 	inline std::unordered_map<int, uint8_t>::const_iterator no_metatile(void) const { return _hotkey_metatiles.end(); }
 	inline void map_editable(bool e) { _map_editable = e; }
 	const char *modified_filename(void);
+	void draw_overlay(void);
 	int handle(int event);
 	inline void draw_metatile(int x, int y, uint8_t id) const { _metatileset.draw_metatile(x, y, id, zoom(), show_priority()); }
 	inline void print_metatile(int x, int y, uint8_t id) const { _metatileset.draw_metatile(x, y, id, false, Config::print_priority()); }
@@ -154,11 +155,7 @@ public:
 	inline void update_gameboy_screen(Event *e) { update_gameboy_screen(_map.block_under(e)); }
 	inline void update_gameboy_screen(void) { update_gameboy_screen(dynamic_cast<Block *>(Fl::belowmouse())); }
 	inline void redraw_map(void) { _map_scroll->redraw(); }
-	inline void redraw_gameboy_screen(void) {
-		fl_push_clip(_gameboy_screen->x(), _gameboy_screen->y(), _gameboy_screen->w(), _gameboy_screen->h());
-		redraw_map();
-		fl_pop_clip();
-	}
+	inline void redraw_gameboy_screen(void) { redraw_map(); redraw_overlay(); }
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void substitute_block(uint8_t f, uint8_t t);
 	void swap_blocks(uint8_t f, uint8_t t);
