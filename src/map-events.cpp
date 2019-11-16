@@ -24,6 +24,7 @@ static const std::unordered_map<std::string, Event_Meta> events_meta = {
 	{"dummy_warp",             {TX_PURPLE, 'D', 0, true,  0}},
 	// Polished Crystal
 	{"itemball_event",         {TX_AZURE,  'I', 0, false, 0}},
+	{"keyitemball_event",      {TX_AZURE,  'K', 0, false, 0}},
 	{"tmhmball_event",         {TX_AZURE,  'T', 0, false, 0}},
 	{"cuttree_event",          {TX_AZURE,  'C', 0, false, 0}},
 	{"fruittree_event",        {TX_AZURE,  'F', 0, false, 0}},
