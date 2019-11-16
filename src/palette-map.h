@@ -11,7 +11,7 @@
 
 class Palette_Map {
 public:
-	enum Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_TOO_LONG, PALETTE_NULL };
+	enum class Result { PALETTE_OK, BAD_PALETTE_FILE, BAD_PALETTE_NAME, PALETTE_TOO_LONG, PALETTE_NULL };
 private:
 	Palette _palette[MAX_NUM_TILES];
 	size_t _palette_size;
@@ -25,7 +25,7 @@ public:
 	void clear(void);
 	Result read_from(const char *f);
 	static const char *error_message(Result result);
-	bool write_palette_map(const char *f);
+	bool write_palette_map(const char *f) const;
 };
 
 #endif

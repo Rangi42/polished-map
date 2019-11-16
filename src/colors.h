@@ -13,13 +13,13 @@
 #define RGB5C(x) (uchar)((x) * 33 / 4) // 5-bit to 8-bit
 #define CRGB5(c) (uchar)((c) / 8)      // 8-bit to 5-bit
 
-enum Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
+enum class Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
 
-enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, MONOCHROME, UNDEFINED,
+enum class Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, MONOCHROME, UNDEFINED,
 	PRIORITY_GRAY = 0x80, PRIORITY_RED, PRIORITY_GREEN, PRIORITY_WATER,
 	PRIORITY_YELLOW, PRIORITY_BROWN, PRIORITY_ROOF, PRIORITY_TEXT };
 
-enum Hue { WHITE, DARK, LIGHT, BLACK };
+enum class Hue { WHITE, DARK, LIGHT, BLACK };
 
 #define NUM_PALETTE_SETS 5
 #define NUM_GAME_PALETTES 8
@@ -34,6 +34,7 @@ class Color {
 private:
 	static void color(Palettes l, Palette p, Hue h, ColorArray v);
 	static void color(Palettes l, Palette p, HueArray v);
+	static uchar *colors(Palettes l, Palette p, Hue h);
 public:
 	static uchar desaturated(uchar r, uchar g, uchar b);
 	static Hue ordered_hue(int i);

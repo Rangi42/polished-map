@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
+#include <cassert>
 
 #pragma warning(push, 0)
 #include <FL/Fl.H>
@@ -101,32 +102,33 @@ Hue Color::ordered_hue(int i) {
 }
 
 uchar Color::hue_mono(Hue h) {
-	return hue_monos[h];
+	return hue_monos[(int)h];
 }
 
 Hue Color::mono_hue(uchar c) {
 	return mono_hues[c / (0x100 / NUM_HUES)]; // [0, 255] -> [0, 3]
 }
 
-const uchar *Color::color(Palettes l, Palette p, Hue h) {
+uchar *Color::colors(Palettes l, Palette p, Hue h) {
 	int c = (int)p & 0xf;
-	return p == Palette::UNDEFINED ? undefined_colors[h] : tileset_colors[l][c][h];
+	assert(c < NUM_GAME_PALETTES + 1);
+	return tileset_colors[(int)l][c][(int)h];
+}
+
+const uchar *Color::color(Palettes l, Palette p, Hue h) {
+	return p == Palette::UNDEFINED ? undefined_colors[(int)h] : colors(l, p, h);
 }
 
 void Color::color(Palettes l, Palette p, Hue h, ColorArray v) {
-	int c = (int)p & 0xf;
+	uchar *cs = colors(l, p, h);
 	for (int i = 0; i < NUM_CHANNELS; i++) {
-		tileset_colors[l][c][h][i] = RGB5C(v[i]);
+		cs[i] = RGB5C(v[i]);
 	}
 }
 
 void Color::color(Palettes l, Palette p, Hue h, Fl_Color f) {
-	uchar r, g, b;
-	Fl::get_color(f, r, g, b);
-	int c = (int)p & 0xf;
-	tileset_colors[l][c][h][0] = r;
-	tileset_colors[l][c][h][1] = g;
-	tileset_colors[l][c][h][2] = b;
+	uchar* cs = colors(l, p, h);
+	Fl::get_color(f, cs[0], cs[1], cs[2]);
 }
 
 void Color::color(Palettes l, Palette p, HueArray v) {
@@ -159,7 +161,7 @@ PalVec Color::parse_palettes(const char *f) {
 			if (hue == 0 && channel == 0) {
 				colors.emplace_back();
 			}
-			colors[palette][ordered_hue(hue)][channel] = (uchar)v;
+			colors[palette][(int)ordered_hue(hue)][channel] = (uchar)v;
 			if (++channel == NUM_CHANNELS) {
 				channel = 0;
 				if (++hue == NUM_HUES) {
@@ -284,12 +286,12 @@ bool Color::read_roof_colors(const char *f, uint8_t map_group) {
 	if (roof_colors.size() < (size_t)map_group + 1) { return false; }
 
 	// Each HueArray in a PalVec contains 4 RGB hues, so treat them as <DAY LIGHT, NITE LIGHT, DAY DARK, NITE DARK>
-	color(Palettes::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
-	color(Palettes::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
-	color(Palettes::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(0)]);
-	color(Palettes::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(1)]);
-	color(Palettes::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][ordered_hue(2)]);
-	color(Palettes::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][ordered_hue(3)]);
+	color(Palettes::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
+	color(Palettes::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
+	color(Palettes::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
+	color(Palettes::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
+	color(Palettes::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(2)]);
+	color(Palettes::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(3)]);
 
 	return true;
 }

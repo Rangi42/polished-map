@@ -11,14 +11,14 @@
 #include "config.h"
 #include "palette-map.h"
 
-Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(PALETTE_NULL) {
+Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(Result::PALETTE_NULL) {
 	clear();
 }
 
 void Palette_Map::clear() {
 	FILL(_palette, Palette::UNDEFINED, MAX_NUM_TILES);
 	_palette_size = 0;
-	_result = PALETTE_NULL;
+	_result = Result::PALETTE_NULL;
 }
 
 Palette_Map::Result Palette_Map::read_from(const char *f) {
@@ -32,7 +32,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 	if (Config::monochrome()) {
 		_palette_size = Config::allow_256_tiles() ? MAX_NUM_TILES : 0x60;
 		FILL(_palette, Palette::MONOCHROME, _palette_size);
-		return (_result = PALETTE_OK);
+		return (_result = Result::PALETTE_OK);
 	}
 	std::string prefix(Config::palette_macro());
 	while (ifs.good()) {
@@ -44,7 +44,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 		std::string token;
 		std::getline(lss, token, ','); // skip bank ID
 		while (std::getline(lss, token, ',')) {
-			if (_palette_size == MAX_NUM_TILES) { return (_result = PALETTE_TOO_LONG); }
+			if (_palette_size == MAX_NUM_TILES) { return (_result = Result::PALETTE_TOO_LONG); }
 			trim(token);
 			if      (token == "GRAY")            { _palette[_palette_size++] = Palette::GRAY; }
 			else if (token == "RED")             { _palette[_palette_size++] = Palette::RED; }
@@ -62,33 +62,33 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 			else if (token == "PRIORITY_BROWN")  { _palette[_palette_size++] = Palette::PRIORITY_BROWN; }
 			else if (token == "PRIORITY_ROOF")   { _palette[_palette_size++] = Palette::PRIORITY_ROOF; }
 			else if (token == "PRIORITY_TEXT")   { _palette[_palette_size++] = Palette::PRIORITY_TEXT; }
-			else                                 { return (_result = BAD_PALETTE_NAME); }
+			else                                 { return (_result = Result::BAD_PALETTE_NAME); }
 			if (_palette[_palette_size-1] >= Palette::PRIORITY_GRAY) {
 				Config::allow_priority(true);
 			}
 		}
 	}
-	return (_result = PALETTE_OK);
+	return (_result = Result::PALETTE_OK);
 }
 
 const char *Palette_Map::error_message(Result result) {
 	switch (result) {
-	case PALETTE_OK:
+	case Result::PALETTE_OK:
 		return "OK.";
-	case BAD_PALETTE_FILE:
+	case Result::BAD_PALETTE_FILE:
 		return "Cannot open file.";
-	case BAD_PALETTE_NAME:
+	case Result::BAD_PALETTE_NAME:
 		return "Invalid color name.";
-	case PALETTE_TOO_LONG:
+	case Result::PALETTE_TOO_LONG:
 		return "More than 256 colors defined.";
-	case PALETTE_NULL:
+	case Result::PALETTE_NULL:
 		return "No palette file chosen.";
 	default:
 		return "Unspecified error.";
 	}
 }
 
-bool Palette_Map::write_palette_map(const char *f) {
+bool Palette_Map::write_palette_map(const char *f) const {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	size_t n = MAX_NUM_TILES;
@@ -109,22 +109,22 @@ bool Palette_Map::write_palette_map(const char *f) {
 		}
 		fputs(", ", file);
 		switch (_palette[i]) {
-		case GRAY:            fputs("GRAY", file); break;
-		case RED:             fputs("RED", file); break;
-		case GREEN:           fputs("GREEN", file); break;
-		case WATER:           fputs("WATER", file); break;
-		case YELLOW:          fputs("YELLOW", file); break;
-		case BROWN:           fputs("BROWN", file); break;
-		case ROOF:            fputs("ROOF", file); break;
-		case TEXT: default:   fputs("TEXT", file); break;
-		case PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); break;
-		case PRIORITY_RED:    fputs("PRIORITY_RED", file); break;
-		case PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); break;
-		case PRIORITY_WATER:  fputs("PRIORITY_WATER", file); break;
-		case PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); break;
-		case PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); break;
-		case PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); break;
-		case PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); break;
+		case Palette::GRAY:            fputs("GRAY", file); break;
+		case Palette::RED:             fputs("RED", file); break;
+		case Palette::GREEN:           fputs("GREEN", file); break;
+		case Palette::WATER:           fputs("WATER", file); break;
+		case Palette::YELLOW:          fputs("YELLOW", file); break;
+		case Palette::BROWN:           fputs("BROWN", file); break;
+		case Palette::ROOF:            fputs("ROOF", file); break;
+		case Palette::TEXT: default:   fputs("TEXT", file); break;
+		case Palette::PRIORITY_GRAY:   fputs("PRIORITY_GRAY", file); break;
+		case Palette::PRIORITY_RED:    fputs("PRIORITY_RED", file); break;
+		case Palette::PRIORITY_GREEN:  fputs("PRIORITY_GREEN", file); break;
+		case Palette::PRIORITY_WATER:  fputs("PRIORITY_WATER", file); break;
+		case Palette::PRIORITY_YELLOW: fputs("PRIORITY_YELLOW", file); break;
+		case Palette::PRIORITY_BROWN:  fputs("PRIORITY_BROWN", file); break;
+		case Palette::PRIORITY_ROOF:   fputs("PRIORITY_ROOF", file); break;
+		case Palette::PRIORITY_TEXT:   fputs("PRIORITY_TEXT", file); break;
 		}
 		if (i % PALETTES_PER_LINE == PALETTES_PER_LINE - 1) {
 			fputc('\n', file);

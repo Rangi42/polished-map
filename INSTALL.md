@@ -7,7 +7,7 @@
 1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
-4. Double-click **Polished Map** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ 2013 Redistributable for x86](https://www.microsoft.com/en-us/download/details.aspx?id=40784).
+4. Double-click **Polished Map** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://www.visualstudio.com/downloads/) for x86.
 
 If you have Microsoft Visual Studio, you can build Polished Map yourself:
 
@@ -15,11 +15,11 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 2. Unzip polished-map-master.zip. This will create the **polished-map-master** folder.
 3. Navigate to the polished-map-master folder in Explorer.
 4. Unzip lib/fltk-1.3.5-mod.zip. This will create the lib/**fltk-1.3.5-mod** folder.
-5. Open lib/fltk-1.3.5-mod/ide/VisualC2010/fltk.sln in Visual Studio 2013. (Other versions may or may not work, I haven't tried.)
+5. Open lib/fltk-1.3.5-mod/ide/VisualC2010/fltk.sln in Visual Studio 2019. (Other versions may or may not work, I haven't tried.)
 6. A dialog "Upgrade VS++ Compiler and Libraries" will open, since fltk.sln was made for Visual Studio 2008. Click OK.
 7. Go to **Build → Batch Build…**, check the projects **fltk**, **fltkimages**, **fltkpng**, **fltkjpeg**, and **fltkzlib** in the Release configuration, and click the **Build** button.
 8. Move the .lib files from lib/fltk-1.3.5-mod/lib to lib.
-9. Open ide/polished-map.sln in Visual Studio 2013.
+9. Open ide/polished-map.sln in Visual Studio 2019.
 10. If the Solution Configuration dropdown on the toolbar says Debug, set it to **Release**.
 11. Go to **Build → Build Solution** or press F7 to build the project. This will create bin/Release/**polishedmap.exe**.
 12. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.

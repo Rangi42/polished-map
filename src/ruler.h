@@ -9,7 +9,7 @@
 
 class Ruler : public Fl_Box {
 public:
-	enum Direction { CORNER, HORIZONTAL, VERTICAL };
+	enum class Direction { CORNER, HORIZONTAL, VERTICAL };
 private:
 	Direction _direction;
 public:

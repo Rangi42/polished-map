@@ -11,7 +11,7 @@
 
 class Map_Events {
 public:
-	enum Result { MAP_EVENTS_OK, BAD_MAP_EVENTS_FILE, MAP_EVENTS_NULL };
+	enum class Result { MAP_EVENTS_OK, BAD_MAP_EVENTS_FILE, MAP_EVENTS_NULL };
 private:
 	std::vector<Event *> _events;
 	Result _result;
@@ -31,7 +31,7 @@ public:
 	inline std::string coda(void) const { return _coda; }
 	inline void coda(const std::string &c) { _coda = c; }
 	void clear();
-	void resize_events(int x, int y, int s);
+	void resize_events(int x, int y, int s) const;
 	Result read_events(const char *f);
 public:
 	static const char *error_message(Result result);

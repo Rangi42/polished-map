@@ -35,7 +35,7 @@ public:
 	inline void id(uint8_t id) { _id = id; }
 	inline Palette palette(void) const { return _palette; }
 	inline void palette(Palette p) { _palette = p; }
-	inline bool priority(void) const { return _palette >= PRIORITY_GRAY; }
+	inline bool priority(void) const { return _palette >= Palette::PRIORITY_GRAY; }
 	inline const uchar *rgb(void) const { return _rgb; }
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }

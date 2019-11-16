@@ -245,7 +245,7 @@ void Event::draw() {
 	if (mw->mode() != Mode::EVENTS && !mw->show_events()) { return; }
 	int X = x(), Y = y(), W = w(), H = h();
 	bool zoom = mw->zoom();
-	(zoom ? zoomed_texture_images : texture_images)[_meta.texture].draw(X, Y, W, H);
+	(zoom ? zoomed_texture_images : texture_images)[(int)_meta.texture].draw(X, Y, W, H);
 	fl_font(FL_HELVETICA_BOLD, zoom ? 24 : 14);
 	fl_color(FL_WHITE);
 	char buffer[2] = {_meta.symbol, '\0'};
@@ -263,9 +263,9 @@ void Event::draw() {
 	}
 }
 
-void Event::print() {
+void Event::print() const {
 	int X = (int)_event_x * EVENT_PX_SIZE, Y = (int)_event_y * EVENT_PX_SIZE;
-	texture_images[_meta.texture].draw(X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE);
+	texture_images[(int)_meta.texture].draw(X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE);
 	fl_font(FL_HELVETICA_BOLD, 14);
 	fl_color(FL_WHITE);
 	char buffer[2] = {_meta.symbol, '\0'};

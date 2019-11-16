@@ -7,7 +7,7 @@
 #include "palette-map.h"
 #include "tiled-image.h"
 
-Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(IMG_NULL) {
+Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(Result::IMG_NULL) {
 	if (ends_with(f, ".png")) { read_png_graphics(f); }
 	else if (ends_with(f, ".2bpp")) { read_2bpp_graphics(f); }
 	else if (ends_with(f, ".2bpp.lz")) { read_lz_graphics(f); }
@@ -19,18 +19,18 @@ Tiled_Image::~Tiled_Image() {
 
 Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 	Fl_PNG_Image png(f);
-	if (png.fail()) { return (_result = IMG_BAD_FILE); }
+	if (png.fail()) { return (_result = Result::IMG_BAD_FILE); }
 
 	int w = png.w(), h = png.h();
-	if (w % TILE_SIZE || h % TILE_SIZE) { return (_result = IMG_BAD_DIMS); }
+	if (w % TILE_SIZE || h % TILE_SIZE) { return (_result = Result::IMG_BAD_DIMS); }
 
 	w /= TILE_SIZE;
 	h /= TILE_SIZE;
 	_num_tiles = w * h;
-	if (_num_tiles > MAX_NUM_TILES) { return (_result = IMG_TOO_LARGE); }
+	if (_num_tiles > MAX_NUM_TILES) { return (_result = Result::IMG_TOO_LARGE); }
 
 	png.desaturate();
-	if (png.count() != 1) { return (_result = IMG_NOT_GRAYSCALE); }
+	if (png.count() != 1) { return (_result = Result::IMG_NOT_GRAYSCALE); }
 
 	delete [] _tile_hues;
 	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
@@ -48,28 +48,28 @@ Tiled_Image::Result Tiled_Image::read_png_graphics(const char *f) {
 		}
 	}
 
-	return (_result = IMG_OK);
+	return (_result = Result::IMG_OK);
 }
 
 Tiled_Image::Result Tiled_Image::read_2bpp_graphics(const char *f) {
 	FILE *file = fl_fopen(f, "rb");
-	if (!file) { return (_result = IMG_BAD_FILE); }
+	if (!file) { return (_result = Result::IMG_BAD_FILE); }
 
 	fseek(file, 0, SEEK_END);
 	long n = ftell(file);
 	rewind(file);
-	if (n % BYTES_PER_2BPP_TILE) { fclose(file); return (_result = IMG_BAD_DIMS); }
+	if (n % BYTES_PER_2BPP_TILE) { fclose(file); return (_result = Result::IMG_BAD_DIMS); }
 
 	uchar *data = new uchar[n];
 	size_t r = fread(data, 1, n, file);
 	fclose(file);
-	if (r != (size_t)n) { delete [] data; return (_result = IMG_BAD_FILE); }
+	if (r != (size_t)n) { delete [] data; return (_result = Result::IMG_BAD_FILE); }
 
 	return (_result = parse_2bpp_data(n, data));
 }
 
 // A rundown of Pokemon Crystal's LZ compression scheme:
-enum Lz_Command {
+enum class Lz_Command {
 	// Control commands occupy bits 5-7.
 	// Bits 0-4 serve as the first parameter n for each command.
 	LZ_LITERAL,   // n values for n bytes
@@ -112,7 +112,7 @@ static uchar bit_flipped[256] = {
 
 Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 	FILE *file = fl_fopen(f, "rb");
-	if (!file) { return (_result = IMG_BAD_FILE); }
+	if (!file) { return (_result = Result::IMG_BAD_FILE); }
 
 	fseek(file, 0, SEEK_END);
 	long n = ftell(file);
@@ -120,9 +120,9 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 	uchar *lz_data = new uchar[n];
 	size_t r = fread(lz_data, 1, n, file);
 	fclose(file);
-	if (r != (size_t)n) { delete [] lz_data; return (_result = IMG_BAD_FILE); }
+	if (r != (size_t)n) { delete [] lz_data; return (_result = Result::IMG_BAD_FILE); }
 
-	uchar *twobpp_data = new uchar[MAX_NUM_TILES * BYTES_PER_2BPP_TILE];
+	uchar *twobpp_data = new uchar[MAX_NUM_TILES * BYTES_PER_2BPP_TILE]();
 	size_t address = 0, marker = 0;
 	uchar q[2];
 	int offset;
@@ -132,11 +132,11 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 		if (marker >= MAX_NUM_TILES * BYTES_PER_2BPP_TILE) {
 			delete [] lz_data;
 			delete [] twobpp_data;
-			return (_result = IMG_TOO_LARGE);
+			return (_result = Result::IMG_TOO_LARGE);
 		}
 		Lz_Command cmd = (Lz_Command)((b & 0xe0) >> 5);
 		int length = 0;
-		if (cmd == LZ_LONG) {
+		if (cmd == Lz_Command::LZ_LONG) {
 			cmd = (Lz_Command)((b & 0x1c) >> 2);
 			length = (int)(b & 0x03) * 0x100;
 			b = lz_data[address++];
@@ -146,20 +146,20 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 			length = (int)(b & 0x1f) + 1;
 		}
 		switch (cmd) {
-		case LZ_LITERAL:
+		case Lz_Command::LZ_LITERAL:
 			// Copy data directly.
 			for (int i = 0; i < length; i++) {
 				twobpp_data[marker++] = lz_data[address++];
 			}
 			break;
-		case LZ_ITERATE:
+		case Lz_Command::LZ_ITERATE:
 			// Write one byte repeatedly.
 			b = lz_data[address++];
 			for (int i = 0; i < length; i++) {
 				twobpp_data[marker++] = b;
 			}
 			break;
-		case LZ_ALTERNATE:
+		case Lz_Command::LZ_ALTERNATE:
 			// Write alternating bytes.
 			q[0] = lz_data[address++];
 			q[1] = lz_data[address++];
@@ -168,13 +168,13 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 				twobpp_data[marker++] = q[i & 1];
 			}
 			break;
-		case LZ_BLANK:
+		case Lz_Command::LZ_BLANK:
 			// Write zeros.
 			for (int i = 0; i < length; i++) {
 				twobpp_data[marker++] = 0;
 			}
 			break;
-		case LZ_REPEAT:
+		case Lz_Command::LZ_REPEAT:
 			// Repeat bytes from output.
 			b = lz_data[address++];
 			offset = b >= 0x80 ? (int)marker - (int)(b & 0x7f) - 1 : (int)b * 0x100 + lz_data[address++];
@@ -182,7 +182,7 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 				twobpp_data[marker++] = twobpp_data[offset + i];
 			}
 			break;
-		case LZ_FLIP:
+		case Lz_Command::LZ_FLIP:
 			// Repeat flipped bytes from output.
 			b = lz_data[address++];
 			offset = b >= 0x80 ? (int)marker - (int)(b & 0x7f) - 1 : (int)b * 0x100 + lz_data[address++];
@@ -191,7 +191,7 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 				twobpp_data[marker++] = bit_flipped[b];
 			}
 			break;
-		case LZ_REVERSE:
+		case Lz_Command::LZ_REVERSE:
 			// Repeat reversed bytes from output.
 			b = lz_data[address++];
 			offset = b >= 0x80 ? (int)marker - (int)(b & 0x7f) - 1 : (int)b * 0x100 + lz_data[address++];
@@ -199,11 +199,11 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 				twobpp_data[marker++] = twobpp_data[offset - i];
 			}
 			break;
-		case LZ_LONG:
+		case Lz_Command::LZ_LONG:
 		default:
 			delete [] lz_data;
 			delete [] twobpp_data;
-			return (_result = IMG_BAD_CMD);
+			return (_result = Result::IMG_BAD_CMD);
 		}
 	}
 
@@ -221,7 +221,7 @@ static void convert_2bytes_to_8hues(uchar b1, uchar b2, Hue *hues8) {
 
 Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 	n /= BYTES_PER_2BPP_TILE;
-	if (n > MAX_NUM_TILES) { delete [] data; return IMG_TOO_LARGE; }
+	if (n > MAX_NUM_TILES) { delete [] data; return Result::IMG_TOO_LARGE; }
 
 	_num_tiles = n;
 	delete [] _tile_hues;
@@ -236,5 +236,5 @@ Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 	}
 
 	delete [] data;
-	return IMG_OK;
+	return Result::IMG_OK;
 }

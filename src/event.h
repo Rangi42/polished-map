@@ -13,7 +13,7 @@
 #define MAP_MARGIN 3
 #define EVENT_MARGIN (MAP_MARGIN * 2)
 
-enum EventTexture { TX_RED, TX_GREEN, TX_BLUE, TX_PURPLE, TX_ORANGE, TX_AZURE };
+enum class EventTexture { TX_RED, TX_GREEN, TX_BLUE, TX_PURPLE, TX_ORANGE, TX_AZURE };
 
 #define NUM_EVENT_TEXTURES 6
 
@@ -50,7 +50,7 @@ public:
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);
 	void draw(void);
-	void print(void);
+	void print(void) const;
 	int handle(int event);
 };
 

@@ -9,7 +9,7 @@ void Map_Attributes::clear() {
 	palette.clear();
 }
 
-Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(MAP_NULL), _modified(false),
+Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(Result::MAP_NULL), _modified(false),
 	_history(), _future() {}
 
 Map::~Map() {
@@ -38,13 +38,13 @@ void Map::clear() {
 	_blocks = NULL;
 	_attributes.clear();
 	_width = _height = 0;
-	_result = MAP_NULL;
+	_result = Result::MAP_NULL;
 	_modified = false;
 	_history.clear();
 	_future.clear();
 }
 
-void Map::resize_blocks(int x, int y, int s) {
+void Map::resize_blocks(int x, int y, int s) const {
 	size_t n = size();
 	for (size_t i = 0; i < n; i++) {
 		Block *b = _blocks[i];
@@ -102,12 +102,12 @@ Map::Result Map::read_blocks(const char *f) {
 	bool too_long = false;
 
 	FILE *file = fl_fopen(f, "rb");
-	if (file == NULL) { return (_result = MAP_BAD_FILE); } // cannot load file
+	if (file == NULL) { return (_result = Result::MAP_BAD_FILE); } // cannot load file
 
 	uint8_t *data = new uint8_t[size() + 1];
 	size_t c = fread(data, 1, size() + 1, file);
 	fclose(file);
-	if (c < size()) { delete [] data; return (_result = MAP_TOO_SHORT); } // too-short blk
+	if (c < size()) { delete [] data; return (_result = Result::MAP_TOO_SHORT); } // too-short blk
 	if (c == size() + 1) { too_long = true; }
 
 	for (uint8_t y = 0; y < (size_t)_height; y++) {
@@ -119,20 +119,20 @@ Map::Result Map::read_blocks(const char *f) {
 	}
 
 	delete [] data;
-	return (_result = too_long ? MAP_TOO_LONG : MAP_OK);
+	return (_result = too_long ? Result::MAP_TOO_LONG : Result::MAP_OK);
 }
 
 const char *Map::error_message(Result result) {
 	switch (result) {
-	case MAP_OK:
+	case Result::MAP_OK:
 		return "OK.";
-	case MAP_BAD_FILE:
+	case Result::MAP_BAD_FILE:
 		return "Cannot open file.";
-	case MAP_TOO_SHORT:
+	case Result::MAP_TOO_SHORT:
 		return "File ends too early.";
-	case MAP_TOO_LONG:
+	case Result::MAP_TOO_LONG:
 		return "The .blk file is larger than the specified size.";
-	case MAP_NULL:
+	case Result::MAP_NULL:
 		return "No *.blk file chosen.";
 	default:
 		return "Unspecified error.";

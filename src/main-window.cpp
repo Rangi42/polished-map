@@ -39,11 +39,16 @@
 #include "app-icon.xpm"
 #endif
 
+// Avoid "warning C4458: declaration of 'i' hides class member"
+// due to Fl_Window's Fl_X *i
+#pragma warning(push)
+#pragma warning(disable : 4458)
+
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_Window(x, y, w, h, PROGRAM_NAME),
-	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _metatile_buttons(),
-	_status_event_x(INT_MIN), _status_event_y(INT_MIN), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
+	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _status_event_x(INT_MIN),
+	_status_event_y(INT_MIN), _metatile_buttons(), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
 	// Get global configs
-	Mode mode_config = (Mode)Preferences::get("mode", Mode::BLOCKS);
+	Mode mode_config = (Mode)Preferences::get("mode", (int)Mode::BLOCKS);
 	mode(mode_config);
 
 	int grid_config = Preferences::get("grid", 1);
@@ -54,7 +59,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int show_priority_config = Preferences::get("priority", 1);
 	int gameboy_screen_config = Preferences::get("gameboy", 0);
 	int show_events_config = Preferences::get("event", 1);
-	Palettes palettes_config = (Palettes)Preferences::get("palettes", Palettes::DAY);
+	Palettes palettes_config = (Palettes)Preferences::get("palettes", (int)Palettes::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_priority_config = Preferences::get("prioritize", 0);
@@ -186,11 +191,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_roof_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_asm_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_FILE);
 	_png_chooser = new Fl_Native_File_Chooser(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::ERROR_ICON);
-	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON);
-	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::SUCCESS_ICON);
-	_unsaved_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::WARNING_ICON, true);
-	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::APP_ICON);
+	_error_dialog = new Modal_Dialog(this, "Error", Modal_Dialog::Icon::ERROR_ICON);
+	_warning_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::Icon::WARNING_ICON);
+	_success_dialog = new Modal_Dialog(this, "Success", Modal_Dialog::Icon::SUCCESS_ICON);
+	_unsaved_dialog = new Modal_Dialog(this, "Warning", Modal_Dialog::Icon::WARNING_ICON, true);
+	_about_dialog = new Modal_Dialog(this, "About " PROGRAM_NAME, Modal_Dialog::Icon::APP_ICON);
 	_map_options_dialog = new Map_Options_Dialog("Map Options");
 	_tileset_options_dialog = new Tileset_Options_Dialog("Change Tileset", _map_options_dialog);
 	_roof_options_dialog = new Roof_Options_Dialog("Change Roof", _map_options_dialog);
@@ -226,9 +231,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 #endif
 
 	// Configure rulers
-	_hor_ruler->direction(Ruler::HORIZONTAL);
-	_ver_ruler->direction(Ruler::VERTICAL);
-	_corner_ruler->direction(Ruler::CORNER);
+	_hor_ruler->direction(Ruler::Direction::HORIZONTAL);
+	_ver_ruler->direction(Ruler::Direction::VERTICAL);
+	_corner_ruler->direction(Ruler::Direction::CORNER);
 	_hor_ruler->user_data(this);
 	_ver_ruler->user_data(this);
 	_corner_ruler->user_data(this);
@@ -301,27 +306,27 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_SUBMENU("&View"),
 		OS_MENU_ITEM("&Theme", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Classic", 0, (Fl_Callback *)classic_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::CLASSIC ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::CLASSIC ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Aero", 0, (Fl_Callback *)aero_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::AERO ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::AERO ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Metro", 0, (Fl_Callback *)metro_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::METRO ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::METRO ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("A&qua", 0, (Fl_Callback *)aqua_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::AQUA ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::AQUA ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Greybird", 0, (Fl_Callback *)greybird_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::GREYBIRD ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::GREYBIRD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Me&tal", 0, (Fl_Callback *)metal_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::METAL ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::METAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::BLUE ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::BLUE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Olive", 0, (Fl_Callback *)olive_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::OLIVE ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::OLIVE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Rose Gold", 0, (Fl_Callback *)rose_gold_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::ROSE_GOLD ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::ROSE_GOLD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::DARK ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::DARK ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&High Contrast", 0, (Fl_Callback *)high_contrast_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::HIGH_CONTRAST ? FL_MENU_VALUE : 0)),
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::HIGH_CONTRAST ? FL_MENU_VALUE : 0)),
 		{},
 		OS_MENU_ITEM("&Grid", FL_COMMAND + 'g', (Fl_Callback *)grid_cb, this,
 			FL_MENU_TOGGLE | (grid_config ? FL_MENU_VALUE : 0)),
@@ -566,7 +571,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_palettes->add("Night");  // Palettes::NITE
 	_palettes->add("Indoor"); // Palettes::INDOOR
 	_palettes->add("Custom"); // Palettes::CUSTOM
-	_palettes->value(palettes_config);
+	_palettes->value((int)palettes_config);
 	_palettes->callback((Fl_Callback *)palettes_cb, this);
 
 	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
@@ -968,7 +973,7 @@ void Main_Window::update_active_controls() {
 			_change_roof_mi->deactivate();
 			_change_roof_tb->deactivate();
 		}
-		if (tileset->num_roof_tiles() > 0) {
+		if (tileset && tileset->num_roof_tiles() > 0) {
 			_save_roof_mi->activate();
 			_edit_roof_mi->activate();
 			_edit_roof_tb->activate();
@@ -1090,10 +1095,10 @@ void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
 	while (!queue.empty()) {
 		size_t j = queue.front();
 		queue.pop();
-		Block *b = _map.block(j);
-		if (b->id() != f) { continue; }
-		b->id(t); // fill
-		uint8_t r = b->row(), c = b->col();
+		Block *bi = _map.block(j);
+		if (bi->id() != f) { continue; }
+		bi->id(t); // fill
+		uint8_t r = bi->row(), c = bi->col();
 		if (c > 0) { queue.push(j-1); } // left
 		if (c < w - 1) { queue.push(j+1); } // right
 		if (r > 0) { queue.push(j-w); } // up
@@ -1200,7 +1205,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 			_warning_dialog->message(msg);
 			_warning_dialog->show(this);
 		}
-		else if (r) {
+		else if (r != Map::Result::MAP_OK) {
 			_map.clear();
 			_metatileset.clear();
 			std::string msg = "Error reading ";
@@ -1325,7 +1330,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		}
 	}
 	if (new_palettes != palettes()) {
-		_palettes->value(new_palettes);
+		_palettes->value((int)new_palettes);
 		palettes_cb(NULL, this);
 		update_palettes();
 	}
@@ -1413,7 +1418,7 @@ void Main_Window::warp_to_map(Event *e) {
 
 void Main_Window::load_events(const char *filename) {
 	Map_Events::Result et = _map_events.read_events(filename);
-	if (et) {
+	if (et != Map_Events::Result::MAP_EVENTS_OK) {
 		const char *basename = fl_filename_name(filename);
 		std::string msg = "Error reading ";
 		msg = msg + basename + "!\n\n" + Map_Events::error_message(et);
@@ -1505,7 +1510,7 @@ void Main_Window::load_palettes(const char *filename) {
 	Palettes new_palettes = Color::read_palettes(filename, palettes());
 	_edited_palettes = false;
 	if (new_palettes != palettes()) {
-		_palettes->value(new_palettes);
+		_palettes->value((int)new_palettes);
 		palettes_cb(NULL, this);
 	}
 	update_palettes();
@@ -1575,7 +1580,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		_warning_dialog->message(msg);
 		_warning_dialog->show(this);
 	}
-	else if (rp) {
+	else if (rp != Palette_Map::Result::PALETTE_OK) {
 		Config::palette_map_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Palette_Map::error_message(rp);
@@ -1586,7 +1591,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::tileset_path(buffer, directory, tileset_name);
 	Tileset::Result rt = tileset->read_graphics(buffer, palettes());
-	if (rt) {
+	if (rt != Tileset::Result::GFX_OK) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Tileset::error_message(rt);
@@ -1604,7 +1609,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		_warning_dialog->message(msg);
 		_warning_dialog->show(this);
 	}
-	else if (rm) {
+	else if (rm != Metatileset::Result::META_OK) {
 		Config::metatileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
@@ -1621,7 +1626,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	if (tileset->has_roof()) {
 		Config::roof_path(buffer, directory, roof_name);
 		rt = tileset->read_roof_graphics(buffer);
-		if (rt) {
+		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(buffer, "", roof_name);
 			std::string msg = "Error reading ";
 			msg = msg + buffer + "!\n\n" + Tileset::error_message(rt);
@@ -2332,8 +2337,8 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->_directory = directory;
-	mw->_blk_file = filename ? filename : "";
+	mw->_directory.assign(directory);
+	mw->_blk_file.assign(filename ? filename : "");
 
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
@@ -2547,7 +2552,7 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 		Fl_Display_Device::display_device()->set_current();
 
 		Image::Result result = Image::write_rgb_image(filename, image);
-		if (result) {
+		if (result != Image::Result::IMAGE_OK) {
 			std::string msg = "Could not print to ";
 			msg = msg + basename + "!\n\n" + Image::error_message(result);
 			mw->_error_dialog->message(msg);
@@ -2584,7 +2589,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	}*/
 
 	// Save global config
-	Preferences::set("theme", OS::current_theme());
+	Preferences::set("theme", (int)OS::current_theme());
 	Preferences::set("x", mw->x());
 	Preferences::set("y", mw->y());
 	Preferences::set("w", mw->w());
@@ -2598,7 +2603,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("priority", mw->show_priority());
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
-	Preferences::set("palettes", mw->palettes());
+	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("prioritize", mw->allow_priority());
 	Preferences::set("all256", mw->allow_256_tiles());
@@ -2851,31 +2856,31 @@ void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 #undef SYNC_MI_WITH_TB
 
 void Main_Window::morn_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_palettes->value(Palettes::MORN);
+	mw->_palettes->value((int)Palettes::MORN);
 	mw->update_palettes();
 	mw->redraw();
 }
 
 void Main_Window::day_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_palettes->value(Palettes::DAY);
+	mw->_palettes->value((int)Palettes::DAY);
 	mw->update_palettes();
 	mw->redraw();
 }
 
 void Main_Window::night_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_palettes->value(Palettes::NITE);
+	mw->_palettes->value((int)Palettes::NITE);
 	mw->update_palettes();
 	mw->redraw();
 }
 
 void Main_Window::indoor_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_palettes->value(Palettes::INDOOR);
+	mw->_palettes->value((int)Palettes::INDOOR);
 	mw->update_palettes();
 	mw->redraw();
 }
 
 void Main_Window::custom_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
-	mw->_palettes->value(Palettes::CUSTOM);
+	mw->_palettes->value((int)Palettes::CUSTOM);
 	mw->update_palettes();
 	mw->redraw();
 }
@@ -3049,7 +3054,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 		char filename[FL_PATH_MAX] = {};
 		Config::roof_path(filename, mw->_directory.c_str(), roof_name);
 		Tileset::Result rt = tileset->read_roof_graphics(filename);
-		if (rt) {
+		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(filename, "", roof_name);
 			std::string msg = "Error reading ";
 			msg = msg + filename + "!\n\n" + Tileset::error_message(rt);
@@ -3255,3 +3260,5 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 		}
 	}
 }
+
+#pragma warning(pop)

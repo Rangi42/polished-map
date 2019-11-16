@@ -11,7 +11,7 @@
 
 class Tiled_Image {
 public:
-	enum Result { IMG_OK, IMG_BAD_FILE, IMG_BAD_EXT, IMG_BAD_DIMS, IMG_TOO_SHORT,
+	enum class Result { IMG_OK, IMG_BAD_FILE, IMG_BAD_EXT, IMG_BAD_DIMS, IMG_TOO_SHORT,
 		IMG_TOO_LARGE, IMG_NOT_GRAYSCALE, IMG_BAD_CMD, IMG_NULL };
 private:
 	Hue *_tile_hues;

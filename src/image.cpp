@@ -15,7 +15,7 @@
 #include "config.h"
 
 Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
-	if (!image) { return IMAGE_BAD_DATA; }
+	if (!image) { return Result::IMAGE_BAD_DATA; }
 	size_t w = (size_t)image->w(), h = (size_t)image->h();
 	uchar *buffer = (uchar *)image->data()[0];
 	int d = image->d(), ld = image->ld();
@@ -43,15 +43,15 @@ Image::Result Image::write_roof_image(const char *f, const Tileset &tileset) {
 
 Image::Result Image::write_image(const char *f, size_t w, size_t h, uchar *buffer, bool is_2bpp, int pd, int d, int ld) {
 	if (!ld) { ld = (int)w * d; }
-	Result result = IMAGE_OK;
+	Result result = Result::IMAGE_OK;
 	FILE *file = fl_fopen(f, "wb");
-	if (!file) { result = IMAGE_BAD_FILE; goto cleanup1; }
+	if (!file) { result = Result::IMAGE_BAD_FILE; goto cleanup1; }
 	{ // new scope avoids gcc "jump to label crosses initialization" error
 		// Create the necessary PNG structures
 		png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-		if (!png) { result = IMAGE_BAD_PNG; goto cleanup2; }
+		if (!png) { result = Result::IMAGE_BAD_PNG; goto cleanup2; }
 		png_infop info = png_create_info_struct(png);
-		if (!info) { result = IMAGE_BAD_PNG; goto cleanup2; }
+		if (!info) { result = Result::IMAGE_BAD_PNG; goto cleanup2; }
 		png_init_io(png, file);
 		// Set compression options
 		png_set_compression_level(png, Z_BEST_COMPRESSION);
@@ -109,13 +109,13 @@ cleanup1:
 
 const char *Image::error_message(Result result) {
 	switch (result) {
-	case IMAGE_OK:
+	case Result::IMAGE_OK:
 		return "OK.";
-	case IMAGE_BAD_DATA:
+	case Result::IMAGE_BAD_DATA:
 		return "Cannot read image data.";
-	case IMAGE_BAD_FILE:
+	case Result::IMAGE_BAD_FILE:
 		return "Cannot open file.";
-	case IMAGE_BAD_PNG:
+	case Result::IMAGE_BAD_PNG:
 		return "Cannot write PNG data.";
 	default:
 		return "Unspecified error.";

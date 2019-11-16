@@ -12,7 +12,7 @@
 
 class Metatileset {
 public:
-	enum Result { META_OK, META_NO_GFX, META_BAD_FILE, META_TOO_SHORT, META_TOO_LONG, META_NULL };
+	enum class Result { META_OK, META_NO_GFX, META_BAD_FILE, META_TOO_SHORT, META_TOO_LONG, META_NULL };
 private:
 	Tileset _tileset;
 	Metatile *_metatiles[MAX_NUM_METATILES];
@@ -36,15 +36,15 @@ public:
 	void draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const;
 	uchar *print_rgb(const Map &map) const;
 	Result read_metatiles(const char *f);
-	bool write_metatiles(const char *f);
+	bool write_metatiles(const char *f) const;
 	inline Result read_collisions(const char *f) { return _bin_collisions ? read_bin_collisions(f) : read_asm_collisions(f); }
-	inline bool write_collisions(const char *f) { return _bin_collisions ? write_bin_collisions(f) : write_asm_collisions(f); }
+	inline bool write_collisions(const char *f) const { return _bin_collisions ? write_bin_collisions(f) : write_asm_collisions(f); }
 	static const char *error_message(Result result);
 private:
 	Result read_asm_collisions(const char *f);
 	Result read_bin_collisions(const char *f);
-	bool write_asm_collisions(const char *f);
-	bool write_bin_collisions(const char *f);
+	bool write_asm_collisions(const char *f) const;
+	bool write_bin_collisions(const char *f) const;
 };
 
 #endif

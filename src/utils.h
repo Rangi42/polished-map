@@ -77,6 +77,7 @@ bool starts_with(const std::string &s, const std::string &p);
 bool ends_with(const std::string &s, const std::string &p);
 bool ends_with(const std::wstring &s, const std::wstring &p);
 void trim(std::string &s, const std::string &t = whitespace);
+void lowercase(std::string &s);
 void remove_comment(std::string &s, char c = ';');
 void remove_dot_ext(const char *f, char *s);
 void add_dot_ext(const char *f, const char *ext, char *s);
