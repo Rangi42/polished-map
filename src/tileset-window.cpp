@@ -171,8 +171,8 @@ void Tileset_Window::tileset(Tileset *t) {
 	label = label + t->name();
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		const Tile *t = _tileset->const_tile((uint8_t)i);
-		_deep_tile_buttons[i]->copy(t);
+		const Tile *ti = _tileset->const_tile((uint8_t)i);
+		_deep_tile_buttons[i]->copy(ti);
 		_deep_tile_buttons[i]->activate();
 	}
 }
@@ -219,7 +219,7 @@ void Tileset_Window::choose(Swatch *swatch) {
 	_chosen->setonly();
 }
 
-void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
+void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 	if (f == t) { return; }
 	std::queue<size_t> queue;
 	int row = pb->row(), col = pb->col();
@@ -228,10 +228,10 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
 	while (!queue.empty()) {
 		size_t j = queue.front();
 		queue.pop();
-		Pixel_Button *pb = _pixels[j];
-		if (pb->hue() != f) { continue; }
-		pb->hue(t); // fill
-		int r = pb->row(), c = pb->col();
+		Pixel_Button *pbj = _pixels[j];
+		if (pbj->hue() != f) { continue; }
+		pbj->hue(t); // fill
+		int r = pbj->row(), c = pbj->col();
 		if (c > 0) { queue.push(j-1); } // left
 		if (c < TILE_SIZE - 1) { queue.push(j+1); } // right
 		if (r > 0) { queue.push(j-TILE_SIZE); } // up
@@ -239,7 +239,7 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) {
 	}
 }
 
-void Tileset_Window::substitute_hue(Hue f, Hue t) {
+void Tileset_Window::substitute_hue(Hue f, Hue t) const {
 	for (size_t i = 0; i < TILE_AREA; i++) {
 		Pixel_Button *pb = _pixels[i];
 		if (pb->hue() == f) {
@@ -248,7 +248,7 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) {
 	}
 }
 
-void Tileset_Window::swap_hues(Hue f, Hue t) {
+void Tileset_Window::swap_hues(Hue f, Hue t) const {
 	if (f == t) { return; }
 	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
 		Pixel_Button *pb = _pixels[i];

@@ -322,9 +322,6 @@
     <None Include="..\res\load-palettes.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\palettes.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\blocks-dark.xpm">
       <Filter>Resource Files</Filter>
     </None>

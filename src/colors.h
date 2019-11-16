@@ -13,11 +13,11 @@
 #define RGB5C(x) (uchar)((x) * 33 / 4) // 5-bit to 8-bit
 #define CRGB5(c) (uchar)((c) / 8)      // 8-bit to 5-bit
 
-enum Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
+enum class Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
 
-enum Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT };
+enum class Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT };
 
-enum Hue { WHITE, DARK, LIGHT, BLACK };
+enum class Hue { WHITE, DARK, LIGHT, BLACK };
 
 #define NUM_PALETTE_SETS 5
 #define NUM_PALETTES 8

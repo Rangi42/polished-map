@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sys/stat.h>
 
 #ifdef _WIN32
@@ -34,6 +35,10 @@ void trim(std::string &s, const std::string &t) {
 	s.erase(0, p);
 	p = s.find_last_not_of(t);
 	s.erase(p + 1);
+}
+
+void lowercase(std::string& s) {
+	std::transform(s.begin(), s.end(), s.begin(), [](char c) { return (char)std::tolower(c); });
 }
 
 void remove_comment(std::string &s, char c) {

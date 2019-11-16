@@ -8,7 +8,7 @@
 #include "tile.h"
 #include "event.h"
 
-Ruler::Ruler(int x, int y, int w, int h, const char *l) : Fl_Box(x, y, w, h, l) {}
+Ruler::Ruler(int x, int y, int w, int h, const char *l) : Fl_Box(x, y, w, h, l), _direction(Direction::CORNER) {}
 
 static inline void print_tick_label(char *s, int n, bool hex) {
 	if (hex) {
@@ -48,7 +48,7 @@ void Ruler::draw() {
 		int es = mw->metatile_size() / 2;
 		int r = mx % es;
 		// tick marks
-		int d = (mx / es) % 2 ? 0 : H / 2;
+		int d = ((mx / es) % 2) ? 0 : H / 2;
 		for (int i = S-r-1; i < W; i += S, d = d ? 0 : H / 2) {
 			fl_yxline(X+i, Y+d, Y+H-1);
 		}
@@ -79,7 +79,7 @@ void Ruler::draw() {
 		int es = mw->metatile_size() / 2;
 		int r = my % es;
 		// tick marks
-		int d = (my / es) % 2 ? 0 : W / 2;
+		int d = ((my / es) % 2) ? 0 : W / 2;
 		for (int i = S-r-1; i < H; i += S, d = d ? 0 : W / 2) {
 			fl_xyline(X+d, Y+i, X+W-1);
 		}

@@ -17,6 +17,7 @@ public:
 	std::string landmark;
 	std::string palette;
 public:
+	inline Map_Attributes() : group(), environment(), landmark(), palette() {}
 	void clear(void);
 };
 
@@ -28,7 +29,7 @@ protected:
 		Map_State(size_t n) : ids(n) {}
 	};
 public:
-	enum Result { MAP_OK, MAP_BAD_FILE, MAP_TOO_SHORT, MAP_TOO_LONG, MAP_NULL };
+	enum class Result { MAP_OK, MAP_BAD_FILE, MAP_TOO_SHORT, MAP_TOO_LONG, MAP_NULL };
 private:
 	Map_Attributes _attributes;
 	uint8_t _width, _height;
@@ -66,7 +67,7 @@ public:
 	inline bool can_undo(void) const { return !_history.empty(); }
 	inline bool can_redo(void) const { return !_future.empty(); }
 	void clear();
-	void resize_blocks(int x, int y, int s);
+	void resize_blocks(int x, int y, int s) const;
 	void remember(void);
 	void undo(void);
 	void redo(void);

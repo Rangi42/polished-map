@@ -280,7 +280,7 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		trim(tileset_name);
 		if (starts_with(tileset_name, "TILESET_")) {
 			tileset_name.erase(0, strlen("TILESET_"));
-			std::transform(tileset_name.begin(), tileset_name.end(), tileset_name.begin(), tolower);
+			lowercase(tileset_name);
 		}
 		else if (starts_with(tileset_name, "$")) {
 			tileset_name.erase(0, 1);
@@ -306,7 +306,7 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		std::string landmark;
 		std::getline(lss, landmark, ',');
 		trim(landmark);
-		std::transform(landmark.begin(), landmark.end(), landmark.begin(), tolower);
+		lowercase(landmark);
 		attrs.landmark = landmark;
 
 		std::string skip_token;
@@ -346,7 +346,7 @@ void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &
 		std::string pretty = original + (": " + token);
 		pretty_names[original] = pretty;
 		std::string guessable = token;
-		std::transform(guessable.begin(), guessable.end(), guessable.begin(), tolower);
+		lowercase(guessable);
 		guessable_names[original] = guessable;
 	}
 
@@ -375,7 +375,7 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	return v;
 }
 
-std::string Map_Options_Dialog::add_roof(const char *r, int ext_len) {
+void Map_Options_Dialog::add_roof(const char *r, int ext_len) {
 	std::string v(r);
 	v.erase(v.size() - ext_len, ext_len);
 
@@ -384,8 +384,6 @@ std::string Map_Options_Dialog::add_roof(const char *r, int ext_len) {
 		int m = text_width(v.c_str(), 6);
 		_max_roof_name_length = MAX(m, _max_roof_name_length);
 	}
-
-	return v;
 }
 
 bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *directory, Map_Attributes &attrs) {
@@ -594,15 +592,15 @@ Resize_Dialog::~Resize_Dialog() {
 }
 
 Resize_Dialog::Hor_Align Resize_Dialog::horizontal_anchor() const {
-	if (_anchor_buttons[0]->value() || _anchor_buttons[3]->value() || _anchor_buttons[6]->value()) { return LEFT; }
-	if (_anchor_buttons[2]->value() || _anchor_buttons[5]->value() || _anchor_buttons[8]->value()) { return RIGHT; }
-	return CENTER;
+	if (_anchor_buttons[0]->value() || _anchor_buttons[3]->value() || _anchor_buttons[6]->value()) { return Hor_Align::LEFT; }
+	if (_anchor_buttons[2]->value() || _anchor_buttons[5]->value() || _anchor_buttons[8]->value()) { return Hor_Align::RIGHT; }
+	return Hor_Align::CENTER;
 }
 
 Resize_Dialog::Vert_Align Resize_Dialog::vertical_anchor() const {
-	if (_anchor_buttons[0]->value() || _anchor_buttons[1]->value() || _anchor_buttons[2]->value()) { return TOP; }
-	if (_anchor_buttons[6]->value() || _anchor_buttons[7]->value() || _anchor_buttons[8]->value()) { return BOTTOM; }
-	return MIDDLE;
+	if (_anchor_buttons[0]->value() || _anchor_buttons[1]->value() || _anchor_buttons[2]->value()) { return Vert_Align::TOP; }
+	if (_anchor_buttons[6]->value() || _anchor_buttons[7]->value() || _anchor_buttons[8]->value()) { return Vert_Align::BOTTOM; }
+	return Vert_Align::MIDDLE;
 }
 
 int Resize_Dialog::anchor() const {
@@ -835,7 +833,7 @@ void Event_Options_Dialog::use_event(const Event *e) {
 #ifdef __GNUC__
 	sprintf(buffer, "Line: %zu", e->_line);
 #else
-	sprintf(buffer, "Line: %u", e->_line);
+	sprintf(buffer, "Line: %u", (uint32_t)e->_line);
 #endif
 	_line_heading->copy_label(buffer);
 
@@ -880,7 +878,7 @@ void Event_Options_Dialog::use_event(const Event *e) {
 	}
 }
 
-void Event_Options_Dialog::update_event(Event *e) {
+void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_prefixed) {
 		e->_prefix = _prefix->value();
 		trim(e->_prefix);
@@ -921,13 +919,13 @@ void Event_Options_Dialog::initialize_content() {
 	_hex_event_y = new Default_Hex_Spinner(0, 0, 0, 0, "Y:");
 	// Initialize content group's children
 	_event_x->align(FL_ALIGN_LEFT);
-	_event_x->range(INT8_MIN, INT8_MAX);
+	_event_x->range((double)INT8_MIN, (double)INT8_MAX);
 	_event_y->align(FL_ALIGN_LEFT);
-	_event_y->range(INT8_MIN, INT8_MAX);
+	_event_y->range((double)INT8_MIN, (double)INT8_MAX);
 	_hex_event_x->align(FL_ALIGN_LEFT);
-	_hex_event_x->range(INT8_MIN, INT8_MAX);
+	_hex_event_x->range((int)INT8_MIN, (int)INT8_MAX);
 	_hex_event_y->align(FL_ALIGN_LEFT);
-	_hex_event_y->range(INT8_MIN, INT8_MAX);
+	_hex_event_y->range((int)INT8_MIN, (int)INT8_MAX);
 }
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {

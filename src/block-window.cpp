@@ -57,15 +57,15 @@ void Block_Window::initialize() {
 	_y_flip = new OS_Check_Button(304+off, 202, 22+off, 22, "Y flip");
 	_extra = new OS_Check_Button(330+off*2, 202, 122-off*2, 22, "\xe2\x98\x85"); // U+2605 BLACK STAR
 	_priority = new OS_Check_Button(278, 228, 174, 22, "Priority (above sprites)");
-	_collision_inputs[Quadrant::TOP_LEFT]     = new OS_Input(298, 279, 154, 22);
-	_collision_inputs[Quadrant::TOP_RIGHT]    = new OS_Input(298, 305, 154, 22);
-	_collision_inputs[Quadrant::BOTTOM_LEFT]  = new OS_Input(298, 331, 154, 22);
-	_collision_inputs[Quadrant::BOTTOM_RIGHT] = new OS_Input(298, 357, 154, 22);
+	_collision_inputs[(int)Quadrant::TOP_LEFT]     = new OS_Input(298, 279, 154, 22);
+	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new OS_Input(298, 305, 154, 22);
+	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new OS_Input(298, 331, 154, 22);
+	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new OS_Input(298, 357, 154, 22);
 	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
-	_bin_collision_spinners[Quadrant::TOP_LEFT]     = new Default_Hex_Spinner(298, 279, bsw, 22);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 279, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]  = new Default_Hex_Spinner(298, 305, bsw, 22);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT] = new Default_Hex_Spinner(332+bsw, 305, bsw, 22);
+	_bin_collision_spinners[(int)Quadrant::TOP_LEFT] = new Default_Hex_Spinner(298, 279, bsw, 22);
+	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT] = new Default_Hex_Spinner(332 + bsw, 279, bsw, 22);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT] = new Default_Hex_Spinner(298, 305, bsw, 22);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT] = new Default_Hex_Spinner(332+bsw, 305, bsw, 22);
 	_ok_button = new Default_Button(278, 400, 80, 22, "OK");
 	_cancel_button = new OS_Button(372, 400, 80, 22, "Cancel");
 	_window->end();
@@ -116,14 +116,14 @@ void Block_Window::initialize() {
 	_x_flip->callback((Fl_Callback *)change_attributes_cb, this);
 	_y_flip->callback((Fl_Callback *)change_attributes_cb, this);
 	_extra->callback((Fl_Callback *)change_attributes_cb, this);
-	_collision_inputs[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
-	_collision_inputs[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
+	_collision_inputs[(int)Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
+	_collision_inputs[(int)Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
+	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
+	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
+	_bin_collision_spinners[(int)Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
+	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -142,22 +142,22 @@ void Block_Window::refresh() {
 void Block_Window::update_icons() {
 	initialize();
 	bool dark = OS::is_dark_theme(OS::current_theme());
-	_collision_inputs[Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
-	_collision_inputs[Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
-	_collision_inputs[Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
-	_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
-	Image::make_deimage(_collision_inputs[Quadrant::TOP_LEFT]);
-	Image::make_deimage(_collision_inputs[Quadrant::TOP_RIGHT]);
-	Image::make_deimage(_collision_inputs[Quadrant::BOTTOM_LEFT]);
-	Image::make_deimage(_collision_inputs[Quadrant::BOTTOM_RIGHT]);
-	Image::make_deimage(_bin_collision_spinners[Quadrant::TOP_LEFT]);
-	Image::make_deimage(_bin_collision_spinners[Quadrant::TOP_RIGHT]);
-	Image::make_deimage(_bin_collision_spinners[Quadrant::BOTTOM_LEFT]);
-	Image::make_deimage(_bin_collision_spinners[Quadrant::BOTTOM_RIGHT]);
+	_collision_inputs[(int)Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
+	_collision_inputs[(int)Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
+	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
+	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
+	_bin_collision_spinners[(int)Quadrant::TOP_LEFT]->image(dark ? COLL_TOP_LEFT_DARK_ICON : COLL_TOP_LEFT_ICON);
+	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]->image(dark ? COLL_TOP_RIGHT_DARK_ICON : COLL_TOP_RIGHT_ICON);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]->image(dark ? COLL_BOTTOM_LEFT_DARK_ICON : COLL_BOTTOM_LEFT_ICON);
+	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT]->image(dark ? COLL_BOTTOM_RIGHT_DARK_ICON : COLL_BOTTOM_RIGHT_ICON);
+	Image::make_deimage(_collision_inputs[(int)Quadrant::TOP_LEFT]);
+	Image::make_deimage(_collision_inputs[(int)Quadrant::TOP_RIGHT]);
+	Image::make_deimage(_collision_inputs[(int)Quadrant::BOTTOM_LEFT]);
+	Image::make_deimage(_collision_inputs[(int)Quadrant::BOTTOM_RIGHT]);
+	Image::make_deimage(_bin_collision_spinners[(int)Quadrant::TOP_LEFT]);
+	Image::make_deimage(_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]);
+	Image::make_deimage(_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]);
+	Image::make_deimage(_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT]);
 }
 
 void Block_Window::tileset(const Tileset *t) {
@@ -233,7 +233,7 @@ void Block_Window::select(const Attributable *a) {
 	_selected = _tile_buttons[a->id()];
 	_selected->setonly();
 	_selected->do_callback();
-	_palette->value(a->palette());
+	_palette->value((int)a->palette());
 	_x_flip->value(a->x_flip());
 	_y_flip->value(a->y_flip());
 	_extra->value(a->extra());

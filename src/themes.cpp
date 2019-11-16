@@ -230,7 +230,7 @@ void OS::use_classic_theme() {
 	use_classic_scheme();
 	use_classic_colors();
 	use_native_settings();
-	_current_theme = CLASSIC;
+	_current_theme = Theme::CLASSIC;
 }
 
 /****************************** Aero (Windows 7) ******************************/
@@ -570,7 +570,7 @@ void OS::use_aero_theme() {
 	use_aero_scheme();
 	use_aero_colors();
 	use_native_settings();
-	_current_theme = AERO;
+	_current_theme = Theme::AERO;
 }
 
 /****************************** Metro (Windows 8) *****************************/
@@ -703,7 +703,7 @@ void OS::use_metro_theme() {
 	use_metro_scheme();
 	use_metro_colors();
 	use_native_settings();
-	_current_theme = METRO;
+	_current_theme = Theme::METRO;
 }
 
 /**************************** Aqua (Mac OS X Lion) ****************************/
@@ -974,7 +974,7 @@ void OS::use_aqua_theme() {
 	use_aqua_scheme();
 	use_aqua_colors();
 	use_native_settings();
-	_current_theme = AQUA;
+	_current_theme = Theme::AQUA;
 }
 
 /**************************** Greybird (Linux GTK+) ***************************/
@@ -1261,7 +1261,7 @@ void OS::use_greybird_theme() {
 	use_greybird_scheme();
 	use_greybird_colors();
 	use_native_settings();
-	_current_theme = GREYBIRD;
+	_current_theme = Theme::GREYBIRD;
 }
 
 /***************************** Metal (Java Swing) *****************************/
@@ -1395,7 +1395,7 @@ void OS::use_metal_theme() {
 	use_metal_scheme();
 	use_metal_colors();
 	use_native_settings();
-	_current_theme = METAL;
+	_current_theme = Theme::METAL;
 }
 
 /************************** Blue (Windows Calculator) *************************/
@@ -1633,7 +1633,7 @@ void OS::use_blue_theme() {
 	use_blue_scheme();
 	use_blue_colors();
 	use_native_settings();
-	_current_theme = BLUE;
+	_current_theme = Theme::BLUE;
 }
 
 /***************************** Olive (Windows XP) *****************************/
@@ -2041,7 +2041,7 @@ void OS::use_olive_theme() {
 	use_olive_scheme();
 	use_olive_colors();
 	use_native_settings();
-	_current_theme = OLIVE;
+	_current_theme = Theme::OLIVE;
 }
 
 /********************************** Rose Gold *********************************/
@@ -2279,7 +2279,7 @@ void OS::use_rose_gold_theme() {
 	use_rose_gold_scheme();
 	use_rose_gold_colors();
 	use_native_settings();
-	_current_theme = ROSE_GOLD;
+	_current_theme = Theme::ROSE_GOLD;
 }
 
 /************************* Dark (Adobe Photoshop CS6) *************************/
@@ -2482,7 +2482,7 @@ void OS::use_dark_theme() {
 	use_dark_scheme();
 	use_dark_colors();
 	use_native_settings();
-	_current_theme = DARK;
+	_current_theme = Theme::DARK;
 }
 
 /******************************* High Contrast ********************************/
@@ -2625,15 +2625,15 @@ void OS::use_high_contrast_theme() {
 	use_high_contrast_scheme();
 	use_high_contrast_colors();
 	use_native_settings();
-	_current_theme = HIGH_CONTRAST;
+	_current_theme = Theme::HIGH_CONTRAST;
 }
 
 /********************************** OS Native *********************************/
 
 #ifdef _WIN32
-OS::Theme OS::_current_theme = is_classic_windows() ? CLASSIC : is_modern_windows() ? METRO : AERO;
+OS::Theme OS::_current_theme = is_classic_windows() ? Theme::CLASSIC : is_modern_windows() ? Theme::METRO : Theme::AERO;
 #else
-OS::Theme OS::_current_theme = GREYBIRD;
+OS::Theme OS::_current_theme = Theme::GREYBIRD;
 #endif
 
 bool OS::_is_consolas = false;

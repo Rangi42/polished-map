@@ -10,7 +10,7 @@
 #include "tile.h"
 #include "attributable.h"
 
-enum Quadrant { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+enum class Quadrant { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
 
 #define NUM_QUADRANTS 4
 
@@ -35,11 +35,11 @@ public:
 	inline void attributes(int x, int y, const Attributable *a) { _attributes[y][x].copy(*a); }
 	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].byte(); }
 	inline void attribute_byte(int x, int y, uchar a) { _attributes[y][x].byte(a); }
-	inline std::string collision(Quadrant q) const { return _collisions[q]; }
-	inline void collision(Quadrant q, const std::string &c) { _collisions[q] = c; }
-	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[q]; }
+	inline std::string collision(Quadrant q) const { return _collisions[(int)q]; }
+	inline void collision(Quadrant q, const std::string &c) { _collisions[(int)q] = c; }
+	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[(int)q]; }
 	inline const uint8_t *bin_collisions(void) const { return _bin_collisions; }
-	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[q] = c; }
+	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[(int)q] = c; }
 	void clear(void);
 	void copy(const Metatile *src);
 	void swap(Metatile *mt);

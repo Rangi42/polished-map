@@ -49,7 +49,7 @@ void Tile::render_pixel(int x, int y, Palettes l, Hue h) {
 	for (int pi = 0; pi < NUM_PALETTES; pi++) {
 		Palette p = (Palette)pi;
 		const uchar *rgb = Color::color(l, p, h);
-		fill_tile_pixel(_rgb[p], x, y, rgb);
+		fill_tile_pixel(_rgb[(int)p], x, y, rgb);
 	}
 	const uchar *rgb = Color::monochrome_color(h);
 	fill_tile_pixel(_monochrome_rgb, x, y, rgb);

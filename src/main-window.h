@@ -32,7 +32,7 @@
 
 #define NUM_RECENT 10
 
-enum Mode { BLOCKS, EVENTS };
+enum class Mode { BLOCKS, EVENTS };
 
 class Main_Window : public Fl_Overlay_Window {
 private:

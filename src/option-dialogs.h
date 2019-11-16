@@ -70,10 +70,10 @@ public:
 private:
 	const char *original_name(const char *pretty_name) const;
 	bool guess_map_size(const char *filename, const char *directory, Map_Attributes &attrs);
-	std::string guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs);
-	void guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names);
+	static std::string guess_map_tileset(const char *filename, const char *directory, Map_Attributes &attrs);
+	static void guess_tileset_names(const char *directory, Dictionary &pretty_names, Dictionary &guessable_names);
 	std::string add_tileset(const char *t, int ext_len, const Dictionary &pretty_names);
-	std::string add_roof(const char *r, int ext_len);
+	void add_roof(const char *r, int ext_len);
 	int add_map_size(int w, int h);
 	void add_valid_sizes(size_t n);
 	void select_map_size(int i) { _map_sizes->value(i); _map_sizes->do_callback(); }
@@ -89,8 +89,8 @@ class Anchor_Button;
 
 class Resize_Dialog : public Option_Dialog {
 public:
-	enum Hor_Align { LEFT, CENTER, RIGHT };
-	enum Vert_Align { TOP, MIDDLE, BOTTOM };
+	enum class Hor_Align { LEFT, CENTER, RIGHT };
+	enum class Vert_Align { TOP, MIDDLE, BOTTOM };
 private:
 	Default_Spinner *_map_width, *_map_height;
 	Anchor_Button *_anchor_buttons[9];
@@ -163,7 +163,7 @@ public:
 	Event_Options_Dialog(const char *t);
 	~Event_Options_Dialog();
 	void use_event(const Event *e);
-	void update_event(Event *e);
+	void update_event(Event *e) const;
 protected:
 	void initialize_content(void);
 	int refresh_content(int ww, int dy);
@@ -185,13 +185,13 @@ public:
 	inline void copied(bool c) { _copied = c; }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
-	inline bool grid(void) { return !!_grid->value(); }
+	inline bool grid(void) const { return !!_grid->value(); }
 	inline void grid(bool g) { initialize(); _grid->value(g); }
-	inline bool ids(void) { return !!_ids->value(); }
+	inline bool ids(void) const { return !!_ids->value(); }
 	inline void ids(bool d) { initialize(); _ids->value(d); }
-	inline bool priority(void) { return !!_priority->value(); }
+	inline bool priority(void) const { return !!_priority->value(); }
 	inline void priority(bool p) { initialize(); _priority->value(p); }
-	inline bool events(void) { return !!_events->value(); }
+	inline bool events(void) const { return !!_events->value(); }
 	inline void events(bool e) { initialize(); _events->value(e); }
 private:
 	void initialize(void);

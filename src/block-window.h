@@ -49,8 +49,8 @@ public:
 	void metatile(const Metatile *mt, bool has_collisions, bool bin_collisions);
 	inline Chip *chip(int x, int y) { return _chips[y * METATILE_SIZE + x]; }
 	inline const Chip *const_chip(int x, int y) const { return _chips[y * METATILE_SIZE + x]; }
-	inline const char *collision(Quadrant q) { return _collision_inputs[q]->value(); }
-	inline uint8_t bin_collision(Quadrant q) { return (uint8_t)_bin_collision_spinners[q]->value(); }
+	inline const char *collision(Quadrant q) { return _collision_inputs[(int)q]->value(); }
+	inline uint8_t bin_collision(Quadrant q) { return (uint8_t)_bin_collision_spinners[(int)q]->value(); }
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);

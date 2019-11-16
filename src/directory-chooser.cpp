@@ -11,7 +11,7 @@ static LPCWSTR utf8towchar(const char *in) {
 	int wlen = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
 	if (wlen > lwout) {
 		lwout = wlen;
-		wout = (WCHAR *)realloc(wout, lwout * sizeof(WCHAR));
+		wout = (WCHAR *)malloc(lwout * sizeof(WCHAR));
 	}
 	MultiByteToWideChar(CP_UTF8, 0, in, -1, wout, wlen);
 	return wout;
@@ -24,7 +24,7 @@ static const char *wchartoutf8(LPCWSTR in) {
 	int utf8len  = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
 	if (utf8len > lchar) {
 		lchar = utf8len;
-		out = (char *)realloc(out, lchar * sizeof(char));
+		out = (char *)malloc(lchar);
 	}
 	WideCharToMultiByte(CP_UTF8, 0, in, -1, out, utf8len, NULL, NULL);
 	return out;

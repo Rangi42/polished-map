@@ -2,8 +2,8 @@
 #include "tileset.h"
 #include "image.h"
 
-Tileset::Tileset() : _name(), _palettes(), _tiles(), _num_tiles(0), _num_roof_tiles(0), _result(GFX_NULL),
-	_modified(false), _modified_roof(false) {
+Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
+	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 		_roof_tiles[i] = new Tile((uint8_t)i);
@@ -25,7 +25,7 @@ void Tileset::clear() {
 		_tiles[i]->clear();
 	}
 	clear_roof_graphics();
-	_result = GFX_NULL;
+	_result = Result::GFX_NULL;
 	_modified = false;
 	_modified_roof = false;
 }
@@ -77,7 +77,7 @@ void Tileset::read_tile(Tile *t, const Tiled_Image &ti, size_t i) {
 	}
 }
 
-void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) const {
+void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) {
 	for (int py = 0; py < TILE_SIZE; py++) {
 		for (int px = 0; px < TILE_SIZE; px++) {
 			Hue h = t->hue(px, py);
@@ -93,16 +93,16 @@ void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer
 Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	Tiled_Image ti(f);
 	switch (ti.result()) {
-	case Tiled_Image::IMG_OK: break;
-	case Tiled_Image::IMG_NULL: return (_result = GFX_BAD_FILE);
-	case Tiled_Image::IMG_BAD_FILE: return (_result = GFX_BAD_FILE);
-	case Tiled_Image::IMG_BAD_EXT: return (_result = GFX_BAD_EXT);
-	case Tiled_Image::IMG_BAD_DIMS: return (_result = GFX_BAD_DIMS);
-	case Tiled_Image::IMG_TOO_SHORT: return (_result = GFX_TOO_SHORT);
-	case Tiled_Image::IMG_TOO_LARGE: return (_result = GFX_TOO_LARGE);
-	case Tiled_Image::IMG_NOT_GRAYSCALE: return (_result = GFX_NOT_GRAYSCALE);
-	case Tiled_Image::IMG_BAD_CMD: return (_result = GFX_BAD_CMD);
-	default: return (_result = GFX_BAD_FILE);
+	case Tiled_Image::Result::IMG_OK: break;
+	case Tiled_Image::Result::IMG_NULL: return (_result = Result::GFX_BAD_FILE);
+	case Tiled_Image::Result::IMG_BAD_FILE: return (_result = Result::GFX_BAD_FILE);
+	case Tiled_Image::Result::IMG_BAD_EXT: return (_result = Result::GFX_BAD_EXT);
+	case Tiled_Image::Result::IMG_BAD_DIMS: return (_result = Result::GFX_BAD_DIMS);
+	case Tiled_Image::Result::IMG_TOO_SHORT: return (_result = Result::GFX_TOO_SHORT);
+	case Tiled_Image::Result::IMG_TOO_LARGE: return (_result = Result::GFX_TOO_LARGE);
+	case Tiled_Image::Result::IMG_NOT_GRAYSCALE: return (_result = Result::GFX_NOT_GRAYSCALE);
+	case Tiled_Image::Result::IMG_BAD_CMD: return (_result = Result::GFX_BAD_CMD);
+	default: return (_result = Result::GFX_BAD_FILE);
 	}
 
 	_num_tiles = ti.num_tiles();
@@ -116,29 +116,29 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	_modified = false;
 	_modified_roof = false;
 
-	return (_result = GFX_OK);
+	return (_result = Result::GFX_OK);
 }
 
 Tileset::Result Tileset::read_roof_graphics(const char *f) {
 	Tiled_Image ti(f);
 	switch (ti.result()) {
-	case Tiled_Image::IMG_OK: break;
-	case Tiled_Image::IMG_NULL: return GFX_BAD_FILE;
-	case Tiled_Image::IMG_BAD_FILE: return GFX_BAD_FILE;
-	case Tiled_Image::IMG_BAD_EXT: return GFX_BAD_EXT;
-	case Tiled_Image::IMG_BAD_DIMS: return GFX_BAD_DIMS;
-	case Tiled_Image::IMG_TOO_SHORT: return GFX_TOO_SHORT;
-	case Tiled_Image::IMG_TOO_LARGE: return GFX_TOO_LARGE;
-	case Tiled_Image::IMG_NOT_GRAYSCALE: return GFX_NOT_GRAYSCALE;
-	case Tiled_Image::IMG_BAD_CMD: return GFX_BAD_CMD;
-	default: return GFX_BAD_FILE;
+	case Tiled_Image::Result::IMG_OK: break;
+	case Tiled_Image::Result::IMG_NULL: return Result::GFX_BAD_FILE;
+	case Tiled_Image::Result::IMG_BAD_FILE: return Result::GFX_BAD_FILE;
+	case Tiled_Image::Result::IMG_BAD_EXT: return Result::GFX_BAD_EXT;
+	case Tiled_Image::Result::IMG_BAD_DIMS: return Result::GFX_BAD_DIMS;
+	case Tiled_Image::Result::IMG_TOO_SHORT: return Result::GFX_TOO_SHORT;
+	case Tiled_Image::Result::IMG_TOO_LARGE: return Result::GFX_TOO_LARGE;
+	case Tiled_Image::Result::IMG_NOT_GRAYSCALE: return Result::GFX_NOT_GRAYSCALE;
+	case Tiled_Image::Result::IMG_BAD_CMD: return Result::GFX_BAD_CMD;
+	default: return Result::GFX_BAD_FILE;
 	}
 
 	if (ti.num_tiles() < NUM_ROOF_TILES) {
-		return GFX_TOO_SHORT;
+		return Result::GFX_TOO_SHORT;
 	}
 	if (ti.num_tiles() > NUM_ROOF_TILES || FIRST_ROOF_TILE_ID + ti.num_tiles() > MAX_NUM_TILES) {
-		return GFX_TOO_LARGE;
+		return Result::GFX_TOO_LARGE;
 	}
 	_num_roof_tiles = ti.num_tiles();
 
@@ -148,28 +148,28 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 		read_tile(t, ti, i);
 	}
 
-	return GFX_OK;
+	return Result::GFX_OK;
 }
 
 const char *Tileset::error_message(Result result) {
 	switch (result) {
-	case GFX_OK:
+	case Result::GFX_OK:
 		return "OK.";
-	case GFX_BAD_FILE:
+	case Result::GFX_BAD_FILE:
 		return "Cannot parse file format.";
-	case GFX_BAD_EXT:
+	case Result::GFX_BAD_EXT:
 		return "Unknown file extension.";
-	case GFX_BAD_DIMS:
+	case Result::GFX_BAD_DIMS:
 		return "Image dimensions do not fit the tile grid.";
-	case GFX_TOO_SHORT:
+	case Result::GFX_TOO_SHORT:
 		return "Too few bytes.";
-	case GFX_TOO_LARGE:
+	case Result::GFX_TOO_LARGE:
 		return "Too many pixels.";
-	case GFX_NOT_GRAYSCALE:
+	case Result::GFX_NOT_GRAYSCALE:
 		return "Image cannot be made grayscale.";
-	case GFX_BAD_CMD:
+	case Result::GFX_BAD_CMD:
 		return "Invalid LZ command.";
-	case GFX_NULL:
+	case Result::GFX_NULL:
 		return "No graphics file chosen.";
 	default:
 		return "Unspecified error.";
@@ -178,10 +178,10 @@ const char *Tileset::error_message(Result result) {
 
 bool Tileset::write_graphics(const char *f) {
 	Image::Result result = Image::write_tileset_image(f, *this);
-	return !result;
+	return result == Image::Result::IMAGE_OK;
 }
 
 bool Tileset::write_roof_graphics(const char *f) {
 	Image::Result result = Image::write_roof_image(f, *this);
-	return !result;
+	return result == Image::Result::IMAGE_OK;
 }

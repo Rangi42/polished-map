@@ -19,7 +19,7 @@
 
 class Tileset {
 public:
-	enum Result { GFX_OK, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS, GFX_TOO_SHORT,
+	enum class Result { GFX_OK, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS, GFX_TOO_SHORT,
 		GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name, _roof_name;
@@ -53,7 +53,7 @@ public:
 	inline void modified_roof(bool m) { _modified_roof = m; }
 private:
 	void read_tile(Tile *t, const Tiled_Image &ti, size_t i);
-	void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) const;
+	static void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer);
 public:
 	void clear(void);
 	void clear_roof_graphics(void);
