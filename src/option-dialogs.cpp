@@ -164,11 +164,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	_map_header->copy_label(buffer);
 
 	size_t fs = file_size(filename);
-#ifdef __GNUC__
 	sprintf(buffer, "(%zu B)", fs);
-#else
-	sprintf(buffer, "(%u B)", (uint32_t)fs);
-#endif
 	_map_size->copy_label(buffer);
 	add_valid_sizes(fs);
 
@@ -830,11 +826,7 @@ void Event_Options_Dialog::use_event(const Event *e) {
 #endif
 	_macro_heading->copy_label(buffer);
 
-#ifdef __GNUC__
 	sprintf(buffer, "Line: %zu", e->_line);
-#else
-	sprintf(buffer, "Line: %u", (uint32_t)e->_line);
-#endif
 	_line_heading->copy_label(buffer);
 
 	_prefix->value(e->_prefix.c_str());
