@@ -7,7 +7,7 @@
 1. Download **install.bat** and **polishedmap-plusplus.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map++ to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
-4. Double-click **Polished Map++** on your Desktop to open it. If you get an error that "mscvrt120.dll is missing", you need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://www.microsoft.com/en-us/download/details.aspx?id=40784) for x86.
+4. Double-click **Polished Map++** on your Desktop to open it. If you get an error that "msvcrt140.dll is missing", you need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://www.microsoft.com/en-us/download/details.aspx?id=40784) for x86.
 
 If you have Microsoft Visual Studio, you can build Polished Map++ yourself:
 
