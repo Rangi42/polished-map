@@ -8,10 +8,12 @@
 #define PROGRAM_VERSION_STRING "2.4.3"
 #endif
 
+#define PROGRAM_EXE_NAME "polishedmap-plusplus"
+
 #ifdef _WIN32
-#define PROGRAM_EXE "polishedmap-plusplus.exe"
+#define PROGRAM_EXE PROGRAM_EXE_NAME ".exe"
 #else
-#define PROGRAM_EXE "polishedmap-plusplus"
+#define PROGRAM_EXE PROGRAM_EXE_NAME
 #endif
 
 #define PROGRAM_NAME "Polished Map++"
