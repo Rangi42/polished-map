@@ -29,8 +29,8 @@ void Map::block(uint8_t x, uint8_t y, Block *b) {
 
 Block *Map::block_under(Event *e) {
 	if (!e) { return NULL; }
-	uint8_t bx = e->event_x() / 2, by = e->event_y() / 2;
-	return bx < _width && by < _height ? block(bx, by) : NULL;
+	uint16_t bx = e->event_x() / 2, by = e->event_y() / 2;
+	return bx >= 0 && by >= 0 && bx < _width && by < _height ? block((uint8_t)bx, (uint8_t)by) : NULL;
 }
 
 void Map::clear() {
