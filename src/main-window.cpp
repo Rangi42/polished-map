@@ -1713,8 +1713,8 @@ void Main_Window::resize_map(int w, int h) {
 		if (px || py) {
 			int rx = (int)e->event_x() + px * 2;
 			int ry = (int)e->event_y() + py * 2;
-			int8_t ex = (int8_t)MIN(MAX(rx, INT8_MIN), INT8_MAX);
-			int8_t ey = (int8_t)MIN(MAX(ry, INT8_MIN), INT8_MAX);
+			int16_t ex = (int16_t)MIN(MAX(rx, MIN_EVENT_COORD), MAX_EVENT_COORD);
+			int16_t ey = (int16_t)MIN(MAX(ry, MIN_EVENT_COORD), MAX_EVENT_COORD);
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			e->update_tooltip();
@@ -3160,8 +3160,8 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 			int ox = Fl::event_x() - EVENT_MARGIN * e->w(), oy = Fl::event_y() - EVENT_MARGIN * e->h();
 			int rx = (ox - sx) / e->w() - (ox < sx);
 			int ry = (oy - sy) / e->h() - (oy < sy);
-			int8_t ex = (int8_t)MIN(MAX(rx, -EVENT_MARGIN), mw->_map.max_event_x());
-			int8_t ey = (int8_t)MIN(MAX(ry, -EVENT_MARGIN), mw->_map.max_event_y());
+			int16_t ex = (int16_t)MIN(MAX(rx, MIN_EVENT_COORD), mw->_map.max_event_x());
+			int16_t ey = (int16_t)MIN(MAX(ry, MIN_EVENT_COORD), mw->_map.max_event_y());
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			mw->_map_events.modified(true);

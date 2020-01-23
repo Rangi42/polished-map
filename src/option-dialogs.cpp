@@ -889,12 +889,12 @@ void Event_Options_Dialog::update_event(Event *e) const {
 		}
 	}
 	if (e->_hex_coords) {
-		e->_event_x = (int8_t)_hex_event_x->value();
-		e->_event_y = (int8_t)_hex_event_y->value();
+		e->_event_x = (int16_t)_hex_event_x->value();
+		e->_event_y = (int16_t)_hex_event_y->value();
 	}
 	else {
-		e->_event_x = (int8_t)_event_x->value();
-		e->_event_y = (int8_t)_event_y->value();
+		e->_event_x = (int16_t)_event_x->value();
+		e->_event_y = (int16_t)_event_y->value();
 	}
 	e->update_tooltip();
 }
@@ -911,13 +911,13 @@ void Event_Options_Dialog::initialize_content() {
 	_hex_event_y = new Default_Hex_Spinner(0, 0, 0, 0, "Y:");
 	// Initialize content group's children
 	_event_x->align(FL_ALIGN_LEFT);
-	_event_x->range((double)INT8_MIN, (double)INT8_MAX);
+	_event_x->range((double)MIN_EVENT_COORD, (double)MAX_EVENT_COORD);
 	_event_y->align(FL_ALIGN_LEFT);
-	_event_y->range((double)INT8_MIN, (double)INT8_MAX);
+	_event_y->range((double)MIN_EVENT_COORD, (double)MAX_EVENT_COORD);
 	_hex_event_x->align(FL_ALIGN_LEFT);
-	_hex_event_x->range((int)INT8_MIN, (int)INT8_MAX);
+	_hex_event_x->range((int)MIN_EVENT_COORD, (int)MAX_EVENT_COORD);
 	_hex_event_y->align(FL_ALIGN_LEFT);
-	_hex_event_y->range((int)INT8_MIN, (int)INT8_MAX);
+	_hex_event_y->range((int)MIN_EVENT_COORD, (int)MAX_EVENT_COORD);
 }
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {

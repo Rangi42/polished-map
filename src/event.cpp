@@ -156,7 +156,7 @@ Event::Event(size_t line, const std::string &prelude, const std::string &macro, 
 }
 
 bool Event::warp_map_name(char *name) const {
-	if (_meta.warp <= 0) { return false; }
+	if (_meta.warp == 0) { return false; }
 	std::istringstream ss(_suffix);
 	std::string token;
 	for (uint8_t i = 0; i <= _meta.warp; i++) {
@@ -181,7 +181,7 @@ bool Event::warp_map_name(char *name) const {
 	return true;
 }
 
-static int8_t parse_coord(std::string s, bool &hex) {
+static int16_t parse_coord(std::string s, bool &hex) {
 	int n = 0;
 	trim(s);
 	if (!s.empty()) {
@@ -198,7 +198,8 @@ static int8_t parse_coord(std::string s, bool &hex) {
 			n = std::stoi(s, NULL);
 		}
 	}
-	return (int8_t)n;
+	n = (n + EVENT_MARGIN) % 0x100 - EVENT_MARGIN;
+	return (int16_t)n;
 }
 
 void Event::parse(std::istringstream &lss) {
