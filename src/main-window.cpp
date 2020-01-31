@@ -7,7 +7,7 @@
 #pragma warning(push, 0)
 #include <FL/Fl.H>
 #include <FL/Fl_Overlay_Window.H>
-#include <FL/Fl_Menu_Bar.H>
+#include <FL/Fl_Sys_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Multi_Label.H>
@@ -33,7 +33,16 @@
 
 #ifdef _WIN32
 #include "resource.h"
-#else
+#endif
+
+#ifdef __APPLE__
+#include <unistd.h>
+#pragma warning(push, 0)
+#include <FL/x.H>
+#pragma warning(pop)
+#endif
+
+#ifdef __LINUX__
 #include <unistd.h>
 #include <X11/xpm.h>
 #include "app-icon.xpm"
@@ -92,7 +101,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int wx = 0, wy = 0, ww = w, wh = h;
 
 	// Initialize menu bar
-	_menu_bar = new Fl_Menu_Bar(wx, wy, w, 21);
+#ifdef __APPLE__
+	Fl_Mac_App_Menu::about = "About " PROGRAM_NAME;
+	Fl_Mac_App_Menu::hide = "Hide " PROGRAM_NAME;
+	Fl_Mac_App_Menu::quit = "Quit " PROGRAM_NAME;
+	_menu_bar = new Fl_Sys_Menu_Bar(wx, wy, w, 0);
+#else
+	_menu_bar = new Fl_Sys_Menu_Bar(wx, wy, w, 21);
+#endif
 	wy += _menu_bar->h();
 	wh -= _menu_bar->h();
 
@@ -224,7 +240,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	// Configure window icon
 #ifdef _WIN32
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
-#else
+#elif defined(__LINUX__)
 	fl_open_display();
 	XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display), (char **)&APP_ICON_XPM, &_icon_pixmap, &_icon_mask, NULL);
 	icon((const void *)_icon_pixmap);
@@ -283,8 +299,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
+#ifdef __APPLE__
+		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, 0),
+#else
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
+#endif
 		{},
 		OS_SUBMENU("&Data"),
 		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
@@ -356,7 +376,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
+#ifdef __APPLE__
+		// F11 toggles all open windows in macOS
+		OS_MENU_ITEM("Full &Screen", FL_COMMAND + FL_SHIFT + 'f', (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
+#else
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
+#endif
 		{},
 		OS_SUBMENU("&Mode"),
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + 'B', (Fl_Callback *)blocks_mode_cb, this,
@@ -391,12 +416,25 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Help"),
+#ifdef __APPLE__
+		OS_MENU_ITEM(PROGRAM_NAME " &Help", FL_F + 1, (Fl_Callback *)help_cb, this, 0),
+#else
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&About", FL_COMMAND + '/', (Fl_Callback *)about_cb, this, 0),
+#endif
 		{},
 		{}
 	};
+#ifdef __APPLE__
+	// Fix for menu items not working in macOS
+	Fl_Menu_Item *menu_items_copy = static_cast<Fl_Menu_Item *>(malloc(sizeof(menu_items)));
+	memcpy(menu_items_copy, menu_items, sizeof(menu_items));
+	_menu_bar->menu(menu_items_copy);
+	// Initialize macOS application menu
+	fl_mac_set_about((Fl_Callback *)about_cb, this);
+#else
 	_menu_bar->copy(menu_items);
+#endif
 
 	// Initialize menu bar items
 	int first_recent_i = _menu_bar->find_index((Fl_Callback *)open_recent_cb);
@@ -466,6 +504,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_edit_roof_mi = PM_FIND_MENU_ITEM_CB(edit_roof_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
+#ifndef __APPLE__
 	for (int i = 0, md = 0; i < _menu_bar->size(); i++) {
 		Fl_Menu_Item *mi = (Fl_Menu_Item *)&_menu_bar->menu()[i];
 		if (md > 0 && mi && mi->label() && !mi->checkbox() && !mi->radio()) {
@@ -481,6 +520,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		if (mi->submenu()) { md++; }
 		else if (!mi->label()) { md--; }
 	}
+#endif
 
 	// Configure toolbar buttons
 
@@ -711,7 +751,7 @@ void Main_Window::show() {
 	HANDLE small_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
 		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CXSMICON), 0);
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
-#else
+#elif defined(__LINUX__)
 	// Fix for X11 icon alpha mask <https://www.mail-archive.com/fltk@easysw.com/msg02863.html>
 	XWMHints *hints = XGetWMHints(fl_display, fl_xid(this));
 	hints->flags |= IconMaskHint;
@@ -1058,21 +1098,30 @@ void Main_Window::store_recent_map() {
 void Main_Window::update_recent_maps() {
 	int last = -1;
 	for (int i = 0; i < NUM_RECENT; i++) {
+#ifndef __APPLE__
 		Fl_Multi_Label *ml = (Fl_Multi_Label *)_recent_mis[i]->label();
 		if (ml->labelb[0]) {
 			delete ml->labelb;
 			ml->labelb = "";
 		}
+#endif
 		if (_recent[i].empty()) {
+#ifdef __APPLE__
+			_recent_mis[i]->label("");
+#endif
 			_recent_mis[i]->hide();
 		}
 		else {
 			const char *basename = fl_filename_name(_recent[i].c_str());
+#ifndef __APPLE__
 			char *label = new char[FL_PATH_MAX]();
 			strcpy(label, OS_MENU_ITEM_PREFIX);
 			strcat(label, basename);
 			strcat(label, OS_MENU_ITEM_SUFFIX);
 			ml->labelb = label;
+#else
+			_recent_mis[i]->label(basename);
+#endif
 			_recent_mis[i]->show();
 			last = i;
 		}
@@ -1485,6 +1534,11 @@ void Main_Window::view_event_script(Event *e) {
 	}
 
 	ShellExecute(hwnd, L"edit", filename, NULL, NULL, SW_SHOW);
+#elif defined(__APPLE__)
+	if (fork() == 0) {
+		execl("/usr/bin/open", "open", _asm_file.c_str(), NULL);
+		exit(EXIT_SUCCESS);
+	}
 #else
 	if (fork() == 0) {
 		execl("/usr/bin/xdg-open", "xdg-open", _asm_file.c_str(), NULL);
@@ -2334,7 +2388,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	mw->_directory.assign(directory);
-	mw->_blk_file.assign(filename ? filename : "");
+	mw->_blk_file.assign(filename);
 
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);

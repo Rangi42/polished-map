@@ -2632,6 +2632,8 @@ void OS::use_high_contrast_theme() {
 
 #ifdef _WIN32
 OS::Theme OS::_current_theme = is_classic_windows() ? Theme::CLASSIC : is_modern_windows() ? Theme::METRO : Theme::AERO;
+#elif defined(__APPLE__)
+OS::Theme OS::_current_theme = Theme::AQUA;
 #else
 OS::Theme OS::_current_theme = Theme::GREYBIRD;
 #endif
@@ -2665,6 +2667,22 @@ void OS::use_native_fonts() {
 	// Use common bold monospace font
 	const char *bold_monospace_fonts[3] = {"Consolas bold", "Lucida Console bold", "Courier New bold"};
 	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, sizeof(bold_monospace_fonts));
+#elif defined(__APPLE__)
+	// Use system UI font
+	const char *system_fonts[4] = {
+		"San Francisco", "Helvetica Neue", "Lucida Grande", "Helvetica"
+	};
+	use_any_font(OS_FONT, system_fonts, sizeof(system_fonts));
+	// Use monospace font
+	const char *monospace_fonts[4] = {
+		"SF Mono", "Menlo", "Monaco", "Courier"
+	};
+	use_any_font(FL_COURIER, monospace_fonts, sizeof(monospace_fonts));
+	// Use bold monospace font
+	const char *bold_monospace_fonts[4] = {
+		"SF Mono bold", "Menlo bold", "Monaco bold", "Courier bold"
+	};
+	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, sizeof(bold_monospace_fonts));
 #else
 	// Use common system UI font
 	const char *system_fonts[4] = {
@@ -2696,6 +2714,8 @@ void OS::use_native_scheme() {
 	else {
 		use_aero_scheme();
 	}
+#elif defined(__APPLE__)
+	use_aqua_scheme();
 #else
 	use_greybird_scheme();
 #endif
@@ -2712,6 +2732,8 @@ void OS::use_native_colors() {
 	else {
 		use_aero_colors();
 	}
+#elif defined(__APPLE__)
+	use_aqua_colors();
 #else
 	use_greybird_colors();
 #endif
@@ -2733,6 +2755,8 @@ void OS::use_native_theme() {
 	else {
 		use_aero_theme();
 	}
+#elif defined(__APPLE__)
+	use_aqua_theme();
 #else
 	use_greybird_theme();
 #endif

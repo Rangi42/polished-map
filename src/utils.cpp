@@ -77,7 +77,7 @@ bool file_exists(const char *f) {
 }
 
 size_t file_size(const char *f) {
-#ifdef __CYGWIN__
+#if defined(__APPLE__) || defined(__CYGWIN__)
 #define stat64 stat
 #elif defined(_WIN32)
 #define stat64 _stat32i64

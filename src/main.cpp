@@ -4,6 +4,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Window.H>
+#include <FL/Fl_Shared_Image.H>
 #pragma warning(pop)
 
 #include "version.h"
@@ -18,6 +19,22 @@
 
 #define MAKE_WSTR_HELPER(x) L ## x
 #define MAKE_WSTR(x) MAKE_WSTR_HELPER(x)
+
+#endif
+
+#ifdef __APPLE__
+
+#pragma warning(push, 0)
+#include <FL/x.H>
+#pragma warning(pop)
+
+Main_Window *window = NULL;
+
+void open_dragged_cb(const char *filename) {
+	if (window) {
+		window->open_map(filename);
+	}
+}
 
 #endif
 
@@ -66,10 +83,15 @@ int main(int argc, char **argv) {
 #ifdef _WIN32
 	SetCurrentProcessExplicitAppUserModelID(MAKE_WSTR(PROGRAM_AUTHOR) L"." MAKE_WSTR(PROGRAM_NAME));
 #endif
+#ifdef __APPLE__
+	setenv("LANG", "en_US.UTF-8", 1);
+#endif
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 #ifdef _WIN32
 	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::BLUE);
+#elif defined(__APPLE__)
+	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::AQUA);
 #else
 	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::GREYBIRD);
 #endif
@@ -81,12 +103,24 @@ int main(int argc, char **argv) {
 	int x = Preferences::get("x", 48), y = Preferences::get("y", 48);
 #endif
 	int w = Preferences::get("w", 800), h = Preferences::get("h", 600);
-	Main_Window window(x, y, w, h);
-	window.show();
+#ifdef __APPLE__
+	fl_open_callback(open_dragged_cb);
+	window = new Main_Window(x, y, w, h);
+#else
+	Main_Window *window = new Main_Window(x, y, w, h);
+#endif
+	window->show();
 
 	if (argc > 1) {
-		window.open_map(argv[1]);
+		window->open_map(argv[1]);
 	}
 
+#ifdef __APPLE__
+	int r = Fl::run();
+	delete window;
+	window = NULL;
+	return r;
+#else
 	return Fl::run();
+#endif
 }

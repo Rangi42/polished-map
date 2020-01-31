@@ -16,10 +16,16 @@
 #include <FL/Fl_Help_View.H>
 #pragma warning(pop)
 
+#include "utils.h"
 #include "hex-spinner.h"
 
+#ifdef __APPLE__
+#define OS_MENU_ITEM_PREFIX ""
+#define OS_MENU_ITEM_SUFFIX ""
+#else
 #define OS_MENU_ITEM_PREFIX " "
 #define OS_MENU_ITEM_SUFFIX "         "
+#endif
 
 #define OS_SUBMENU(l) {l, 0, NULL, NULL, FL_SUBMENU, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}
 #define OS_NULL_MENU_ITEM(s, c, d, f) {"", s, c, d, f, FL_NORMAL_LABEL, OS_FONT, OS_FONT_SIZE, FL_FOREGROUND_COLOR}

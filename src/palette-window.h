@@ -61,7 +61,6 @@ protected:
 class Palette_Window : public Abstract_Palette_Window {
 private:
 	Fl_Group *_palette_heading_group, *_color_group;
-	Label *_palette_headings[NUM_GAME_PALETTES];
 	Color_Button *_color_buttons[NUM_GAME_PALETTES][NUM_HUES];
 public:
 	Palette_Window(int x, int y);

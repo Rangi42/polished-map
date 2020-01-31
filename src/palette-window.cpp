@@ -160,7 +160,7 @@ void Abstract_Palette_Window::swap_colors_cb(Fl_Widget *, Abstract_Palette_Windo
 }
 
 Palette_Window::Palette_Window(int x, int y) : Abstract_Palette_Window(x, y), _palette_heading_group(NULL),
-	_color_group(NULL), _palette_headings(), _color_buttons() {}
+	_color_group(NULL), _color_buttons() {}
 
 Palette_Window::~Palette_Window() {
 	delete _palette_heading_group;
