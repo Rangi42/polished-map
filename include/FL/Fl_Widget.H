@@ -3,7 +3,7 @@
 //
 // Widget header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2015 by Bill Spitzak and others.
+// Copyright 1998-2016 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -23,22 +23,7 @@
 #define Fl_Widget_H
 
 #include "Enumerations.H"
-
-/**
-  \todo	typedef's fl_intptr_t and fl_uintptr_t should be documented.
-*/
-#ifdef _WIN64
-#if defined(__GNUC__) || defined(__clang__)
-#include <stdint.h>
-#else
-#include <stddef.h>  // M$VC
-#endif
-typedef intptr_t fl_intptr_t;
-typedef uintptr_t fl_uintptr_t;
-#else
-typedef long fl_intptr_t;
-typedef unsigned long fl_uintptr_t;
-#endif
+#include "Fl.H"
 
 class Fl_Widget;
 class Fl_Window;
@@ -86,6 +71,7 @@ struct FL_EXPORT Fl_Label {
 };
 
 
+
 /** Fl_Widget is the base class for all widgets in FLTK.  
   
     You can't create one of these because the constructor is not public.
@@ -100,6 +86,7 @@ struct FL_EXPORT Fl_Label {
  */
 class FL_EXPORT Fl_Widget {
   friend class Fl_Group;
+  friend void Fl::focus(Fl_Widget*);
 
   Fl_Group* parent_;
   Fl_Callback* callback_;
@@ -174,6 +161,8 @@ protected:
         FULLSCREEN      = 1<<18,  ///< a fullscreen window (Fl_Window)
         MAC_USE_ACCENTS_MENU = 1<<19, ///< On the Mac OS platform, pressing and holding a key on the keyboard opens an accented-character menu window (Fl_Input_, Fl_Text_Editor)
         // (space for more flags)
+        NEEDS_KEYBOARD  = 1<<20,  ///< set this on touch screen devices if a widget needs a keyboard when it gets Focus. @see Fl_Screen_Driver::request_keyboard()
+        // a tiny bit more space for new flags...
         USERFLAG3       = 1<<29,  ///< reserved for 3rd party extensions
         USERFLAG2       = 1<<30,  ///< reserved for 3rd party extensions
         USERFLAG1       = 1<<31   ///< reserved for 3rd party extensions
@@ -422,8 +411,9 @@ public:
 
   /** Sets the current label pointer.
 
-      The label is shown somewhere on or next to the widget. The passed pointer 
-      is stored unchanged in the widget (the string is \em not copied), so if 
+      The label is shown somewhere on or next to the widget.
+      See \ref common_labels for details about what can be put in a label.
+      The passed pointer is stored unchanged in the widget (the string is \em not copied), so if 
       you need to set the label to a formatted value, make sure the buffer is 
       static, global, or allocated. The copy_label() method can be used 
       to make a copy of the label string automatically.
@@ -565,26 +555,29 @@ public:
       \param[in] cb new callback
       \param[in] p user data
    */
-  void callback(Fl_Callback* cb, void* p) {callback_=cb; user_data_=p;}
+  void callback(Fl_Callback* cb, void* p) {callback_ = cb; user_data_ = p;}
 
   /** Sets the current callback function for the widget.
       Each widget has a single callback.
       \param[in] cb new callback
    */
-  void callback(Fl_Callback* cb) {callback_=cb;}
+  void callback(Fl_Callback* cb) {callback_ = cb;}
 
   /** Sets the current callback function for the widget.
       Each widget has a single callback.
       \param[in] cb new callback
    */
-  void callback(Fl_Callback0*cb) {callback_=(Fl_Callback*)cb;}
+  void callback(Fl_Callback0* cb) {callback_ = (Fl_Callback*)cb;}
 
   /** Sets the current callback function for the widget.
       Each widget has a single callback.
       \param[in] cb new callback
       \param[in] p user data
    */
-  void callback(Fl_Callback1*cb, long p=0) {callback_=(Fl_Callback*)cb; user_data_=(void*)(fl_intptr_t)p;}
+  void callback(Fl_Callback1* cb, long p = 0) {
+    callback_ = (Fl_Callback*)cb;
+    user_data_ = (void*)(fl_intptr_t)p;
+  }
 
   /** Gets the user data for this widget.
       Gets the current user data (void *) argument that is passed to the callback function.
@@ -599,14 +592,24 @@ public:
   void user_data(void* v) {user_data_ = v;}
 
   /** Gets the current user data (long) argument that is passed to the callback function.
-      \todo The user data value must be implemented using \em intptr_t or similar
-      to avoid 64-bit machine incompatibilities.
-   */
+
+    \note On platforms with <tt>sizeof(long) \< sizeof(void*)</tt>, particularly
+	  on Windows 64-bit platforms, this method can truncate stored addresses
+	  \p (void*) to the size of a \p long value. Use with care and only
+	  if you are sure that the stored user_data value fits in a \p long
+	  value because it was stored with argument(long) or another method
+	  using only \p long values. You may want to use user_data() instead.
+
+    \see user_data()
+
+    \todo [Internal] The user_data value must be implemented using
+	  \p fl_intptr_t or similar to avoid 64-bit platform incompatibilities.
+  */
   long argument() const {return (long)(fl_intptr_t)user_data_;}
 
   /** Sets the current user data (long) argument that is passed to the callback function.
-      \todo The user data value must be implemented using \em intptr_t or similar
-      to avoid 64-bit machine incompatibilities.
+
+    \see argument()
    */
   void argument(long v) {user_data_ = (void*)(fl_intptr_t)v;}
 
@@ -763,22 +766,25 @@ public:
    */
   unsigned int takesevents() const {return !(flags_&(INACTIVE|INVISIBLE|OUTPUT));}
 
-  /** 
+  /**
       Checks if the widget value changed since the last callback.
 
-      "Changed" is a flag that is turned on when the user changes the value 
-      stored in the widget. This is only used by subclasses of Fl_Widget that 
-      store values, but is in the base class so it is easier to scan all the 
-      widgets in a panel and do_callback() on the changed ones in response 
+      "Changed" is a flag that is turned on when the user changes the value
+      stored in the widget. This is only used by subclasses of Fl_Widget that
+      store values, but is in the base class so it is easier to scan all the
+      widgets in a panel and do_callback() on the changed ones in response
       to an "OK" button.
 
-      Most widgets turn this flag off when they do the callback, and when 
+      Most widgets turn this flag off when they do the callback, and when
       the program sets the stored value.
 
-     \retval 0 if the value did not change
-     \see set_changed(), clear_changed()
+      \note do_callback() turns this flag off after the callback.
+
+      \retval 0 if the value did not change
+      \see set_changed(), clear_changed()
+      \see do_callback(Fl_Widget *widget, void *data)
    */
-  unsigned int changed() const {return flags_&CHANGED;}
+  unsigned int changed() const {return flags_ & CHANGED;}
 
   /** Marks the value of the widget as changed.
       \see changed(), clear_changed()
@@ -835,42 +841,54 @@ public:
       \retval 0 if this widget has no visible focus.
       \see visible_focus(int), set_visible_focus(), clear_visible_focus()
    */
-  unsigned int  visible_focus() { return flags_ & VISIBLE_FOCUS; }
+  unsigned int visible_focus() { return flags_ & VISIBLE_FOCUS; }
 
   /** The default callback for all widgets that don't set a callback.
 
     This callback function puts a pointer to the widget on the queue
-    returned by Fl::readqueue().
+    returned by Fl::readqueue(). This is the default for all widgets
+    if you don't set a callback.
+
+    You can avoid the overhead of this default handling if you set the
+    callback to \p NULL explicitly.
 
     Relying on the default callback and reading the callback queue with
     Fl::readqueue() is not recommended. If you need a callback, you should
     set one with Fl_Widget::callback(Fl_Callback *cb, void *data)
     or one of its variants.
 
-    \param[in] cb the widget given to the callback
-    \param[in] d user data associated with that callback
+    \param[in] widget the Fl_Widget given to the callback
+    \param[in] data user data associated with that callback
 
-    \see callback(), do_callback(), Fl::readqueue()
+    \see callback(), Fl::readqueue()
+    \see do_callback(Fl_Widget *widget, void *data)
    */
-  static void default_callback(Fl_Widget *cb, void *d);
+  static void default_callback(Fl_Widget *widget, void *data);
 
-  /** Calls the widget callback.
-      Causes a widget to invoke its callback function with default arguments.
-      \see callback()
-   */
-  void do_callback() {do_callback(this,user_data_);}
+  /** Calls the widget callback function with default arguments.
 
-  /** Calls the widget callback.
-      Causes a widget to invoke its callback function with arbitrary arguments.
-      \param[in] o call the callback with \p o as the widget argument
-      \param[in] arg call the callback with \p arg as the user data argument
-      \see callback()
-   */
-  void do_callback(Fl_Widget* o,long arg) {do_callback(o,(void*)(fl_intptr_t)arg);}
+    This is the same as calling
+    \code
+      do_callback(this, user_data());
+    \endcode
+    \see callback()
+    \see do_callback(Fl_Widget *widget, void *data)
+  */
+  void do_callback() {do_callback(this, user_data_);}
+
+  /** Calls the widget callback function with arbitrary arguments.
+    \param[in] widget call the callback with \p widget as the first argument
+    \param[in] arg call the callback with \p arg as the user data (second) argument
+    \see callback()
+    \see do_callback(Fl_Widget *widget, void *data)
+  */
+  void do_callback(Fl_Widget *widget, long arg) {
+    do_callback(widget, (void*)(fl_intptr_t)arg);
+  }
 
   // Causes a widget to invoke its callback function with arbitrary arguments.
   // Documentation and implementation in Fl_Widget.cxx
-  void do_callback(Fl_Widget* o,void* arg=0);
+  void do_callback(Fl_Widget *widget, void *arg = 0);
 
   /* Internal use only. */
   int test_shortcut();
@@ -895,7 +913,7 @@ public:
       \param[in] wgt the possible parent widget.
       \see contains()
    */
-  int inside(const Fl_Widget* wgt) const {return wgt ? wgt->contains(this) : 0;}
+  int inside(const Fl_Widget *wgt) const {return wgt ? wgt->contains(this) : 0;}
 
   /** Schedules the drawing of the widget.
       Marks the widget as needing its draw() routine called.
@@ -973,7 +991,7 @@ public:
       void my_callback (Fl_Widget *w, void *) {
         Fl_Group *g = w->as_group();
 	if (g)
-	  printf ("This group has %d children\n",g->children());
+	  printf ("This group has %d children\n", g->children());
 	else
 	  printf ("This widget is not a group!\n");
       }
@@ -1010,8 +1028,8 @@ public:
       \see Fl_Widget::as_group(), Fl_Widget::as_window()
    */
   virtual class Fl_Gl_Window* as_gl_window() {return 0;}
-  
-  /** Returns non zero if MAC_USE_ACCENTS_MENU flag is set, 0 otherwise. 
+
+  /** Returns non zero if MAC_USE_ACCENTS_MENU flag is set, 0 otherwise.
    */
   int use_accents_menu() { return flags() & MAC_USE_ACCENTS_MENU; }
   
@@ -1024,6 +1042,28 @@ public:
       \deprecated Use selection_color(unsigned) instead.
   */
   void color2(unsigned a) {color2_ = a;}
+
+  /** Sets whether the widget's label uses '&' to indicate shortcuts.
+   By default, all objects of classes Fl_Menu_ (and derivatives), Fl_Button (and derivatives),
+   Fl_Text_Display, Fl_Value_Input, and Fl_Input_ (and derivatives)
+   use character '&' in their label, unless '&' is repeated,
+   to indicate shortcuts: '&' does not appear in the drawn label,
+   the next character after '&' in the label is drawn underlined, and typing this character
+   triggers the corresponding menu window, button, or other widget. If the label contains 2 consecutive '&',
+   only one is drawn and the next character is not underlined and not used as a shortcut.
+   If \p value is set to 0, all these labels don't process character '&' as indicating a shortcut:
+   '&' is drawn in the label, the next character is not underlined and does not define a shortcut.
+   */
+  void shortcut_label(int value) {
+    if (value)
+      set_flag(SHORTCUT_LABEL);
+    else
+      clear_flag(SHORTCUT_LABEL);
+  }
+
+  /** Returns whether the widget's label uses '&' to indicate shortcuts.
+   \see void shortcut_label(int value) */
+  int shortcut_label() const { return flags_ & SHORTCUT_LABEL; }
 };
 
 /**

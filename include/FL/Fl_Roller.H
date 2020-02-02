@@ -29,6 +29,11 @@
 /**
   The Fl_Roller widget is a "dolly" control commonly used to
   move 3D objects.
+
+  The roller can be controlled by clicking and dragging the mouse, by the
+  corresponding arrow keys when the roller has the keyboard focus, or by the
+  mousewheels when the mouse pointer is positioned over the roller widget.
+ 
   <P ALIGN=CENTER>\image html Fl_Roller.png 
   \image latex Fl_Roller.png "Fl_Roller" width=4cm
 */

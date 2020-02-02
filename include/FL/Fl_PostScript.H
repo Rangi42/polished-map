@@ -3,7 +3,7 @@
 //
 // Support for graphics output to PostScript file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 2010-2011 by Bill Spitzak and others.
+// Copyright 2010-2016 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -33,30 +33,13 @@ extern "C" {
 }
 
 /**
- \brief PostScript graphical backend.
- *
- PostScript text uses vectorial fonts when using the FLTK standard fonts  
- and the latin alphabet or a few other characters listed in the following table.
- The latin alphabet means all unicode characters between U+0020 and U+017F, or, in other words, 
- the ASCII, Latin-1 Supplement and Latin Extended-A charts.
- <table>
- <tr> <th>Char</th><th>Codepoint</th><th>Name</th>  <th>Char</th><th>Codepoint</th><th>Name</th> <th>Char</th><th>Codepoint</th><th>Name</th></tr>
- <tr><td>ƒ</td><td>U+0192</td><td>florin</td><td>‚</td><td>U+201A</td><td>quotesinglbase</td><td>™</td><td>U+2122</td><td>trademark</td></tr>
- <tr><td>ˆ</td><td>U+02C6</td><td>circumflex</td><td>“</td><td>U+201C</td><td>quotedblleft</td><td>∂</td><td>U+2202</td><td>partialdiff</td></tr>
- <tr><td>ˇ</td><td>U+02C7</td><td>caron</td><td>”</td><td>U+201D</td><td>quotedblright</td><td>Δ</td><td>U+2206</td><td>Delta</td></tr>
- <tr><td>˘</td><td>U+02D8</td><td>breve</td><td>„</td><td>U+201E</td><td>quotedblbase</td><td>∑</td><td>U+2211</td><td>summation</td></tr>
- <tr><td>˙</td><td>U+02D9</td><td>dotaccent</td><td>†</td><td>U+2020</td><td>dagger</td><td>√</td><td>U+221A</td><td>radical</td></tr>
- <tr><td>˚</td><td>U+02DA</td><td>ring</td><td>‡</td><td>U+2021</td><td>daggerdbl</td><td>∞</td><td>U+221E</td><td>infinity</td></tr>
- <tr><td>˛</td><td>U+02DB</td><td>ogonek</td><td>•</td><td>U+2022</td><td>bullet</td><td>≠</td><td>U+2260</td><td>notequal</td></tr>
- <tr><td>˜</td><td>U+02DC</td><td>tilde</td><td>…</td><td>U+2026</td><td>ellipsis</td><td>≤</td><td>U+2264</td><td>lessequal</td></tr>
- <tr><td>˝</td><td>U+02DD</td><td>hungarumlaut</td><td>‰</td><td>U+2030</td><td>perthousand</td><td>≥</td><td>U+2265</td><td>greaterequal</td></tr>
- <tr><td>–</td><td>U+2013</td><td>endash</td><td>‹</td><td>U+2039</td><td>guilsinglleft</td><td>◊</td><td>U+25CA</td><td>lozenge</td></tr>
- <tr><td>—</td><td>U+2014</td><td>emdash</td><td>›</td><td>U+203A</td><td>guilsinglright</td><td>ﬁ</td><td>U+FB01</td><td>fi</td></tr>
- <tr><td>‘</td><td>U+2018</td><td>quoteleft</td><td>/</td><td>U+2044</td><td>fraction</td><td>ﬂ</td><td>U+FB02</td><td>fl</td></tr>
- <tr><td>’</td><td>U+2019</td><td>quoteright</td><td>€</td><td>U+20AC</td><td>Euro</td><td></td><td>U+F8FF</td><td>apple (Mac OS only)</td></tr>
- </table>
- <br> All other unicode characters or all other fonts (FL_FREE_FONT and above) are output as a bitmap.
- <br> FLTK standard fonts are output using the corresponding PostScript standard fonts.
+ \cond DriverDev
+ \addtogroup DriverDeveloper
+ \{
+ */
+
+/**
+ PostScript graphical backend.
  */
 class FL_EXPORT Fl_PostScript_Graphics_Driver : public Fl_Graphics_Driver {
 private:
@@ -67,14 +50,15 @@ private:
   void *prepare85();
   void write85(void *data, const uchar *p, int len);
   void close85(void *data);
+  int scale_for_image_(Fl_Image *img, int XP, int YP, int WP, int HP,int cx, int cy);
+protected:
+  uchar **mask_bitmap() {return &mask;}
 public:
-  static const char *class_id;
-  const char *class_name() {return class_id;};
   Fl_PostScript_Graphics_Driver();
 #ifndef FL_DOXYGEN
   enum SHAPE{NONE=0, LINE, LOOP, POLYGON, POINTS};
   
-class Clip {
+  class Clip {
   public:
     int x, y, w, h;
     Clip *prev;
@@ -199,9 +183,7 @@ class Clip {
   void draw_image_mono(Fl_Draw_Image_Cb call, void* data, int x,int y, int w, int h, int delta=1);
       
   void draw(const char* s, int nBytes, int x, int y) {transformed_draw(s,nBytes,x,y); };
-#ifdef __APPLE__
   void draw(const char* s, int nBytes, float x, float y) {transformed_draw(s,nBytes,x,y); };
-#endif
   void draw(int angle, const char *str, int n, int x, int y);
   void rtl_draw(const char* s, int n, int x, int y);
   void font(int face, int size);
@@ -210,36 +192,110 @@ class Clip {
   void text_extents(const char *c, int n, int &dx, int &dy, int &w, int &h);
   int height();
   int descent();
-  void draw(Fl_Pixmap * pxm,int XP, int YP, int WP, int HP, int cx, int cy);
-  void draw(Fl_Bitmap * bitmap,int XP, int YP, int WP, int HP, int cx, int cy);
-  void draw(Fl_RGB_Image * rgb,int XP, int YP, int WP, int HP, int cx, int cy);
-  int draw_scaled(Fl_Image *img, int XP, int YP, int WP, int HP);
+  void draw_pixmap(Fl_Pixmap * pxm,int XP, int YP, int WP, int HP, int cx, int cy);
+  void draw_bitmap(Fl_Bitmap * bitmap,int XP, int YP, int WP, int HP, int cx, int cy);
+  void draw_rgb(Fl_RGB_Image * rgb,int XP, int YP, int WP, int HP, int cx, int cy);
+  /** Shields output PostScript data from modifications of the current locale.
+   It typically avoids PostScript errors caused if the current locale uses comma instead of dot
+   as "decimal point".
+   \param format  directives controlling output PostScript data
+   \return value returned by vfprintf() call
+   */
   int clocale_printf(const char *format, ...);
   ~Fl_PostScript_Graphics_Driver();
+  // ---
+  Fl_Bitmask create_bitmask(int w, int h, const uchar *array) { return 0L; }
+  virtual int has_feature(driver_feature feature_mask) { return feature_mask & PRINTER; }
 };
 
 /**
+ \}
+ \endcond
+ */
+
+/**
  To send graphical output to a PostScript file.
- This class is used exactly as the Fl_Printer class except for the start_job() call,
+ This class is used exactly as the Fl_Printer class except for the begin_job() call,
  two variants of which are usable and allow to specify what page format and layout are desired.
+ 
+ PostScript text uses vectorial fonts when using the FLTK standard fonts
+ and the latin alphabet or a few other characters listed in the following table.
+ The latin alphabet means all unicode characters between U+0020 and U+017F, or, in other words,
+ the ASCII, Latin-1 Supplement and Latin Extended-A charts.
+ <table>
+ <tr> <th>Char</th><th>Codepoint</th><th>Name</th>  <th>Char</th><th>Codepoint</th><th>Name</th> <th>Char</th><th>Codepoint</th><th>Name</th></tr>
+ <tr><td>ƒ</td><td>U+0192</td><td>florin</td><td>‚</td><td>U+201A</td><td>quotesinglbase</td><td>™</td><td>U+2122</td><td>trademark</td></tr>
+ <tr><td>ˆ</td><td>U+02C6</td><td>circumflex</td><td>“</td><td>U+201C</td><td>quotedblleft</td><td>∂</td><td>U+2202</td><td>partialdiff</td></tr>
+ <tr><td>ˇ</td><td>U+02C7</td><td>caron</td><td>”</td><td>U+201D</td><td>quotedblright</td><td>Δ</td><td>U+2206</td><td>Delta</td></tr>
+ <tr><td>˘</td><td>U+02D8</td><td>breve</td><td>„</td><td>U+201E</td><td>quotedblbase</td><td>∑</td><td>U+2211</td><td>summation</td></tr>
+ <tr><td>˙</td><td>U+02D9</td><td>dotaccent</td><td>†</td><td>U+2020</td><td>dagger</td><td>√</td><td>U+221A</td><td>radical</td></tr>
+ <tr><td>˚</td><td>U+02DA</td><td>ring</td><td>‡</td><td>U+2021</td><td>daggerdbl</td><td>∞</td><td>U+221E</td><td>infinity</td></tr>
+ <tr><td>˛</td><td>U+02DB</td><td>ogonek</td><td>•</td><td>U+2022</td><td>bullet</td><td>≠</td><td>U+2260</td><td>notequal</td></tr>
+ <tr><td>˜</td><td>U+02DC</td><td>tilde</td><td>…</td><td>U+2026</td><td>ellipsis</td><td>≤</td><td>U+2264</td><td>lessequal</td></tr>
+ <tr><td>˝</td><td>U+02DD</td><td>hungarumlaut</td><td>‰</td><td>U+2030</td><td>perthousand</td><td>≥</td><td>U+2265</td><td>greaterequal</td></tr>
+ <tr><td>–</td><td>U+2013</td><td>endash</td><td>‹</td><td>U+2039</td><td>guilsinglleft</td><td>◊</td><td>U+25CA</td><td>lozenge</td></tr>
+ <tr><td>—</td><td>U+2014</td><td>emdash</td><td>›</td><td>U+203A</td><td>guilsinglright</td><td>ﬁ</td><td>U+FB01</td><td>fi</td></tr>
+ <tr><td>‘</td><td>U+2018</td><td>quoteleft</td><td>/</td><td>U+2044</td><td>fraction</td><td>ﬂ</td><td>U+FB02</td><td>fl</td></tr>
+ <tr><td>’</td><td>U+2019</td><td>quoteright</td><td>€</td><td>U+20AC</td><td>Euro</td><td></td><td>U+F8FF</td><td>apple (Mac OS only)</td></tr>
+ </table>
+ <br> All other unicode characters or all other fonts (FL_FREE_FONT and above) are output as a bitmap.
+ <br> FLTK standard fonts are output using the corresponding PostScript standard fonts.
+
  */
 class FL_EXPORT Fl_PostScript_File_Device : public Fl_Paged_Device {
-#ifdef __APPLE__
-  CGContextRef gc;
-#endif
 protected:
+  /**
+   \brief Returns the PostScript driver of this drawing surface.
+   */
   Fl_PostScript_Graphics_Driver *driver();
 public:
-  static const char *class_id;
-  const char *class_name() {return class_id;};
+  /**
+   @brief The constructor.
+   */
   Fl_PostScript_File_Device();
+  /**
+   @brief The destructor.
+   */
   ~Fl_PostScript_File_Device();
-  int start_job(int pagecount, int* from, int* to);
-  int start_job(int pagecount, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4,
+  /** Don't use with this class. */
+  int begin_job(int pagecount, int* from, int* to);
+  /**
+   @brief Begins the session where all graphics requests will go to a local PostScript file.
+   *
+   Opens a file dialog entitled with Fl_PostScript_File_Device::file_chooser_title to select an output PostScript file.
+   @param pagecount The total number of pages to be created. Use 0 if this number is unknown when this function is called.
+   @param format Desired page format.
+   @param layout Desired page layout.
+   @return 0 if OK, 1 if user cancelled the file dialog, 2 if fopen failed on user-selected output file.
+   */
+  int begin_job(int pagecount = 0, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4,
 		enum Fl_Paged_Device::Page_Layout layout = Fl_Paged_Device::PORTRAIT);
-  int start_job(FILE *ps_output, int pagecount, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4, 
+  /** Synonym of begin_job().
+   For API compatibility with FLTK 1.3.x */
+  int start_job(int pagecount = 0, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4,
+                enum Fl_Paged_Device::Page_Layout layout = Fl_Paged_Device::PORTRAIT) {
+    return begin_job(pagecount, format, layout);
+  }
+  /**
+   @brief Begins the session where all graphics requests will go to FILE pointer.
+   *
+   @param ps_output A writable FILE pointer that will receive PostScript output and that should not be closed
+   until after end_job() has been called.
+   @param pagecount The total number of pages to be created. Use 0 if this number is unknown when this function is called.
+   @param format Desired page format.
+   @param layout Desired page layout.
+   @return always 0.
+   */
+  int begin_job(FILE *ps_output, int pagecount = 0, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4,
 		enum Fl_Paged_Device::Page_Layout layout = Fl_Paged_Device::PORTRAIT);
-  int start_page (void);
+  /** Synonym of begin_job().
+   For API compatibility with FLTK 1.3.x */
+  int start_job(FILE *ps_output, int pagecount = 0, enum Fl_Paged_Device::Page_Format format = Fl_Paged_Device::A4,
+                enum Fl_Paged_Device::Page_Layout layout = Fl_Paged_Device::PORTRAIT) {
+    return begin_job(ps_output, pagecount, format, layout);
+  }
+
+  int begin_page (void);
   int printable_rect(int *w, int *h);
   void margins(int *left, int *top, int *right, int *bottom);
   void origin(int *x, int *y);
@@ -249,12 +305,9 @@ public:
   void translate(int x, int y);
   void untranslate(void);
   int end_page (void);    
-  void end_job(void);
-#ifdef __APPLE__
-  void set_current() { fl_gc = gc; Fl_Paged_Device::set_current(); }
-#endif
-  
-  static const char *file_chooser_title; 
+  void end_job(void);  
+  /** \brief Label of the PostScript file chooser window */
+  static const char *file_chooser_title;
 };
 
 #endif // Fl_PostScript_H

@@ -27,7 +27,7 @@
 #  define FL_glu_H
 
 #  include "Enumerations.H" // for color names
-#  ifdef WIN32
+#  ifdef _WIN32
 #    include <windows.h>
 #  endif
 #  ifndef APIENTRY
@@ -38,7 +38,7 @@
 #    endif
 #  endif
 
-#  ifdef __APPLE__
+#  ifdef __APPLE__  // PORTME: OpenGL Path abstraction
 #    include <OpenGL/glu.h>
 #  else
 #    include <GL/glu.h>

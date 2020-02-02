@@ -39,7 +39,7 @@
 
 /** 
   GLUT is emulated using this window class and these static variables
-  (plus several more static variables hidden in glut_compatability.cxx):
+  (plus several more static variables hidden in glut_compatibility.cxx):
 */
 class FL_EXPORT Fl_Glut_Window : public Fl_Gl_Window {
   void _init();
@@ -62,8 +62,8 @@ public: // so the inline functions work
   void (*entry)(int);
   void (*visibility)(int);
   void (*special)(int, int x, int y);
-  Fl_Glut_Window(int w, int h, const char *);
-  Fl_Glut_Window(int x, int y, int w, int h, const char *);
+  Fl_Glut_Window(int w, int h, const char *t=0);
+  Fl_Glut_Window(int x, int y, int w, int h, const char *t=0);
   ~Fl_Glut_Window();
 };
 
@@ -189,7 +189,7 @@ inline int glutGetMenu() {return glut_menu;}
 
 inline void glutSetMenu(int m) {glut_menu = m;}
 
-FL_EXPORT void glutAddMenuEntry(char *label, int value);
+FL_EXPORT void glutAddMenuEntry(const char *label, int value);
 
 FL_EXPORT void glutAddSubMenu(char *label, int submenu);
 

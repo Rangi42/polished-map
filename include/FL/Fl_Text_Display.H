@@ -3,7 +3,7 @@
 //
 // Header file for Fl_Text_Display class.
 //
-// Copyright 2001-2016 by Bill Spitzak and others.
+// Copyright 2001-2017 by Bill Spitzak and others.
 // Original code Copyright Mark Edel.  Permission to distribute under
 // the LGPL for the FLTK library granted by Mark Edel.
 //
@@ -24,6 +24,7 @@
 #ifndef FL_TEXT_DISPLAY_H
 #define FL_TEXT_DISPLAY_H
 
+#include <FL/Fl.H>		// Fl::scrollbar_size()
 #include "fl_draw.H"
 #include "Fl_Group.H"
 #include "Fl_Widget.H"
@@ -73,11 +74,8 @@
  Note that other features may be available via Fl_Text_Editor
  and Fl_Text_Buffer classes.
 
- \note Line numbers were added in 1.3.3. To avoid breaking ABI,
-       many of its options are read only. To adjust these features
-       in 1.3.x, you must build FLTK with FLTK_ABI_VERSION set to 10303
-       or higher.
-
+ \note Line numbers were added in FLTK 1.3.3.
+ \see Fl_Widget::shortcut_label(int)
  */
 class FL_EXPORT Fl_Text_Display: public Fl_Group {
 
@@ -142,14 +140,14 @@ public:
 
    The style table is associated with an Fl_Text_Display by using
    Fl_Text_Display::highlight_data().
-   
+
    \see Fl_Text_Display::highlight_data()
    */
   struct Style_Table_Entry {
     Fl_Color    color;	///< text color
     Fl_Font     font;	///< text font
     Fl_Fontsize size;	///< text font size
-    unsigned    attr;	///< currently unused (this may be change in the future)
+    unsigned    attr;	///< currently unused (this may be changed in the future)
   };
   
   Fl_Text_Display(int X, int Y, int W, int H, const char *l = 0);
@@ -163,6 +161,7 @@ public:
    Sets the current text buffer associated with the text widget.
    Multiple text widgets can be associated with the same text buffer.
    \param buf new text buffer
+   \see Fl_Text_Display::buffer(Fl_Text_Buffer* buf)
    */
   void buffer(Fl_Text_Buffer& buf) { buffer(&buf); }
   
@@ -170,6 +169,8 @@ public:
    Gets the current text buffer associated with the text widget.
    Multiple text widgets can be associated with the same text buffer.
    \return current text buffer
+   \see Fl_Text_Display::buffer(Fl_Text_Buffer* buf)
+   \see Fl_Text_Display::buffer(Fl_Text_Buffer& buf)
    */
   Fl_Text_Buffer* buffer() const { return mBuffer; }
   
@@ -209,6 +210,7 @@ public:
   void hide_cursor() { show_cursor(0); }
   
   void cursor_style(int style);
+  int cursor_style() const { return mCursorStyle; }
   
   /**
    Gets the text cursor color.  
@@ -222,18 +224,61 @@ public:
    */
   void cursor_color(Fl_Color n) {mCursor_color = n;}
   
-  /**   
-   Gets the width/height of the scrollbars.
-   \return width of scrollbars
-   */
-  int scrollbar_width() const { return scrollbar_width_; }
+  /**
+    Returns the global value Fl::scrollbar_size() unless a specific scrollbar_width_ has been set.
+   \deprecated Use scrollbar_size() instead.
+    \todo This method should eventually be removed.
+  */
+  int scrollbar_width() const {
+      return scrollbar_width_ ? scrollbar_width_ : Fl::scrollbar_size();
+  }
+
+  /**
+    Sets the global Fl::scrollbar_size(), and forces this instance of the widget to use it.
+   \deprecated Use scrollbar_size() instead.
+    \todo This method should eventually be removed
+  */
+  void scrollbar_width(int width) {
+      Fl::scrollbar_size(width);
+      scrollbar_width_ = 0;
+  }
   
   /**
-   Sets the width/height of the scrollbars.
-   \param W width of scrollbars
-   */
-  void scrollbar_width(int W) { scrollbar_width_ = W; }
+    Gets the current size of the scrollbars' troughs, in pixels.
+
+    If this value is zero (default), this widget will use the 
+    Fl::scrollbar_size() value as the scrollbar's width.
   
+    \returns Scrollbar size in pixels, or 0 if the global Fl::scrollbar_size() is being used.
+    \see Fl::scrollbar_size(int)
+  */
+  int scrollbar_size() const {
+      return(scrollbar_width_);
+  }
+
+  /**
+    Sets the pixel size of the scrollbars' troughs to \p newSize, in pixels.
+
+    Normally you should not need this method, and should use
+    Fl::scrollbar_size(int) instead to manage the size of ALL 
+    your widgets' scrollbars. This ensures your application 
+    has a consistent UI, is the default behavior, and is normally
+    what you want.
+
+    Only use THIS method if you really need to override the global
+    scrollbar size. The need for this should be rare.
+    
+    Setting \p newSize to the special value of 0 causes the widget to
+    track the global Fl::scrollbar_size(), which is the default.
+    
+    \param[in] newSize Sets the scrollbar size in pixels.\n
+                    If 0 (default), scrollbar size tracks the global Fl::scrollbar_size()
+    \see Fl::scrollbar_size()
+  */
+  void scrollbar_size(int newSize) {
+      scrollbar_width_ = newSize;
+  }   
+
   /**
    Gets the scrollbar alignment type.
    \return scrollbar alignment
@@ -293,7 +338,7 @@ public:
    Sets the default font used when drawing text in the widget.
    \param s default text font face
    */
-  void textfont(Fl_Font s) {textfont_ = s; mColumnScale = 0;}
+  void textfont(Fl_Font s) {textfont_ = s; mColumnScale = 0; }
   
   /**
    Gets the default size of text in the widget.
@@ -305,7 +350,7 @@ public:
    Sets the default size of text in the widget.
    \param s new text size
    */
-  void textsize(Fl_Fontsize s) {textsize_ = s; mColumnScale = 0;}
+  void textsize(Fl_Fontsize s) {textsize_ = s; mColumnScale = 0; }
   
   /**
    Gets the default color of text in the widget.
@@ -323,6 +368,7 @@ public:
   int wrapped_row(int row) const;
   void wrap_mode(int wrap, int wrap_margin);
   
+  virtual void recalc_display();
   virtual void resize(int X, int Y, int W, int H);
 
   /**
@@ -378,7 +424,8 @@ protected:
     DRAW_LINE, 
     FIND_INDEX,
     FIND_INDEX_FROM_ZERO,
-    GET_WIDTH 
+    GET_WIDTH,
+    FIND_CURSOR_INDEX	// STR #2788
   };
   
   int handle_vline(int mode, 
@@ -456,7 +503,8 @@ protected:
                                  the number of redraw calls */
   int mCursorStyle;             /* One of enum cursorStyles above */
   int mCursorPreferredXPos;     /* Pixel position for vert. cursor movement */
-  int mNVisibleLines;           /* # of visible (displayed) lines */
+  int mNVisibleLines;           /* # of visible (displayed) lines. This is
+                                   also the size of the mLineStarts[] array. */
   int mNBufferLines;            /* # of newlines in the buffer */
   Fl_Text_Buffer* mBuffer;      /* Contains text to be displayed */
   Fl_Text_Buffer* mStyleBuffer; /* Optional parallel buffer containing
@@ -468,7 +516,16 @@ protected:
   int mContinuousWrap;          /* Wrap long lines when displaying */
   int mWrapMarginPix; 	    	/* Margin in # of pixels for
                                  wrapping in continuousWrap mode */
-  int* mLineStarts;
+  int* mLineStarts;             /* Array of the size mNVisibleLines.
+                                   This array only keeps track of lines
+                                   within the display area. Each entry
+                                   contains the starting character offset
+                                   (from the beginning of the text buffer)
+                                   for each /visible/ line.
+                                   If wrap enabled, points to the beginning
+                                   of each wrap. So a long line wrapping
+                                   into 3 separate lines in the display
+                                   will take up 3 separate array entries. */
   int mTopLineNum;              /* Line number of top displayed line
                                  of file (first line of file is 1) */
   int mAbsTopLineNum;           /* In continuous wrap mode, the line
@@ -498,9 +555,8 @@ protected:
   int mNLinesDeleted;           /* Number of lines deleted during
                                  buffer modification (only used
                                  when resynchronization is suppressed) */
-  int mModifyingTabDistance;    /* Whether tab distance is being
-                                 modified */
-  
+  int mModifyingTabDistance;    /* Whether tab distance is being modified XXX: UNUSED */
+
   mutable double mColumnScale; /* Width in pixels of an average character. This
                                  value is calculated as needed (lazy eval); it 
                                  needs to be mutable so that it can be calculated
@@ -510,7 +566,7 @@ protected:
   
   Fl_Scrollbar* mHScrollBar;
   Fl_Scrollbar* mVScrollBar;
-  int scrollbar_width_;
+  int scrollbar_width_;		// size of scrollbar trough (behavior changed in 1.4)
   Fl_Align scrollbar_align_;
   int dragPos, dragType, dragging;
   int display_insert_position_hint;
@@ -526,14 +582,12 @@ protected:
   int mLineNumLeft, mLineNumWidth;
 
   // Line number font/colors
-#if FLTK_ABI_VERSION >= 10303
   Fl_Font     linenumber_font_;
   Fl_Fontsize linenumber_size_;
   Fl_Color    linenumber_fgcolor_;
   Fl_Color    linenumber_bgcolor_;
   Fl_Align    linenumber_align_;
   const char* linenumber_format_;
-#endif
 };
 
 #endif

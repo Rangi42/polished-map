@@ -3,7 +3,7 @@
 //
 // Math header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2010 by Bill Spitzak and others.
+// Copyright 1998-2016 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -29,11 +29,6 @@
 #  include <math.h>
 #  undef fl_math_h_cyclic_include 
 
-#  ifdef __EMX__
-#    include <float.h>
-#  endif
-
-
 #  ifndef M_PI
 #    define M_PI            3.14159265358979323846
 #    define M_PI_2          1.57079632679489661923
@@ -47,12 +42,12 @@
 #    define M_SQRT1_2       0.70710678118654752440
 #  endif // !M_SQRT2
 
-#  if (defined(WIN32) || defined(CRAY)) && !defined(__MINGW32__) && !defined(__MWERKS__)
+#  if (defined(_WIN32) || defined(CRAY)) && !defined(__MINGW32__) && !defined(__MWERKS__)
 
 inline double rint(double v) {return floor(v+.5);}
 inline double copysign(double a, double b) {return b<0 ? -a : a;}
 
-#  endif // (WIN32 || CRAY) && !__MINGW32__ && !__MWERKS__
+#  endif // (_WIN32 || CRAY) && !__MINGW32__ && !__MWERKS__
 
 #endif // !fl_math_h
 

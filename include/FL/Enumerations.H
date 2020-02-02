@@ -3,7 +3,7 @@
 //
 // Enumerations for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2017 by Bill Spitzak and others.
+// Copyright 1998-2020 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -25,19 +25,8 @@
 
 /*
  ******************************************************************************
- * Notes on FL_ABI_VERSION and deprecated (obsolete) FLTK_ABI_VERSION:
- *
- * (1)	FLTK_ABI_VERSION is deprecated, but still defined below.
- *	Do NOT define FLTK_ABI_VERSION here - it would be overwritten later.
- *
- * (2)	FL_ABI_VERSION is now (as of FLTK 1.3.4) defined by configure
- *	or CMake. Do NOT define it here. Its definition will be included
- *	below by "#include <FL/abi-version.h>".
- *
- * (3)	If you use the provided IDE files (Windows VC++ or Xcode) you should
- *	edit the definition in the provided file abi-version.ide. The correct
- *	file is `/path/to/fltk/abi-version.ide' .
- *
+ * FL_ABI_VERSION is defined by configure or CMake since FLTK 1.3.4.
+ * It is written to FL/abi-version.h and #included here.
  ******************************************************************************
  * For more informations on FL_ABI_VERSION see README.abi-version.txt.
  ******************************************************************************
@@ -47,19 +36,20 @@
 
 #  include "Fl_Export.H"
 #  include "fl_types.h"
+#  include <FL/platform_types.h> // for FL_COMMAND and FL_CONTROL
 
 /** \name Version Numbers
 
     FLTK defines some constants to help the programmer to
     find out, for which FLTK version a program is compiled.
-    
+
     The following constants are defined:
  */
 /*@{*/
 
 /**
    The major release version of this FLTK library.
-   \sa FL_VERSION
+   \see FL_VERSION
  */
 #define FL_MAJOR_VERSION	1
 
@@ -68,14 +58,14 @@
 
    FLTK remains mostly source-code compatible between minor version changes.
  */
-#define FL_MINOR_VERSION	3
+#define FL_MINOR_VERSION	4
 
 /**
    The patch version for this library.
 
    FLTK remains binary compatible between patches.
  */
-#define FL_PATCH_VERSION	5
+#define FL_PATCH_VERSION	0
 
 /**
     The FLTK version number as a \em double.
@@ -184,19 +174,6 @@
 
 #endif
 
-/*
-  FLTK_ABI_VERSION is deprecated (replaced by FL_ABI_VERSION).
-
-  This deprecated constant will be removed in FLTK 1.4.0 and later.
-  Please use FL_ABI_VERSION when FLTK 1.4.0 has been released.
-*/
-
-#ifdef FLTK_ABI_VERSION
-#undef FLTK_ABI_VERSION
-#endif
-
-#define FLTK_ABI_VERSION FL_ABI_VERSION
-
 /*@}*/	// group: Version Numbers
 
 /**
@@ -215,9 +192,9 @@
     Event numbers can be converted to their actual names using the
     \ref fl_eventnames[] array defined in \#include &lt;FL/names.h&gt;
 
-    \sa Fl::event_text(), Fl::event_key(), class Fl::
+    \see Fl::event_text(), Fl::event_key(), class Fl::
  */
-// DEV NOTE: Keep this list in sync with FL/names.H
+// DEV NOTE: Keep this list in sync with FL/names.h
 enum Fl_Event {	// events
   /** No event. */
   FL_NO_EVENT		= 0,
@@ -419,21 +396,28 @@ enum Fl_Event {	// events
    Use Fl::add_handler() to be notified of this event.
    */
   FL_SCREEN_CONFIGURATION_CHANGED = 24,
-  /** The fullscreen state of the window has changed
+  /** The fullscreen state of the window has changed.
+   This event is sent to the window's handle method.
    */
   FL_FULLSCREEN         = 25,
-  /** The user has made a zoom/pinch/magnification gesture. 
+  /** The user has made a zoom/pinch/magnification gesture (Mac OS platform only).
       The Fl::event_dy() method can be used to find magnification amount,
       Fl::event_x() and Fl::event_y() are set as well.
+      This event is sent to the window's handle method.
      */
-  FL_ZOOM_GESTURE	= 26
+  FL_ZOOM_GESTURE	= 26,
+  /** A zoom event (ctrl/+/-/0/ or cmd/+/-/0/) was processed.
+   Use Fl::add_handler() to be notified of this event.
+   */
+  FL_ZOOM_EVENT = 27
+// DEV NOTE: Keep this list in sync with FL/names.h
 };
 
 /** \name When Conditions */
 /*@{*/
 /** These constants determine when a callback is performed.
 
-    \sa Fl_Widget::when();
+    \see Fl_Widget::when();
     \todo doxygen comments for values are incomplete and maybe wrong or unclear
  */
 enum Fl_When { // Fl_Widget::when():
@@ -451,13 +435,13 @@ enum Fl_When { // Fl_Widget::when():
 
 /** \name Mouse and Keyboard Events
 
-	This and the following constants define the non-ASCII keys on the
-	keyboard for FL_KEYBOARD and FL_SHORTCUT events.
+    This and the following constants define the non-ASCII keys on the
+    keyboard for FL_KEYBOARD and FL_SHORTCUT events.
 
-	\todo	FL_Button and FL_key... constants could be structured better
-		(use an enum or some doxygen grouping ?)
-  
-	\sa	Fl::event_key() and Fl::get_key(int) (use ascii letters for all other keys):
+    \see Fl::event_key() and Fl::get_key(int) (use ASCII letters for all other keys):
+
+    \todo FL_Button and FL_key... constants could be structured better
+	  (use an enum or some doxygen grouping ?)
  */
 
 /*@{*/
@@ -530,9 +514,9 @@ enum Fl_When { // Fl_Widget::when():
 
 /** \name Mouse Buttons
 
-	These constants define the button numbers for FL_PUSH and FL_RELEASE events.
-	
-	\sa Fl::event_button()
+    These constants define the button numbers for FL_PUSH and FL_RELEASE events.
+
+    \see Fl::event_button()
 */
 
 /*@{*/
@@ -552,7 +536,7 @@ enum Fl_When { // Fl_Widget::when():
 /*@{*/		// group: Event States
 
 // FIXME: it would be nice to have the modifiers in the upper 8 bit so that
-//        a unicode ke (24bit) can be sent as an unsigned with the modifiers.
+//        a unicode key (24bit) can be sent as an unsigned with the modifiers.
 
 #define FL_SHIFT	0x00010000	///< One of the shift keys is down
 #define FL_CAPS_LOCK	0x00020000	///< The caps lock is on
@@ -573,34 +557,47 @@ enum Fl_When { // Fl_Widget::when():
 #define FL_KEY_MASK 0x0000ffff		///< All keys are 16 bit for now 
 					//   FIXME: Unicode needs 24 bits!
 
-#ifdef __APPLE__
-#  define FL_COMMAND	FL_META		///< An alias for FL_CTRL on WIN32 and X11, or FL_META on MacOS X
-#  define FL_CONTROL 	FL_CTRL		///< An alias for FL_META on WIN32 and X11, or FL_CTRL on MacOS X
-#else
-#  define FL_COMMAND	FL_CTRL		///< An alias for FL_CTRL on WIN32 and X11, or FL_META on MacOS X
-#  define FL_CONTROL	FL_META		///< An alias for FL_META on WIN32 and X11, or FL_CTRL on MacOS X
-#endif // __APPLE__
-
 /*@}*/		// group: Event States
 
 /** \name Box Types
     \brief FLTK standard box types
-    
+
     This enum defines the standard box types included with FLTK.
-    
+
+   \note The documented \p enum \p Fl_Boxtype contains some values (names)
+      with leading underscores, e.g. \p \b _FL_SHADOW_BOX. This is due to
+      technical reasons - please use the same values (names) without the
+      leading underscore in your code! Enum values with leading underscores
+      are reserved for internal use and subject to change without notice!
+
     FL_NO_BOX means nothing is drawn at all, so whatever is already 
     on the screen remains. The FL_..._FRAME types only draw their edges, 
     leaving the interior unchanged. The blue color in Figure 1 
     is the area that is not drawn by the frame types.
-    
+
     \image html boxtypes.png "Figure 1: FLTK standard box types"
     \image latex boxtypes.png "FLTK standard box types" width=10cm
+
     \todo	Description of boxtypes is incomplete.
     		See below for the defined enum Fl_Boxtype.
 		\see src/Fl_get_system_colors.cxx
 */
-/*@{*/
-enum Fl_Boxtype { // boxtypes (if you change these you must fix fl_boxtype.cxx):
+
+/*@{*/		// group: Box Types
+
+/**
+    \brief FLTK standard box types
+
+    This enum defines the standard box types included with FLTK.
+
+   \note The documented \p enum \p Fl_Boxtype contains some values (names)
+      with leading underscores, e.g. \p \b _FL_SHADOW_BOX. This is due to
+      technical reasons - please use the same values (names) without the
+      leading underscore in your code! Enum values with leading underscores
+      are reserved for internal use and subject to change without notice!
+
+*/
+enum Fl_Boxtype { // boxtypes (if you change these you must also change fl_boxtype.cxx):
 
   FL_NO_BOX = 0,		///< nothing is drawn at all, this box is invisible
   FL_FLAT_BOX,			///< a flat box
@@ -617,47 +614,47 @@ enum Fl_Boxtype { // boxtypes (if you change these you must fix fl_boxtype.cxx):
   FL_ENGRAVED_FRAME,		///< see figure 1
   FL_EMBOSSED_FRAME,		///< see figure 1
   FL_BORDER_BOX,		///< see figure 1
-  _FL_SHADOW_BOX,		///< see figure 1
+  _FL_SHADOW_BOX,		///< see figure 1, use FL_SHADOW_BOX
   FL_BORDER_FRAME,		///< see figure 1
-  _FL_SHADOW_FRAME,		///< see figure 1
-  _FL_ROUNDED_BOX,		///< see figure 1
-  _FL_RSHADOW_BOX,		///< see figure 1
-  _FL_ROUNDED_FRAME,		///< see figure 1
-  _FL_RFLAT_BOX,		///< see figure 1
-  _FL_ROUND_UP_BOX,		///< see figure 1
-  _FL_ROUND_DOWN_BOX,		///< see figure 1
-  _FL_DIAMOND_UP_BOX,		///< see figure 1
-  _FL_DIAMOND_DOWN_BOX,		///< see figure 1
-  _FL_OVAL_BOX,			///< see figure 1
-  _FL_OSHADOW_BOX,		///< see figure 1
-  _FL_OVAL_FRAME,		///< see figure 1
-  _FL_OFLAT_BOX,		///< see figure 1
-  _FL_PLASTIC_UP_BOX,		///< plastic version of FL_UP_BOX
-  _FL_PLASTIC_DOWN_BOX,		///< plastic version of FL_DOWN_BOX
-  _FL_PLASTIC_UP_FRAME,		///< plastic version of FL_UP_FRAME
-  _FL_PLASTIC_DOWN_FRAME,	///< plastic version of FL_DOWN_FRAME
-  _FL_PLASTIC_THIN_UP_BOX,	///< plastic version of FL_THIN_UP_BOX
-  _FL_PLASTIC_THIN_DOWN_BOX,	///< plastic version of FL_THIN_DOWN_BOX
-  _FL_PLASTIC_ROUND_UP_BOX,	///< plastic version of FL_ROUND_UP_BOX
-  _FL_PLASTIC_ROUND_DOWN_BOX,	///< plastic version of FL_ROUND_DOWN_BOX
-  _FL_GTK_UP_BOX,		///< gtk+ version of FL_UP_BOX
-  _FL_GTK_DOWN_BOX,		///< gtk+ version of FL_DOWN_BOX
-  _FL_GTK_UP_FRAME,		///< gtk+ version of FL_UP_FRAME
-  _FL_GTK_DOWN_FRAME,		///< gtk+ version of FL_DOWN_FRAME
-  _FL_GTK_THIN_UP_BOX,		///< gtk+ version of FL_THIN_UP_BOX
-  _FL_GTK_THIN_DOWN_BOX,	///< gtk+ version of FL_THIN_DOWN_BOX
-  _FL_GTK_THIN_UP_FRAME,	///< gtk+ version of FL_THIN_UP_FRAME
-  _FL_GTK_THIN_DOWN_FRAME,	///< gtk+ version of FL_THIN_DOWN_FRAME
-  _FL_GTK_ROUND_UP_BOX,		///< gtk+ version of FL_ROUND_UP_BOX
-  _FL_GTK_ROUND_DOWN_BOX,	///< gtk+ version of FL_ROUND_DOWN_BOX
-  _FL_GLEAM_UP_BOX,		///< gleam version of FL_UP_BOX
-  _FL_GLEAM_DOWN_BOX,		///< gleam version of FL_DOWN_BOX
-  _FL_GLEAM_UP_FRAME,		///< gleam version of FL_UP_FRAME
-  _FL_GLEAM_DOWN_FRAME,		///< gleam version of FL_DOWN_FRAME
-  _FL_GLEAM_THIN_UP_BOX,	///< gleam version of FL_THIN_UP_BOX
-  _FL_GLEAM_THIN_DOWN_BOX,	///< gleam version of FL_THIN_DOWN_BOX
-  _FL_GLEAM_ROUND_UP_BOX,	///< gleam version of FL_ROUND_UP_BOX
-  _FL_GLEAM_ROUND_DOWN_BOX,	///< gleam version of FL_ROUND_DOWN_BOX
+  _FL_SHADOW_FRAME,		///< see figure 1, use FL_SHADOW_FRAME
+  _FL_ROUNDED_BOX,		///< see figure 1, use FL_ROUNDED_BOX
+  _FL_RSHADOW_BOX,		///< see figure 1, use FL_RSHADOW_BOX
+  _FL_ROUNDED_FRAME,		///< see figure 1, use FL_ROUNDED_FRAME
+  _FL_RFLAT_BOX,		///< see figure 1, use FL_RFLAT_BOX
+  _FL_ROUND_UP_BOX,		///< see figure 1, use FL_ROUND_UP_BOX
+  _FL_ROUND_DOWN_BOX,		///< see figure 1, use FL_ROUND_DOWN_BOX
+  _FL_DIAMOND_UP_BOX,		///< see figure 1, use FL_DIAMOND_UP_BOX
+  _FL_DIAMOND_DOWN_BOX,		///< see figure 1, use FL_DIAMOND_DOWN_BOX
+  _FL_OVAL_BOX,			///< see figure 1, use FL_OVAL_BOX
+  _FL_OSHADOW_BOX,		///< see figure 1, use FL_OSHADOW_BOX
+  _FL_OVAL_FRAME,		///< see figure 1, use FL_OVAL_FRAME
+  _FL_OFLAT_BOX,		///< see figure 1, use FL_OFLAT_BOX
+  _FL_PLASTIC_UP_BOX,		///< plastic version of FL_UP_BOX, use FL_PLASTIC_UP_BOX
+  _FL_PLASTIC_DOWN_BOX,		///< plastic version of FL_DOWN_BOX, use FL_PLASTIC_DOWN_BOX
+  _FL_PLASTIC_UP_FRAME,		///< plastic version of FL_UP_FRAME, use FL_PLASTIC_UP_FRAME
+  _FL_PLASTIC_DOWN_FRAME,	///< plastic version of FL_DOWN_FRAME, use FL_PLASTIC_DOWN_FRAME
+  _FL_PLASTIC_THIN_UP_BOX,	///< plastic version of FL_THIN_UP_BOX, use FL_PLASTIC_THIN_UP_BOX
+  _FL_PLASTIC_THIN_DOWN_BOX,	///< plastic version of FL_THIN_DOWN_BOX, use FL_PLASTIC_THIN_DOWN_BOX
+  _FL_PLASTIC_ROUND_UP_BOX,	///< plastic version of FL_ROUND_UP_BOX, use FL_PLASTIC_ROUND_UP_BOX
+  _FL_PLASTIC_ROUND_DOWN_BOX,	///< plastic version of FL_ROUND_DOWN_BOX, use FL_PLASTIC_ROUND_DOWN_BOX
+  _FL_GTK_UP_BOX,		///< gtk+ version of FL_UP_BOX, use FL_GTK_UP_BOX
+  _FL_GTK_DOWN_BOX,		///< gtk+ version of FL_DOWN_BOX, use FL_GTK_DOWN_BOX
+  _FL_GTK_UP_FRAME,		///< gtk+ version of FL_UP_FRAME, use FL_GTK_UP_FRAME
+  _FL_GTK_DOWN_FRAME,		///< gtk+ version of FL_DOWN_FRAME, use FL_GTK_DOWN_FRAME
+  _FL_GTK_THIN_UP_BOX,		///< gtk+ version of FL_THIN_UP_BOX, use FL_GTK_THIN_UP_BOX
+  _FL_GTK_THIN_DOWN_BOX,	///< gtk+ version of FL_THIN_DOWN_BOX, use FL_GTK_THIN_DOWN_BOX
+  _FL_GTK_THIN_UP_FRAME,	///< gtk+ version of FL_THIN_UP_FRAME, use FL_GTK_THIN_UP_FRAME
+  _FL_GTK_THIN_DOWN_FRAME,	///< gtk+ version of FL_THIN_DOWN_FRAME, use FL_GTK_THIN_DOWN_FRAME
+  _FL_GTK_ROUND_UP_BOX,		///< gtk+ version of FL_ROUND_UP_BOX, use FL_GTK_ROUND_UP_BOX
+  _FL_GTK_ROUND_DOWN_BOX,	///< gtk+ version of FL_ROUND_DOWN_BOX, use FL_GTK_ROUND_DOWN_BOX
+  _FL_GLEAM_UP_BOX,		///< gleam version of FL_UP_BOX, use FL_GLEAM_UP_BOX
+  _FL_GLEAM_DOWN_BOX,		///< gleam version of FL_DOWN_BOX, use FL_GLEAM_DOWN_BOX
+  _FL_GLEAM_UP_FRAME,		///< gleam version of FL_UP_FRAME, use FL_GLEAM_UP_FRAME
+  _FL_GLEAM_DOWN_FRAME,		///< gleam version of FL_DOWN_FRAME, use FL_GLEAM_DOWN_FRAME
+  _FL_GLEAM_THIN_UP_BOX,	///< gleam version of FL_THIN_UP_BOX, use FL_GLEAM_THIN_UP_BOX
+  _FL_GLEAM_THIN_DOWN_BOX,	///< gleam version of FL_THIN_DOWN_BOX, use FL_GLEAM_THIN_DOWN_BOX
+  _FL_GLEAM_ROUND_UP_BOX,	///< gleam version of FL_ROUND_UP_BOX, use FL_GLEAM_ROUND_UP_BOX
+  _FL_GLEAM_ROUND_DOWN_BOX,	///< gleam version of FL_ROUND_DOWN_BOX, use FL_GLEAM_ROUND_DOWN_BOX
   FL_FREE_BOXTYPE		///< the first free box type for creation of new box types
 };
 extern FL_EXPORT Fl_Boxtype fl_define_FL_ROUND_UP_BOX();
@@ -751,20 +748,19 @@ inline Fl_Boxtype fl_frame(Fl_Boxtype b) {
 /**
    The labeltype() method sets the type of the label.
 
-   The following standard label types are included:
+   \note The documented \p enum \p Fl_Labeltype contains some values (names)
+      with leading underscores, e.g. \p \b _FL_IMAGE_LABEL. This is due to
+      technical reasons - please use the same values (names) without the
+      leading underscore in your code! Enum values with leading underscores
+      are reserved for internal use and subject to change without notice!
 
-   \todo	The doxygen comments are incomplete, and some labeltypes
-   	start with an underscore. Also, there are three
-		external functions undocumented (yet):
-		  - fl_define_FL_SHADOW_LABEL()
-		  - fl_define_FL_ENGRAVED_LABEL()
-		  - fl_define_FL_EMBOSSED_LABEL()
+   The following standard label types are included:
 */
-enum Fl_Labeltype {	// labeltypes:
-  FL_NORMAL_LABEL	= 0, ///< draws the text (0)
+enum Fl_Labeltype {    // labeltypes:
+  FL_NORMAL_LABEL = 0, ///< draws the text (0)
   FL_NO_LABEL,         ///< does nothing
   _FL_SHADOW_LABEL,    ///< draws a drop shadow under the text
-  _FL_ENGRAVED_LABEL,	 ///< draws edges as though the text is engraved
+  _FL_ENGRAVED_LABEL,  ///< draws edges as though the text is engraved
   _FL_EMBOSSED_LABEL,  ///< draws edges as though the text is raised
   _FL_MULTI_LABEL,     ///< draws a composite label \see Fl_Multi_Label
   _FL_ICON_LABEL,      ///< draws the icon associated with the text
@@ -773,32 +769,100 @@ enum Fl_Labeltype {	// labeltypes:
   FL_FREE_LABELTYPE    ///< first free labeltype to use for creating own labeltypes
 };
 
-/** 
-  Sets the current label type and return its corresponding Fl_Labeltype value. 
+/**
+  Sets the current label type and returns its corresponding Fl_Labeltype value.
   @{
 */
+
+/** FL_SYMBOL_LABEL is an alias for FL_NORMAL_LABEL.
+
+  '@' symbols can be drawn with normal labels as well.\n
+  This definition is for historical reasons only (forms compatibility).
+  You should use FL_NORMAL_LABEL instead.
+*/
 #define FL_SYMBOL_LABEL FL_NORMAL_LABEL
+/**
+  Initializes the internal table entry for FL_SHADOW_LABEL and returns
+  its internal value. Internal use only.
+*/
 extern Fl_Labeltype FL_EXPORT fl_define_FL_SHADOW_LABEL();
+/**
+  Draws a label with shadows behind the text.
+*/
 #define FL_SHADOW_LABEL fl_define_FL_SHADOW_LABEL()
+
+/**
+  Initializes the internal table entry for FL_ENGRAVED_LABEL and returns
+  its internal value. Internal use only.
+*/
 extern Fl_Labeltype FL_EXPORT fl_define_FL_ENGRAVED_LABEL();
+/**
+  Draws a label with engraved text.
+*/
 #define FL_ENGRAVED_LABEL fl_define_FL_ENGRAVED_LABEL()
+
+/**
+  Initializes the internal table entry for FL_EMBOSSED_LABEL and returns
+  its internal value. Internal use only.
+*/
 extern Fl_Labeltype FL_EXPORT fl_define_FL_EMBOSSED_LABEL();
+/**
+  Draws a label with embossed text.
+*/
 #define FL_EMBOSSED_LABEL fl_define_FL_EMBOSSED_LABEL()
+
+/**
+  Initializes the internal table entry for FL_MULTI_LABEL and returns
+  its internal value. Internal use only.
+*/
+extern Fl_Labeltype FL_EXPORT fl_define_FL_MULTI_LABEL();
+/**
+  Draws a label that can comprise several parts like text and images.
+  \see Fl_Multi_Label
+*/
+#define FL_MULTI_LABEL fl_define_FL_MULTI_LABEL()
+
+/**
+  Initializes the internal table entry for FL_ICON_LABEL and returns
+  its internal value. Internal use only.
+*/
+extern Fl_Labeltype FL_EXPORT fl_define_FL_ICON_LABEL();
+/**
+  Draws an icon as the label.
+*/
+#define FL_ICON_LABEL fl_define_FL_ICON_LABEL()
+
+/**
+  Initializes the internal table entry for FL_IMAGE_LABEL and returns
+  its internal value. Internal use only.
+*/
+extern Fl_Labeltype FL_EXPORT fl_define_FL_IMAGE_LABEL();
+/**
+  Draws an image (Fl_Image) as the label.
+  This is useful for one particular part of an Fl_Multi_Label.
+  Use Fl_Widget::image() and/or Fl_Widget::deimage() for normal widgets
+  with images as labels.
+*/
+#define FL_IMAGE_LABEL fl_define_FL_IMAGE_LABEL()
+
 /** @} */
 
-/** \name Alignment Flags 
-    Flags to control the label alignment. 
+/** \name Alignment Flags
+  Flags to control the label alignment.
 
-    This controls how the label is displayed next to or inside the widget. 
-    The default value is FL_ALIGN_CENTER (0) for most widgets, which centers
-    the label inside the widget.
+  This controls how the label is displayed next to or inside the widget.
+  The default value is FL_ALIGN_CENTER (0) for most widgets, which centers
+  the label inside the widget.
 
-    Flags can be or'd to achieve a combination of alignments, but there
-    are some "magic values" (e.g. combinations of TOP and BOTTOM and of
-    LEFT and RIGHT) that have special meanings (see below). For instance:<BR>
-    FL_ALIGN_TOP_LEFT == (FL_ALIGN_TOP|FL_ALIGN_LEFT) != FL_ALIGN_LEFT_TOP.
+  All alignment flags use the common prefix "FL_ALIGN_". In the following
+  descriptions this prefix is sometimes omitted for brevity.
 
-    \code
+  Flags can be or'd to achieve a combination of alignments, but there
+  are some \e "magic values" (e.g. combinations of TOP and BOTTOM and of
+  LEFT and RIGHT) that have special meanings (see below). For instance:\n
+  FL_ALIGN_TOP_LEFT == (FL_ALIGN_TOP | FL_ALIGN_LEFT) != FL_ALIGN_LEFT_TOP.
+
+  \code
     Outside alignments (FL_ALIGN_INSIDE is not set):
 
                TOP_LEFT        TOP       TOP_RIGHT
@@ -820,52 +884,98 @@ extern Fl_Labeltype FL_EXPORT fl_define_FL_EMBOSSED_LABEL();
                |                                 |
                |BOTTOM_LEFT  BOTTOM  BOTTOM_RIGHT|
                +---------------------------------+
-    \endcode
-    \see #FL_ALIGN_CENTER, etc.
+  \endcode
+  \see Fl_Align, #FL_ALIGN_CENTER, etc.
+
+  \note
+    -# Bit positions not defined in the following constants of type
+       \p Fl_Align are reserved for future extensions. Do not use.
+    -# The \e "magic values" (FL_ALIGN_)LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM,
+       and RIGHT_BOTTOM must not be used together with FL_ALIGN_INSIDE.
+       Use TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, or BOTTOM_RIGHT instead.
+    -# Although bits can be or'd together there are some unused/illegal
+       combinations, for instance:
+      - setting both FL_ALIGN_TOP and FL_ALIGN_BOTTOM in combinations other
+	than those given in the \p Fl_Align constants below (magic values)
+      - setting both FL_ALIGN_LEFT and FL_ALIGN_RIGHT in combinations other
+	than those given in the \p Fl_Align constants below (magic values)
+      - using one of the "magic values" (2) together with FL_ALIGN_INSIDE
+  \note
+    Using illegal bit combinations or undefined bits may yield unexpected
+    behavior, and this behavior may be changed without notice in future
+    FLTK versions.
  */
 /*@{*/
-/** FLTK type for alignment control */
+/** FLTK type for alignment control. */
 typedef unsigned Fl_Align;
+
   /** Align the label horizontally in the middle. */
-const Fl_Align FL_ALIGN_CENTER		= (Fl_Align)0;
+const Fl_Align FL_ALIGN_CENTER		= 0x0000;
+
   /** Align the label at the top of the widget. Inside labels appear below the top,
       outside labels are drawn on top of the widget. */
-const Fl_Align FL_ALIGN_TOP		= (Fl_Align)1;
+const Fl_Align FL_ALIGN_TOP		= 0x0001;
+
   /** Align the label at the bottom of the widget. */
-const Fl_Align FL_ALIGN_BOTTOM		= (Fl_Align)2;
+const Fl_Align FL_ALIGN_BOTTOM		= 0x0002;
+
   /** Align the label at the left of the widget. Inside labels appear left-justified
       starting at the left side of the widget, outside labels are right-justified and
       drawn to the left of the widget. */
-const Fl_Align FL_ALIGN_LEFT		= (Fl_Align)4;
+const Fl_Align FL_ALIGN_LEFT		= 0x0004;
+
   /** Align the label to the right of the widget. */
-const Fl_Align FL_ALIGN_RIGHT		= (Fl_Align)8;
+const Fl_Align FL_ALIGN_RIGHT		= 0x0008;
+
   /** Draw the label inside of the widget. */
-const Fl_Align FL_ALIGN_INSIDE		= (Fl_Align)16;
+const Fl_Align FL_ALIGN_INSIDE		= 0x0010;
+
   /** If the label contains an image, draw the text on top of the image. */
-const Fl_Align FL_ALIGN_TEXT_OVER_IMAGE	= (Fl_Align)0x0020;
+const Fl_Align FL_ALIGN_TEXT_OVER_IMAGE	= 0x0020;
+
   /** If the label contains an image, draw the text below the image. */
-const Fl_Align FL_ALIGN_IMAGE_OVER_TEXT	= (Fl_Align)0x0000;
-  /** All parts of the label that are lager than the widget will not be drawn . */
-const Fl_Align FL_ALIGN_CLIP		= (Fl_Align)64;
+const Fl_Align FL_ALIGN_IMAGE_OVER_TEXT	= 0x0000;
+
+  /** All parts of the label that are larger than the widget will not be drawn. */
+const Fl_Align FL_ALIGN_CLIP		= 0x0040;
+
   /** Wrap text that does not fit the width of the widget. */
-const Fl_Align FL_ALIGN_WRAP		= (Fl_Align)128;
+const Fl_Align FL_ALIGN_WRAP		= 0x0080;
+
   /** If the label contains an image, draw the text to the right of the image. */
-const Fl_Align FL_ALIGN_IMAGE_NEXT_TO_TEXT = (Fl_Align)0x0100;
+const Fl_Align FL_ALIGN_IMAGE_NEXT_TO_TEXT = 0x0100;
+
   /** If the label contains an image, draw the text to the left of the image. */
-const Fl_Align FL_ALIGN_TEXT_NEXT_TO_IMAGE = (Fl_Align)0x0120;
+const Fl_Align FL_ALIGN_TEXT_NEXT_TO_IMAGE = 0x0120;
+
 /** If the label contains an image, draw the image or deimage in the background. */
-const Fl_Align FL_ALIGN_IMAGE_BACKDROP  = (Fl_Align)0x0200;
+const Fl_Align FL_ALIGN_IMAGE_BACKDROP  = 0x0200;
+
 const Fl_Align FL_ALIGN_TOP_LEFT	= FL_ALIGN_TOP | FL_ALIGN_LEFT;
 const Fl_Align FL_ALIGN_TOP_RIGHT	= FL_ALIGN_TOP | FL_ALIGN_RIGHT;
 const Fl_Align FL_ALIGN_BOTTOM_LEFT	= FL_ALIGN_BOTTOM | FL_ALIGN_LEFT;
 const Fl_Align FL_ALIGN_BOTTOM_RIGHT	= FL_ALIGN_BOTTOM | FL_ALIGN_RIGHT;
-const Fl_Align FL_ALIGN_LEFT_TOP	= 0x0007; // magic value
-const Fl_Align FL_ALIGN_RIGHT_TOP	= 0x000b; // magic value
-const Fl_Align FL_ALIGN_LEFT_BOTTOM	= 0x000d; // magic value
-const Fl_Align FL_ALIGN_RIGHT_BOTTOM	= 0x000e; // magic value
-const Fl_Align FL_ALIGN_NOWRAP		= (Fl_Align)0; // for back compatibility
-const Fl_Align FL_ALIGN_POSITION_MASK   = 0x000f; // left, right, top, bottom
-const Fl_Align FL_ALIGN_IMAGE_MASK      = 0x0320; // l/r, t/b, backdrop
+
+/** Outside only, left of widget, top position, magic value: TOP | BOTTOM | LEFT. */
+const Fl_Align FL_ALIGN_LEFT_TOP	= 0x0007;
+
+/** Outside only, right of widget, top position, magic value: TOP | BOTTOM | RIGHT. */
+const Fl_Align FL_ALIGN_RIGHT_TOP	= 0x000b;
+
+/** Outside only, left of widget, bottom position, magic value: TOP | LEFT | RIGHT. */
+const Fl_Align FL_ALIGN_LEFT_BOTTOM	= 0x000d;
+
+/** Outside only, right of widget, bottom position, magic value: BOTTOM | LEFT | RIGHT. */
+const Fl_Align FL_ALIGN_RIGHT_BOTTOM	= 0x000e;
+
+/** Nothing, same as FL_ALIGN_CENTER, for back compatibility. */
+const Fl_Align FL_ALIGN_NOWRAP		= 0x0000;
+
+/** Mask value to test for TOP, BOTTOM, LEFT, and RIGHT flags. */
+const Fl_Align FL_ALIGN_POSITION_MASK   = 0x000f;
+
+/** Mask value to test for image alignment flags. */
+const Fl_Align FL_ALIGN_IMAGE_MASK      = 0x0320;
 /*@}*/
 
 
@@ -1049,7 +1159,7 @@ enum Fl_Cursor {
   FL_CURSOR_DEFAULT    =  0, /**< the default cursor, usually an arrow. */
   FL_CURSOR_ARROW      = 35, /**< an arrow pointer. */
   FL_CURSOR_CROSS      = 66, /**< crosshair. */
-  FL_CURSOR_WAIT       = 76, /**< busy indicator (e.g. hourglass). */
+  FL_CURSOR_WAIT       = 76, /**< busy indicator (for instance hourglass). */
   FL_CURSOR_INSERT     = 77, /**< I-beam. */
   FL_CURSOR_HAND       = 31, /**< pointing hand. */
   FL_CURSOR_HELP       = 47, /**< question mark pointer. */
@@ -1112,13 +1222,7 @@ enum Fl_Damage {
   FL_DAMAGE_ALL      = 0x80  /**< Everything needs to be redrawn. */
 };
 
-// FLTK 1.0.x compatibility definitions...
-#  ifdef FLTK_1_0_COMPAT
-#    define contrast	fl_contrast
-#    define down	fl_down
-#    define frame	fl_frame
-#    define inactive	fl_inactive
-#  endif // FLTK_1_0_COMPAT
+// FLTK 1.0.x compatibility definitions (FLTK_1_0_COMPAT) dropped in 1.4.0
 
 #endif
 

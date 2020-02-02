@@ -3,7 +3,7 @@
 //
 // Image header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2016 by Bill Spitzak and others.
+// Copyright 1998-2017 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -20,15 +20,17 @@
    Fl_Image, Fl_RGB_Image classes. */
 
 #ifndef Fl_Image_H
-#  define Fl_Image_H
+#define Fl_Image_H
 
-#  include "Enumerations.H"
+#include "Enumerations.H"
 #include <stdlib.h>
+#include "Fl_Widget.H" // for fl_uintptr_t
 
 class Fl_Widget;
 class Fl_Pixmap;
 struct Fl_Menu_Item;
 struct Fl_Label;
+class Fl_RGB_Image;
 
 
 /** \enum Fl_RGB_Scaling
@@ -41,19 +43,26 @@ enum Fl_RGB_Scaling {
 
 
 /**
- \brief Base class for image caching and drawing.
+ \brief Base class for image caching, scaling and drawing.
  
- Fl_Image is the base class used for caching and drawing all kinds of images 
+ Fl_Image is the base class used for caching, scaling and drawing all kinds of images
  in FLTK. This class keeps track of common image data such as the pixels, 
  colormap, width, height, and depth. Virtual methods are used to provide 
  type-specific image handling.
+ 
+ Each image possesses two (width, height) pairs. 1) The width and height of the
+ image raw data are returned by data_w() and data_h(). These values are set
+ when the image is created and remain unchanged. 2) The width and height
+ of the area filled by the image when it gets drawn are returned by w() and h().
+ The values are equal to data_w() and data_h() when the image is created,
+ and can be changed by the scale() member function.
   
  Since the Fl_Image class does not support image
  drawing by itself, calling the draw() method results in
  a box with an X in it being drawn instead.
 */
 class FL_EXPORT Fl_Image {
-    
+  friend class Fl_Graphics_Driver;
 public:
   static const int ERR_NO_IMAGE    = -1;
   static const int ERR_FILE_ACCESS = -2;
@@ -61,9 +70,10 @@ public:
     
 private:
   int w_, h_, d_, ld_, count_;
+  int data_w_, data_h_;
   const char * const *data_;
-  static Fl_RGB_Scaling RGB_scaling_;
-
+  static Fl_RGB_Scaling RGB_scaling_; // method used when copying RGB images
+  static Fl_RGB_Scaling scaling_algorithm_; // method used to rescale RGB source images before drawing
   // Forbid use of copy constructor and assign operator
   Fl_Image & operator=(const Fl_Image &);
   Fl_Image(const Fl_Image &);
@@ -71,13 +81,17 @@ private:
 protected:
 
   /**
-   Sets the current image width in pixels.
+   Sets the width of the image data.
+   This protected function sets both image widths: the width of the image data returned by data_w() and
+   the image drawing width in FLTK units returned by w().
    */
-  void w(int W) {w_ = W;}
+  void w(int W) {w_ = W; data_w_ = W;}
   /**
-   Sets the current image height in pixels.
+   Sets the height of the image data.
+   This protected function sets both image heights: the height of the image data returned by data_h() and
+   the image drawing height in FLTK units returned by h().
    */
-  void h(int H) {h_ = H;}
+  void h(int H) {h_ = H; data_h_ = H;}
   /**
    Sets the current image depth.
    */
@@ -102,19 +116,32 @@ protected:
 
   static void labeltype(const Fl_Label *lo, int lx, int ly, int lw, int lh, Fl_Align la);
   static void measure(const Fl_Label *lo, int &lw, int &lh);
+  int draw_scaled(int X, int Y, int W, int H);
 
 public:
 
   /** 
-   Returns the current image width in pixels.
+   Returns the current image drawing width in FLTK units.
+   The values of w() and data_w() are identical unless scale() has been called
+   after which they may differ.
    */
   int w() const {return w_;}
   /**
-   Returns the current image height in pixels.
+   Returns the current image drawing height in FLTK units.
+   The values of h() and data_h() are identical unless scale() has been called
+   after which they may differ.
    */
   int h() const {return h_;}
   /**
-   Returns the current image depth.
+   Returns the width of the image data.
+   */
+  int data_w() const {return data_w_;}
+  /**
+   Returns the height of the image data.
+   */
+  int data_h() const {return data_h_;}
+  /**
+   Returns the image depth.
    The return value will be 0 for bitmaps, 1 for
    pixmaps, and 1 to 4 for color images.</P>
    */
@@ -141,13 +168,11 @@ public:
   virtual ~Fl_Image();
   virtual Fl_Image *copy(int W, int H);
   /**
-   The copy() method creates a copy of the specified
-   image. If the width and height are provided, the image is
-   resized to the specified size. The image should be deleted (or in
-   the case of Fl_Shared_Image, released) when you are done
-   with it.
+   Creates a copy of the specified image.
+   The image should be deleted (or in the case of Fl_Shared_Image, released)
+   when you are done with it.
    */
-  Fl_Image *copy() { return copy(w(), h()); }
+  Fl_Image *copy() { Fl_Image *img = copy(data_w(), data_h()); img->scale(w(), h(), 0, 1); return img;}
   virtual void color_average(Fl_Color c, float i);
   /**
    The inactive() method calls
@@ -162,7 +187,7 @@ public:
   virtual void label(Fl_Widget*w);
   virtual void label(Fl_Menu_Item*m);
   /**
-   Draws the image with a bounding box.
+   Draws the image to the current drawing surface with a bounding box.
    Arguments <tt>X,Y,W,H</tt> specify
    a bounding box for the image, with the origin        
    (upper-left corner) of the image offset by the \c cx
@@ -174,17 +199,34 @@ public:
    */
   virtual void draw(int X, int Y, int W, int H, int cx=0, int cy=0); // platform dependent
   /**
-   Draws the image.
-   This form specifies the upper-lefthand corner of the image.
+   Draws the image to the current drawing surface.
+   \param X, Y specify the upper-lefthand corner of the image.
    */
   void draw(int X, int Y) {draw(X, Y, w(), h(), 0, 0);} // platform dependent
   virtual void uncache();
 
+  // used by fl_define_FL_IMAGE_LABEL() to avoid 'friend' declaration
+  static Fl_Labeltype define_FL_IMAGE_LABEL();
+
   // set RGB image scaling method
   static void RGB_scaling(Fl_RGB_Scaling);
-
   // get RGB image scaling method
   static Fl_RGB_Scaling RGB_scaling();
+  
+  // set the image drawing size
+  virtual void scale(int width, int height, int proportional = 1, int can_expand = 0);
+  /** Sets what algorithm is used when resizing a source image to draw it.
+   The default algorithm is FL_RGB_SCALING_BILINEAR.
+   Drawing an Fl_Image is sometimes performed by first resizing the source image
+   and then drawing the resized copy. This occurs, e.g., when drawing to screen under X11
+   without Xrender support after having called scale().
+   This function controls what method is used when the image to be resized is an Fl_RGB_Image.
+   \version 1.4
+   */
+  static void scaling_algorithm(Fl_RGB_Scaling algorithm) {scaling_algorithm_ = algorithm; }
+  /** Gets what algorithm is used when resizing a source image to draw it. */
+  static Fl_RGB_Scaling scaling_algorithm() {return scaling_algorithm_;}
+  static bool register_images_done;
 };
 
 
@@ -200,10 +242,7 @@ public:
   &lt;FL/Fl_RGB_Image.H&gt; should be included.
 */
 class FL_EXPORT Fl_RGB_Image : public Fl_Image {
-  friend class Fl_Quartz_Graphics_Driver;
-  friend class Fl_GDI_Graphics_Driver;
-  friend class Fl_GDI_Printer_Graphics_Driver;
-  friend class Fl_Xlib_Graphics_Driver;
+  friend class Fl_Graphics_Driver;
   static size_t max_size_;
 public:
 
@@ -214,15 +253,11 @@ public:
    */
   int alloc_array;
 
-  private:
-
-#if defined(__APPLE__) || defined(WIN32)
-  void *id_; // for internal use
-  void *mask_; // for internal use (mask bitmap)
-#else
-  unsigned id_; // for internal use
-  unsigned mask_; // for internal use (mask bitmap)
-#endif // __APPLE__ || WIN32
+private:
+  // These two variables are used to cache the image and mask for the main display graphics driver
+  fl_uintptr_t id_;
+  fl_uintptr_t mask_;
+  int cache_w_, cache_h_; // size of image when cached
 
 public:
 
@@ -230,7 +265,7 @@ public:
   Fl_RGB_Image(const Fl_Pixmap *pxm, Fl_Color bg=FL_GRAY);
   virtual ~Fl_RGB_Image();
   virtual Fl_Image *copy(int W, int H);
-  Fl_Image *copy() { return copy(w(), h()); }
+  Fl_Image *copy() { return Fl_Image::copy(); }
   virtual void color_average(Fl_Color c, float i);
   virtual void desaturate();
   virtual void draw(int X, int Y, int W, int H, int cx=0, int cy=0);

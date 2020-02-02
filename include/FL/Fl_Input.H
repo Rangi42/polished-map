@@ -31,7 +31,7 @@
   characters, and will correctly display any UTF text, using
   ^X notation for unprintable control characters. It assumes the
   font can draw any characters of the used scripts, which is true
-  for standard fonts under MSWindows and Mac OS X.
+  for standard fonts under Windows and Mac OS X.
   Characters can be input using the keyboard or the character palette/map.
   Character composition is done using dead keys and/or a compose
   key as defined by the operating system.
@@ -220,6 +220,8 @@
   </TD></TR></TABLE>
   */
 class FL_EXPORT Fl_Input : public Fl_Input_ {
+  friend class Fl_Screen_Driver;
+  friend class Fl_Cocoa_Screen_Driver; // Not ideal, but probably no other platform will use it
   int handle_key();
   int shift_position(int p);
   int shift_up_down_position(int p);

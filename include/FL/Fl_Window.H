@@ -3,7 +3,7 @@
 //
 // Window header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2012 by Bill Spitzak and others.
+// Copyright 1998-2016 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -22,20 +22,18 @@
 #ifndef Fl_Window_H
 #define Fl_Window_H
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include "Fl_Group.H"
-#include "Fl_Bitmap.H"
+#include <FL/Fl.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Bitmap.H>
 #include <stdlib.h>
 
 #define FL_WINDOW 0xF0		///< window type id all subclasses have type() >= this
 #define FL_DOUBLE_WINDOW 0xF1   ///< double window type id
 
 class Fl_X;
+class Fl_Window_Driver;
 class Fl_RGB_Image;
-
+class Fl_Double_Window;
 
 /**
   This widget produces an actual window.  This can either be a main
@@ -55,108 +53,38 @@ class Fl_RGB_Image;
   window. Fl_Window has a default callback that calls Fl_Window::hide().
 */
 class FL_EXPORT Fl_Window : public Fl_Group {
-
+  friend int Fl::arg(int argc, char **argv, int &i);
+  friend class Fl_X;
+  friend class Fl_Window_Driver;
+private:
   static char *default_xclass_;
-  // Note: we must use separate statements for each of the following 8 variables,
-  // with the static attribute, otherwise MS VC++ 2008/2010 complains :-(
-  // AlbrechtS 04/2012
-#if FLTK_ABI_VERSION < 10301
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
+  static char show_iconic_; // 1 means create next window in iconic form
+
   int no_fullscreen_x;
-#if FLTK_ABI_VERSION < 10301
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int no_fullscreen_y;
-#if FLTK_ABI_VERSION < 10301
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int no_fullscreen_w;
-#if FLTK_ABI_VERSION < 10301
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int no_fullscreen_h;
-#if FLTK_ABI_VERSION < 10303
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int fullscreen_screen_top;
-#if FLTK_ABI_VERSION < 10303
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int fullscreen_screen_bottom;
-#if FLTK_ABI_VERSION < 10303
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int fullscreen_screen_left;
-#if FLTK_ABI_VERSION < 10303
-  static // when these members are static, ABI compatibility with 1.3.0 is respected
-#endif
   int fullscreen_screen_right;
 
-  friend class Fl_X;
-  Fl_X *i; // points at the system-specific stuff
-
-  struct icon_data {
-    const void *legacy_icon;
-    Fl_RGB_Image **icons;
-    int count;
-#ifdef WIN32
-    HICON big_icon;
-    HICON small_icon;
-#endif
-  };
+  // TODO: it would make sense to merge the use of Fl_X and Fl_Window_Driver, maybe simply by
+  // TODO: deriving Fl_Window_Driver from Fl_X. However, there are a lot of historic kldges for
+  // TODO: some platforms around Fl_X.
+  Fl_X *i; // points at the system-specific stuff, but exists only after the window is mapped
+  Fl_Window_Driver *pWindowDriver; // points at the system-specific stuff at window creation time
 
   const char* iconlabel_;
   char* xclass_;
-  struct icon_data *icon_;
   // size_range stuff:
   int minw, minh, maxw, maxh;
   int dw, dh, aspect;
   uchar size_range_set;
   // cursor stuff
   Fl_Cursor cursor_default;
-#if FLTK_ABI_VERSION < 10303
-  // legacy, not used
-  Fl_Color cursor_fg, cursor_bg;
-#endif
   
-protected:
-  /** Data supporting a non-rectangular window shape */
-  struct shape_data_type {
-    int lw_; ///<  width of shape image
-    int lh_; ///<  height of shape image
-    Fl_Image* shape_; ///<  shape image
-#if defined(__APPLE__)
-    typedef struct CGImage* CGImageRef;
-    CGImageRef mask;
-#endif
-    Fl_Bitmap *todelete_; ///<  auxiliary bitmap image
-  };
-
-#if FLTK_ABI_VERSION < 10303 && !defined(FL_DOXYGEN)
-  static
-#endif
-  shape_data_type *shape_data_; ///< non-null means the window has a non-rectangular shape
-private:
-  void shape_bitmap_(Fl_Image* b);
-  void shape_alpha_(Fl_Image* img, int offset);
-  void shape_pixmap_(Fl_Image* pixmap);
-public:
-  void shape(const Fl_Image* img);
-  /** Set the window's shape with an Fl_Image.
-   \see void shape(const Fl_Image* img)
-   */
-  inline void shape(const Fl_Image& b) { shape(&b); }
-#if ! (defined(WIN32) || defined(__APPLE__) || defined(FL_DOXYGEN))
-  void combine_mask(void);
-#endif
-private:
-
-
-  void size_range_();
   void _Fl_Window(); // constructor innards
-  void fullscreen_x(); // platform-specific part of sending a window to full screen
-  void fullscreen_off_x(int X, int Y, int W, int H);// platform-specific part of leaving full screen
 
   // unimplemented copy ctor and assignment operator
   Fl_Window(const Fl_Window&);
@@ -166,7 +94,7 @@ protected:
 
   /** Stores the last window that was made current. See current() const */
   static Fl_Window *current_;
-  virtual void draw();
+  void draw();
   /** Forces the window to be drawn, this window is also made current and calls draw(). */
   virtual void flush();
 
@@ -259,12 +187,9 @@ public:
     parameters after the resize request.
   */
   virtual void resize(int X,int Y,int W,int H);
-  /**
-    Sets whether or not the window manager border is around the
-    window.  The default value is true. void border(int) can be
-    used to turn the border on and off. <I>Under most X window
-    managers this does not work after show() has been called,
-    although SGI's 4DWM does work.</I>
+  /** Sets whether or not the window manager border is around the window.
+  The default value is true. <I>With some X window
+  managers, this does not work after show() has been called.</I>
   */
   void border(int b);
   /**
@@ -272,7 +197,7 @@ public:
     off. It only works before show() is called.
   */
   void clear_border()	{set_flag(NOBORDER);}
-  /** See void Fl_Window::border(int) */
+  /** Returns whether the window possesses a border */
   unsigned int border() const	{return !(flags() & NOBORDER);}
   /** Activates the flags NOBORDER|FL_OVERRIDE */
   void set_override()	{set_flag(NOBORDER|OVERRIDE);}
@@ -399,52 +324,7 @@ public:
     \deprecated please use force_position(0) instead
   */
   void free_position()	{clear_flag(FORCE_POSITION);}
-  /**
-    Sets the allowable range the user can resize this window to.
-    This only works for top-level windows.
-    <UL>
-    <LI>\p minw and \p minh are the smallest the window can be.
-	Either value must be greater than 0.</LI>
-    <LI>\p maxw and \p maxh are the largest the window can be. If either is
-	<I>equal</I> to the minimum then you cannot resize in that direction.
-	If either is zero  then FLTK picks a maximum size in that direction
-	such that the window will fill the screen.</LI>
-    <LI>\p dw and \p dh are size increments.  The  window will be constrained
-	to widths of minw + N * dw,  where N is any non-negative integer.
-	If these are less or equal to 1 they are ignored (this is ignored
-	on WIN32).</LI>
-    <LI>\p aspect is a flag that indicates that the window should preserve its
-	aspect ratio.  This only works if both the maximum and minimum have
-	the same aspect ratio (ignored on WIN32 and by many X window managers).
-	</LI>
-    </UL>
-
-    If this function is not called, FLTK tries to figure out the range
-    from the setting of resizable():
-    <UL>
-    <LI>If resizable() is NULL (this is the  default) then the window cannot
-	be resized and the resize border and max-size control will not be
-	displayed for the window.</LI>
-    <LI>If either dimension of resizable() is less than 100, then that is
-	considered the minimum size.  Otherwise the resizable() has a minimum
-	size of 100.</LI>
-    <LI>If either dimension of resizable() is zero, then that is also the
-	maximum size (so the window cannot resize in that direction).</LI>
-    </UL>
-
-    It is undefined what happens if the current size does not fit in the
-    constraints passed to size_range().
-  */
-  void size_range(int minw, int minh, int maxw=0, int maxh=0, int dw=0, int dh=0, int aspect=0) {
-    this->minw   = minw;
-    this->minh   = minh;
-    this->maxw   = maxw;
-    this->maxh   = maxh;
-    this->dw     = dw;
-    this->dh     = dh;
-    this->aspect = aspect;
-    size_range_();
-  }
+  void size_range(int minw, int minh, int maxw=0, int maxh=0, int dw=0, int dh=0, int aspect=0);
 
   /** See void Fl_Window::label(const char*)   */
   const char* label() const	{return Fl_Widget::label();}
@@ -468,7 +348,10 @@ public:
   void icon(const Fl_RGB_Image*);
   void icons(const Fl_RGB_Image*[], int);
 
-#ifdef WIN32
+#if defined(_WIN32) && !defined(FL_DOXYGEN)
+  typedef struct HICON__* HICON;
+  // These 2 member functions break the driver model but are kept for back compatibility.
+  // They are implemented in Fl_win32.cxx
   static void default_icons(HICON big_icon, HICON small_icon);
   void icons(HICON big_icon, HICON small_icon);
 #endif
@@ -608,9 +491,6 @@ public:
   */
   void make_current();
 
-  // Note: Doxygen docs in Fl_Widget.H to avoid redundancy.
-  virtual Fl_Window* as_window() { return this; }
-
   /**
     Changes the cursor for this window.  This always calls the system, if
     you are changing the cursor a lot you may want to keep track of how
@@ -635,14 +515,32 @@ public:
    
    Same as w() if applied to a subwindow.
    */
-  int decorated_w();
+  int decorated_w() const;
+
   /** Returns the window height including any window title bar and any frame 
    added by the window manager.
    
    Same as h() if applied to a subwindow.
    */
-  int decorated_h();
+  int decorated_h() const;
 
+  // Note: Doxygen docs in Fl_Widget.H to avoid redundancy.
+  virtual Fl_Window* as_window() { return this; }
+
+  /**
+   Return non-null if this is an Fl_Overlay_Window object.
+   */
+  virtual class Fl_Overlay_Window *as_overlay_window() {return 0L; }
+
+  /**
+   Return non-null if this is an Fl_Double_Window object.
+   */
+  virtual class Fl_Double_Window *as_double_window() {return 0L;}
+  
+  void shape(const Fl_Image* img);
+  void shape(const Fl_Image& b) ;
+  const Fl_Image *shape();
+  int screen_num();
 };
 
 #endif

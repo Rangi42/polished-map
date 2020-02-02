@@ -3,7 +3,7 @@
 //
 // Bitmap header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2010 by Bill Spitzak and others.
+// Copyright 1998-2017 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -21,7 +21,8 @@
 
 #ifndef Fl_Bitmap_H
 #define Fl_Bitmap_H
-#  include "Fl_Image.H"
+#include "Fl_Image.H"
+#include "Fl_Widget.H" // for fl_uintptr_t
 
 class Fl_Widget;
 struct Fl_Menu_Item;
@@ -31,39 +32,28 @@ struct Fl_Menu_Item;
   (bitmap) images. Images are drawn using the current color.
 */
 class FL_EXPORT Fl_Bitmap : public Fl_Image {
-  friend class Fl_Quartz_Graphics_Driver;
-  friend class Fl_GDI_Graphics_Driver;
-  friend class Fl_GDI_Printer_Graphics_Driver;
-  friend class Fl_Xlib_Graphics_Driver;
+  friend class Fl_Graphics_Driver;
 public:
-
   /** pointer to raw bitmap data */
   const uchar *array;
   /** Non-zero if array points to bitmap data allocated internally */
   int alloc_array;
   
-  private:
-  int start(int XP, int YP, int WP, int HP, int &cx, int &cy, 
-	    int &X, int &Y, int &W, int &H);
-#if defined(__APPLE__) || defined(WIN32)
+private:
   /** for internal use */
-  void *id_;
-#else
-  /** for internal use */
-  unsigned id_;
-#endif // __APPLE__ || WIN32
+  fl_uintptr_t id_;
+  int cache_w_, cache_h_; // size of bitmap when cached
 
-  public:
-
+public:
   /** The constructors create a new bitmap from the specified bitmap data */
   Fl_Bitmap(const uchar *bits, int W, int H) :
-    Fl_Image(W,H,0), array(bits), alloc_array(0), id_(0) {data((const char **)&array, 1);}
+    Fl_Image(W,H,0), array(bits), alloc_array(0), id_(0), cache_w_(0),cache_h_(0) {data((const char **)&array, 1);}
   /** The constructors create a new bitmap from the specified bitmap data */
   Fl_Bitmap(const char *bits, int W, int H) :
-    Fl_Image(W,H,0), array((const uchar *)bits), alloc_array(0), id_(0) {data((const char **)&array, 1);}
+    Fl_Image(W,H,0), array((const uchar *)bits), alloc_array(0), id_(0), cache_w_(0),cache_h_(0) {data((const char **)&array, 1);}
   virtual ~Fl_Bitmap();
   virtual Fl_Image *copy(int W, int H);
-  Fl_Image *copy() { return copy(w(), h()); }
+  Fl_Image *copy() { return Fl_Image::copy(); }
   virtual void draw(int X, int Y, int W, int H, int cx=0, int cy=0);
   void draw(int X, int Y) {draw(X, Y, w(), h(), 0, 0);}
   virtual void label(Fl_Widget*w);

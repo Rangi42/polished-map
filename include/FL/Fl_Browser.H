@@ -37,6 +37,14 @@ struct FL_BLINE;
   editor or spreadsheet!  But it is useful for showing a vertical list of
   named objects to the user.
   
+  \image html  fl_hold_browser.png "Fl_Hold_Browser"
+  \image latex fl_hold_browser.png "Fl_Hold_Browser" width=4cm
+
+  \par
+
+  \image html  fl_multi_browser.png "Fl_Multi_Browser"
+  \image latex fl_multi_browser.png "Fl_Multi_Browser" width=4cm
+
   Each line in the browser is identified by number. <I>The numbers
   start at one</I> (this is so that zero can be reserved for "no line" in
   the selective browsers). <I>Unless otherwise noted, the methods do not
@@ -212,7 +220,8 @@ public:
     and used to modify how the rest of the line is printed:
     
     \li <tt>'\@.'</tt> Print rest of line, don't look for more '\@' signs
-    \li <tt>'\@\@'</tt> Print rest of line starting with '\@'
+    \li <tt>'\@\@'</tt> Doubling the format character prints the format
+      character once, followed by the rest of line
     \li <tt>'\@l'</tt> Use a LARGE (24 point) font
     \li <tt>'\@m'</tt> Use a medium large (18 point) font
     \li <tt>'\@s'</tt> Use a <SMALL>small</SMALL> (11 point) font
@@ -222,8 +231,9 @@ public:
     font (sets font to FL_COURIER)
     \li <tt>'\@c'</tt> Center the line horizontally
     \li <tt>'\@r'</tt> Right-justify the text
+    \li <tt>'\@N'</tt> Use fl_inactive_color() to draw the text
     \li <tt>'\@B0', '\@B1', ... '\@B255'</tt> Fill the backgound with
-    fl_color(n)
+      fl_color(n)
     \li <tt>'\@C0', '\@C1', ... '\@C255'</tt> Use fl_color(n) to draw the text
     \li <tt>'\@F0', '\@F1', ...</tt> Use fl_font(n) to draw the text
     \li <tt>'\@S1', '\@S2', ...</tt> Use point size n to draw the text

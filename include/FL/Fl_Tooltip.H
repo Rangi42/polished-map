@@ -34,11 +34,16 @@
 
 */
 class FL_EXPORT Fl_Tooltip {
+  friend class Fl_TooltipBox;
 public:
   /**    Gets the tooltip delay. The default delay is 1.0 seconds.  */
   static float delay() { return delay_; }
   /**    Sets the tooltip delay. The default delay is 1.0 seconds.  */
   static void delay(float f) { delay_ = f; }
+  /**    Gets the time until an open tooltip hides again. The default delay is 12.0 seconds.  */
+  static float hidedelay() { return hidedelay_; }
+  /**    Sets the time until an open tooltip hides again. The default delay is 12.0 seconds.  */
+  static void hidedelay(float f) { hidedelay_ = f; }
   /**
     Gets the tooltip hover delay, the delay between tooltips.
     The default delay is 0.2 seconds.
@@ -78,7 +83,6 @@ public:
   static Fl_Color textcolor() { return textcolor_; }
   /** Sets the color of the text in the tooltip. The default is  black. */
   static void textcolor(Fl_Color c) { textcolor_ = c; }
-#if FLTK_ABI_VERSION >= 10301
   /** Gets the amount of extra space left/right of the tooltip's text. Default is 3. */
   static int margin_width() { return margin_width_; }
   /** Sets the amount of extra space left/right of the tooltip's text. Default is 3. */
@@ -91,16 +95,8 @@ public:
   static int wrap_width() { return wrap_width_; }
   /** Sets the maximum width for tooltip's text before it word wraps. Default is 400. */
   static void wrap_width(int v) { wrap_width_ = v; }
-#else
-  static int margin_width() { return 3; }
-  static int margin_height() { return 3; }
-  static int wrap_width() { return 400; }
-#endif
-
-#ifdef __APPLE__
-  // the unique tooltip window
+  /** Returns the window that is used for tooltips */
   static Fl_Window* current_window(void);
-#endif
 
   // These should not be public, but Fl_Widget::tooltip() needs them...
   // fabien: made it private with only a friend function access
@@ -113,17 +109,17 @@ private:
 
 private:
   static float delay_; //!< delay before a tooltip is shown
+  static float hidedelay_; //!< delay until tooltip is closed again
   static float hoverdelay_; //!< delay between tooltips
   static Fl_Color color_;
   static Fl_Color textcolor_;
   static Fl_Font font_;
   static Fl_Fontsize size_;
   static Fl_Widget* widget_; //!< Keeps track of the current target widget
-#if FLTK_ABI_VERSION >= 10301
   static int margin_width_;	//!< distance around tooltip text left+right
   static int margin_height_;	//!< distance around tooltip text top+bottom
   static int wrap_width_;	//!< maximum width of tooltip text before it word wraps
-#endif
+  static const int draw_symbols_; // 1 = draw @-symbols in tooltips, 0 = no
 };
 
 #endif

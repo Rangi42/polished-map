@@ -3,7 +3,7 @@
 //
 // Main header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2016 by Bill Spitzak and others.
+// Copyright 1998-2018 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
@@ -25,6 +25,7 @@
 
 #include <FL/Fl_Export.H>
 
+#include <FL/platform_types.h> // for FL_SOCKET
 #ifdef FLTK_HAVE_CAIRO
 # include <FL/Fl_Cairo.H>
 #endif
@@ -39,30 +40,25 @@
 #    undef check
 #  endif
 
+#  ifdef BSD
+#    undef BSD
+#  endif
+
 
 class Fl_Widget;
 class Fl_Window;
 class Fl_Image;
 struct Fl_Label;
+class Fl_Screen_Driver;
+class Fl_System_Driver;
 
-// Keep avoiding having the socket deps at that level but mke sure it will work in both 32 & 64 bit builds
-#if defined(WIN32) && !defined(__CYGWIN__)
-# if defined(_WIN64)
-#  define FL_SOCKET unsigned __int64
-# else
-#  define FL_SOCKET int
-# endif
-#else
-# define FL_SOCKET int
-#endif
-
-
-// Pointers you can use to change FLTK to a foreign language.
+// Pointers you can use to change FLTK to another language.
 // Note: Similar pointers are defined in FL/fl_ask.H and src/fl_ask.cxx
-extern FL_EXPORT const char* fl_local_ctrl;
-extern FL_EXPORT const char* fl_local_meta;
-extern FL_EXPORT const char* fl_local_alt;
-extern FL_EXPORT const char* fl_local_shift;
+
+extern FL_EXPORT const char* fl_local_alt;   ///< string pointer used in shortcuts, you can change it to another language
+extern FL_EXPORT const char* fl_local_ctrl;  ///< string pointer used in shortcuts, you can change it to another language
+extern FL_EXPORT const char* fl_local_meta;  ///< string pointer used in shortcuts, you can change it to another language
+extern FL_EXPORT const char* fl_local_shift; ///< string pointer used in shortcuts, you can change it to another language
 
 /** \defgroup  callback_functions Callback function typedefs
  \brief Typedefs defined in <FL/Fl.H> for callback or handler functions passed as function parameters.
@@ -134,11 +130,49 @@ typedef void (*Fl_Clipboard_Notify_Handler)(int source, void *data);
 */
 class FL_EXPORT Fl {
   Fl() {}; // no constructor!
-  
+
 private:
+
   static int use_high_res_GL_;
-  
+  static int draw_GL_text_with_textures_;
+
+public:
+
+  static Fl_Screen_Driver *screen_driver();
+  static Fl_System_Driver *system_driver();
+  static void reset_marked_text(); // resets marked text
+  static void insertion_point_location(int x, int y, int height); // sets window coordinates & height of insertion point
+
+public: // run time information about compile time configuration
+  /** \defgroup cfg_gfx runtime graphics driver configuration */
+  /** @{ */
+  static bool cfg_gfx_xlib;   ///< X11 Xlib rendering available, usually on Linux systems
+  static bool cfg_gfx_quartz; ///< Quartz rendering available, usually on OS X systems
+  static bool cfg_gfx_gdi;    ///< GDI rendering available, usually on Windows systems
+  static bool cfg_gfx_opengl; ///< OpenGL rendering available, available on many platforms
+  static bool cfg_gfx_cairo;  ///< Cairo rendering available, available on many platforms
+  static bool cfg_gfx_directx;///< DirectX rendering available, usually on Windows systems
+  /** @} */
+  /** \defgroup cfg_prn runtime printer driver configuration */
+  /** @{ */
+  static bool cfg_prn_ps;     ///< PostScript rendering available, usually on Linux systems
+  static bool cfg_prn_quartz; ///< Quartz rendering available, usually on OS X systems
+  static bool cfg_prn_gdi;    ///< GDI rendering available, usually on Windows systems
+  /** @} */
+  /** \defgroup cfg_win runtime window and event manager configuration */
+  /** @{ */
+  static bool cfg_win_x11;    ///< X11 window management available, usually on Linux systems
+  static bool cfg_win_cocoa;  ///< Cocoa window management available, usually on OS X systems
+  static bool cfg_win_win32;  ///< Windows window management available, on low level Windows
+  /** @} */
+  /** \defgroup cfg_sys runtime system configuration */
+  /** @{ */
+  static bool cfg_sys_posix;  ///< Posix system available, usually on Linux and OS X systems, but also Cygwin
+  static bool cfg_sys_win32;  ///< Windows system available, on Windows
+  /** @} */
+
 public: // should be private!
+
 #ifndef FL_DOXYGEN
   static int e_number;
   static int e_x;
@@ -163,15 +197,11 @@ public: // should be private!
   static Fl_Widget* selection_owner_;
   static Fl_Window* modal_;
   static Fl_Window* grab_;
-  static int compose_state; // used for dead keys (WIN32) or marked text (MacOS)
+  static int compose_state; // used for dead keys (Windows) or marked text (MacOS)
   static void call_screen_init(); // recompute screen number and dimensions
-#ifdef __APPLE__
-  static void reset_marked_text(); // resets marked text
-  static void insertion_point_location(int x, int y, int height); // sets window coordinates & height of insertion point
-#endif
 #endif // FL_DOXYGEN
-  
-  
+
+
   /**
     If true then flush() will do something.
   */
@@ -222,6 +252,14 @@ public:
      /// if the GTK library is available on the platform (linux/unix only).
      /// When switched off, GTK file dialogs aren't used even if the GTK library is available.
     OPTION_FNFC_USES_GTK,
+    /// When switched on (default), Fl_Printer runs the GTK printer dialog
+    /// if the GTK library is available on the platform (linux/unix only).
+    /// When switched off, the GTK printer dialog isn't used even if the GTK library is available.
+    OPTION_PRINTER_USES_GTK,
+    /// When switched on (default), the library shows in a transient yellow window the zoom factor
+    /// value.
+    /// When switched off, no such window gets displayed.
+    OPTION_SHOW_SCALING,
       // don't change this, leave it always as the last element
       /// For internal use only.
     OPTION_LAST
@@ -230,7 +268,8 @@ public:
 private:  
   static unsigned char options_[OPTION_LAST];
   static unsigned char options_read_;
-  
+  static int program_should_quit_; // non-zero means the program was asked to cleanly terminate
+
 public:  
   /*
    Return a global setting for all FLTK applications, possibly overridden
@@ -263,6 +302,7 @@ public:
 
   static int e_original_keysym; // late addition
   static int scrollbar_size_;
+  static int menu_linespacing_;	// STR #2927
 #endif
 
 
@@ -376,6 +416,8 @@ public:
   static int reload_scheme(); // platform dependent
   static int scrollbar_size();
   static void scrollbar_size(int W);
+  static int menu_linespacing();
+  static void menu_linespacing(int H);
 
   // execution:
   static int wait();
@@ -383,6 +425,20 @@ public:
   static int check();
   static int ready();
   static int run();
+  /** Returns non-zero when a request for program termination was received and accepted.
+   On the MacOS platform, the "Quit xxx" item of the application menu is such a request,
+   that is considered accepted when all windows are closed. On other platforms, this function
+   returns 0 until \p Fl::program_should_quit(1) is called.
+   \version 1.4.0
+   */
+  static int program_should_quit() {return program_should_quit_;}
+  /** Indicate to the FLTK library whether a program termination request was received and accepted.
+  A program may set this to 1, for example, while performing a platform-independent command asking the program to cleanly
+  terminate, similarly to the "Quit xxx" item of the application menu under MacOS.
+   \version 1.4.0
+   */
+  static void program_should_quit(int should_i) { program_should_quit_ = should_i; }
+
   static Fl_Widget* readqueue();
   /**
   Adds a one-shot timeout callback.  The function will be called by
@@ -441,27 +497,9 @@ int main() {
   static void add_check(Fl_Timeout_Handler, void* = 0);
   static int  has_check(Fl_Timeout_Handler, void* = 0);
   static void remove_check(Fl_Timeout_Handler, void* = 0);
-  /**
-    Adds file descriptor fd to listen to.
-    
-    When the fd becomes ready for reading Fl::wait() will call the
-    callback and then return. The callback is passed the fd and the
-    arbitrary void* argument.
-    
-    The second version takes a when bitfield, with the bits
-    FL_READ, FL_WRITE, and FL_EXCEPT defined,
-    to indicate when the callback should be done.
-    
-    There can only be one callback of each type for a file descriptor. 
-    Fl::remove_fd() gets rid of <I>all</I> the callbacks for a given
-    file descriptor.
-    
-    Under UNIX <I>any</I> file descriptor can be monitored (files,
-    devices, pipes, sockets, etc.). Due to limitations in Microsoft Windows,
-    WIN32 applications can only monitor sockets.
-  */
+  // private
+  static void run_checks();
   static void add_fd(int fd, int when, Fl_FD_Handler cb, void* = 0); // platform dependent
-  /** See void add_fd(int fd, int when, Fl_FD_Handler cb, void* = 0) */
   static void add_fd(int fd, Fl_FD_Handler cb, void* = 0); // platform dependent
   /** Removes a file descriptor handler. */
   static void remove_fd(int, int when); // platform dependent
@@ -560,7 +598,7 @@ int main() {
    focus is (including in other programs). The window <I>does not have
    to be shown()</I> , this lets the handle() method of a
    "dummy" window override all event handling and allows you to
-   map and unmap a complex set of windows (under both X and WIN32
+   map and unmap a complex set of windows (under both X and Windows
    <I>some</I> window must be mapped because the system interface needs a
    window id).
    
@@ -633,7 +671,7 @@ int main() {
     position your first window).  If the display is not open, this will
     open it.
   */
-  static void get_mouse(int &,int &); // platform dependent
+  static void get_mouse(int &,int &);
   /**
     Returns non zero if we had a double click event.
     \retval Non-zero if the most recent FL_PUSH or FL_KEYBOARD was a "double click".  
@@ -766,7 +804,7 @@ int main() {
 
     On X Fl::get_key(FL_Button+n) does not work.
     
-    On WIN32 Fl::get_key(FL_KP_Enter) and Fl::event_key(FL_KP_Enter) do not work.
+    On Windows Fl::get_key(FL_KP_Enter) and Fl::event_key(FL_KP_Enter) do not work.
   */
   static int event_key(int key);
   /** 
@@ -799,7 +837,7 @@ int main() {
   static int event_length() {return e_length;}
   
   /** During an FL_PASTE event of non-textual data, returns a pointer to the pasted data.
-   The returned data is an Fl_Image * when the result of Fl::event_clipboard_type() is Fl::clipboard_image.
+   The returned data is an Fl_RGB_Image * when the result of Fl::event_clipboard_type() is Fl::clipboard_image.
    */
   static void *event_clipboard() { return e_clipboard_data; }
   /** Returns the type of the pasted data during an FL_PASTE event.
@@ -814,15 +852,7 @@ int main() {
   static int event_inside(const Fl_Widget*);
   static int test_shortcut(Fl_Shortcut);
 
-  /**
-    Enables the system input methods facilities. This is the default.
-    \see disable_im()
-  */
   static void enable_im();
-  /**
-    Disables the system input methods facilities.
-    \see enable_im()
-  */
   static void disable_im();
 
   // event destinations:
@@ -866,60 +896,52 @@ int main() {
    To copy graphical data, use the Fl_Copy_Surface class. The \p type argument may allow
    in the future to copy other kinds of data.
   */
-#if FLTK_ABI_VERSION >= 10303 || defined(FL_DOXYGEN)
   static void copy(const char* stuff, int len, int destination = 0, const char *type = Fl::clipboard_plain_text); // platform dependent
-#else
-  static void copy(const char* stuff, int len, int destination, const char *type);
-  static void copy(const char* stuff, int len, int destination = 0);
-#endif
-  
-#if !(defined(__APPLE__) || defined(WIN32) || defined(FL_DOXYGEN))
-  static void copy_image(const unsigned char* data, int W, int H, int destination = 0); // platform dependent
-#endif
+
   /**
-  Pastes the data from the selection buffer (\p source is 0) or the clipboard 
-  (\p source is 1) into \p receiver.  
-
-  The selection buffer (\p source is 0) is used for middle-mouse pastes and for
-  drag-and-drop selections. The clipboard (\p source is 1) is used for
-  copy/cut/paste operations.
-
-  If \p source is 1, the optional \p type argument indicates what type of data is requested from the clipboard.
-  At present, Fl::clipboard_plain_text (requesting text data) and
-  Fl::clipboard_image (requesting image data) are possible.
-  Set things up so the handle function of the \p receiver widget will be called with an FL_PASTE event some
-  time in the future if the clipboard does contain data of the requested type. 
-  While processing the FL_PASTE event:
-  \li if \p type is Fl::clipboard_plain_text, the text string from the specified \p source is in Fl::event_text()
-   with UTF-8 encoding, and the number of bytes in Fl::event_length(). 
-   If Fl::paste() gets called during the drop step of a files-drag-and-drop operation,
+   Pastes the data from the selection buffer (\p source is 0) or the clipboard
+   (\p source is 1) into \p receiver.
+   
+   The selection buffer (\p source is 0) is used for middle-mouse pastes and for
+   drag-and-drop selections. The clipboard (\p source is 1) is used for
+   copy/cut/paste operations.
+   
+   If \p source is 1, the optional \p type argument indicates what type of data is requested from the clipboard.
+   At present, Fl::clipboard_plain_text (requesting text data) and
+   Fl::clipboard_image (requesting image data) are possible.
+   Set things up so the handle function of the \p receiver widget will be called with an FL_PASTE event some
+   time in the future if the clipboard does contain data of the requested type.
+   
+   The handle function of \p receiver can process the FL_PASTE event as follows:
+   \li If the \p receiver widget is known to only receive text data, the text string
+   from the specified \p source is in Fl::event_text() with UTF-8 encoding, and the
+   number of bytes is in Fl::event_length(). If Fl::paste() gets called during the
+   drop step of a files-drag-and-drop operation,
    Fl::event_text() contains a list of filenames (see \ref events_dnd).
-  \li if \p type is Fl::clipboard_image, the pointer returned by Fl::event_clipboard() can be safely cast to
-   type Fl_Image * to obtain a pointer to the pasted image. Furthermore, starting with FLTK 1.3.4, the image is
-   of type Fl_RGB_Image across all platforms. 
+   \li If the \p receiver widget can potentially receive non-text data, use
+   Fl::event_clipboard_type() to determine what sort of data is being sent.
+   If Fl::event_clipboard_type() returns Fl::clipboard_plain_text, proceed as above.
+   It it returns Fl::clipboard_image, the pointer returned by Fl::event_clipboard()
+   can be safely cast to type Fl_RGB_Image * to obtain a pointer to the pasted image.
    If \p receiver accepts the clipboard image, receiver.handle() should return 1 and the
-   application should take ownership of this image (that is, delete it after use). 
+   application should take ownership of this image (that is, delete it after use).
    Conversely, if receiver.handle() returns 0, the application must not use the image.
-
-  The receiver should be prepared to be called \e directly by this, or for
-  it to happen \e later, or possibly <i>not at all</i>.  This
-  allows the window system to take as long as necessary to retrieve
-  the paste buffer (or even to screw up completely) without complex
-  and error-prone synchronization code in FLTK.
-
+   
+   The receiver should be prepared to be called \e directly by this, or for
+   it to happen \e later, or possibly <i>not at all</i>.  This
+   allows the window system to take as long as necessary to retrieve
+   the paste buffer (or even to screw up completely) without complex
+   and error-prone synchronization code in FLTK.
+   
    \par Platform details for image data:
    \li Unix/Linux platform: Clipboard images in PNG or BMP formats are recognized. Requires linking with the fltk_images library.
-   \li MSWindows platform: Both bitmap and vectorial (Enhanced metafile) data from clipboard
+   \li Windows platform: Both bitmap and vectorial (Enhanced metafile) data from clipboard
    can be pasted as image data.
    \li Mac OS X platform: Both bitmap (TIFF) and vectorial (PDF) data from clipboard
    can be pasted as image data.
    */
-#if FLTK_ABI_VERSION >= 10303 || defined(FL_DOXYGEN)
-  static void paste(Fl_Widget &receiver, int source, const char *type = Fl::clipboard_plain_text); // platform dependent
-#else
-  static void paste(Fl_Widget &receiver, int source, const char *type);
-  static void paste(Fl_Widget &receiver, int source /*=0*/);
-#endif
+  static void paste(Fl_Widget &receiver, int source, const char *type = Fl::clipboard_plain_text);
+  
   /**
   FLTK will call the registered callback whenever there is a change to the
   selection buffer or the clipboard. The source argument indicates which
@@ -977,51 +999,47 @@ int main() {
   static void selection(Fl_Widget &owner, const char*, int len);
   static void paste(Fl_Widget &receiver);
 /** @} */
+
+
 /** \defgroup  fl_screen  Screen functions
-	fl global screen functions declared in <FL/Fl.H>
+ Fl global screen functions declared in <FL/Fl.H>.
+ 
+ FLTK supports high-DPI screens using a screen scaling factor.
+ The scaling factor is initialized by the library to a value
+ based on information obtained from the OS. If this initial value
+ is not satisfactory, the FLTK_SCALING_FACTOR environment variable
+ can be set to a value FLTK will use as initial scaling factor.
+ The scaling factor value can be further changed at runtime
+ by typing ctrl-/+/-/0/ (cmd-/+/-/0/ under MacOS). FLTK sends the
+ \ref FL_ZOOM_EVENT when the factor value is changed, to which a
+ callback can be associated with Fl::add_handler().
+ By default, FLTK also displays the new scaling factor value in a yellow, transient window.
+ This can be changed with option Fl::OPTION_SHOW_SCALING.
+ The scaling factor value is programmatically get and set with the Fl::screen_scale() functions.
      @{ */
-  // screen size:
-  /** Returns the leftmost x coordinate of the main screen work area. */
-  static int x(); // platform dependent
-  /** Returns the topmost y coordinate of the main screen work area. */
-  static int y(); // platform dependent
-  /** Returns the width in pixels of the main screen work area. */
-  static int w(); // platform dependent
-  /** Returns the height in pixels of the main screen work area. */
-  static int h(); // platform dependent
+  static int x(); // via screen driver
+  static int y(); // via screen driver
+  static int w(); // via screen driver
+  static int h(); // via screen driver
 
   // multi-head support:
-  static int screen_count();
-  /** 
-      Gets the bounding box of a screen that contains the mouse pointer.
-      \param[out]  X,Y,W,H the corresponding screen bounding box
-      \see void screen_xywh(int &x, int &y, int &w, int &h, int mx, int my) 
-  */
-  static void screen_xywh(int &X, int &Y, int &W, int &H) {
-    int x, y;
-    Fl::get_mouse(x, y);
-    screen_xywh(X, Y, W, H, x, y);
-  }
-  static void screen_xywh(int &X, int &Y, int &W, int &H, int mx, int my);
-  static void screen_xywh(int &X, int &Y, int &W, int &H, int n); 
-  static void screen_xywh(int &X, int &Y, int &W, int &H, int mx, int my, int mw, int mh);
-  static int screen_num(int x, int y);
-  static int screen_num(int x, int y, int w, int h);
-  static void screen_dpi(float &h, float &v, int n=0);
-  static void screen_work_area(int &X, int &Y, int &W, int &H, int mx, int my);
-  static void screen_work_area(int &X, int &Y, int &W, int &H, int n);
-  /** 
-   Gets the bounding box of the work area of the screen that contains the mouse pointer.
-   \param[out]  X,Y,W,H the work area bounding box
-   \see void screen_work_area(int &x, int &y, int &w, int &h, int mx, int my) 
-   */
-  static void screen_work_area(int &X, int &Y, int &W, int &H) {
-    int x, y;
-    Fl::get_mouse(x, y);
-    screen_work_area(X, Y, W, H, x, y);
-  }
+  static int screen_count(); // via screen driver
+  static void screen_xywh(int &X, int &Y, int &W, int &H); // via screen driver
+  static void screen_xywh(int &X, int &Y, int &W, int &H, int mx, int my); // via screen driver
+  static void screen_xywh(int &X, int &Y, int &W, int &H, int n); // via screen driver
+  static void screen_xywh(int &X, int &Y, int &W, int &H, int mx, int my, int mw, int mh); // via screen driver
+  static int screen_num(int x, int y); // via screen driver
+  static int screen_num(int x, int y, int w, int h); // via screen driver
+  static void screen_dpi(float &h, float &v, int n=0); // via screen driver
+  static void screen_work_area(int &X, int &Y, int &W, int &H, int mx, int my); // via screen driver
+  static void screen_work_area(int &X, int &Y, int &W, int &H, int n); // via screen driver
+  static void screen_work_area(int &X, int &Y, int &W, int &H); // via screen driver
+  static float screen_scale(int n); // via screen driver
+  static void screen_scale(int n, float factor); // via screen driver
+  static int screen_scaling_supported();
 
-  /**   @} */
+/**   @} */
+
 
   /** \defgroup  fl_attributes  Color & Font functions
 	fl global color, font functions.
@@ -1085,7 +1103,7 @@ int main() {
     "-*" will select all fonts with any encoding as long as they have
     normal X font names with dashes in them.  Passing "*" will list every
     font that exists (on X this may produce some strange output).  Other
-    values may be useful but are system dependent.  With WIN32 NULL
+    values may be useful but are system dependent.  With Windows NULL
     selects fonts with ISO8859-1 encoding and non-NULL selects
     all fonts.
     
@@ -1097,7 +1115,7 @@ int main() {
  /** \defgroup  fl_drawings  Drawing functions
   FLTK global graphics and GUI drawing functions.
   These functions are declared in <FL/fl_draw.H>, 
-  and in <FL/x.H> for offscreen buffer-related ones.
+  and in <FL/platform.H> for offscreen buffer-related ones.
      @{ */
   // <Hack to re-order the 'Drawing functions' group>
  /** @} */
@@ -1198,15 +1216,15 @@ int main() {
 
   // Drag-n-drop text operation methods...
   /**
-    Gets or sets whether drag and drop text operations are supported.
+    Sets whether drag and drop text operations are supported.
     This specifically affects whether selected text can
     be dragged from text fields or dragged within a text field as a
     cut/paste shortcut.
   */
   static void dnd_text_ops(int v) { option(OPTION_DND_TEXT, (v!=0)); }
   /**
-    Gets or sets whether drag and drop text operations are
-    supported. This specifically affects whether selected text can
+    Gets whether drag and drop text operations are
+    supported. This returns whether selected text can
     be dragged from text fields or dragged within a text field as a
     cut/paste shortcut.
   */
@@ -1278,6 +1296,27 @@ int main() {
    \version 1.3.4
    */
   static int use_high_res_GL() { return use_high_res_GL_; }
+  
+  /**  sets whether OpenGL uses textures to draw all text.
+   By default, FLTK draws OpenGL text using textures, if the necessary
+   hardware support is available. Call \p Fl::draw_GL_text_with_textures(0)
+   once in your program before the first call to gl_font() to have FLTK
+   draw instead OpenGL text using a legacy, platform-dependent procedure.
+   It's recommended not to deactivate textures under the MacOS platform
+   because the MacOS legacy procedure is extremely rudimentary.
+   \param val use 0 to prevent FLTK from drawing GL text with textures
+   \see gl_texture_pile_height(int max)
+   \version 1.4.0
+   */
+  static void draw_GL_text_with_textures(int val) { draw_GL_text_with_textures_ = val; }
+  
+  /**  returns whether whether OpenGL uses textures to draw all text.
+   Default is yes.
+   \see draw_GL_text_with_textures(int val)
+   \version 1.4.0
+   */
+  static int draw_GL_text_with_textures() { return draw_GL_text_with_textures_; }
+
 
 #ifdef FLTK_HAVE_CAIRO
   /** \defgroup group_cairo Cairo Support Functions and Classes
@@ -1332,39 +1371,41 @@ public:
   This class should be used to control safe widget deletion.
 
   You can use an Fl_Widget_Tracker object to watch another widget, if you
-  need to know, if this widget has been deleted during a callback.
+  need to know whether this widget has been deleted during a callback.
 
   This simplifies the use of the "safe widget deletion" methods
   Fl::watch_widget_pointer() and Fl::release_widget_pointer() and
-  makes their use more reliable, because the destructor autmatically
+  makes their use more reliable, because the destructor automatically
   releases the widget pointer from the widget watch list.
 
-  It is intended to be used as an automatic (local/stack) variable,
-  such that the automatic destructor is called when the object's
+  Fl_Widget_Tracker is intended to be used as an automatic (local/stack)
+  variable, such that its destructor is called when the object's
   scope is left. This ensures that no stale widget pointers are
   left in the widget watch list (see example below).
   
   You can also create Fl_Widget_Tracker objects with \c new, but then it
   is your responsibility to delete the object (and thus remove the
-  widget pointer from the watch list) when it is not needed any more.
+  widget pointer from the watch list) when it is no longer needed.
 
   Example:
 
   \code
-    int MyClass::handle (int event) {
+  int MyClass::handle (int event) {
 
-      if (...) {
-	Fl_Widget_Tracker wp(this);	// watch myself
-	do_callback();			// call the callback
+    if (...) {
+      Fl_Widget_Tracker wp(this);           // watch myself
+      do_callback();                        // call the callback
 
-	if (wp.deleted()) return 1;	// exit, if deleted
+      if (wp.deleted()) return 1;           // exit, if deleted
 
-	// Now we are sure that the widget has not been deleted.
-	// It is safe to access the widget
+      // Now we are sure that the widget has not been deleted,
+      // and it is safe to access the widget:
 
-	clear_changed();		// access the widget
-      }
+      box(FL_FLAT_BOX);
+      color(FL_WHITE);
+      redraw();
     }
+  }
   \endcode
 
 */

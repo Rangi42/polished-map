@@ -3,17 +3,17 @@
 //
 // Portable drawing function header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2016 by Bill Spitzak and others.
+// Copyright 1998-2020 by Bill Spitzak and others.
 //
 // This library is free software. Distribution and use rights are outlined in
 // the file "COPYING" which should have been included with this file.  If this
 // file is missing or damaged, see the license at:
 //
-//     http://www.fltk.org/COPYING.php
+//     https://www.fltk.org/COPYING.php
 //
 // Please report all bugs and problems on the following page:
 //
-//     http://www.fltk.org/str.php
+//     https://www.fltk.org/str.php
 //
 
 /**
@@ -24,13 +24,12 @@
 #ifndef fl_draw_H
 #define fl_draw_H
 
-#include <FL/x.H>	      // for Fl_Region
 #include <FL/Enumerations.H>  // for the color names
-#include <FL/Fl_Window.H>     // for fl_set_spot()
-#include <FL/Fl_Device.H>     // for fl_graphics_driver
+#include <FL/Fl_Graphics_Driver.H>     // for fl_graphics_driver + Fl_Region
 
 // Image class...
 class Fl_Image;
+class Fl_Window;
 
 // Label flags...
 FL_EXPORT extern char fl_draw_shortcut;
@@ -101,32 +100,75 @@ inline void fl_push_no_clip() {fl_graphics_driver->push_no_clip(); }
  you return to FLTK.
  */
 inline void fl_pop_clip() {fl_graphics_driver->pop_clip(); }
+
 /**
- Does the rectangle intersect the current clip region?
- \param[in] x,y,w,h position and size of rectangle
- \returns non-zero if any of the rectangle intersects the current clip
- region. If this returns 0 you don't have to draw the object.
- 
- \note
- Under X this returns 2 if the rectangle is partially clipped, 
- and 1 if it is entirely inside the clip region.
- */
-inline int fl_not_clipped(int x, int y, int w, int h) {return fl_graphics_driver->not_clipped(x,y,w,h); }
+  Does the rectangle intersect the current clip region?
+
+  \param[in] x,y,w,h position and size of rectangle
+
+  \returns non-zero if any of the rectangle intersects the current clip
+    region. If this returns 0 you don't have to draw the object.
+
+  \note Under X this returns 2 if the rectangle is partially clipped
+    and 1 if it is entirely inside the clip region.
+
+  \see fl_clip_box()
+*/
+inline int fl_not_clipped(int x, int y, int w, int h) {
+  return fl_graphics_driver->not_clipped(x, y, w, h);
+}
+
 /**
- Intersects the rectangle with the current clip region and returns the
- bounding box of the result.
- 
- Returns non-zero if the resulting rectangle is different to the original.
- This can be used to limit the necessary drawing to a rectangle.
- \p W and \p H are set to zero if the rectangle is completely outside the region.
- \param[in] x,y,w,h position and size of rectangle
- \param[out] X,Y,W,H position and size of resulting bounding box.
- \returns Non-zero if the resulting rectangle is different to the original.
- */
-inline int fl_clip_box(int x , int y, int w, int h, int& X, int& Y, int& W, int& H) 
-  {return fl_graphics_driver->clip_box(x,y,w,h,X,Y,W,H); }
+  Intersects a rectangle with the current clip region and returns the
+  bounding box of the result.
+
+  Returns non-zero if the resulting rectangle is different to the original.
+  The given rectangle <tt>(x, y, w, h)</tt> \e should be entirely inside its
+  window, otherwise the result may be unexpected, i.e. this function \e may
+  not clip the rectangle to the window coordinates and size. In particular
+  \p x and \p y \e should not be negative.
+
+  The resulting bounding box can be used to limit the necessary drawing to
+  this rectangle.
+
+  Example:
+  \code
+    void MyGroup::draw() {
+      int X = 0, Y = 0, W = 0, H = 0;
+      int ret = fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
+      if (ret == 0) { // entire group is visible (not clipped)
+	// full drawing code here
+      } else { // parts of this group are clipped
+	// partial drawing code here (uses X, Y, W, and H to test)
+      }
+    }
+  \endcode
+
+  \p W and \p H are set to zero if the rectangle is completely outside the
+    clipping region. In this case \p X and \p Y are undefined and should
+    not be used. Possible values are <tt>(0, 0)</tt>, <tt>(x, y)</tt>,
+    or anything else (platform dependent).
+
+  \note This function is platform-dependent. If the given rectangle is not
+    entirely inside the window, the results are not guaranteed to be the
+    same on all platforms.
+
+  \param[in]  x,y,w,h position and size of rectangle
+  \param[out] X,Y,W,H position and size of resulting bounding box.
+
+  \returns Non-zero if the resulting rectangle is different to the original.
+
+  \see fl_not_clipped()
+*/
+inline int fl_clip_box(int x, int y, int w, int h, int& X, int& Y, int& W, int& H) {
+  return fl_graphics_driver->clip_box(x, y, w, h, X, Y, W, H);
+}
+
 /** Undoes any clobbering of clip done by your program */
-inline void fl_restore_clip() { fl_graphics_driver->restore_clip(); }
+inline void fl_restore_clip() {
+  fl_graphics_driver->restore_clip();
+}
+
 /**
  Replaces the top of the clipping stack with a clipping region of any shape.
  
@@ -134,6 +176,7 @@ inline void fl_restore_clip() { fl_graphics_driver->restore_clip(); }
  \param[in] r clipping region
  */
 inline void fl_clip_region(Fl_Region r) { fl_graphics_driver->clip_region(r); }
+
 /**
  Returns the current clipping region.
  */
@@ -200,6 +243,10 @@ enum {
  */
 inline void fl_rect(int x, int y, int w, int h) { fl_graphics_driver->rect(x,y,w,h); }
 
+/**
+ Draw a dotted rectangle, used to indicate keyboard focus on a widget.
+ */
+inline void fl_focus_rect(int x, int y, int w, int h) { fl_graphics_driver->focus_rect(x, y, w, h); }
 /** Draws with passed color a 1-pixel border \e inside the given bounding box */
 inline void fl_rect(int x, int y, int w, int h, Fl_Color c) {fl_color(c); fl_rect(x,y,w,h);}
 /** Colors with current color a rectangle that exactly fills the given bounding box */
@@ -283,7 +330,7 @@ inline void fl_yxline(int x, int y, int y1, int x2, int y3) {fl_graphics_driver-
  Draw ellipse sections using integer coordinates.
  
  These functions match the rather limited circle drawing code provided by X
- and WIN32. The advantage over using fl_arc with floating point coordinates
+ and Windows. The advantage over using fl_arc with floating point coordinates
  is that they are faster because they often use the hardware, and they draw
  much nicer small circles, since the small sizes are often hard-coded bitmaps.
  
@@ -300,6 +347,9 @@ inline void fl_yxline(int x, int y, int y1, int x2, int y3) {fl_graphics_driver-
  \param[in] a1,a2 start and end angles of arc measured in degrees
  counter-clockwise from 3 o'clock. \p a2 must be greater
  than or equal to \p a1.
+
+ \image html  fl_pie_arc_diagram.png "fl_pie() and fl_arc()"
+ \image latex fl_pie_arc_diagram.png "fl_pie() and fl_arc()" width=4cm
  */
 inline void fl_arc(int x, int y, int w, int h, double a1, double a2) {fl_graphics_driver->arc(x,y,w,h,a1,a2); }
 /**
@@ -313,6 +363,9 @@ inline void fl_arc(int x, int y, int w, int h, double a1, double a2) {fl_graphic
  \param[in] a1,a2 start and end angles of arc measured in degrees
  counter-clockwise from 3 o'clock. \p a2 must be greater
  than or equal to \p a1.
+
+ \image html  fl_pie_arc_diagram.png "fl_pie() and fl_arc()"
+ \image latex fl_pie_arc_diagram.png "fl_pie() and fl_arc()" width=4cm
  */
 inline void fl_pie(int x, int y, int w, int h, double a1, double a2) {fl_graphics_driver->pie(x,y,w,h,a1,a2); }
 /** fl_chord declaration is a place holder - the function does not yet exist */
@@ -332,12 +385,16 @@ inline void fl_pop_matrix() { fl_graphics_driver->pop_matrix(); }
  Concatenates scaling transformation onto the current one.
  \param[in] x,y scale factors in x-direction and y-direction
  */
-inline void fl_scale(double x, double y) { fl_graphics_driver->scale(x, y); }
+inline void fl_scale(double x, double y) {
+  fl_graphics_driver->mult_matrix(x,0,0,y,0,0);
+}
 /**
  Concatenates scaling transformation onto the current one.
  \param[in] x scale factor in both x-direction and y-direction
  */
-inline void fl_scale(double x) { fl_graphics_driver->scale(x, x); }
+inline void fl_scale(double x) {
+  fl_graphics_driver->mult_matrix(x,0,0,x,0,0);
+}
 /**
  Concatenates translation transformation onto the current one.
  \param[in] x,y translation factor in x-direction and y-direction
@@ -395,6 +452,9 @@ inline void fl_curve(double X0, double Y0, double X1, double Y1, double X2, doub
  counter-clockwise from 3 o'clock. If \p end is less than \p start
  then it draws the arc in a clockwise direction.
 
+ \image html  fl_arc_xyr_diagram.png "fl_arc(x,y,r,a1,a2)"
+ \image latex fl_arc_xyr_diagram.png "fl_arc(x,y,r,a1,a2)" width=6cm
+
  Examples:
  \code
     // Draw an arc of points
@@ -415,7 +475,7 @@ inline void fl_curve(double X0, double Y0, double X1, double Y1, double X2, doub
  */
 inline void fl_arc(double x, double y, double r, double start, double end) {fl_graphics_driver->arc(x,y,r,start,end); }
 /**
- fl_circle() is equivalent to fl_arc(x,y,r,0,360), but may be faster.
+ fl_circle(x,y,r) is equivalent to fl_arc(x,y,r,0,360), but may be faster.
  
  It must be the \e only thing in the path: if you want a circle as part of
  a complex polygon you must use fl_arc()
@@ -490,6 +550,23 @@ inline double fl_transform_dy(double x, double y) {return fl_graphics_driver->tr
  \param[in] xf,yf transformed coordinate
  */
 inline void fl_transformed_vertex(double xf, double yf) {fl_graphics_driver->transformed_vertex(xf,yf); }
+
+/** Copy a rectangular area of the given offscreen buffer into the current drawing destination.
+   \param x,y	position where to draw the copied rectangle
+   \param w,h	size of the copied rectangle
+   \param pixmap  offscreen buffer containing the rectangle to copy
+   \param srcx,srcy origin in offscreen buffer of rectangle to copy
+   */
+inline void fl_copy_offscreen(int x, int y, int w, int h, Fl_Offscreen pixmap, int srcx, int srcy) {
+    fl_graphics_driver->copy_offscreen(x, y, w, h, pixmap, srcx, srcy);
+}
+
+FL_EXPORT Fl_Offscreen fl_create_offscreen(int w, int h);
+FL_EXPORT void fl_begin_offscreen(Fl_Offscreen b);
+FL_EXPORT void fl_end_offscreen(void);
+FL_EXPORT void fl_delete_offscreen(Fl_Offscreen bitmap);
+FL_EXPORT void fl_rescale_offscreen(Fl_Offscreen &ctx);
+
 /** @} */
 
 /** \addtogroup  fl_attributes
@@ -542,7 +619,8 @@ inline double fl_width(const char* txt, int n) {return fl_graphics_driver->width
     \note if a valid fl_gc is NOT found then it uses the first window gc,
     or the screen gc if no fltk window is available when called. */
 inline double fl_width(unsigned int c)  {return fl_graphics_driver->width(c);}
-/** Determines the minimum pixel dimensions of a nul-terminated string.
+/** Determines the minimum pixel dimensions of a nul-terminated string 
+    using the current fl_font().
 
   Usage: given a string "txt" drawn using fl_draw(txt, x, y) you would determine
   its pixel extents on the display using fl_text_extents(txt, dx, dy, wo, ho)
@@ -550,10 +628,27 @@ inline double fl_width(unsigned int c)  {return fl_graphics_driver->width(c);}
   fl_rect(x+dx, y+dy, wo, ho). Note the dx, dy values hold the offset of the first
   "colored in" pixel of the string, from the draw origin.
 
+  Note the desired font and font size must be set with fl_font() before calling
+  this function.
+
+  This differs slightly from fl_measure() in that the dx/dy values are also
+  returned.
+
   No FLTK symbol expansion will be performed.
+
+  Example use:
+  \code
+  :
+  int dx,dy,W,H;
+  fl_font(FL_HELVETICA, 12);               // set font face+size first
+  fl_text_extents("Some text",dx,dy,W,H);  // get width and height of string
+  printf("text's width=%d, height=%d\n", W,H);
+  :
+  \endcode
 */
 FL_EXPORT void fl_text_extents(const char*, int& dx, int& dy, int& w, int& h); // NO fltk symbol expansion will be performed
-/** Determines the minimum pixel dimensions of a sequence of \p n characters.
+/** Determines the minimum pixel dimensions of a sequence of \p n characters
+    using the current fl_font().
 \see fl_text_extents(const char*, int& dx, int& dy, int& w, int& h)
 */
 inline void fl_text_extents(const char *t, int n, int& dx, int& dy, int& w, int& h)
@@ -740,32 +835,30 @@ inline void fl_draw_image_mono(Fl_Draw_Image_Cb cb, void* data, int X,int Y,int 
   \returns 1 if true alpha blending supported by platform
   \returns 0 not supported so FLTK will use screen door transparency
   */
-/* note: doxygen comment here to avoid triplication in os-speciic files */
-FL_EXPORT char fl_can_do_alpha_blending();
+inline char fl_can_do_alpha_blending() {return Fl_Graphics_Driver::default_driver().can_do_alpha_blending();}
 
-/**
-  Reads an RGB(A) image from the current window or off-screen buffer.
-  \param[in] p     pixel buffer, or NULL to allocate one
-  \param[in] X,Y   position of top-left of image to read
-  \param[in] W,H   width and height of image to read
-  \param[in] alpha alpha value for image (0 for none)
-  \returns pointer to pixel buffer, or NULL if allocation failed.
-
-  The \p p argument points to a buffer that can hold the image and must
-  be at least \p W*H*3 bytes when reading RGB images, or \p W*H*4 bytes
-  when reading RGBA images. If NULL, fl_read_image() will create an
-  array of the proper size which can be freed using <tt>delete[]</tt>.
-
-  The \p alpha parameter controls whether an alpha channel is created
-  and the value that is placed in the alpha channel. If 0, no alpha
-  channel is generated.
-  */
-/* note: doxygen comment here to avoid triplication in os-speciic files */
 FL_EXPORT uchar *fl_read_image(uchar *p,int X,int Y,int W,int H,int alpha=0);
+FL_EXPORT Fl_RGB_Image *fl_capture_window_part(Fl_Window *win, int x, int y, int w, int h);
 
 // pixmaps:
-FL_EXPORT int fl_draw_pixmap(/*const*/ char* const* data, int x,int y,Fl_Color=FL_GRAY);
-FL_EXPORT int fl_draw_pixmap(const char* const* cdata, int x,int y,Fl_Color=FL_GRAY);
+/**
+ Draw XPM image data, with the top-left corner at the given position.
+ The image is dithered on 8-bit displays so you won't lose color
+ space for programs displaying both images and pixmaps.
+ \param[in] data pointer to XPM image data
+ \param[in] x,y  position of top-left corner
+ \param[in] bg   background color
+ \returns 0 if there was any error decoding the XPM data.
+ */
+FL_EXPORT int fl_draw_pixmap(const char* const* data, int x,int y,Fl_Color bg=FL_GRAY);
+/**
+ Draw XPM image data, with the top-left corner at the given position.
+ \see fl_draw_pixmap(const char* const* data, int x, int y, Fl_Color bg)
+ */
+inline int fl_draw_pixmap(/*const*/ char* const* data, int x, int y, Fl_Color bg=FL_GRAY)
+{
+  return fl_draw_pixmap((const char*const*)data,x,y,bg);
+}
 FL_EXPORT int fl_measure_pixmap(/*const*/ char* const* data, int &w, int &h);
 FL_EXPORT int fl_measure_pixmap(const char* const* cdata, int &w, int &h);
 

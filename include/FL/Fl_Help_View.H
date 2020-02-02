@@ -21,28 +21,24 @@
    Fl_Help_View widget . */
 
 #ifndef Fl_Help_View_H
-#  define Fl_Help_View_H
+#define Fl_Help_View_H
 
 //
 // Include necessary header files...
 //
 
-#  include <stdio.h>
-#  include "Fl.H"
-#  include "Fl_Group.H"
-#  include "Fl_Scrollbar.H"
-#  include "fl_draw.H"
-#  include "Fl_Shared_Image.H"
-#  include "filename.H"
+#include "Fl.H"
+#include "Fl_Group.H"
+#include "Fl_Scrollbar.H"
+#include "fl_draw.H"
+#include "filename.H"
 
-
+class Fl_Shared_Image;
 //
 // Fl_Help_Func type - link callback function for files...
 //
 
-
 typedef const char *(Fl_Help_Func)(Fl_Widget *, const char *);
-
 
 //
 // Fl_Help_Block structure...
@@ -66,7 +62,7 @@ struct Fl_Help_Block {
 /** Definition of a link for the html viewer. */
 struct Fl_Help_Link {
   char		filename[192],	///< Reference filename
-		name[64];	///< Link target (blank if none)
+		name[32];	///< Link target (blank if none)
   int		x,		///< X offset of link text
 		y,		///< Y offset of link text
 		w,		///< Width of link text
@@ -122,7 +118,7 @@ struct FL_EXPORT Fl_Help_Font_Stack {
 
 protected:
   size_t nfonts_;		///< current number of fonts in stack
-  Fl_Help_Font_Style elts_[100]; ///< font elements
+  Fl_Help_Font_Style elts_[MAX_FL_HELP_FS_ELTS]; ///< font elements
 };
 
 /** Fl_Help_Target structure */
@@ -260,13 +256,9 @@ class FL_EXPORT Fl_Help_View : public Fl_Group {	// Help viewer widget
   void		add_target(const char *n, int yy);
   static int	compare_targets(const Fl_Help_Target *t0, const Fl_Help_Target *t1);
   int		do_align(Fl_Help_Block *block, int line, int xx, int a, int &l);
-#if FLTK_ABI_VERSION >= 10303
 protected:
-#endif
   void		draw();
-#if FLTK_ABI_VERSION >= 10303
 private:
-#endif
   void		format();
   void		format_table(int *table_width, int *columns, const char *table);
   void		free_data();
@@ -275,13 +267,9 @@ private:
   Fl_Color	get_color(const char *n, Fl_Color c);
   Fl_Shared_Image *get_image(const char *name, int W, int H);
   int		get_length(const char *l);
-#if FLTK_ABI_VERSION >= 10303
 public:
-#endif
   int		handle(int);
-#if FLTK_ABI_VERSION >= 10303
 private:
-#endif
 
   void          hv_draw(const char *t, int x, int y, int entity_extra_length = 0);
   char          begin_selection();

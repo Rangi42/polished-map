@@ -79,6 +79,7 @@
   UTF-8 sequences and pointers into the middle of a sequence are undefined.
 
   \see Fl_Text_Display, Fl_Text_Editor for more powerful text handling widgets
+  \see Fl_Widget::shortcut_label(int)
 
   \internal
   When porting this widget from ASCII to UTF-8, previously legal pointers into
@@ -358,6 +359,9 @@ public:
     \return 0 if no text was inserted
   */
   int insert(const char* t, int l=0){return replace(position_, mark_, t, l);}
+
+  /* Append text at the end. */
+  int append(const char* t, int l=0, char keep_selection=0);
 
   /* Put the current selection into the clipboard. */
   int copy(int clipboard);
