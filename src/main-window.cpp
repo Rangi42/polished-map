@@ -111,20 +111,29 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	wh -= _menu_bar->h();
 
 	// Toolbar
+#ifdef __APPLE__
+	_toolbar = new Toolbar(wx, wy, w, 38);
+#define SEPARATE_TOOLBAR_BUTTONS new Fl_Box(0, 0, 12, 36)
+#else
 	_toolbar = new Toolbar(wx, wy, w, 26);
+#define SEPARATE_TOOLBAR_BUTTONS new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24)
+#endif
 	wy += _toolbar->h();
 	wh -= _toolbar->h();
+#ifdef __APPLE__
+	new Fl_Box(0, 0, 6, 36);
+#endif
 	_new_tb = new Toolbar_Button(0, 0, 24, 24);
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_load_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
 	_reload_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_print_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_rulers_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -133,24 +142,25 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_gameboy_screen_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	new Label(0, 0, text_width("Palettes:", 3), 24, "Palettes:");
 	_palettes = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
 	_load_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_current_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_change_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_change_roof_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_roof_tb = new Toolbar_Button(0, 0, 24, 24);
 	_toolbar->end();
+#undef SEPARATE_TOOLBAR_BUTTONS
 	begin();
 
 	// Status bar
