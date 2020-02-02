@@ -88,7 +88,7 @@ void Block_Window::initialize() {
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]->image(COLL_TOP_RIGHT_ICON);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]->image(COLL_BOTTOM_LEFT_ICON);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT]->image(COLL_BOTTOM_RIGHT_ICON);
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
 	_cancel_button->shortcut(FL_Escape);

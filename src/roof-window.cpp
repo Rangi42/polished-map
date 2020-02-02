@@ -127,15 +127,15 @@ void Roof_Window::initialize() {
 	_swatch3->callback((Fl_Callback *)choose_swatch_cb, this);
 	_swatch4->shortcut('4');
 	_swatch4->callback((Fl_Callback *)choose_swatch_cb, this);
-	_copy_tb->tooltip("Copy (Ctrl+Shift+C)");
+	_copy_tb->tooltip("Copy (" COMMAND_SHIFT_KEYS_PLUS "C)");
 	_copy_tb->shortcut(FL_COMMAND + 'C');
 	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
 	_copy_tb->image(COPY_ICON);
-	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
+	_paste_tb->tooltip("Paste (" COMMAND_SHIFT_KEYS_PLUS "V)");
 	_paste_tb->shortcut(FL_COMMAND + 'V');
 	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
 	_paste_tb->image(PASTE_ICON);
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
 	_cancel_button->shortcut(FL_Escape);

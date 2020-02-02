@@ -14,7 +14,7 @@ R"(<html>
 <li><b>Initial:</b> Double-click a .blk file in File Explorer. (Run install.bat to associate .blk files with )" PROGRAM_NAME R"(.)</li>
 <li><b>Menu bar:</b> Run )" PROGRAM_EXE R"( and select the File&nbsp;→&nbsp;Open… menu item.</li>
 <li><b>Toolbar:</b> Run )" PROGRAM_EXE R"( and click the Open toolbar button.</li>
-<li><b>Keyboard:</b> Run )" PROGRAM_EXE R"( and press Ctrl+O.</li>
+<li><b>Keyboard:</b> Run )" PROGRAM_EXE R"( and press )" COMMAND_KEY_PLUS R"(O.</li>
 <li><b>File Explorer:</b> Drag a .blk file onto )" PROGRAM_EXE R"(.</li>
 <li><b>GUI:</b> Drag a .blk file onto an open )" PROGRAM_NAME R"( window.</li>
 <li><b>Command Prompt:</b> Pass the .blk filename as an argument to )" PROGRAM_EXE R"(:<br><font size="2"><kbd>)" PROGRAM_EXE "&nbsp;pokecrystal" DIR_SEP "maps" DIR_SEP R"(SomeMap.blk</kbd></font></li>
@@ -41,7 +41,7 @@ R"(<html>
 <li>Right-click to edit a block.</li>
 <li>Middle-click and drag to scroll.</li>
 </ul>
-<p>The map area also uses the mouse, but it depends on the Mode. In Block mode (Ctrl+Shift+B or the toolbar's Headbutt tree button):</p>
+<p>The map area also uses the mouse, but it depends on the Mode. In Block mode ()" COMMAND_SHIFT_KEYS_PLUS R"(B or the toolbar's Headbutt tree button):</p>
 <ul>
 <li>Left-click or drag to place the selected block in the sidebar array.</li>
 <li>Right-click to select a block from the map.</li>
@@ -50,20 +50,20 @@ R"(<html>
 <li>Hold Ctrl and left-click a block to replace every block of that type with the selected type.</li>
 <li>Hold Alt and left-click a block to swap every block of that type and every block of the selected type.</li>
 </ul>
-<p>And in Event mode (Ctrl+Shift+T or the toolbar's Kris button):</p>
+<p>And in Event mode ()" COMMAND_SHIFT_KEYS_PLUS R"(T or the toolbar's Kris button):</p>
 <ul>
 <li>Hover over an event to see a tooltip with its full definition.</li>
 <li>Left-click and drag an event to move it. You can drag into the three-block margin around a map.</li>
 <li>Right-click to edit an event.</li>
-<li>Double-click an event to open the .asm file in the system text editor. If you use Notepad++, Notepad2, Notepad3, Sublime Text, or VS Code on Windows, then it will also open to the specific event's line number. If you edit and save the .asm file, you can reload it in )" PROGRAM_NAME R"( with Data&nbsp;→&nbsp;Reload&nbsp;Event&nbsp;Script or Ctrl+R.</li>
+<li>Double-click an event to open the .asm file in the system text editor. If you use Notepad++, Notepad2, Notepad3, Sublime Text, or VS Code on Windows, then it will also open to the specific event's line number. If you edit and save the .asm file, you can reload it in )" PROGRAM_NAME R"( with Data&nbsp;→&nbsp;Reload&nbsp;Event&nbsp;Script or )" COMMAND_KEY_PLUS R"(R.</li>
 <li>Middle-click and drag to scroll.</li>
 <li>Hold Shift and left-click a warp event to open the map it warps to. The map's filename is guessed from the warp event's constant. For example, a warp to UNION_CAVE_B1F will try to open UnionCaveB1F.ablk.</li>
 </ul>
 <p>The number keys 0-9 are hotkeys for the sidebar array.</p>
 <ul>
-<li>Press Ctrl+0-9 to assign that key to the selected block.</li>
+<li>Press )" COMMAND_KEY_PLUS R"(0-9 to assign that key to the selected block.</li>
 <li>Press 0-9 to select the block assigned to that key.</li>
-<li>Press Ctrl+Shift+0-9 to unassign that key.</li>
+<li>Press )" COMMAND_SHIFT_KEYS_PLUS R"(0-9 to unassign that key.</li>
 </ul>
 <p>In Block mode, you can view and edit the map's blocks. In Event mode, you can view and edit the map's events (NPCs, warps, signs, etc). Events are also visible in Block mode if View&nbsp;→&nbsp;Show&nbsp;Events is checked.</p>
 <hr>
@@ -77,7 +77,7 @@ R"(<html>
 </ul>
 <p>For pokecrystal-based projects, you can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
 <hr>
-<p>The tileset editor window (Ctrl+T or the toolbar's green puzzle piece button) has more mouse controls, similar to the map editor:</p>
+<p>The tileset editor window ()" COMMAND_KEY_PLUS R"(T or the toolbar's green puzzle piece button) has more mouse controls, similar to the map editor:</p>
 <ul>
 <li>Left-click the tileset array to select a tile.</li>
 <li>Left-click and drag one tile onto another to swap them.</li>
@@ -89,23 +89,23 @@ R"(<html>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue with the selected hue.</li>
 <li>Hold Alt and left-click a pixel to swap every pixel of that hue and every pixel of the selected hue.</li>
 </ul>
-<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
-<p>The Copy and Paste buttons, or Ctrl+Shift+C and Ctrl+Shift+V, will copy and paste the tile graphics using the system clipboard. Tile graphics are always copied in monochrome grayscale, just like the tileset PNGs. Graphics can be pasted as any color; they get converted to four-hue monochrome when pasted. (So you can easily rip tiles from full-color game screenshots.)</p>
+<p>)" COMMAND_KEY_PLUS R"(C, )" COMMAND_KEY_PLUS R"(V, and )" COMMAND_KEY_PLUS R"(X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
+<p>The Copy and Paste buttons, or )" COMMAND_SHIFT_KEYS_PLUS R"(C and )" COMMAND_SHIFT_KEYS_PLUS R"(V, will copy and paste the tile graphics using the system clipboard. Tile graphics are always copied in monochrome grayscale, just like the tileset PNGs. Graphics can be pasted as any color; they get converted to four-hue monochrome when pasted. (So you can easily rip tiles from full-color game screenshots.)</p>
 <p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">a feature</a> of Polished Crystal and similar hacks.</p>
 <hr>
 <p>Tilesets can be augmented by roofs. A roof is assumed to take up the nine tiles from $0A to $12. When a roof is loaded, it visibly affects the map and the block editor, but not the tileset editor. Thus you can edit the tileset without the loaded roof overwriting those nine tiles.</p>
 <p>When you open a map the roof selection always defaults to none, even if the map uses a roof. This is because pokecrystal only loads roofs for certain tilesets, which are <a href="https://github.com/pret/pokecrystal/wiki/Hard-coded-logic#tilesets-that-have-per-mapgroup-roofs">hard-coded</a> instead of being defined in a data table. This makes it impractical to automatically detect a map's roof type, so you'll have to manually specify it.</p>
-<p>The roof editor window (Ctrl+F or the toolbar's green roof button) is similar to the tileset editor. However, it does not support Delete.</p>
+<p>The roof editor window ()" COMMAND_KEY_PLUS R"(F or the toolbar's green roof button) is similar to the tileset editor. However, it does not support Delete.</p>
 <hr>
 <p>The colors' exact appearance depends on the current palettes: MORN, DAY, NITE, INDOOR, or CUSTOM. The default set of palettes' colors is based on pokecrystal, but custom ones will be read from gfx)" DIR_SEP "tilesets" DIR_SEP "bg_tiles.pal (or tilesets" DIR_SEP R"(bg.pal for backwards compatibility with older pokecrystal versions) if it exists.</p>
 <p>When a map <var>MapName</var>.blk is opened with the tileset <var>tileset</var>.png, )" PROGRAM_NAME R"( will automatically load <var>tileset</var>.pal if it exists, and <var>MapName</var>.pal if it exists. If the map is part of the <var>LANDMARK</var> landmark, it will automatically load <var>landmark</var>.pal if it exists. This is convenient for maps like Ice Path with custom palettes. This can be disabled via Options&nbsp;→&nbsp;Auto-Load&nbsp;Special&nbsp;Palettes.</p>
-<p>The palette editor window (Ctrl+Shift+L or the toolbar's lightbulb button) has some mouse controls:</p>
+<p>The palette editor window ()" COMMAND_SHIFT_KEYS_PLUS R"(L or the toolbar's lightbulb button) has some mouse controls:</p>
 <ul>
 <li>Left-click the palette array to select a color.</li>
 <li>Left-click and drag one color onto another to swap them.</li>
 <li>Hold Ctrl, left-click and drag one color onto another to copy it.</li>
 </ul>
-<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
+<p>)" COMMAND_KEY_PLUS R"(C, )" COMMAND_KEY_PLUS R"(V, and )" COMMAND_KEY_PLUS R"(X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
 <p>Edited palette colors can be exported, but only one at a time; so if you load a multi-palette .pal file (like bg_tiles.pal, which defines MORN, DAY, NITE, and INDOOR palettes' colors), do not overwrite it when exporting your edits.</p>
 </body>
 </html>)"

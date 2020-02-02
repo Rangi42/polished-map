@@ -35,7 +35,7 @@ void Help_Window::initialize() {
 	_window->resizable(_spacer);
 	_window->callback((Fl_Callback *)close_cb, this);
 	// Initialize window's children
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	Fl_Group::current(prev_current);
 }

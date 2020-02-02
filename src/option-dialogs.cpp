@@ -46,7 +46,7 @@ void Option_Dialog::initialize() {
 	_dialog->callback((Fl_Callback *)cancel_cb, this);
 	_dialog->set_modal();
 	// Initialize dialog's children
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->shortcut(FL_Escape);
 	_cancel_button->tooltip("Cancel (Esc)");
@@ -1038,10 +1038,10 @@ void Print_Options_Dialog::initialize() {
 	_dialog->callback((Fl_Callback *)cancel_cb, this);
 	_dialog->set_modal();
 	// Initialize dialog's children
-	_export_button->tooltip("Export (Enter)");
+	_export_button->tooltip("Export (" ENTER_KEY_NAME ")");
 	_export_button->callback((Fl_Callback *)close_cb, this);
 	_copy_button->shortcut(FL_COMMAND + 'c');
-	_copy_button->tooltip("Copy (Ctrl+C)");
+	_copy_button->tooltip("Copy (" COMMAND_KEY_PLUS "C)");
 	_copy_button->callback((Fl_Callback *)copy_cb, this);
 	_cancel_button->shortcut(FL_Escape);
 	_cancel_button->tooltip("Cancel (Esc)");

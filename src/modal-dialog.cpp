@@ -1,6 +1,7 @@
 #include <string>
 
 #pragma warning(push, 0)
+#include <FL/x.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Group.H>
@@ -54,7 +55,7 @@ void Modal_Dialog::initialize() {
 	_heading->labelsize(OS_FONT_SIZE + 4);
 	_heading->align(FL_ALIGN_TOP | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	_body->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	if (_cancel_button) {
 		_cancel_button->shortcut(FL_Escape);

@@ -59,7 +59,7 @@ void Abstract_Palette_Window::initialize() {
 	_green_spinner->callback((Fl_Callback *)change_green_cb, this);
 	_blue_spinner->range(0, 31);
 	_blue_spinner->callback((Fl_Callback *)change_blue_cb, this);
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
 	_cancel_button->shortcut(FL_Escape);

@@ -125,11 +125,11 @@ void Tileset_Window::initialize() {
 	// Initialize window's children
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
-	_copy_tb->tooltip("Copy (Ctrl+Shift+C)");
+	_copy_tb->tooltip("Copy (" COMMAND_SHIFT_KEYS_PLUS "C)");
 	_copy_tb->shortcut(FL_COMMAND + 'C');
 	_copy_tb->callback((Fl_Callback *)copy_tile_graphics_cb, this);
 	_copy_tb->image(COPY_ICON);
-	_paste_tb->tooltip("Paste (Ctrl+Shift+V)");
+	_paste_tb->tooltip("Paste (" COMMAND_SHIFT_KEYS_PLUS "V)");
 	_paste_tb->shortcut(FL_COMMAND + 'V');
 	_paste_tb->callback((Fl_Callback *)paste_tile_graphics_cb, this);
 	_paste_tb->image(PASTE_ICON);
@@ -154,7 +154,7 @@ void Tileset_Window::initialize() {
 	_palette->add("UNDEFINED", 0, NULL, 0, FL_MENU_INACTIVE | FL_MENU_INVISIBLE);
 	_palette->callback((Fl_Callback *)change_palette_cb, this);
 	_priority->callback((Fl_Callback *)change_palette_cb, this);
-	_ok_button->tooltip("OK (Enter)");
+	_ok_button->tooltip("OK (" ENTER_KEY_NAME ")");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
 	_cancel_button->shortcut(FL_Escape);
