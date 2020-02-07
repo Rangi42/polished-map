@@ -27,14 +27,13 @@ public:
 	Metatile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
-	inline uint8_t tile_id(int x, int y) const { return _attributes[y][x].id(); }
-	inline void tile_id(int x, int y, uint8_t tid) { _attributes[y][x].id(tid); }
-	inline bool extra(int x, int y) const { return _attributes[y][x].extra(); }
-	inline void extra(int x, int y, bool e) { _attributes[y][x].extra(e); }
+	inline uint16_t tile_id(int x, int y) const { return _attributes[y][x].id(); }
+	inline void tile_id(int x, int y, uint16_t tid) { _attributes[y][x].id(tid); }
 	inline const Attributable *attributes(int x, int y) const { return &_attributes[y][x]; }
 	inline void attributes(int x, int y, const Attributable *a) { _attributes[y][x].copy(*a); }
-	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].byte(); }
-	inline void attribute_byte(int x, int y, uchar a) { _attributes[y][x].byte(a); }
+	inline uchar tile_byte(int x, int y) const { return _attributes[y][x].tile_byte(); }
+	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].attribute_byte(); }
+	inline void apply_attribute_byte(int x, int y, uchar a) { _attributes[y][x].apply_attribute_byte(a); }
 	inline std::string collision(Quadrant q) const { return _collisions[(int)q]; }
 	inline void collision(Quadrant q, const std::string &c) { _collisions[(int)q] = c; }
 	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[(int)q]; }

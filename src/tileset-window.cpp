@@ -71,36 +71,38 @@ void Tileset_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Tile_Window(_dx, _dy, 426, 304, "Edit Tileset");
-	_tileset_heading = new Label(10, 10, 258, 22);
-	_tile_heading = new Label(278, 10, 94, 22);
-	_tileset_group = new Fl_Group(10, 36, 258, 258);
+	_window = new Tile_Window(_dx, _dy, 441, 304, "Edit Tileset");
+	_tileset_heading = new Label(10, 10, 273, 22);
+	_tile_heading = new Label(293, 10, 94, 22);
+	_tileset_group = new Workspace(10, 36, 273, 258);
 	_tileset_group->end();
 	_window->begin();
-	_tile_group = new Fl_Group(278, 36, 138, 138);
+	_tile_group = new Fl_Group(293, 36, 138, 138);
 	_tile_group->end();
 	_window->begin();
-	_copy_tb = new Toolbar_Button(372, 10, 22, 22);
-	_paste_tb = new Toolbar_Button(394, 10, 22, 22);
-	_swatch1 = new Swatch(278, 184, 22, "1");
-	_swatch2 = new Swatch(306, 184, 22, "2");
-	_swatch3 = new Swatch(334, 184, 22, "3");
-	_swatch4 = new Swatch(362, 184, 22, "4");
-	_ok_button = new Default_Button(336, 233, 80, 22, "OK");
-	_cancel_button = new OS_Button(336, 272, 80, 22, "Cancel");
+	_copy_tb = new Toolbar_Button(387, 10, 22, 22);
+	_paste_tb = new Toolbar_Button(409, 10, 22, 22);
+	_swatch1 = new Swatch(293, 184, 22, "1");
+	_swatch2 = new Swatch(321, 184, 22, "2");
+	_swatch3 = new Swatch(349, 184, 22, "3");
+	_swatch4 = new Swatch(377, 184, 22, "4");
+	_ok_button = new Default_Button(351, 233, 80, 22, "OK");
+	_cancel_button = new OS_Button(351, 272, 80, 22, "Cancel");
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
 	for (int y = 0; y < TILES_PER_COL; y++) {
 		for (int x = 0; x < TILES_PER_ROW; x++) {
 			int bx = _tileset_group->x() + 1 + x * TILE_PX_SIZE, by = _tileset_group->y() + 1 + y * TILE_PX_SIZE;
-			uint8_t id = (uint8_t)(y * TILES_PER_ROW + x);
+			uint16_t id = (uint16_t)(y * TILES_PER_ROW + x);
 			Deep_Tile_Button *dtb = new Deep_Tile_Button(bx, by, TILE_PX_SIZE, id);
 			dtb->callback((Fl_Callback *)select_tile_cb, this);
 			_deep_tile_buttons[id] = dtb;
 		}
 	}
 	_tileset_group->end();
+	_tileset_group->init_sizes();
+	_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, TILES_PER_COL * TILE_PX_SIZE);
 	// Populate tile
 	_tile_group->begin();
 	for (int y = 0; y < TILE_SIZE; y++) {
@@ -117,6 +119,7 @@ void Tileset_Window::initialize() {
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
+	_tileset_group->type(Fl_Scroll::VERTICAL_ALWAYS);
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_tile_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_copy_tb->tooltip("Copy (Ctrl+Shift+C)");
@@ -171,7 +174,7 @@ void Tileset_Window::tileset(Tileset *t) {
 	label = label + t->name();
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		const Tile *ti = _tileset->const_tile((uint8_t)i);
+		const Tile *ti = _tileset->const_tile((uint16_t)i);
 		_deep_tile_buttons[i]->copy(ti);
 		_deep_tile_buttons[i]->activate();
 	}
@@ -191,7 +194,7 @@ void Tileset_Window::show(const Fl_Widget *p) {
 void Tileset_Window::apply_modifications() {
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *t = _deep_tile_buttons[i];
-		uint8_t id = (uint8_t)i;
+		uint16_t id = (uint16_t)i;
 		_tileset->tile(id)->copy(t);
 	}
 	_tileset->modified(true);
@@ -202,7 +205,7 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 	_selected->setonly();
 
 	char buffer[32];
-	sprintf(buffer, "Tile: $%02X", _selected->id());
+	sprintf(buffer, "Tile: $%03X", _selected->id());
 	_tile_heading->copy_label(buffer);
 
 	for (int y = 0; y < TILE_SIZE; y++) {
@@ -352,7 +355,7 @@ void Tileset_Window::paste_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 
 void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_copied || !tw->_selected) { return; }
-	uint8_t cid = tw->_clipboard.id();
+	uint16_t cid = tw->_clipboard.id();
 	Deep_Tile_Button *copied = tw->_deep_tile_buttons[cid];
 	Tile temp(0);
 	temp.copy(tw->_selected);

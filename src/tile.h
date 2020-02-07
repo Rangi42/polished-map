@@ -24,16 +24,16 @@
 
 class Tile {
 protected:
-	uint8_t _id;
+	uint16_t _id;
 	bool _undefined;
 	Hue _hues[TILE_AREA];
 	uchar _rgb[NUM_PALETTES][TILE_BYTES];
 	uchar _monochrome_rgb[TILE_BYTES];
 	uchar _undefined_rgb[TILE_BYTES];
 public:
-	Tile(uint8_t id);
-	inline uint8_t id(void) const { return _id; }
-	inline void id(uint8_t id) { _id = id; }
+	Tile(uint16_t id);
+	inline uint16_t id(void) const { return _id; }
+	inline void id(uint16_t id) { _id = id; }
 	inline bool undefined(void) const { return _undefined; }
 	inline void undefined(bool u) { _undefined = u; }
 	inline const uchar *rgb(Palette p) const { return _undefined ? _undefined_rgb : _rgb[(int)p]; }

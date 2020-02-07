@@ -69,7 +69,7 @@ void Roof_Window::initialize() {
 	Fl_Group::current(NULL);
 	// Populate window
 	_window = new Roof_Tile_Window(_dx, _dy, 226, 228, "Edit Roof");
-	int thw = text_width("Tile: $FFF", 2);
+	int thw = text_width("Tile: $FFFF", 2);
 	_roof_heading = new Label(10, 10, 206-thw, 22);
 	_tile_heading = new Label(216-thw, 10, thw, 22);
 	_roof_group = new Fl_Group(10, 36, 50, 50);
@@ -93,8 +93,8 @@ void Roof_Window::initialize() {
 		for (int x = 0; x < ROOF_TILES_PER_ROW; x++) {
 			int bx = _roof_group->x() + 1 + x * TILE_PX_SIZE,
 				by = _roof_group->y() + 1 + (ROOF_TILES_PER_COL - y - 1) * TILE_PX_SIZE;
-			uint8_t i = (uint8_t)(y * ROOF_TILES_PER_ROW + x);
-			uint8_t id = i + FIRST_ROOF_TILE_ID;
+			uint16_t i = (uint16_t)(y * ROOF_TILES_PER_ROW + x);
+			uint16_t id = i + FIRST_ROOF_TILE_ID;
 			Deep_Tile_Button *dtb = new Deep_Tile_Button(bx, by, TILE_PX_SIZE, id);
 			dtb->callback((Fl_Callback *)select_tile_cb, this);
 			_deep_tile_buttons[i] = dtb;
@@ -170,8 +170,8 @@ void Roof_Window::tileset(Tileset *t) {
 	std::string label("Roof: ");
 	label = label + t->roof_name();
 	_roof_heading->copy_label(label.c_str());
-	for (uint8_t i = 0; i < NUM_ROOF_TILES; i++) {
-		uint8_t id = i + FIRST_ROOF_TILE_ID;
+	for (uint16_t i = 0; i < NUM_ROOF_TILES; i++) {
+		uint16_t id = i + FIRST_ROOF_TILE_ID;
 		const Tile *ti = _tileset->const_roof_tile(id);
 		_deep_tile_buttons[i]->copy(ti);
 		_deep_tile_buttons[i]->activate();
@@ -192,7 +192,7 @@ void Roof_Window::show(const Fl_Widget *p) {
 void Roof_Window::apply_modifications() {
 	for (int i = 0; i < NUM_ROOF_TILES; i++) {
 		Tile *t = _deep_tile_buttons[i];
-		uint8_t id = t->id();
+		uint16_t id = t->id();
 		_tileset->roof_tile(id)->copy(t);
 	}
 	_tileset->modified_roof(true);
@@ -203,7 +203,7 @@ void Roof_Window::select(Deep_Tile_Button *dtb) {
 	_selected->setonly();
 
 	char buffer[32];
-	sprintf(buffer, "Tile: $%02X", _selected->id());
+	sprintf(buffer, "Tile: $%03X", _selected->id());
 	_tile_heading->copy_label(buffer);
 
 	for (int y = 0; y < TILE_SIZE; y++) {
@@ -333,8 +333,8 @@ void Roof_Window::paste_tile_cb(Fl_Widget *, Roof_Window *rw) {
 
 void Roof_Window::swap_tiles_cb(Fl_Widget *, Roof_Window *rw) {
 	if (!rw->_copied || !rw->_selected) { return; }
-	uint8_t cid = rw->_clipboard.id();
-	uint8_t i = cid - FIRST_ROOF_TILE_ID;
+	uint16_t cid = rw->_clipboard.id();
+	uint16_t i = cid - FIRST_ROOF_TILE_ID;
 	Deep_Tile_Button *copied = rw->_deep_tile_buttons[i];
 	Tile temp(0);
 	temp.copy(rw->_selected);

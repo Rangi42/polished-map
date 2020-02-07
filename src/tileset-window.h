@@ -29,7 +29,8 @@ private:
 	bool _canceled;
 	Tile_Window *_window;
 	Label *_tileset_heading, *_tile_heading;
-	Fl_Group *_tileset_group, *_tile_group;
+	Workspace *_tileset_group;
+	Fl_Group *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[MAX_NUM_TILES], *_selected;
 	Pixel_Button *_pixels[TILE_AREA];
 	Toolbar_Button *_copy_tb, *_paste_tb;

@@ -212,7 +212,7 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Attributable(id) {
+Tile_Button::Tile_Button(int x, int y, int s, uint16_t id) : Fl_Radio_Button(x, y, s, s), Attributable(id) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -262,10 +262,6 @@ void Chip::draw() {
 	if (_priority) {
 		chip_priority_png.draw(x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE);
 	}
-	if (_extra) {
-		fl_rect(x(), y(), CHIP_PX_SIZE, CHIP_PX_SIZE, FL_CYAN);
-		fl_rect(x()+1, y()+1, CHIP_PX_SIZE-2, CHIP_PX_SIZE-2, FL_CYAN);
-	}
 	if (active() && Fl::belowmouse() == this) {
 		draw_selection_border(x(), y(), CHIP_PX_SIZE, false);
 	}
@@ -309,7 +305,7 @@ int Chip::handle(int event) {
 
 Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
 
-Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id),
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint16_t id) : Fl_Radio_Button(x, y, s, s), Tile(id),
 	_for_clipboard(false) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);

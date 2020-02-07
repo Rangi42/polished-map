@@ -7,12 +7,12 @@
 #include "tiled-image.h"
 #include "utils.h"
 
-#define MAX_NUM_TILES 256
+#define MAX_NUM_TILES 512
 
 #define TILES_PER_ROW 16
 #define TILES_PER_COL (MAX_NUM_TILES / TILES_PER_ROW)
 
-#define FIRST_ROOF_TILE_ID 0x0a
+#define FIRST_ROOF_TILE_ID 0x00a
 #define NUM_ROOF_TILES 9
 #define ROOF_TILES_PER_ROW 3
 #define ROOF_TILES_PER_COL (NUM_ROOF_TILES / ROOF_TILES_PER_ROW)
@@ -37,11 +37,11 @@ public:
 	inline void roof_name(const char *m) { _roof_name = m ? m : ""; }
 	inline bool has_roof(void) const { return !_roof_name.empty(); }
 	inline Palettes palettes(void) const { return _palettes; }
-	inline Tile *tile(uint8_t i) { return _tiles[i]; }
-	inline Tile *roof_tile(uint8_t i) { return _roof_tiles[i]; }
-	inline const Tile *const_tile(uint8_t i) const { return _tiles[i]; }
-	inline const Tile *const_roof_tile(uint8_t i) const { return _roof_tiles[i]; }
-	inline const Tile *const_tile_or_roof(uint8_t i) const {
+	inline Tile *tile(uint16_t i) { return _tiles[i]; }
+	inline Tile *roof_tile(uint16_t i) { return _roof_tiles[i]; }
+	inline const Tile *const_tile(uint16_t i) const { return _tiles[i]; }
+	inline const Tile *const_roof_tile(uint16_t i) const { return _roof_tiles[i]; }
+	inline const Tile *const_tile_or_roof(uint16_t i) const {
 		return (i >= FIRST_ROOF_TILE_ID && (size_t)i < FIRST_ROOF_TILE_ID + _num_roof_tiles) ? _roof_tiles[i] : _tiles[i];
 	}
 	inline size_t num_tiles(void) const { return _num_tiles; }

@@ -27,11 +27,12 @@ private:
 	bool _canceled;
 	Fl_Double_Window *_window;
 	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading, *_collision_heading;
-	Fl_Group *_tileset_group, *_current_group, *_metatile_group;
+	Workspace *_tileset_group;
+	Fl_Group *_current_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE], *_current;
 	Dropdown *_palette;
-	OS_Check_Button *_x_flip, *_y_flip, *_extra, *_priority;
+	OS_Check_Button *_x_flip, *_y_flip, *_priority;
 	OS_Input *_collision_inputs[NUM_QUADRANTS];
 	Default_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;

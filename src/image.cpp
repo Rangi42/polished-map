@@ -25,7 +25,7 @@ Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
 
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
 	size_t n = MAX_NUM_TILES;
-	while (tileset.const_tile((uint8_t)(n-1))->undefined()) { n--; }
+	while (tileset.const_tile((uint16_t)(n-1))->undefined()) { n--; }
 	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
 	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
 	uchar *buffer = tileset.print_rgb(w, h, n);

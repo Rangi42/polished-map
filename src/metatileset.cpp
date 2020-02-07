@@ -99,12 +99,6 @@ void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_p
 			if (show_priority && a->priority()) {
 				(zoom ? large_priority_png : small_priority_png).draw(ax, ay, s, s);
 			}
-			if (a->extra()) {
-				fl_rect(ax, ay, s, s, FL_CYAN);
-				if (zoom) {
-					fl_rect(ax+1, ay+1, s-2, s-2, FL_CYAN);
-				}
-			}
 		}
 	}
 }
@@ -156,8 +150,7 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
 				uchar v = data[y * METATILE_SIZE + x];
-				mt->tile_id(x, y, v & 0x7f);
-				mt->extra(x, y, v >= 0x80);
+				mt->tile_id(x, y, (uint16_t)v);
 			}
 		}
 	}
@@ -173,8 +166,8 @@ bool Metatileset::write_metatiles(const char *f) const {
 		Metatile *mt = _metatiles[i];
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
-				uint8_t id = (mt->tile_id(x, y) & 0x7f) | (mt->extra(x, y) ? 0x80 : 0);
-				fputc(id, file);
+				uchar t = mt->tile_byte(x, y);
+				fputc(t, file);
 			}
 		}
 	}
@@ -199,8 +192,7 @@ Metatileset::Result Metatileset::read_attributes(const char *f) {
 		for (int y = 0; y < METATILE_SIZE; y++) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
 				uchar a = data[y * METATILE_SIZE + x];
-				mt->tile_id(x, y, mt->tile_id(x, y) + ((a & BANK_1_MASK) ? 0x80 : 0));
-				mt->attribute_byte(x, y, a);
+				mt->apply_attribute_byte(x, y, a);
 			}
 		}
 	}

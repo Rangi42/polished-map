@@ -5,8 +5,8 @@
 Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
 	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_tiles[i] = new Tile((uint8_t)i);
-		_roof_tiles[i] = new Tile((uint8_t)i);
+		_tiles[i] = new Tile((uint16_t)i);
+		_roof_tiles[i] = new Tile((uint16_t)i);
 	}
 }
 
