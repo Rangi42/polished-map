@@ -1,4 +1,5 @@
 #include "themes.h"
+#include "config.h"
 #include "tile.h"
 #include "icons.h"
 #include "image.h"
@@ -138,6 +139,29 @@ void Block_Window::refresh() {
 	Tile_Button *tb = _tile_buttons[0];
 	tb->Attributable::clear();
 	select(tb);
+	_tileset_group->init_sizes();
+	bool has_512_tiles = Config::allow_512_tiles();
+	if (!has_512_tiles) {
+		for (int i = 0; i < METATILE_SIZE * METATILE_SIZE; i++) {
+			Chip *c = _chips[i];
+			if (c->id() >= 0x100) {
+				has_512_tiles = true;
+				break;
+			}
+		}
+	}
+	if (has_512_tiles) {
+		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
+			_tileset_group->add(_tile_buttons[i]);
+		}
+		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, TILES_PER_COL * TILE_PX_SIZE);
+	}
+	else {
+		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
+			_tileset_group->remove(_tile_buttons[i]);
+		}
+		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, (TILES_PER_COL / 2) * TILE_PX_SIZE);
+	}
 }
 
 void Block_Window::update_icons() {
@@ -235,7 +259,7 @@ void Block_Window::select(const Attributable *a) {
 	_selected = _tile_buttons[id];
 	_selected->setonly();
 	if (TILE_PX_SIZE * (id / TILES_PER_ROW) >= _tileset_group->yposition() + _tileset_group->h() - TILE_PX_SIZE / 2) {
-		_tileset_group->scroll_to(0, TILE_PX_SIZE * (id / TILES_PER_ROW + 1) - _tileset_group->h());
+		_tileset_group->scroll_to(0, TILE_PX_SIZE * (id / TILES_PER_ROW + 1) - _tileset_group->h() + Fl::box_dh(_tileset_group->box()));
 	}
 	else if (TILE_PX_SIZE * (id / TILES_PER_ROW + 1) <= _tileset_group->yposition() + TILE_PX_SIZE / 2) {
 		_tileset_group->scroll_to(0, TILE_PX_SIZE * (id / TILES_PER_ROW));

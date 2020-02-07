@@ -7,6 +7,7 @@
 #include <FL/fl_draw.H>
 #pragma warning(pop)
 
+#include "config.h"
 #include "metatileset.h"
 
 // 8x8 translucent zigzag pattern for tile priority
@@ -193,6 +194,9 @@ Metatileset::Result Metatileset::read_attributes(const char *f) {
 			for (int x = 0; x < METATILE_SIZE; x++) {
 				uchar a = data[y * METATILE_SIZE + x];
 				mt->apply_attribute_byte(x, y, a);
+				if (mt->tile_id(x, y) > 0x100) {
+					Config::allow_512_tiles(true);
+				}
 			}
 		}
 	}

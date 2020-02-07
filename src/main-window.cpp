@@ -61,7 +61,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int show_events_config = Preferences::get("event", 1);
 	Palettes palettes_config = (Palettes)Preferences::get("palettes", (int)Palettes::DAY);
 
+	int allow_512_tiles_config = Preferences::get("all512", 0);
 	int drag_and_drop_config = Preferences::get("drag", 1);
+	Config::allow_512_tiles(!!allow_512_tiles_config);
 	Config::drag_and_drop(!!drag_and_drop_config);
 
 	int print_grid_config = Preferences::get("print-grid", 0);
@@ -368,6 +370,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Edit Current &Palettes...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_palettes_cb, this, 0),
 		{},
 		OS_SUBMENU("&Options"),
+		OS_MENU_ITEM("512 &Tiles", 0, (Fl_Callback *)allow_512_tiles_cb, this,
+			FL_MENU_TOGGLE | (allow_512_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
@@ -418,6 +422,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_palettes_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
+	_allow_512_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_512_tiles_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
@@ -1004,6 +1009,15 @@ void Main_Window::update_active_controls() {
 	}
 }
 
+void Main_Window::update_512_tile_controls() {
+	if (Config::allow_512_tiles()) {
+		_allow_512_tiles_mi->set();
+	}
+	else {
+		_allow_512_tiles_mi->clear();
+	}
+}
+
 void Main_Window::store_recent_map() {
 	std::string last(_blk_file);
 	for (int i = 0; i < NUM_RECENT; i++) {
@@ -1523,6 +1537,8 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::tileset_path(buffer, directory, tileset_name);
 	Tileset::Result rt = tileset->read_graphics(buffer, palettes());
+	// 'allow_512_tiles' becomes true if the tileset uses more than 256 tiles
+	update_512_tile_controls();
 	if (rt != Tileset::Result::GFX_OK) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1552,6 +1568,8 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::attributes_path(buffer, directory, tileset_name);
 	rm = _metatileset.read_attributes(buffer);
+	// 'allow_512_tiles' becomes true if a metatile uses a tile ID greater than $0ff
+	update_512_tile_controls();
 	if (rm == Metatileset::Result::META_TOO_SHORT || rm == Metatileset::Result::META_TOO_LONG) {
 		Config::attributes_path(buffer, "", tileset_name);
 		std::string msg = "Warning: ";
@@ -2552,6 +2570,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
 	Preferences::set("palettes", (int)mw->palettes());
+	Preferences::set("all512", mw->allow_512_tiles());
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
@@ -3038,6 +3057,11 @@ void Main_Window::edit_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_edited_palettes = true;
 	mw->_palette_window->apply_modifications();
 	mw->update_palettes();
+	mw->redraw();
+}
+
+void Main_Window::allow_512_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::allow_512_tiles(!!m->mvalue()->value());
 	mw->redraw();
 }
 

@@ -3,7 +3,7 @@
 
 class Config {
 private:
-	static bool _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;
+	static bool _512_tiles, _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -22,6 +22,8 @@ public:
 	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
+	inline static bool allow_512_tiles(void) { return _512_tiles; }
+	inline static void allow_512_tiles(bool t) { _512_tiles = t; }
 	inline static bool drag_and_drop(void) { return _drag_and_drop; }
 	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
 	inline static bool print_grid(void) { return _print_grid; }

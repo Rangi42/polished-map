@@ -155,6 +155,19 @@ void Tileset_Window::refresh() {
 	_copied = false;
 	select(_deep_tile_buttons[0]);
 	choose(_swatch1);
+	_tileset_group->init_sizes();
+	if (Config::allow_512_tiles()) {
+		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
+			_tileset_group->add(_deep_tile_buttons[i]);
+		}
+		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, TILES_PER_COL * TILE_PX_SIZE);
+	}
+	else {
+		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
+			_tileset_group->remove(_deep_tile_buttons[i]);
+		}
+		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, (TILES_PER_COL / 2) * TILE_PX_SIZE);
+	}
 }
 
 void Tileset_Window::update_icons() {

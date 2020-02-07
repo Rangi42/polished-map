@@ -106,6 +106,9 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	}
 
 	_num_tiles = ti.num_tiles();
+	if (_num_tiles > 0x100) {
+		Config::allow_512_tiles(true);
+	}
 
 	_palettes = l;
 	for (size_t i = 0; i < _num_tiles; i++) {
