@@ -25,7 +25,7 @@ void Attributable::apply_attribute_byte(uchar a) {
 	// VRAM $1:00-7F -> IDs $080-0FF
 	// VRAM $1:80-FF -> IDs $100-17F
 	// VRAM $0:80-FF -> IDs $180-1FF
-	_id = _id | ((a & BANK_1_MASK) ? 0x80 : _id >= 0x080 ? 0x100 : 0);
+	_id = _id + ((a & BANK_1_MASK) ? 0x80 : (_id >= 0x080 ? 0x100 : 0));
 	_palette = (Palette)(a & PALETTE_MASK);
 	_x_flip = !!(a & X_FLIP_MASK);
 	_y_flip = !!(a & Y_FLIP_MASK);
