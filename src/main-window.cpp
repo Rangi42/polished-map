@@ -506,6 +506,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_grid_tb->image(GRID_ICON);
 	_grid_tb->value(grid());
 
+	_rulers_tb->tooltip("Rulers (Ctrl+Shift+R)");
 	_rulers_tb->callback((Fl_Callback *)rulers_tb_cb, this);
 	_rulers_tb->image(RULERS_ICON);
 	_rulers_tb->value(rulers());
