@@ -154,12 +154,14 @@ void Block_Window::refresh() {
 		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
 			_tileset_group->add(_tile_buttons[i]);
 		}
+		_tileset_group->size(273, 386);
 		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, TILES_PER_COL * TILE_PX_SIZE);
 	}
 	else {
 		for (int i = 0x100; i < MAX_NUM_TILES; i++) {
 			_tileset_group->remove(_tile_buttons[i]);
 		}
+		_tileset_group->size(273, 258);
 		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, (TILES_PER_COL / 2) * TILE_PX_SIZE);
 	}
 }
