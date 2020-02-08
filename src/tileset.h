@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "tile.h"
+#include "deep-tile.h"
 #include "tiled-image.h"
 #include "utils.h"
 
@@ -24,7 +24,7 @@ public:
 private:
 	std::string _name, _roof_name;
 	Palettes _palettes;
-	Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
+	Deep_Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
 	size_t _num_tiles, _num_roof_tiles;
 	Result _result;
 	bool _modified, _modified_roof;
@@ -37,11 +37,11 @@ public:
 	inline void roof_name(const char *m) { _roof_name = m ? m : ""; }
 	inline bool has_roof(void) const { return !_roof_name.empty(); }
 	inline Palettes palettes(void) const { return _palettes; }
-	inline Tile *tile(int i) { return _tiles[i]; }
-	inline Tile *roof_tile(int i) { return _roof_tiles[i]; }
-	inline const Tile *const_tile(int i) const { return _tiles[i]; }
-	inline const Tile *const_roof_tile(int i) const { return _roof_tiles[i]; }
-	inline const Tile *const_tile_or_roof(int i) const {
+	inline Deep_Tile *tile(int i) { return _tiles[i]; }
+	inline Deep_Tile *roof_tile(int i) { return _roof_tiles[i]; }
+	inline const Deep_Tile *const_tile(int i) const { return _tiles[i]; }
+	inline const Deep_Tile *const_roof_tile(int i) const { return _roof_tiles[i]; }
+	inline const Deep_Tile *const_tile_or_roof(int i) const {
 		return (i >= FIRST_ROOF_TILE_IDX && (size_t)i < FIRST_ROOF_TILE_IDX + _num_roof_tiles) ? _roof_tiles[i] : _tiles[i];
 	}
 	inline size_t num_tiles(void) const { return _num_tiles; }
@@ -52,8 +52,8 @@ public:
 	inline bool modified_roof(void) const { return _modified_roof; }
 	inline void modified_roof(bool m) { _modified_roof = m; }
 private:
-	void read_tile(Tile *t, const Tiled_Image &ti, size_t i);
-	static void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer);
+	void read_tile(Deep_Tile *dt, const Tiled_Image &ti, size_t i);
+	static void print_tile_rgb(const Deep_Tile *dt, int tx, int ty, int n, uchar *buffer);
 public:
 	void clear(void);
 	void clear_roof_graphics(void);

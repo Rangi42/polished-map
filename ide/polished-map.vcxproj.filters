@@ -87,7 +87,7 @@
     <ClCompile Include="..\src\hex-spinner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\attributable.cpp">
+    <ClCompile Include="..\src\deep-tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\event.cpp">
@@ -185,7 +185,7 @@
     <ClInclude Include="..\src\hex-spinner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\attributable.h">
+    <ClInclude Include="..\src\deep-tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\event.h">

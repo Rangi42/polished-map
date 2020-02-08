@@ -10,7 +10,7 @@
 #pragma warning(pop)
 
 #include "utils.h"
-#include "tile.h"
+#include "deep-tile.h"
 #include "image.h"
 #include "config.h"
 

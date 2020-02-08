@@ -1,54 +1,43 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <cstdlib>
-#include <cstring>
-
-#pragma warning(push, 0)
-#include <FL/fl_types.h>
-#pragma warning(pop)
-
-#include "utils.h"
 #include "colors.h"
-#include "attributable.h"
 
-#define TILE_SIZE 8
-#define TILE_AREA (TILE_SIZE * TILE_SIZE)
-#define ZOOM_FACTOR 2
+#define PALETTE_MASK   0x07
+#define BANK_1_MASK    0x08
+#define X_FLIP_MASK    0x20
+#define Y_FLIP_MASK    0x40
+#define PRIORITY_MASK  0x80
 
-#define LINE_PX (TILE_SIZE * ZOOM_FACTOR)
-#define LINE_BYTES (LINE_PX * NUM_CHANNELS)
-#define TILE_BYTES (LINE_BYTES * LINE_PX)
-
-#define TILE_PIXEL_OFFSET(x, y) (((y) * LINE_BYTES + (x) * NUM_CHANNELS) * ZOOM_FACTOR)
+class Chip;
 
 class Tile {
 protected:
-	int _index;
-	bool _undefined;
-	Hue _hues[TILE_AREA];
-	uchar _rgb[NUM_PALETTES][TILE_BYTES];
-	uchar _monochrome_rgb[TILE_BYTES];
-	uchar _undefined_rgb[TILE_BYTES];
+	uint8_t _offset;
+	Palette _palette;
+	bool _bank1, _x_flip, _y_flip, _priority;
 public:
+	static void bank_offset(int idx, bool &bank1, uint8_t &offset);
 	Tile(int idx = 0x000);
-	inline int index(void) const { return _index; }
-	inline void index(int idx) { _index = idx; }
-	inline bool undefined(void) const { return _undefined; }
-	inline void undefined(bool u) { _undefined = u; }
-	inline const uchar *rgb(Palette p) const { return _undefined ? _undefined_rgb : _rgb[(int)p]; }
-	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
-	inline uchar *colored_pixel(Palette p, int x, int y) { return &_rgb[(int)p][TILE_PIXEL_OFFSET(x, y)]; }
-	inline const uchar *const_colored_pixel(Palette p, int x, int y) const { return &_rgb[(int)p][TILE_PIXEL_OFFSET(x, y)]; }
-	inline uchar *monochrome_pixel(int x, int y) { return _monochrome_rgb + TILE_PIXEL_OFFSET(x, y); }
-	inline const uchar *const_monochrome_pixel(int x, int y) const { return _monochrome_rgb + TILE_PIXEL_OFFSET(x, y); }
-	inline uchar *undefined_pixel(int x, int y) { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
-	inline const uchar *const_undefined_pixel(int x, int y) const { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
+	inline uint8_t offset(void) const { return _offset; }
+	inline void offset(uint8_t off) { _offset = off; }
+	inline Palette palette(void) const { return _palette; }
+	inline void palette(Palette p) { _palette = p; }
+	inline bool bank1(void) const { return _bank1; }
+	inline void bank1(bool b) { _bank1 = b; }
+	inline bool x_flip(void) const { return _x_flip; }
+	inline void x_flip(bool f) { _x_flip = f; }
+	inline bool y_flip(void) const { return _y_flip; }
+	inline void y_flip(bool f) { _y_flip = f; }
+	inline bool priority(void) const { return _priority; }
+	inline void priority(bool p) { _priority = p; }
+	int index(void) const;
+	void index(int idx);
+	uchar attribute(void) const;
+	void attribute(uchar a);
 	void clear(void);
-	void copy(const Tile *t);
-	void render_pixel(int x, int y, Palettes l, Hue h);
-	void update_palettes(Palettes l);
-	void draw_for_clipboard(int x, int y);
+	void copy(const Tile &t);
+	void copy(const Chip &c);
 };
 
 #endif

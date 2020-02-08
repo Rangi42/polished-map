@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "config.h"
 
-bool Config::_512_tiles = false, Config::_drag_and_drop = true, Config::_print_grid = false,
+bool Config::_512_tiles = false, Config::_0_before_1 = false, Config::_drag_and_drop = true, Config::_print_grid = false,
 	Config::_print_ids = false, Config::_print_priority = false, Config::_print_events = false;
 
 const char *Config::gfx_tileset_dir() {

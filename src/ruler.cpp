@@ -5,7 +5,7 @@
 #include "ruler.h"
 #include "main-window.h"
 #include "themes.h"
-#include "tile.h"
+#include "deep-tile.h"
 #include "event.h"
 
 Ruler::Ruler(int x, int y, int w, int h, const char *l) : Fl_Box(x, y, w, h, l), _direction(Direction::CORNER) {}

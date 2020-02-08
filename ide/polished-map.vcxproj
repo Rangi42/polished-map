@@ -104,9 +104,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\attributable.cpp" />
     <ClCompile Include="..\src\colors.cpp" />
     <ClCompile Include="..\src\config.cpp" />
+    <ClCompile Include="..\src\deep-tile.cpp" />
     <ClCompile Include="..\src\directory-chooser.cpp" />
     <ClCompile Include="..\src\event.cpp" />
     <ClCompile Include="..\src\gameboy-screen.cpp" />
@@ -136,9 +136,9 @@
     <ClCompile Include="..\src\widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\attributable.h" />
     <ClInclude Include="..\src\colors.h" />
     <ClInclude Include="..\src\config.h" />
+    <ClInclude Include="..\src\deep-tile.h" />
     <ClInclude Include="..\src\directory-chooser.h" />
     <ClInclude Include="..\src\event.h" />
     <ClInclude Include="..\src\gameboy-screen.h" />

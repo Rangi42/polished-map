@@ -187,8 +187,8 @@ void Tileset_Window::tileset(Tileset *t) {
 	label = label + t->name();
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		const Tile *ti = _tileset->const_tile(i);
-		_deep_tile_buttons[i]->copy(ti);
+		const Deep_Tile *dt = _tileset->const_tile(i);
+		_deep_tile_buttons[i]->copy(dt);
 		_deep_tile_buttons[i]->activate();
 	}
 }
@@ -206,8 +206,8 @@ void Tileset_Window::show(const Fl_Widget *p) {
 
 void Tileset_Window::apply_modifications() {
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		const Tile *t = _deep_tile_buttons[i];
-		_tileset->tile(i)->copy(t);
+		const Deep_Tile *dt = _deep_tile_buttons[i];
+		_tileset->tile(i)->copy(dt);
 	}
 	_tileset->modified(true);
 }
@@ -218,7 +218,7 @@ void Tileset_Window::select(Deep_Tile_Button *dtb) {
 
 	bool bank1;
 	uint8_t offset;
-	Attributable::bank_offset(_selected->index(), bank1, offset);
+	Tile::bank_offset(_selected->index(), bank1, offset);
 	char buffer[32];
 	sprintf(buffer, "Tile: $%d:%02X", bank1, offset);
 	_tile_heading->copy_label(buffer);
@@ -372,7 +372,7 @@ void Tileset_Window::swap_tiles_cb(Fl_Widget *, Tileset_Window *tw) {
 	if (!tw->_copied || !tw->_selected) { return; }
 	int idx = tw->_clipboard.index();
 	Deep_Tile_Button *copied = tw->_deep_tile_buttons[idx];
-	Tile temp;
+	Deep_Tile temp;
 	temp.copy(tw->_selected);
 	tw->_selected->copy(copied);
 	copied->copy(&temp);

@@ -212,7 +212,7 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Tile_Button::Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), Attributable(idx) {
+Tile_Button::Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), _index(idx), _palette() {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -222,25 +222,39 @@ Tile_Button::Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s
 void Tile_Button::draw() {
 	Block_Window *bw = (Block_Window *)user_data();
 	const Tileset *tileset = bw->tileset();
-	const Tile *t = tileset->const_tile_or_roof(index());
-	fl_draw_image(t->rgb(_palette), x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
+	const Deep_Tile *dt = tileset->const_tile_or_roof(index());
+	fl_draw_image(dt->rgb(_palette), x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
 }
 
-Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), Attributable(), _row(row), _col(col) {
+Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), _row(row), _col(col),
+	_index(), _palette(), _x_flip(), _y_flip(), _priority() {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
 	labelcolor(FL_YELLOW);
 }
 
+void Chip::copy(const Tile *t) {
+	_index = t->index();
+	_palette = t->palette();
+	_x_flip = t->x_flip();
+	_y_flip = t->y_flip();
+	_priority = t->priority();
+}
+
+void Chip::copy(const Tile_Button *tb) {
+	_index = tb->index();
+	_palette = tb->palette();
+}
+
 void Chip::draw() {
 	Block_Window *bw = (Block_Window *)user_data();
 	const Tileset *tileset = bw->tileset();
-	const Tile *t = tileset->const_tile_or_roof(index());
-	const uchar *rgb = t->rgb(_palette);
+	const Deep_Tile *dt = tileset->const_tile_or_roof(index());
+	const uchar *rgb = dt->rgb(_palette);
 	uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		int my = _y_flip ? TILE_SIZE - ty - 1 : ty;
@@ -305,7 +319,7 @@ int Chip::handle(int event) {
 
 Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
 
-Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), Tile(idx),
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), Deep_Tile(idx),
 	_for_clipboard(false) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);
@@ -326,7 +340,7 @@ void Deep_Tile_Button::drag_to_swap_or_copy() {
 		}
 		else {
 			// Drag to swap
-			Tile temp(0);
+			Deep_Tile temp(0);
 			temp.copy(this);
 			copy(_dragging);
 			_dragging->copy(&temp);

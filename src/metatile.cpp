@@ -1,12 +1,12 @@
 #include "utils.h"
 #include "metatile.h"
 
-Metatile::Metatile(uint8_t id) : _id(id), _attributes(), _collisions(), _bin_collisions() {}
+Metatile::Metatile(uint8_t id) : _id(id), _tiles(), _collisions(), _bin_collisions() {}
 
 void Metatile::clear() {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
-			_attributes[y][x].clear();
+			_tiles[y][x].clear();
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
@@ -18,7 +18,7 @@ void Metatile::clear() {
 void Metatile::copy(const Metatile *src) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
-			_attributes[y][x].copy(src->_attributes[y][x]);
+			_tiles[y][x].copy(src->_tiles[y][x]);
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
@@ -30,7 +30,7 @@ void Metatile::copy(const Metatile *src) {
 void Metatile::swap(Metatile *mt) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
-			std::swap(_attributes[y][x], mt->_attributes[y][x]);
+			std::swap(_tiles[y][x], mt->_tiles[y][x]);
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {

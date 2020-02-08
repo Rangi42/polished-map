@@ -43,6 +43,7 @@ public:
 private:
 	void initialize(void);
 	void refresh(void);
+	void update_selection(int idx);
 public:
 	void update_icons(void);
 	inline const Tileset *tileset(void) const { return _tileset; }
@@ -55,8 +56,9 @@ public:
 	inline bool canceled(void) const { return _canceled; }
 	inline void canceled(bool c) { _canceled = c; }
 	void show(const Fl_Widget *p);
-	void select(const Attributable *a);
-	void update_status(Chip *c);
+	void select(const Tile_Button *tb);
+	void select(const Chip *c);
+	void update_status(const Chip *c);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);
 	static void cancel_cb(Fl_Widget *w, Block_Window *bw);

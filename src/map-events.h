@@ -5,7 +5,7 @@
 
 #include "utils.h"
 #include "event.h"
-#include "tile.h"
+#include "deep-tile.h"
 
 #define EVENT_PX_SIZE (TILE_SIZE * 2)
 

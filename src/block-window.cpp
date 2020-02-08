@@ -1,6 +1,6 @@
 #include "themes.h"
 #include "config.h"
-#include "tile.h"
+#include "deep-tile.h"
 #include "icons.h"
 #include "image.h"
 #include "block-window.h"
@@ -137,7 +137,7 @@ void Block_Window::refresh() {
 	_canceled = false;
 	_tileset_group->scroll_to(0, 0);
 	Tile_Button *tb = _tile_buttons[0];
-	tb->Attributable::clear();
+	tb->palette(Palette::GRAY);
 	select(tb);
 	_tileset_group->init_sizes();
 	bool has_512_tiles = Config::allow_512_tiles();
@@ -205,8 +205,8 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
 			int i = y * METATILE_SIZE + x;
-			const Attributable *a = mt->attributes(x, y);
-			_chips[i]->copy(*a);
+			const Tile *t = mt->tile(x, y);
+			_chips[i]->copy(t);
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
@@ -256,8 +256,20 @@ void Block_Window::show(const Fl_Widget *p) {
 	while (_window->shown()) { Fl::wait(); }
 }
 
-void Block_Window::select(const Attributable *a) {
-	int idx = a->index();
+void Block_Window::select(const Tile_Button *tb) {
+	_palette->value((int)tb->palette());
+	update_selection(tb->index());
+}
+
+void Block_Window::select(const Chip *c) {
+	_palette->value((int)c->palette());
+	_x_flip->value(c->x_flip());
+	_y_flip->value(c->y_flip());
+	_priority->value(c->priority());
+	update_selection(c->index());
+}
+
+void Block_Window::update_selection(int idx) {
 	_selected = _tile_buttons[idx];
 	_selected->setonly();
 	if (TILE_PX_SIZE * (idx / TILES_PER_ROW) >= _tileset_group->yposition() + _tileset_group->h() - TILE_PX_SIZE / 2) {
@@ -267,20 +279,19 @@ void Block_Window::select(const Attributable *a) {
 		_tileset_group->scroll_to(0, TILE_PX_SIZE * (idx / TILES_PER_ROW));
 	}
 	_selected->do_callback();
-	_palette->value((int)a->palette());
-	_x_flip->value(a->x_flip());
-	_y_flip->value(a->y_flip());
-	_priority->value(a->priority());
 	_palette->do_callback();
 }
 
-void Block_Window::update_status(Chip *c) {
+void Block_Window::update_status(const Chip *c) {
 	if (!c) {
 		_hover_tile_heading->label("");
 	}
 	else {
+		bool bank1;
+		uint8_t offset;
+		Tile::bank_offset(c->index(), bank1, offset);
 		char buffer[32] = {};
-		sprintf(buffer, "Tile: $%d:%02X", c->bank1(), c->offset());
+		sprintf(buffer, "Tile: $%d:%02X", bank1, offset);
 		_hover_tile_heading->copy_label(buffer);
 	}
 	_hover_tile_heading->redraw();
@@ -298,10 +309,13 @@ void Block_Window::cancel_cb(Fl_Widget *w, Block_Window *bw) {
 void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 	// Click to select
 	bw->_selected = tb;
-	bw->_current->copy(*tb);
+	bw->_current->copy(tb);
 	bw->_current->redraw();
+	bool bank1;
+	uint8_t offset;
+	Tile::bank_offset(tb->index(), bank1, offset);
 	char buffer[32] = {};
-	sprintf(buffer, "Tile: $%d:%02X", tb->bank1(), tb->offset());
+	sprintf(buffer, "Tile: $%d:%02X", bank1, offset);
 	bw->_tile_heading->copy_label(buffer);
 }
 
@@ -341,9 +355,6 @@ void Block_Window::change_attributes_cb(Fl_Widget *, Block_Window *bw) {
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		Tile_Button *tb = bw->_tile_buttons[i];
 		tb->palette((Palette)bw->_palette->value());
-		tb->x_flip(!!bw->_x_flip->value());
-		tb->y_flip(!!bw->_y_flip->value());
-		tb->priority(!!bw->_priority->value());
 		tb->damage(1);
 	}
 	bw->_current->palette((Palette)bw->_palette->value());

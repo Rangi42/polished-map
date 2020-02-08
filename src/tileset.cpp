@@ -5,8 +5,8 @@
 Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
 	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_tiles[i] = new Tile((int)i);
-		_roof_tiles[i] = new Tile((int)i);
+		_tiles[i] = new Deep_Tile((int)i);
+		_roof_tiles[i] = new Deep_Tile((int)i);
 	}
 }
 
@@ -49,9 +49,9 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
 	for (size_t i = 0; i < n; i++) {
-		const Tile *t = _tiles[i];
+		const Deep_Tile *dt = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
-		print_tile_rgb(t, tx, ty, TILES_PER_ROW, buffer);
+		print_tile_rgb(dt, tx, ty, TILES_PER_ROW, buffer);
 	}
 	return buffer;
 }
@@ -60,27 +60,27 @@ uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
 	for (size_t i = 0; i < NUM_ROOF_TILES; i++) {
-		const Tile *t = _roof_tiles[i + FIRST_ROOF_TILE_IDX];
+		const Deep_Tile *dt = _roof_tiles[i + FIRST_ROOF_TILE_IDX];
 		int ty = (i / ROOF_TILES_PER_ROW) * TILE_SIZE, tx = (i % ROOF_TILES_PER_ROW) * TILE_SIZE;
-		print_tile_rgb(t, tx, ty, ROOF_TILES_PER_ROW, buffer);
+		print_tile_rgb(dt, tx, ty, ROOF_TILES_PER_ROW, buffer);
 	}
 	return buffer;
 }
 
-void Tileset::read_tile(Tile *t, const Tiled_Image &ti, size_t i) {
-	t->undefined(false);
+void Tileset::read_tile(Deep_Tile *dt, const Tiled_Image &ti, size_t i) {
+	dt->undefined(false);
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
 		for (int tx = 0; tx < TILE_SIZE; tx++) {
 			Hue h = ti.tile_hue(i, tx, ty);
-			t->render_pixel(tx, ty, _palettes, h);
+			dt->render_pixel(tx, ty, _palettes, h);
 		}
 	}
 }
 
-void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer) {
+void Tileset::print_tile_rgb(const Deep_Tile *dt, int tx, int ty, int n, uchar *buffer) {
 	for (int py = 0; py < TILE_SIZE; py++) {
 		for (int px = 0; px < TILE_SIZE; px++) {
-			Hue h = t->hue(px, py);
+			Hue h = dt->hue(px, py);
 			const uchar *rgb = Color::monochrome_color(h);
 			size_t j = ((ty + py) * n * TILE_SIZE + tx + px) * NUM_CHANNELS;
 			buffer[j++] = rgb[0];
@@ -112,8 +112,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 
 	_palettes = l;
 	for (size_t i = 0; i < _num_tiles; i++) {
-		Tile *t = _tiles[i];
-		read_tile(t, ti, i);
+		Deep_Tile *dt = _tiles[i];
+		read_tile(dt, ti, i);
 	}
 
 	_modified = false;
@@ -147,8 +147,8 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 
 	for (size_t i = 0; i < _num_roof_tiles; i++) {
 		int k = (int)i + FIRST_ROOF_TILE_IDX;
-		Tile *t = _roof_tiles[k];
-		read_tile(t, ti, i);
+		Deep_Tile *dt = _roof_tiles[k];
+		read_tile(dt, ti, i);
 	}
 
 	return Result::GFX_OK;

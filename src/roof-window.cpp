@@ -172,8 +172,8 @@ void Roof_Window::tileset(Tileset *t) {
 	_roof_heading->copy_label(label.c_str());
 	for (int i = 0; i < NUM_ROOF_TILES; i++) {
 		int idx = i + FIRST_ROOF_TILE_IDX;
-		const Tile *ti = _tileset->const_roof_tile(idx);
-		_deep_tile_buttons[i]->copy(ti);
+		const Deep_Tile *dt = _tileset->const_roof_tile(idx);
+		_deep_tile_buttons[i]->copy(dt);
 		_deep_tile_buttons[i]->activate();
 	}
 }
@@ -191,9 +191,9 @@ void Roof_Window::show(const Fl_Widget *p) {
 
 void Roof_Window::apply_modifications() {
 	for (int i = 0; i < NUM_ROOF_TILES; i++) {
-		Tile *t = _deep_tile_buttons[i];
-		int idx = t->index();
-		_tileset->roof_tile(idx)->copy(t);
+		Deep_Tile *dt = _deep_tile_buttons[i];
+		int idx = dt->index();
+		_tileset->roof_tile(idx)->copy(dt);
 	}
 	_tileset->modified_roof(true);
 }
@@ -204,7 +204,7 @@ void Roof_Window::select(Deep_Tile_Button *dtb) {
 
 	bool bank1;
 	uint8_t offset;
-	Attributable::bank_offset(_selected->index(), bank1, offset);
+	Tile::bank_offset(_selected->index(), bank1, offset);
 	char buffer[32];
 	sprintf(buffer, "Tile: $%d:%02X", bank1, offset);
 	_tile_heading->copy_label(buffer);
@@ -339,7 +339,7 @@ void Roof_Window::swap_tiles_cb(Fl_Widget *, Roof_Window *rw) {
 	int clip_idx = rw->_clipboard.index();
 	int idx = clip_idx - FIRST_ROOF_TILE_IDX;
 	Deep_Tile_Button *copied = rw->_deep_tile_buttons[idx];
-	Tile temp;
+	Deep_Tile temp;
 	temp.copy(rw->_selected);
 	rw->_selected->copy(copied);
 	copied->copy(&temp);

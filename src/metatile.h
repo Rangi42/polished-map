@@ -7,8 +7,8 @@
 #include <FL/fl_types.h>
 #pragma warning(pop)
 
+#include "deep-tile.h"
 #include "tile.h"
-#include "attributable.h"
 
 enum class Quadrant { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
 
@@ -17,24 +17,26 @@ enum class Quadrant { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
 #define METATILE_SIZE 4
 #define METATILE_PX_SIZE (TILE_SIZE * METATILE_SIZE)
 
+class Chip;
+
 class Metatile {
 private:
 	uint8_t _id;
-	Attributable _attributes[METATILE_SIZE][METATILE_SIZE];
+	Tile _tiles[METATILE_SIZE][METATILE_SIZE];
 	std::string _collisions[NUM_QUADRANTS];
 	uint8_t _bin_collisions[NUM_QUADRANTS];
 public:
 	Metatile(uint8_t id);
 	inline uint8_t id(void) const { return _id; }
 	inline void id(uint8_t id) { _id = id; }
-	inline int tile_index(int x, int y) const { return _attributes[y][x].index(); }
-	inline void tile_index(int x, int y, int idx) { _attributes[y][x].index(idx); }
-	inline const Attributable *attributes(int x, int y) const { return &_attributes[y][x]; }
-	inline void attributes(int x, int y, const Attributable *a) { _attributes[y][x].copy(*a); }
-	inline uchar tile_byte(int x, int y) const { return _attributes[y][x].offset(); }
-	inline void tile_byte(int x, int y, uchar t) { _attributes[y][x].offset(t); }
-	inline uchar attribute_byte(int x, int y) const { return _attributes[y][x].attribute_byte(); }
-	inline void attribute_byte(int x, int y, uchar a) { _attributes[y][x].attribute_byte(a); }
+	inline const Tile *tile(int x, int y) const { return &_tiles[y][x]; }
+	inline void copy(int x, int y, const Chip *c) { _tiles[y][x].copy(*c); }
+	inline int index(int x, int y) const { return _tiles[y][x].index(); }
+	inline void index(int x, int y, int idx) { _tiles[y][x].index(idx); }
+	inline uint8_t offset(int x, int y) const { return _tiles[y][x].offset(); }
+	inline void offset(int x, int y, uint8_t t) { _tiles[y][x].offset(t); }
+	inline uchar attribute(int x, int y) const { return _tiles[y][x].attribute(); }
+	inline void attribute(int x, int y, uchar a) { _tiles[y][x].attribute(a); }
 	inline std::string collision(Quadrant q) const { return _collisions[(int)q]; }
 	inline void collision(Quadrant q, const std::string &c) { _collisions[(int)q] = c; }
 	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[(int)q]; }

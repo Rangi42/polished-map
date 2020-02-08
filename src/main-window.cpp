@@ -62,8 +62,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	Palettes palettes_config = (Palettes)Preferences::get("palettes", (int)Palettes::DAY);
 
 	int allow_512_tiles_config = Preferences::get("all512", 0);
+	int arrange_0_before_1_config = Preferences::get("swap01", 0);
 	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::allow_512_tiles(!!allow_512_tiles_config);
+	Config::arrange_0_before_1(!!arrange_0_before_1_config);
 	Config::drag_and_drop(!!drag_and_drop_config);
 
 	int print_grid_config = Preferences::get("print-grid", 0);
@@ -371,7 +373,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		{},
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("512 &Tiles", 0, (Fl_Callback *)allow_512_tiles_cb, this,
-			FL_MENU_TOGGLE | (allow_512_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (allow_512_tiles_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("$0:80-FF Before $1:80-FF", 0, (Fl_Callback *)arrange_0_before_1_cb, this,
+			FL_MENU_TOGGLE | (arrange_0_before_1_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
@@ -423,6 +427,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_allow_512_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_512_tiles_cb);
+	_arrange_0_before_1_mi = PM_FIND_MENU_ITEM_CB(arrange_0_before_1_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
@@ -1007,14 +1012,17 @@ void Main_Window::update_active_controls() {
 		_edit_roof_mi->deactivate();
 		_edit_roof_tb->deactivate();
 	}
+	update_512_tile_controls();
 }
 
 void Main_Window::update_512_tile_controls() {
 	if (Config::allow_512_tiles()) {
 		_allow_512_tiles_mi->set();
+		_arrange_0_before_1_mi->activate();
 	}
 	else {
 		_allow_512_tiles_mi->clear();
+		_arrange_0_before_1_mi->deactivate();
 	}
 }
 
@@ -1568,7 +1576,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 
 	Config::attributes_path(buffer, directory, tileset_name);
 	rm = _metatileset.read_attributes(buffer);
-	// 'allow_512_tiles' becomes true if a metatile uses a tile ID greater than $0ff
+	// 'allow_512_tiles' becomes true if a metatile uses a tile index greater than $0ff
 	update_512_tile_controls();
 	if (rm == Metatileset::Result::META_TOO_SHORT || rm == Metatileset::Result::META_TOO_LONG) {
 		Config::attributes_path(buffer, "", tileset_name);
@@ -1998,7 +2006,7 @@ void Main_Window::edit_metatile(Metatile *mt) {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {
 			const Chip *c = _block_window->const_chip(x, y);
-			mt->attributes(x, y, c);
+			mt->copy(x, y, c);
 			for (int i = 0; i < NUM_QUADRANTS; i++) {
 				Quadrant q = (Quadrant)i;
 				const char *k = _block_window->collision(q);
@@ -2571,6 +2579,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("event", mw->show_events());
 	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("all512", mw->allow_512_tiles());
+	Preferences::set("swap01", mw->arrange_0_before_1());
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
@@ -3062,6 +3071,12 @@ void Main_Window::edit_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::allow_512_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::allow_512_tiles(!!m->mvalue()->value());
+	mw->update_512_tile_controls();
+	mw->redraw();
+}
+
+void Main_Window::arrange_0_before_1_cb(Fl_Menu_ *m, Main_Window *mw) {
+	Config::arrange_0_before_1(!!m->mvalue()->value());
 	mw->redraw();
 }
 
