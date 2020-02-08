@@ -34,7 +34,7 @@ void Block_Window::initialize() {
 	Fl_Group::current(NULL);
 	// Populate window
 	_window = new Fl_Double_Window(_dx, _dy, 477, 432, "Edit Block");
-	int thw = text_width("Tile: $FFFF", 2);
+	int thw = text_width("Tile: $A:AA", 4);
 	_tileset_heading = new Label(10, 10, 273, 22);
 	_tile_heading = new Label(328-thw, 10, thw, 22);
 	_metatile_heading = new Label(337, 10, 130-thw, 22);
@@ -73,10 +73,10 @@ void Block_Window::initialize() {
 	for (int y = 0; y < TILES_PER_COL; y++) {
 		for (int x = 0; x < TILES_PER_ROW; x++) {
 			int bx = _tileset_group->x() + 1 + x * TILE_PX_SIZE, by = _tileset_group->y() + 1 + y * TILE_PX_SIZE;
-			uint16_t id = (uint16_t)(y * TILES_PER_ROW + x);
-			Tile_Button *tb = new Tile_Button(bx, by, TILE_PX_SIZE, id);
+			int i = y * TILES_PER_ROW + x;
+			Tile_Button *tb = new Tile_Button(bx, by, TILE_PX_SIZE, i);
 			tb->callback((Fl_Callback *)select_tile_cb, this);
-			_tile_buttons[id] = tb;
+			_tile_buttons[i] = tb;
 		}
 	}
 	_tileset_group->end();
@@ -144,7 +144,7 @@ void Block_Window::refresh() {
 	if (!has_512_tiles) {
 		for (int i = 0; i < METATILE_SIZE * METATILE_SIZE; i++) {
 			Chip *c = _chips[i];
-			if (c->id() >= 0x100) {
+			if (c->index() >= 0x100) {
 				has_512_tiles = true;
 				break;
 			}
@@ -257,14 +257,14 @@ void Block_Window::show(const Fl_Widget *p) {
 }
 
 void Block_Window::select(const Attributable *a) {
-	uint16_t id = a->id();
-	_selected = _tile_buttons[id];
+	int idx = a->index();
+	_selected = _tile_buttons[idx];
 	_selected->setonly();
-	if (TILE_PX_SIZE * (id / TILES_PER_ROW) >= _tileset_group->yposition() + _tileset_group->h() - TILE_PX_SIZE / 2) {
-		_tileset_group->scroll_to(0, TILE_PX_SIZE * (id / TILES_PER_ROW + 1) - _tileset_group->h() + Fl::box_dh(_tileset_group->box()));
+	if (TILE_PX_SIZE * (idx / TILES_PER_ROW) >= _tileset_group->yposition() + _tileset_group->h() - TILE_PX_SIZE / 2) {
+		_tileset_group->scroll_to(0, TILE_PX_SIZE * (idx / TILES_PER_ROW + 1) - _tileset_group->h() + Fl::box_dh(_tileset_group->box()));
 	}
-	else if (TILE_PX_SIZE * (id / TILES_PER_ROW + 1) <= _tileset_group->yposition() + TILE_PX_SIZE / 2) {
-		_tileset_group->scroll_to(0, TILE_PX_SIZE * (id / TILES_PER_ROW));
+	else if (TILE_PX_SIZE * (idx / TILES_PER_ROW + 1) <= _tileset_group->yposition() + TILE_PX_SIZE / 2) {
+		_tileset_group->scroll_to(0, TILE_PX_SIZE * (idx / TILES_PER_ROW));
 	}
 	_selected->do_callback();
 	_palette->value((int)a->palette());
@@ -280,7 +280,7 @@ void Block_Window::update_status(Chip *c) {
 	}
 	else {
 		char buffer[32] = {};
-		sprintf(buffer, "Tile: $%03X", c->id());
+		sprintf(buffer, "Tile: $%d:%02X", c->bank1(), c->offset());
 		_hover_tile_heading->copy_label(buffer);
 	}
 	_hover_tile_heading->redraw();
@@ -301,7 +301,7 @@ void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 	bw->_current->copy(*tb);
 	bw->_current->redraw();
 	char buffer[32] = {};
-	sprintf(buffer, "Tile: $%03X", tb->id());
+	sprintf(buffer, "Tile: $%d:%02X", tb->bank1(), tb->offset());
 	bw->_tile_heading->copy_label(buffer);
 }
 
@@ -310,17 +310,17 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 		// Left-click to edit
 		// Ctrl+left-click to edit 2x2
 		// Ctrl+Shift+left-click to edit 4x4
-		uint16_t id = bw->_selected->id();
-		uint16_t n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
-		for (uint16_t dy = 0; dy < n; dy++) {
-			for (uint16_t dx = 0; dx < n; dx++) {
-				uint16_t y = c->row() + (bw->_y_flip->value() ? n - dy - 1 : dy);
-				uint16_t x = c->col() + (bw->_x_flip->value() ? n - dx - 1 : dx);
-				bool row_free = y < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW * dy;
-				bool col_free = x < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - dx;
+		int idx = bw->_selected->index();
+		int n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
+		for (int dy = 0; dy < n; dy++) {
+			for (int dx = 0; dx < n; dx++) {
+				int y = c->row() + (bw->_y_flip->value() ? n - dy - 1 : dy);
+				int x = c->col() + (bw->_x_flip->value() ? n - dx - 1 : dx);
+				bool row_free = y < METATILE_SIZE && idx < MAX_NUM_TILES - TILES_PER_ROW * dy;
+				bool col_free = x < METATILE_SIZE && idx % TILES_PER_ROW < TILES_PER_ROW - dx;
 				if (row_free && col_free) {
 					Chip *chip = bw->chip(x, y);
-					chip->id(id + TILES_PER_ROW * dy + dx);
+					chip->index(idx + TILES_PER_ROW * dy + dx);
 					chip->palette((Palette)bw->_palette->value());
 					chip->priority(!!bw->_priority->value());
 					chip->x_flip(!!bw->_x_flip->value());

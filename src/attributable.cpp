@@ -1,46 +1,54 @@
 #include "attributable.h"
 
-Attributable::Attributable(uint16_t id) : _id(id), _palette(), _x_flip(), _y_flip(),
-	_priority(), _undefined() {}
+Attributable::Attributable(int idx) : _offset(), _palette(), _bank1(), _x_flip(), _y_flip(), _priority() {
+	index(idx);
+}
 
-uchar Attributable::tile_byte() const {
-	// IDs $000-0FF -> VRAM $00-7F
-	// IDs $100-1FF -> VRAM $80-FF
-	return (uchar)(_id & 0x7f) | (_id >= 0x100 ? 0x80 : 0);
+// index $000-07F <-> VRAM $0:00-7F
+// index $080-0FF <-> VRAM $1:00-7F
+// index $100-17F <-> VRAM $1:80-FF
+// index $180-1FF <-> VRAM $0:80-FF
+
+void Attributable::bank_offset(int idx, bool &bank1, uint8_t &offset) {
+	offset = (uint8_t)(idx & 0x07f) | (idx >= 0x100 ? 0x80 : 0);
+	bank1 = idx >= 0x080 && idx < 0x180;
+}
+
+int Attributable::index() const {
+	return (int)_offset + (_bank1 ? 0x80 : _offset >= 0x080 ? 0x100 : 0);
+}
+
+void Attributable::index(int idx) {
+	bank_offset(idx, _bank1, _offset);
 }
 
 uchar Attributable::attribute_byte() const {
 	uchar a = (uchar)_palette & PALETTE_MASK;
-	// IDs $000-07F and $180-1FF -> VRAM $0:xx
-	// IDs $080-17F -> VRAM $1:xx
-	if (_id >= 0x080 && _id < 0x180) { a |= BANK_1_MASK; }
+	if (_bank1) { a |= BANK_1_MASK; }
 	if (_x_flip) { a |= X_FLIP_MASK; }
 	if (_y_flip) { a |= Y_FLIP_MASK; }
 	if (_priority) { a |= PRIORITY_MASK; }
 	return a;
 }
 
-void Attributable::apply_attribute_byte(uchar a) {
-	// VRAM $0:00-7F -> IDs $000-07F
-	// VRAM $1:00-7F -> IDs $080-0FF
-	// VRAM $1:80-FF -> IDs $100-17F
-	// VRAM $0:80-FF -> IDs $180-1FF
-	_id = _id + ((a & BANK_1_MASK) ? 0x80 : (_id >= 0x080 ? 0x100 : 0));
+void Attributable::attribute_byte(uchar a) {
 	_palette = (Palette)(a & PALETTE_MASK);
+	_bank1 = !!(a & BANK_1_MASK);
 	_x_flip = !!(a & X_FLIP_MASK);
 	_y_flip = !!(a & Y_FLIP_MASK);
 	_priority = !!(a & PRIORITY_MASK);
 }
 
 void Attributable::clear() {
-	_id = 0x000;
+	_offset = 0x00;
 	_palette = Palette::GRAY;
-	_x_flip = _y_flip = _priority = false;
+	_bank1 = _x_flip = _y_flip = _priority = false;
 }
 
 void Attributable::copy(const Attributable &a) {
-	_id = a._id;
+	_offset = a._offset;
 	_palette = a._palette;
+	_bank1 = a._bank1;
 	_x_flip = a._x_flip;
 	_y_flip = a._y_flip;
 	_priority = a._priority;

@@ -45,7 +45,7 @@ public:
 
 class Tile_Button : public Fl_Radio_Button, public Attributable {
 public:
-	Tile_Button(int x, int y, int s, uint16_t id);
+	Tile_Button(int x, int y, int s, int idx);
 	void draw(void);
 };
 
@@ -93,7 +93,7 @@ private:
 	static Deep_Tile_Button *_dragging;
 	bool _for_clipboard;
 public:
-	Deep_Tile_Button(int x, int y, int s, uint16_t id);
+	Deep_Tile_Button(int x, int y, int s, int idx);
 	inline bool for_clipboard(void) const { return _for_clipboard; }
 	inline void for_clipboard(bool f) { _for_clipboard = f; }
 	inline void copy_pixel(const Pixel_Button *pb, Palettes l) { render_pixel(pb->col(), pb->row(), l, pb->hue()); }

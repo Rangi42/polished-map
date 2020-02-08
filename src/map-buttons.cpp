@@ -212,7 +212,7 @@ int Block::handle(int event) {
 	return Fl_Box::handle(event);
 }
 
-Tile_Button::Tile_Button(int x, int y, int s, uint16_t id) : Fl_Radio_Button(x, y, s, s), Attributable(id) {
+Tile_Button::Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), Attributable(idx) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -222,14 +222,14 @@ Tile_Button::Tile_Button(int x, int y, int s, uint16_t id) : Fl_Radio_Button(x, 
 void Tile_Button::draw() {
 	Block_Window *bw = (Block_Window *)user_data();
 	const Tileset *tileset = bw->tileset();
-	const Tile *t = tileset->const_tile_or_roof(_id);
+	const Tile *t = tileset->const_tile_or_roof(index());
 	fl_draw_image(t->rgb(_palette), x(), y(), TILE_PX_SIZE, TILE_PX_SIZE, NUM_CHANNELS, LINE_BYTES);
 	if (value()) {
 		draw_selection_border(x(), y(), TILE_PX_SIZE, false);
 	}
 }
 
-Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), Attributable(0), _row(row), _col(col) {
+Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), Attributable(), _row(row), _col(col) {
 	user_data(NULL);
 	box(FL_NO_BOX);
 	labeltype(FL_NO_LABEL);
@@ -239,7 +239,7 @@ Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), 
 void Chip::draw() {
 	Block_Window *bw = (Block_Window *)user_data();
 	const Tileset *tileset = bw->tileset();
-	const Tile *t = tileset->const_tile_or_roof(_id);
+	const Tile *t = tileset->const_tile_or_roof(index());
 	const uchar *rgb = t->rgb(_palette);
 	uchar chip[CHIP_PX_SIZE * CHIP_PX_SIZE * NUM_CHANNELS] = {};
 	for (int ty = 0; ty < TILE_SIZE; ty++) {
@@ -305,7 +305,7 @@ int Chip::handle(int event) {
 
 Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
 
-Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint16_t id) : Fl_Radio_Button(x, y, s, s), Tile(id),
+Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, int idx) : Fl_Radio_Button(x, y, s, s), Tile(idx),
 	_for_clipboard(false) {
 	user_data(NULL);
 	when(FL_WHEN_RELEASE);

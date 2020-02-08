@@ -1191,7 +1191,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 		_map.modified(true);
 		for (uint8_t row = 0; row < h; row++) {
 			for (uint8_t col = 0; col < w; col++) {
-				_map.block(col, row, new Block(row, col, 0x000));
+				_map.block(col, row, new Block(row, col, 0x00));
 			}
 		}
 	}

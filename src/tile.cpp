@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "tile.h"
 
-Tile::Tile(uint16_t id) : _id(id), _undefined(true), _hues(), _rgb(), _monochrome_rgb(), _undefined_rgb() {}
+Tile::Tile(int idx) : _index(idx), _undefined(true), _hues(), _rgb(), _monochrome_rgb(), _undefined_rgb() {}
 
 static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 	int i = TILE_PIXEL_OFFSET(x, y);

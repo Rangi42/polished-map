@@ -5,8 +5,8 @@
 Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
 	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_tiles[i] = new Tile((uint16_t)i);
-		_roof_tiles[i] = new Tile((uint16_t)i);
+		_tiles[i] = new Tile((int)i);
+		_roof_tiles[i] = new Tile((int)i);
 	}
 }
 
@@ -60,7 +60,7 @@ uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
 	for (size_t i = 0; i < NUM_ROOF_TILES; i++) {
-		const Tile *t = _roof_tiles[i + FIRST_ROOF_TILE_ID];
+		const Tile *t = _roof_tiles[i + FIRST_ROOF_TILE_IDX];
 		int ty = (i / ROOF_TILES_PER_ROW) * TILE_SIZE, tx = (i % ROOF_TILES_PER_ROW) * TILE_SIZE;
 		print_tile_rgb(t, tx, ty, ROOF_TILES_PER_ROW, buffer);
 	}
@@ -140,13 +140,13 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 	if (ti.num_tiles() < NUM_ROOF_TILES) {
 		return Result::GFX_TOO_SHORT;
 	}
-	if (ti.num_tiles() > NUM_ROOF_TILES || FIRST_ROOF_TILE_ID + ti.num_tiles() > MAX_NUM_TILES) {
+	if (ti.num_tiles() > NUM_ROOF_TILES || FIRST_ROOF_TILE_IDX + ti.num_tiles() > MAX_NUM_TILES) {
 		return Result::GFX_TOO_LARGE;
 	}
 	_num_roof_tiles = ti.num_tiles();
 
 	for (size_t i = 0; i < _num_roof_tiles; i++) {
-		int k = (int)i + FIRST_ROOF_TILE_ID;
+		int k = (int)i + FIRST_ROOF_TILE_IDX;
 		Tile *t = _roof_tiles[k];
 		read_tile(t, ti, i);
 	}
