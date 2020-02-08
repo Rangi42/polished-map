@@ -374,7 +374,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_SUBMENU("&Options"),
 		OS_MENU_ITEM("512 &Tiles", 0, (Fl_Callback *)allow_512_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_512_tiles_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("$0:80-FF Before $1:80-FF", 0, (Fl_Callback *)arrange_0_before_1_cb, this,
+		OS_MENU_ITEM("$0:80-FF &Before $1:80-FF", 0, (Fl_Callback *)arrange_0_before_1_cb, this,
 			FL_MENU_TOGGLE | (arrange_0_before_1_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
