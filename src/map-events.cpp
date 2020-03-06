@@ -30,6 +30,7 @@ static const std::unordered_map<std::string, Event_Meta> events_meta = {
 	{"fruittree_event",        {EventTexture::TX_AZURE,  'F', 0, false, 0}},
 	{"strengthboulder_event",  {EventTexture::TX_AZURE,  'B', 0, false, 0}},
 	{"smashrock_event",        {EventTexture::TX_AZURE,  'R', 0, false, 0}},
+	{"pokemon_event",          {EventTexture::TX_AZURE,  'P', 0, false, 0}},
 	{"pc_nurse_event",         {EventTexture::TX_AZURE,  'N', 0, false, 0}},
 	{"mart_clerk_event",       {EventTexture::TX_AZURE,  'M', 0, false, 0}},
 	// Red++
