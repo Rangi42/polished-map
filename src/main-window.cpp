@@ -83,6 +83,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int special_palettes_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
+	size_t overworld_map_size_config = Preferences::get("overworld-map", 1);
+	Config::overworld_map_size(overworld_map_size_config);
+
 	for (int i = 0; i < NUM_RECENT; i++) {
 		_recent[i] = Preferences::get_string(Fl_Preferences::Name("recent%d", i));
 	}
@@ -3150,7 +3153,7 @@ void Main_Window::drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *) {
 	Config::drag_and_drop(!!m->mvalue()->value());
 }
 
-void Main_Window::overworld_map_size_cb(Fl_Menu_ *m, Main_Window *mw) {
+void Main_Window::overworld_map_size_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_overworld_map_size_dialog->overworld_map_size(Config::overworld_map_size());
 	mw->_overworld_map_size_dialog->show(mw);
 	if (mw->_overworld_map_size_dialog->canceled()) { return; }
