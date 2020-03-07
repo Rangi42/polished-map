@@ -1795,6 +1795,19 @@ bool Main_Window::save_map(bool force) {
 		fclose(file);
 
 		_map.modified(false);
+
+		size_t w = _map.width(), h = _map.height();
+		size_t b = (w + MAP_MARGIN * 2) * (h + MAP_MARGIN * 2);
+		if (b > MAX_OVERWORLD_MAP_BUFFER) {
+			std::ostringstream ss;
+			ss << "A " << w << " x " << h << " map will overflow a "
+				<< STRINGIFY(MAX_OVERWORLD_MAP_BUFFER) "-byte buffer!\n\n"
+				<< "Make sure the overworld block buffer in WRAM\n"
+				"(OverworldMap, wOverworldMap, or wOverworldMapBlocks)\n"
+				"has at least " << b << " bytes.";
+			_warning_dialog->message(ss.str());
+			_warning_dialog->show(this);
+		}
 	}
 
 	if (force) {
