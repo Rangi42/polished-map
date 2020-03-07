@@ -125,6 +125,20 @@ protected:
 	int refresh_content(int ww, int dy);
 };
 
+class Overworld_Map_Size_Dialog : public Option_Dialog {
+private:
+	Label *_description;
+	Default_Spinner *_overworld_map_size;
+public:
+	Overworld_Map_Size_Dialog(const char *t);
+	~Overworld_Map_Size_Dialog();
+	inline size_t overworld_map_size(void) const { return (size_t)_overworld_map_size->value(); }
+	inline void overworld_map_size(size_t n) { initialize(); _overworld_map_size->default_value((double)n); }
+protected:
+	void initialize_content(void);
+	int refresh_content(int ww, int dy);
+};
+
 class Tileset_Options_Dialog : public Option_Dialog {
 private:
 	Dropdown *_tileset;

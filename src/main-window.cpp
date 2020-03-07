@@ -201,6 +201,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_print_options_dialog = new Print_Options_Dialog("Print Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
+	_overworld_map_size_dialog = new Overworld_Map_Size_Dialog("Overworld Map Size");
 	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
 	_tileset_window = new Tileset_Window(48, 48);
@@ -383,7 +384,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
 			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Drag and Drop", 0, (Fl_Callback *)drag_and_drop_option_cb, this,
-			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0)),
+			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Overworld Map Size...", 0, (Fl_Callback *)overworld_map_size_cb, this, 0),
 		{},
 		OS_SUBMENU("&Help"),
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
@@ -1798,12 +1800,13 @@ bool Main_Window::save_map(bool force) {
 
 		size_t w = _map.width(), h = _map.height();
 		size_t b = (w + MAP_MARGIN * 2) * (h + MAP_MARGIN * 2);
-		if (b > MAX_OVERWORLD_MAP_BUFFER) {
+		size_t s = Config::overworld_map_size();
+		if (b > s) {
 			std::ostringstream ss;
 			ss << "A " << w << " x " << h << " map will overflow a "
-				<< STRINGIFY(MAX_OVERWORLD_MAP_BUFFER) "-byte buffer!\n\n"
-				<< "Make sure the overworld block buffer in WRAM\n"
-				"(OverworldMap, wOverworldMap, or wOverworldMapBlocks)\n"
+				<< s << "-byte buffer!\n\n"
+				<< "Make sure the overworld map block buffer in WRAM\n"
+				"(wOverworldMapBlocks, wOverworldMap, or OverworldMap)\n"
 				"has at least " << b << " bytes.";
 			_warning_dialog->message(ss.str());
 			_warning_dialog->show(this);
@@ -2597,6 +2600,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	Preferences::set("drag", mw->drag_and_drop());
+	Preferences::set("overworld-map", (int)Config::overworld_map_size());
 	Preferences::set("print-grid", Config::print_grid());
 	Preferences::set("print-ids", Config::print_ids());
 	Preferences::set("print-priority", Config::print_priority());
@@ -3113,6 +3117,13 @@ void Main_Window::auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *) {
 	Config::drag_and_drop(!!m->mvalue()->value());
+}
+
+void Main_Window::overworld_map_size_cb(Fl_Menu_ *m, Main_Window *mw) {
+	mw->_overworld_map_size_dialog->overworld_map_size(Config::overworld_map_size());
+	mw->_overworld_map_size_dialog->show(mw);
+	if (mw->_overworld_map_size_dialog->canceled()) { return; }
+	Config::overworld_map_size(mw->_overworld_map_size_dialog->overworld_map_size());
 }
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
