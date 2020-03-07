@@ -83,7 +83,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int special_palettes_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
-	size_t overworld_map_size_config = Preferences::get("overworld-map", 1);
+	size_t overworld_map_size_config = Preferences::get("overworld-map", 1300);
 	Config::overworld_map_size(overworld_map_size_config);
 
 	for (int i = 0; i < NUM_RECENT; i++) {
