@@ -30,10 +30,13 @@ R"(<html>
 <p>Otherwise )" PROGRAM_NAME R"( will try to guess a map's size and tileset from the assembly code. This can fail if the map and tileset filenames do not exactly correspond to their constants in the code. Then you'll just have to enter the size and tileset yourself.</p>
 <p>Be sure to set the right options (via the Options menu) before creating or opening a map. The available options are:</p>
 <ul>
+<li><b>512 Tiles:</b> Allow as many tile IDs as the GBC hardware will support. VRAM has two banks, 0 and 1, each of which allows 256 tile IDs from $00 to $FF. Regular tileset graphics load into $0:00-7F and $1:00-7F, with $0:80-FF used for font tiles and $1:80-FF for NPCs' walking sprites. If your project is modified to use any of $80-FF for map tiles, this option will let you do so.</li>
+<li><b>$0:80-FF Before $1:80-FF:</b> The first 128 tiles in the tileset graphic load into $0:00-7F; the next 128 load into $1:00-7F. )" PROGRAM_NAME R"( expects an extra 128 after that to load into $1:80-FF, and a further 128 into $0:80-FF, since that's what Polished Crystal does. This option will swap them so $0:80-FF comes before $1:80-FF.</li>
 <li><b>Auto-Load Events:</b> Automatically loads the .asm file corresponding to the map if one exists. For example, if you open maps)" DIR_SEP "PalletTown.ablk, then this option will automatically try to load maps" DIR_SEP R"(PalletTown.asm.</li>
 <li><b>Auto-Load Special Palettes:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.ablk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use Data&nbsp;→&nbsp;Load&nbsp;Palettes… to manually load any such .pal file.</li>
 <li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use Data&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
-<li><b>Drag and Drop:</b> Enables drag-and-drop for blocks in the sidebar, tiles in the tileset editor or roof editor, and colors in the palette editor. Left-click and drag one item onto another to swap them; hold Ctrl and do the same to copy.
+<li><b>Drag and Drop:</b> Enables drag-and-drop for blocks in the sidebar, tiles in the tileset editor or roof editor, and colors in the palette editor. Left-click and drag one item onto another to swap them; hold Ctrl and do the same to copy.</li>
+<li><b>Overworld Map Size:</b> The overworld map block buffer in WRAM stores the entire current map, padded by 3 blocks on each side. )" PROGRAM_NAME R"( warns you if you save a map that would overflow this buffer. If your project modifies the buffer size, this option will let you configure the warning.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
@@ -83,13 +86,11 @@ R"(<html>
 <ul>
 <li><b>X flip:</b> Flip the tile horizontally.</li>
 <li><b>Y flip:</b> Flip the tile vertically.</li>
-<li><b>★:</b> Use "extra" tile graphics.</li>
 <li><b>Priority:</b> Display the tile above sprites, including NPCs and the player. (The lightest hue will be transparent to sprites.)</li>
 <li><b>Color:</b> The tile's color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles.</li>
 </ul>
 <p>Selecting the X or Y flip attributes also affects how Ctrl+click and Ctrl+Shift+click place tiles, so large symmetrical designs can be placed more easily.</p>
 <p>You can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
-<p>(Regarding the "extra" tile graphics: these are graphics in VRAM that maps <i>can</i> use, but which pokecrystal reserves for font tiles and NPCs' walking sprites. If your project is modified to use any of these for map tiles, the ★ attribute will let you do so; but )" PROGRAM_NAME R"( can't handle the extra graphics, so it just shows a cyan border around the standard tile.)</p>
 <hr>
 <p>The tileset editor window (Ctrl+T or the toolbar's green puzzle piece button) has more mouse controls, similar to the map editor:</p>
 <ul>
