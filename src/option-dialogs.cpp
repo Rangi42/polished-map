@@ -732,6 +732,55 @@ int Add_Sub_Dialog::refresh_content(int ww, int dy) {
 	return wgt_h;
 }
 
+Overworld_Map_Size_Dialog::Overworld_Map_Size_Dialog(const char *t) : Option_Dialog(380, t), _description(NULL),
+	_overworld_map_size(NULL) {}
+
+Overworld_Map_Size_Dialog::~Overworld_Map_Size_Dialog() {
+	delete _description;
+	delete _overworld_map_size;
+}
+
+void Overworld_Map_Size_Dialog::initialize_content() {
+	// Populate content group
+	_description = new Label(0, 0, 0, 0,
+		"The overworld map block buffer in WRAM stores the entire\n"
+		"current map, padded by 3 blocks on each side.\n\n"
+		"Its standard label in wram.asm is wOverworldMapBlocks,\n"
+		"wOverworldMap, or OverworldMap.\n\n"
+		"Its default size is 1300 bytes, so every map requires that\n"
+		"(width + 6) \xc3\x97 (height + 6) \xe2\x89\xa4 1300."
+	);
+	_overworld_map_size = new Default_Spinner(0, 0, 0, 0, "ds:");
+	// Initialize content group's children
+	_overworld_map_size->align(FL_ALIGN_LEFT);
+	_overworld_map_size->range(1, 4096);
+	_overworld_map_size->labelfont(FL_COURIER);
+}
+
+int Overworld_Map_Size_Dialog::refresh_content(int ww, int dy) {
+	int wgt_h = 22, win_m = 10;
+
+	int ew = 0, eh = 0;
+	fl_measure(_description->label(), ew, eh, 0);
+	eh += wgt_h - _description->labelsize();
+
+	int ch = eh + wgt_h + wgt_h;
+	_content->resize(win_m, dy, ww, ch);
+
+	_description->resize(win_m, dy, ww, eh);
+	dy += eh + wgt_h;
+
+	Fl_Font f = fl_font();
+	Fl_Fontsize s = fl_size();
+	fl_font(_overworld_map_size->labelfont(), _overworld_map_size->labelsize());
+	int wgt_off = win_m + text_width(_overworld_map_size->label(), 2);
+	fl_font(f, s);
+	int wgt_w = text_width("9999", 2) + wgt_h;
+	_overworld_map_size->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
+}
+
 Tileset_Options_Dialog::Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(280, t),
 	_tileset(NULL), _map_options_dialog(mod) {}
 

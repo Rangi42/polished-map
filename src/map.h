@@ -10,9 +10,6 @@
 
 #define MAX_HISTORY_SIZE 100
 
-// wOverworldMapBlocks (aka OverworldMap or wOverworldMap) buffer size in WRAM
-#define MAX_OVERWORLD_MAP_BUFFER 1300
-
 struct Map_Attributes {
 public:
 	uint8_t group;

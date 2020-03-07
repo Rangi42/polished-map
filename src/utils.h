@@ -66,9 +66,6 @@
 	} while (0)
 #endif
 
-#define STRINGIFY(x) _STRINGIFY(x)
-#define _STRINGIFY(x) #x
-
 #ifndef _countof
 #define _countof(a) (sizeof(a) / sizeof(a[0]))
 #endif

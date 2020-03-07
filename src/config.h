@@ -3,7 +3,9 @@
 
 class Config {
 private:
-	static bool _monochrome, _priority, _256_tiles, _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;
+	static bool _monochrome, _priority, _256_tiles, _drag_and_drop,
+		_print_grid, _print_ids, _print_priority, _print_events;
+	static size_t _overworld_map_size;
 public:
 	static const char *gfx_tileset_dir(void);
 	static const char *gfx_roof_dir(void);
@@ -39,6 +41,8 @@ public:
 	inline static void print_priority(bool p) { _print_priority = p; }
 	inline static bool print_events(void) { return _print_events; }
 	inline static void print_events(bool p) { _print_events = p; }
+	inline static size_t overworld_map_size(void) { return _overworld_map_size; }
+	inline static void overworld_map_size(size_t s) { _overworld_map_size = s; }
 };
 
 #endif
