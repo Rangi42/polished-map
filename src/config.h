@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <cstdlib>
+
 class Config {
 private:
 	static bool _monochrome, _priority, _256_tiles, _drag_and_drop,
