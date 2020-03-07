@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <cstdlib>
+
 class Config {
 private:
 	static bool _512_tiles, _0_before_1, _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;

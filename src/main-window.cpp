@@ -467,7 +467,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 
 	for (int i = 0, md = 0; i < _menu_bar->size(); i++) {
 		Fl_Menu_Item *mi = (Fl_Menu_Item *)&_menu_bar->menu()[i];
-		if (md > 0 && mi && mi->label() && !mi->checkbox() && !mi->radio()) {
+		if (!mi) { continue; }
+		if (md > 0 && mi->label() && !mi->checkbox() && !mi->radio()) {
 			Fl_Pixmap *icon = &BLANK_ICON;
 			Fl_Multi_Label *ml = new Fl_Multi_Label();
 			ml->typea = _FL_IMAGE_LABEL;
