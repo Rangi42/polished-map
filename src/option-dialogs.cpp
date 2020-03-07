@@ -515,7 +515,7 @@ void Map_Options_Dialog::add_valid_sizes(size_t n) {
 		}
 	}
 	if (!_valid_sizes.empty()) {
-		select_map_size((int)_valid_sizes.size() / 2);
+		select_map_size(((int)_valid_sizes.size() - 1) / 2);
 	}
 }
 
