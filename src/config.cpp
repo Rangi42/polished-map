@@ -77,8 +77,11 @@ void Config::roof_path(char *dest, const char *root, const char *roof) {
 	// try gfx/tilesets/roofs/*.png
 	sprintf(dest, "%s%s%s.png", root, gfx_roof_dir(), roof);
 	if (file_exists(dest)) { return; }
-	// last resort: gfx/tilesets/roofs/*.2bpp
+	// try gfx/tilesets/roofs/*.2bpp
 	sprintf(dest, "%s%s%s.2bpp", root, gfx_roof_dir(), roof);
+	if (file_exists(dest)) { return; }
+	// last resort: gfx/tilesets/roofs/*.2bpp.lz
+	sprintf(dest, "%s%s%s.2bpp.lz", root, gfx_roof_dir(), roof);
 }
 
 void Config::roof_png_path(char *dest, const char *root, const char *roof) {

@@ -443,8 +443,9 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	if (n >= 0) {
 		for (int i = 0; i < n; i++) {
 			const char *name = list[i]->d_name;
-			int ext_len = ends_with(name, ".2bpp") ? 5 :
-						  ends_with(name, ".png") ? 4 : 0;
+			int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
+			              ends_with(name, ".2bpp") ? 5 :
+			              ends_with(name, ".png") ? 4 : 0;
 			if (ext_len) {
 				add_roof(name, ext_len);
 			}
