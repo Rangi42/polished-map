@@ -444,6 +444,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
 		int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
 			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
+			          ends_with(name, ".2bpp") ? 5 :
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
 			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
