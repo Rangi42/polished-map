@@ -123,6 +123,7 @@
     <ClCompile Include="..\src\option-dialogs.cpp" />
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\palette-window.cpp" />
+    <ClCompile Include="..\src\parse-asm.cpp" />
     <ClCompile Include="..\src\preferences.cpp" />
     <ClCompile Include="..\src\roof-window.cpp" />
     <ClCompile Include="..\src\ruler.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\src\option-dialogs.h" />
     <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\palette-window.h" />
+    <ClInclude Include="..\src\parse-asm.h" />
     <ClInclude Include="..\src\preferences.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\roof-window.h" />

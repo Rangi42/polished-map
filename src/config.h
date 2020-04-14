@@ -9,8 +9,8 @@ private:
 		_print_grid, _print_ids, _print_priority, _print_events;
 	static size_t _overworld_map_size;
 public:
-	static const char *gfx_tileset_dir(void);
-	static const char *gfx_roof_dir(void);
+	static void gfx_tileset_dir(char *dest, const char *root);
+	static void gfx_roof_dir(char *dest, const char *root);
 	static const char *palette_macro(void);
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
 	static void palette_map_path(char *dest, const char *root, const char *tileset);

@@ -16,6 +16,7 @@
 #include "widgets.h"
 #include "utils.h"
 #include "option-dialogs.h"
+#include "parse-asm.h"
 
 Option_Dialog::Option_Dialog(int w, const char *t) : _width(w), _title(t), _canceled(false),
 	_dialog(NULL), _content(NULL), _ok_button(NULL), _cancel_button(NULL) {}
@@ -164,6 +165,10 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	_map_header->copy_label(buffer);
 
 	size_t fs = file_size(filename);
+	if (ends_with(filename, ".MAP")) {
+		Parsed_Asm data(filename);
+		fs = data.size();
+	}
 	sprintf(buffer, "(%zu B)", fs);
 	_map_size->copy_label(buffer);
 	add_valid_sizes(fs);
@@ -428,8 +433,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 
 	char tileset_directory[FL_PATH_MAX] = {};
-	strcpy(tileset_directory, directory);
-	strcat(tileset_directory, Config::gfx_tileset_dir());
+	Config::gfx_tileset_dir(tileset_directory, directory);
 
 	dirent **list;
 	int n = fl_filename_list(tileset_directory, &list);
@@ -445,6 +449,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 		int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
 			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
 			          ends_with(name, ".2bpp") ? 5 :
+			          ends_with(name, ".DAT") ? 4 :
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
 			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
@@ -468,8 +473,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_roof_name_length = text_width("(none)", 6);
 
 	char roof_directory[FL_PATH_MAX] = {};
-	strcpy(roof_directory, directory);
-	strcat(roof_directory, Config::gfx_roof_dir());
+	Config::gfx_roof_dir(roof_directory, directory);
 
 	n = fl_filename_list(roof_directory, &list);
 	if (n >= 0) {
@@ -477,6 +481,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			const char *name = list[i]->d_name;
 			int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
 			              ends_with(name, ".2bpp") ? 5 :
+			              ends_with(name, ".DAT") ? 4 :
 			              ends_with(name, ".png") ? 4 : 0;
 			if (ext_len) {
 				add_roof(name, ext_len);

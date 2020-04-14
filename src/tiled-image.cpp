@@ -6,11 +6,13 @@
 #include "utils.h"
 #include "palette-map.h"
 #include "tiled-image.h"
+#include "parse-asm.h"
 
 Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(Result::IMG_NULL) {
 	if (ends_with(f, ".png")) { read_png_graphics(f); }
 	else if (ends_with(f, ".2bpp")) { read_2bpp_graphics(f); }
 	else if (ends_with(f, ".2bpp.lz")) { read_lz_graphics(f); }
+	else if (ends_with(f, ".DAT")) { read_asm_graphics(f); }
 }
 
 Tiled_Image::~Tiled_Image() {
@@ -237,4 +239,33 @@ Tiled_Image::Result Tiled_Image::parse_2bpp_data(size_t n, uchar *data) {
 
 	delete [] data;
 	return Result::IMG_OK;
+}
+
+Tiled_Image::Result Tiled_Image::read_asm_graphics(const char *f) {
+	Parsed_Asm data(f);
+	if (data.result() != Parsed_Asm::Result::ASM_OK) {
+		return (_result = Result::IMG_BAD_FILE); // cannot parse file
+	}
+
+	size_t n = data.size();
+	if (n % BYTES_PER_2BPP_TILE) { return (_result = Result::IMG_BAD_DIMS); }
+
+	// Copied from parse_2bpp_data
+
+	n /= BYTES_PER_2BPP_TILE;
+	if (n > MAX_NUM_TILES) { return (_result = Result::IMG_TOO_LARGE); }
+
+	_num_tiles = n;
+	delete [] _tile_hues;
+	_tile_hues = new Hue[_num_tiles * TILE_SIZE * TILE_SIZE]();
+
+	for (size_t i = 0; i < _num_tiles; i++) {
+		for (int j = 0; j < TILE_SIZE; j++) {
+			uchar b1 = data.get(i * BYTES_PER_2BPP_TILE + j * 2);
+			uchar b2 = data.get(i * BYTES_PER_2BPP_TILE + j * 2 + 1);
+			convert_2bytes_to_8hues(b1, b2, _tile_hues + (i * TILE_SIZE + j) * 8);
+		}
+	}
+
+	return (_result = Result::IMG_OK);
 }

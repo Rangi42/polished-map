@@ -41,6 +41,7 @@ public:
 	inline bool write_collisions(const char *f) const { return _bin_collisions ? write_bin_collisions(f) : write_asm_collisions(f); }
 	static const char *error_message(Result result);
 private:
+	Result read_asm_metatiles(const char *f);
 	Result read_asm_collisions(const char *f);
 	Result read_bin_collisions(const char *f);
 	bool write_asm_collisions(const char *f) const;

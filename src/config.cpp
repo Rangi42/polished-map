@@ -26,12 +26,17 @@ bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles 
 // wOverworldMapBlocks (aka OverworldMap or wOverworldMap) buffer size in WRAM
 size_t Config::_overworld_map_size = 1300;
 
-const char *Config::gfx_tileset_dir() {
-	return "gfx" DIR_SEP "tilesets" DIR_SEP;
+void Config::gfx_tileset_dir(char *dest, const char *root) {
+	// try MAPDATA/ (source)
+	sprintf(dest, "%s%s", root, "MAPDATA" DIR_SEP);
+	if (file_exists(dest)) { return; }
+	// last resort: gfx/tilesets/
+	sprintf(dest, "%s%s", root, "gfx" DIR_SEP "tilesets" DIR_SEP);
 }
 
-const char *Config::gfx_roof_dir() {
-	return "gfx" DIR_SEP "tilesets" DIR_SEP "roofs" DIR_SEP;
+void Config::gfx_roof_dir(char *dest, const char *root) {
+	// gfx/tilesets/roofs/
+	sprintf(dest, "%s%s", root, "gfx" DIR_SEP "tilesets" DIR_SEP "roofs" DIR_SEP);
 }
 
 const char *Config::palette_macro() {
@@ -41,20 +46,20 @@ const char *Config::palette_macro() {
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
 	char scratch_path[FL_PATH_MAX] = {};
 	fl_filename_absolute(scratch_path, blk_path);
-	char main_asm[FL_PATH_MAX] = {};
+	char makefile[FL_PATH_MAX] = {};
 	for (;;) {
 		char *pivot = strrchr(scratch_path, *DIR_SEP);
 		if (!pivot) { return false; }
 		*pivot = '\0';
-		// Make sure there's enough room for "/main.asm\0" or "/layout.link\0"
-		if (pivot - scratch_path + 13 > FL_PATH_MAX) { return false; }
-		strcpy(main_asm, scratch_path);
-		strcat(main_asm, DIR_SEP "main.asm");
-		if (!file_exists(main_asm)) {
-			strcpy(main_asm, scratch_path);
-			strcat(main_asm, DIR_SEP "layout.link");
+		// Make sure there's enough room for "/Makefile\0" (10 chars)
+		if (pivot - scratch_path + 10 > FL_PATH_MAX) { return false; }
+		strcpy(makefile, scratch_path);
+		strcat(makefile, DIR_SEP "Makefile");
+		if (!file_exists(makefile)) {
+			strcpy(makefile, scratch_path);
+			strcat(makefile, DIR_SEP "makefile");
 		}
-		if (file_exists(main_asm)) { // the project directory contains main.asm or layout.link
+		if (file_exists(makefile)) { // the project directory contains a Makefile
 			strcat(scratch_path, DIR_SEP);
 			strcpy(project_path, scratch_path);
 			return true;
@@ -80,33 +85,47 @@ void Config::palette_map_path(char *dest, const char *root, const char *tileset)
 }
 
 void Config::tileset_path(char *dest, const char *root, const char *tileset) {
+	char tileset_directory[FL_PATH_MAX] = {};
+	gfx_tileset_dir(tileset_directory, root);
 	// try gfx/tilesets/*.png (pokecrystal)
-	sprintf(dest, "%s%s%s.png", root, gfx_tileset_dir(), tileset);
+	sprintf(dest, "%s%s.png", tileset_directory, tileset);
 	if (file_exists(dest)) { return; }
 	// try gfx/tilesets/*.2bpp
-	sprintf(dest, "%s%s%s.2bpp", root, gfx_tileset_dir(), tileset);
+	sprintf(dest, "%s%s.2bpp", tileset_directory, tileset);
+	if (file_exists(dest)) { return; }
+	// try MAPDATA/*.DAT (source)
+	sprintf(dest, "%s%s.DAT", tileset_directory, tileset);
 	if (file_exists(dest)) { return; }
 	// last resort: gfx/tilesets/*.2bpp.lz
-	sprintf(dest, "%s%s%s.2bpp.lz", root, gfx_tileset_dir(), tileset);
+	sprintf(dest, "%s%s.2bpp.lz", tileset_directory, tileset);
 }
 
 void Config::tileset_png_path(char *dest, const char *root, const char *tileset) {
-	sprintf(dest, "%s%s%s.png", root, gfx_tileset_dir(), tileset);
+	char tileset_directory[FL_PATH_MAX] = {};
+	gfx_tileset_dir(tileset_directory, root);
+	sprintf(dest, "%s%s.png", tileset_directory, tileset);
 }
 
 void Config::roof_path(char *dest, const char *root, const char *roof) {
+	char roof_directory[FL_PATH_MAX] = {};
+	gfx_roof_dir(roof_directory, root);
 	// try gfx/tilesets/roofs/*.png
-	sprintf(dest, "%s%s%s.png", root, gfx_roof_dir(), roof);
+	sprintf(dest, "%s%s.png", roof_directory, roof);
 	if (file_exists(dest)) { return; }
 	// try gfx/tilesets/roofs/*.2bpp
-	sprintf(dest, "%s%s%s.2bpp", root, gfx_roof_dir(), roof);
+	sprintf(dest, "%s%s.2bpp", roof_directory, roof);
+	if (file_exists(dest)) { return; }
+	// try MAPDATA/*.DAT
+	sprintf(dest, "%s%s.DAT", roof_directory, roof);
 	if (file_exists(dest)) { return; }
 	// last resort: gfx/tilesets/roofs/*.2bpp.lz
-	sprintf(dest, "%s%s%s.2bpp.lz", root, gfx_roof_dir(), roof);
+	sprintf(dest, "%s%s.2bpp.lz", roof_directory, roof);
 }
 
 void Config::roof_png_path(char *dest, const char *root, const char *roof) {
-	sprintf(dest, "%s%s%s.png", root, gfx_roof_dir(), roof);
+	char roof_directory[FL_PATH_MAX] = {};
+	gfx_roof_dir(roof_directory, root);
+	sprintf(dest, "%s%s.png", roof_directory, roof);
 }
 
 void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
@@ -117,6 +136,9 @@ void Config::metatileset_path(char *dest, const char *root, const char *tileset)
 	char *name = trim_suffix(tileset);
 	sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
 	free(name);
+	if (file_exists(dest)) { return; }
+	// try MAPDATA/*.CEL (source)
+	sprintf(dest, "%sMAPDATA" DIR_SEP "%s.CEL", root, tileset);
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/*_metatiles.bin (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
@@ -165,6 +187,9 @@ void Config::map_header_path(char *dest, const char *root, const char *map_name)
 void Config::event_script_path(char *dest, const char *root, const char *map_name) {
 	// try maps/*.asm (pokecrystal, Prism)
 	sprintf(dest, "%smaps" DIR_SEP "%s.asm", root, map_name);
+	if (file_exists(dest)) { return; }
+	// try SXY/%s.asm (source)
+	sprintf(dest, "%sSXY" DIR_SEP "%s.asm", root, map_name);
 	if (file_exists(dest)) { return; }
 	// last resort: data/mapObjects/%s.asm (pokered)
 	sprintf(dest, "%sdata" DIR_SEP "mapObjects" DIR_SEP "%s.asm", root, map_name);

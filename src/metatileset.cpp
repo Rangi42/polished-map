@@ -7,6 +7,7 @@
 #pragma warning(pop)
 
 #include "metatileset.h"
+#include "parse-asm.h"
 
 Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(Result::META_NULL), _modified(false),
 	_bin_collisions(false) {
@@ -95,6 +96,8 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = Result::META_NO_GFX); } // no graphics
 
+	if (ends_with(f, ".CEL")) { return read_asm_metatiles(f); }
+
 	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = Result::META_BAD_FILE); } // cannot load file
 
@@ -113,6 +116,31 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	}
 
 	fclose(file);
+	return (_result = Result::META_OK);
+}
+
+Metatileset::Result Metatileset::read_asm_metatiles(const char *f) {
+	Parsed_Asm data(f);
+	if (data.result() != Parsed_Asm::Result::ASM_OK) {
+		return (_result = Result::META_BAD_FILE); // cannot parse file
+	}
+
+	size_t c = data.size();
+	size_t n = c / (METATILE_SIZE * METATILE_SIZE);
+	_num_metatiles = MIN(n, MAX_NUM_METATILES);
+
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		int off = (int)i * METATILE_SIZE * METATILE_SIZE;
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				mt->tile_id(x, y, data.get(off  + y * METATILE_SIZE + x));
+			}
+		}
+	}
+
+	if (n > MAX_NUM_METATILES) { return (_result = Result::META_TOO_LONG); }
+	if (c % (METATILE_SIZE * METATILE_SIZE)) { return (_result = Result::META_TOO_SHORT); }
 	return (_result = Result::META_OK);
 }
 

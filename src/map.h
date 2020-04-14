@@ -79,6 +79,8 @@ public:
 	void undo(void);
 	void redo(void);
 	Result read_blocks(const char *f);
+private:
+	Result read_asm_blocks(const char *f);
 public:
 	static const char *error_message(Result result);
 };

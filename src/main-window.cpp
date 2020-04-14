@@ -618,7 +618,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_new_dir_chooser->title("Choose Project Directory");
 
 	_blk_open_chooser->title("Open Map");
-	_blk_open_chooser->filter("BLK Files\t*.blk\n");
+	_blk_open_chooser->filter("BLK Files\t*.blk\nMAP Files\t*.map\n");
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
@@ -1139,7 +1139,7 @@ void Main_Window::open_map(const char *filename) {
 	char directory[FL_PATH_MAX] = {};
 	if (!Config::project_path_from_blk_path(filename, directory)) {
 		std::string msg = "Could not find the project directory for\n";
-		msg = msg + basename + "!\nMake sure it contains a main.asm or layout.link file.";
+		msg = msg + basename + "!\nMake sure it contains a Makefile.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -1289,14 +1289,16 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	load_palettes(buffer);
 
 	if (auto_load_special_palettes()) {
+		char tileset_directory[FL_PATH_MAX] = {};
+		Config::gfx_tileset_dir(tileset_directory, directory);
 		// load unique tileset palettes if they exist
-		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
+		sprintf(buffer, "%s%s.pal", tileset_directory, tileset_name);
 		if (file_exists(buffer)) {
 			load_palettes(buffer);
 		}
 		// load unique landmark palettes if they exist
 		if (_map.landmark() != tileset_name) {
-			sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
+			sprintf(buffer, "%s%s.pal", tileset_directory, _map.landmark().c_str());
 			if (file_exists(buffer)) {
 				load_palettes(buffer);
 			}
