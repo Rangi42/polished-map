@@ -137,7 +137,7 @@ Map::Result Map::read_asm_blocks(const char *f) {
 	if (file == NULL) { return (_result = Result::MAP_BAD_FILE); } // cannot load file
 
 	size_t c = data.size();
-	if (c < size()) { return (_result = Result::MAP_TOO_SHORT); } // too-short DAT
+	if (c < size()) { return (_result = Result::MAP_TOO_SHORT); } // too-short CHR
 	if (c > size()) { too_long = true; }
 
 	for (uint8_t y = 0; y < (size_t)_height; y++) {

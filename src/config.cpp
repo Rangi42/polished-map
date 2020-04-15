@@ -93,8 +93,8 @@ void Config::tileset_path(char *dest, const char *root, const char *tileset) {
 	// try gfx/tilesets/*.2bpp
 	sprintf(dest, "%s%s.2bpp", tileset_directory, tileset);
 	if (file_exists(dest)) { return; }
-	// try MAPDATA/*.DAT (source)
-	sprintf(dest, "%s%s.DAT", tileset_directory, tileset);
+	// try MAPDATA/*.CHR (source)
+	sprintf(dest, "%s%s.CHR", tileset_directory, tileset);
 	if (file_exists(dest)) { return; }
 	// last resort: gfx/tilesets/*.2bpp.lz
 	sprintf(dest, "%s%s.2bpp.lz", tileset_directory, tileset);
@@ -115,8 +115,8 @@ void Config::roof_path(char *dest, const char *root, const char *roof) {
 	// try gfx/tilesets/roofs/*.2bpp
 	sprintf(dest, "%s%s.2bpp", roof_directory, roof);
 	if (file_exists(dest)) { return; }
-	// try MAPDATA/*.DAT
-	sprintf(dest, "%s%s.DAT", roof_directory, roof);
+	// try MAPDATA/*.CHR
+	sprintf(dest, "%s%s.CHR", roof_directory, roof);
 	if (file_exists(dest)) { return; }
 	// last resort: gfx/tilesets/roofs/*.2bpp.lz
 	sprintf(dest, "%s%s.2bpp.lz", roof_directory, roof);
