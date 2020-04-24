@@ -1341,7 +1341,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	// load roof colors if applicable
-	if (auto_load_roof_colors() && _map.group() && _map.is_outside()) {
+	if (auto_load_roof_colors() && _map.group() && _map.is_outside() && !Config::monochrome()) {
 		load_roof_colors(true);
 	}
 
