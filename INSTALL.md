@@ -29,11 +29,23 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 
 Run the following commands:
 
+### Install Dependencies
+(You need at least g++ 4.9 for <regex> support)
+
+#### Ubuntu/Debian
 ```bash
-# Install dependencies
 # (you need at least g++ 4.9 for <regex> support)
 sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
+```
+#### Fedora
+```
+sudo dnf install make g++ git unzip
+sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel
+```
+### Installation & Build
+
+```bash
 
 # Clone Polished Map
 git clone https://github.com/Rangi42/polished-map.git
