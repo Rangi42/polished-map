@@ -2,20 +2,24 @@
 
 ## Windows
 
-**To install Polished Map++:**
+### Install the Polished Map++ release
 
 1. Download **install.bat** and **polishedmap-plusplus.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map++ to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
 4. Double-click **Polished Map++** on your Desktop to open it. If you get an error that "msvcrt140.dll is missing", you need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://www.microsoft.com/en-us/download/details.aspx?id=40784) for x86.
 
-If you have Microsoft Visual Studio, you can build Polished Map++ yourself:
+### Build Polished Map++ from source
 
-1. Download the **Source code (zip)** from [the latest release](https://github.com/Rangi42/polished-map/releases). This will download **polished-map-*[version]*.zip**.
+You will need [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/); the Community edition is free.
+
+If the pre-built release already works for you, you don't have to build it yourself.
+
+1. Download the **Source code (zip)** from [the most recent **++** release](https://github.com/Rangi42/polished-map/releases). This will download **polished-map-*[version]*.zip**.
 2. Unzip polished-map-*[version]*.zip. This will create the **polished-map-*[version]*** folder.
 3. Navigate to the polished-map-*[version]* folder in Explorer.
 4. Unzip lib/fltk-1.3.5-mod.zip. This will create the lib/**fltk-1.3.5-mod** folder.
-5. Open lib/fltk-1.3.5-mod/ide/VisualC2010/fltk.sln in Visual Studio 2019.
+5. Open lib/fltk-1.3.5-mod/ide/VisualC2010/fltk.sln in Visual Studio 2019. (Other versions may or may not work, I haven't tried.)
 6. A dialog "Upgrade VS++ Compiler and Libraries" will open, since fltk.sln was made for Visual Studio 2008. Click OK.
 7. Go to **Build → Batch Build…**, check the projects **fltk**, **fltkimages**, **fltkpng**, **fltkjpeg**, and **fltkzlib** in the Release configuration, and click the **Build** button.
 8. Move the .lib files from lib/fltk-1.3.5-mod/lib to lib.
@@ -27,15 +31,34 @@ If you have Microsoft Visual Studio, you can build Polished Map++ yourself:
 
 ## Linux
 
+### Install dependencies
+
+You need at least g++ 4.9 for `<regex>` support.
+
+#### Ubuntu/Debian
+
 Run the following commands:
 
 ```bash
-# Install dependencies
-# (you need at least g++ 4.9 for <regex> support)
 sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
+```
 
-# Clone Polished Map++
+#### Fedora
+
+Run the following commands:
+
+```bash
+sudo dnf install make g++ git unzip
+sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel
+```
+
+### Install and build Polished Map
+
+Run the following commands:
+
+```bash
+# Clone Polished Map
 git clone --branch plusplus https://github.com/Rangi42/polished-map.git
 cd polished-map
 
