@@ -2,14 +2,18 @@
 
 ## Windows
 
-**To install Polished Map:**
+### Install the Polished Map release
 
 1. Download **install.bat** and **polishedmap.exe** from [the latest release](https://github.com/Rangi42/polished-map/releases).
 2. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map to your account and create a shortcut on your Desktop.
 3. Now you can delete the two downloaded files.
 4. Double-click **Polished Map** on your Desktop to open it. If you get an error that "msvcrt140.dll is missing", you need to install the [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://www.visualstudio.com/downloads/) for x86.
 
-If you have Microsoft Visual Studio, you can build Polished Map yourself:
+### Build Polished Map from source
+
+You will need [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/); the Community edition is free.
+
+If the pre-built release already works for you, you don't have to build it yourself.
 
 1. On GitHub, click the green "**Clone or download**" button and click "**Download ZIP**". This will download **polished-map-master.zip**.
 2. Unzip polished-map-master.zip. This will create the **polished-map-master** folder.
@@ -27,14 +31,33 @@ If you have Microsoft Visual Studio, you can build Polished Map yourself:
 
 ## Linux
 
+### Install dependencies
+
+You need at least g++ 4.9 for `<regex>` support.
+
+#### Ubuntu/Debian
+
 Run the following commands:
 
 ```bash
-# Install dependencies
-# (you need at least g++ 4.9 for <regex> support)
 sudo apt-get install make g++ git unzip
 sudo apt-get install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
+```
 
+#### Fedora
+
+Run the following commands:
+
+```bash
+sudo dnf install make g++ git unzip
+sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel
+```
+
+### Install and build Polished Map
+
+Run the following commands:
+
+```bash
 # Clone Polished Map
 git clone https://github.com/Rangi42/polished-map.git
 cd polished-map
