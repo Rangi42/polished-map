@@ -1250,7 +1250,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	copy_label(buffer);
 	if (ends_with(basename, ".blk")) {
-		sprintf(buffer, "%s", basename);
+		strcpy(buffer, basename);
 		size_t n = strlen(buffer);
 		buffer[n-4] = '\0';
 		strcat(buffer, ".png");
