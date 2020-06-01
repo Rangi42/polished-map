@@ -1090,7 +1090,7 @@ void Print_Options_Dialog::refresh() {
 	dx += _priority->w() + wgt_m;
 	wgt_w = text_width(_events->label(), 2) + wgt_h;
 	_events->resize(dx, dy, wgt_w, wgt_h);
-	dx += _priority->w() + win_m;
+	dx += _events->w() + win_m;
 	if (dx < 288) { dx = 288; }
 	dy += wgt_h + 16;
 #ifdef _WIN32
