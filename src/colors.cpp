@@ -263,15 +263,23 @@ bool Color::read_roof_colors(const char *f, uint8_t map_group) {
 	return true;
 }
 
-bool Color::write_palettes(const char *f, Palettes pals) {
+bool Color::write_palettes(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
-	const char *names[NUM_PALETTES] = {"gray", "red", "green", "water", "yellow", "brown", "roof", "text"};
-	for (int p = 0; p < NUM_PALETTES; p++) {
-		fprintf(file, "; %s\n", names[p]);
-		for (int h = 0; h < NUM_HUES; h++) {
-			const uchar *rgb = color(pals, (Palette)p, ordered_hue(h));
-			fprintf(file, "\tRGB %02u, %02u, %02u\n", CRGB5(rgb[0]), CRGB5(rgb[1]), CRGB5(rgb[2]));
+	const char *palettes_names[NUM_PALETTE_SETS] = {"morn", "day", "nite", "indoor", "custom"};
+	const char *palette_names[NUM_PALETTES] = {"gray", "red", "green", "water", "yellow", "brown", "roof", "text"};
+	for (int l = 0; l < NUM_PALETTE_SETS; l++) {
+		fprintf(file, "; %s\n", palettes_names[l]);
+		for (int p = 0; p < NUM_PALETTES; p++) {
+			fprintf(file, "\tRGB ");
+			for (int h = 0; h < NUM_HUES; h++) {
+				const uchar *rgb = color((Palettes)l, (Palette)p, ordered_hue(h));
+				if (h > 0) {
+					fprintf(file, ", ");
+				}
+				fprintf(file, "%02u,%02u,%02u", CRGB5(rgb[0]), CRGB5(rgb[1]), CRGB5(rgb[2]));
+			}
+			fprintf(file, " ; %s\n", palette_names[p]);
 		}
 	}
 	fclose(file);

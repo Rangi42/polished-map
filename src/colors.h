@@ -45,7 +45,7 @@ public:
 	static PalVec parse_palettes(const char *f);
 	static Palettes read_palettes(const char *f, Palettes pals);
 	static bool read_roof_colors(const char *f, uint8_t map_group);
-	static bool write_palettes(const char *f, Palettes pals);
+	static bool write_palettes(const char *f);
 };
 
 #endif
