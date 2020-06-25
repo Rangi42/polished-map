@@ -190,7 +190,7 @@ private:
 	bool save_tileset(void);
 	bool save_roof(void);
 	bool save_event_script(void);
-	bool export_palettes(const char *filename, Palettes l);
+	bool export_palettes(const char *filename);
 	void print_map(void);
 	void edit_metatile(Metatile *mt);
 	void update_icons(void);
@@ -224,7 +224,7 @@ private:
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_palettes_cb(Fl_Widget *w, Main_Window *mw);
-	static void export_current_palettes_cb(Fl_Widget *w, Main_Window *mw);
+	static void export_palettes_cb(Fl_Widget *w, Main_Window *mw);
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);

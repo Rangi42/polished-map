@@ -297,7 +297,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Reloa&d Event Script", FL_COMMAND + 'r', (Fl_Callback *)reload_event_script_cb, this, 0),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'W', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Palettes...", FL_COMMAND + 'l', (Fl_Callback *)load_palettes_cb, this, 0),
-		OS_MENU_ITEM("Export Current Pa&lettes...", 0, (Fl_Callback *)export_current_palettes_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Export Pa&lettes...", 0, (Fl_Callback *)export_palettes_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load Roo&f Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, 0),
 		{},
 		OS_SUBMENU("&Edit"),
@@ -631,7 +631,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_pal_save_chooser->title("Save Palettes");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
 	_pal_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
-	_pal_save_chooser->preset_file("custom.pal");
+	_pal_save_chooser->preset_file("palettes.pal");
 
 	_roof_chooser->title("Open Roof Tiles");
 	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
@@ -2012,10 +2012,10 @@ bool Main_Window::save_event_script() {
 	return true;
 }
 
-bool Main_Window::export_palettes(const char *filename, Palettes l) {
+bool Main_Window::export_palettes(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
-	if (!Color::write_palettes(filename, l)) {
+	if (!Color::write_palettes(filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -2506,7 +2506,7 @@ void Main_Window::load_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::export_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::export_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_pal_save_chooser->show();
 	if (status == 1) { return; }
 
@@ -2522,7 +2522,7 @@ void Main_Window::export_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->export_palettes(filename, mw->palettes());
+	mw->export_palettes(filename);
 }
 
 void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
