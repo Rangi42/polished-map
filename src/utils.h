@@ -6,6 +6,7 @@
 #include <limits>
 #include <cmath>
 #include <string>
+#include <string_view>
 
 #ifdef _DEBUG
 
@@ -77,9 +78,9 @@ typedef uint64_t size64_t;
 
 extern const std::string whitespace;
 
-bool starts_with(const std::string &s, const std::string &p);
-bool ends_with(const std::string &s, const std::string &p);
-bool ends_with(const std::wstring &s, const std::wstring &p);
+bool starts_with(std::string_view s, std::string_view p);
+bool ends_with(std::string_view s, std::string_view p);
+bool ends_with(std::wstring_view s, std::wstring_view p);
 void trim(std::string &s, const std::string &t = whitespace);
 void lowercase(std::string & s);
 void remove_comment(std::string &s, char c = ';');
