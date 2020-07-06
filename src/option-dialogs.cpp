@@ -342,14 +342,25 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 
 			std::istringstream lss(line);
 
-			std::string db;
-			lss >> db;
-			if (db != "db") { continue; }
+			std::string macro;
+			lss >> macro;
+			if (macro == "map_header") {
+				std::string skip_token;
+				std::getline(lss, skip_token, ','); // map name
+				std::getline(lss, skip_token, ','); // map ID
 
-			std::string tileset_name;
-			lss >> tileset_name;
-			lowercase(tileset_name);
-			return tileset_name;
+				std::string tileset_name;
+				std::getline(lss, tileset_name, ',');
+				trim(tileset_name);
+				lowercase(tileset_name);
+				return tileset_name;
+			}
+			else if (macro == "db") {
+				std::string tileset_name;
+				lss >> tileset_name;
+				lowercase(tileset_name);
+				return tileset_name;
+			}
 		}
 	}
 

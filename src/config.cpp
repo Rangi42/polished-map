@@ -180,7 +180,10 @@ bool Config::map_headers_path(char *dest, const char *root) {
 }
 
 void Config::map_header_path(char *dest, const char *root, const char *map_name) {
-	// data/mapHeaders/%s.asm (pokered)
+	// try data/maps/headers/%s.asm (pokered)
+	sprintf(dest, "%sdata" DIR_SEP "maps" DIR_SEP "headers" DIR_SEP "%s.asm", root, map_name);
+	if (file_exists(dest)) { return; }
+	// last resort: data/mapHeaders/%s.asm (old pokered)
 	sprintf(dest, "%sdata" DIR_SEP "mapHeaders" DIR_SEP "%s.asm", root, map_name);
 }
 
@@ -191,7 +194,10 @@ void Config::event_script_path(char *dest, const char *root, const char *map_nam
 	// try SXY/%s.asm (source)
 	sprintf(dest, "%sSXY" DIR_SEP "%s.asm", root, map_name);
 	if (file_exists(dest)) { return; }
-	// last resort: data/mapObjects/%s.asm (pokered)
+	// try data/maps/objects/%s.asm (pokered)
+	sprintf(dest, "%sdata" DIR_SEP "maps" DIR_SEP "objects" DIR_SEP "%s.asm", root, map_name);
+	if (file_exists(dest)) { return; }
+	// last resort: data/mapObjects/%s.asm (old pokered)
 	sprintf(dest, "%sdata" DIR_SEP "mapObjects" DIR_SEP "%s.asm", root, map_name);
 }
 
