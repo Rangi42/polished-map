@@ -33,7 +33,7 @@ If the pre-built release already works for you, you don't have to build it yours
 
 ### Install dependencies
 
-You need at least g++ 4.9 for `<regex>` support.
+You need at least g++ 7 for C++11 `<regex>` and C++17 `<string_view>` support.
 
 #### Ubuntu/Debian
 
