@@ -33,7 +33,7 @@ If the pre-built release already works for you, you don't have to build it yours
 
 ### Install dependencies
 
-You need at least g++ 4.9 for `<regex>` support.
+You need at least g++ 7 for C++11 `<regex>` and C++17 `<string_view>` support.
 
 #### Ubuntu/Debian
 
@@ -53,12 +53,12 @@ sudo dnf install make g++ git unzip
 sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel
 ```
 
-### Install and build Polished Map
+### Install and build Polished Map++
 
 Run the following commands:
 
 ```bash
-# Clone Polished Map
+# Clone Polished Map++
 git clone --branch plusplus https://github.com/Rangi42/polished-map.git
 cd polished-map
 
