@@ -29,7 +29,7 @@ int Hex_Input::handle_paste_text() {
 	while (isspace(*t & 0xFF) && t < e) { t++; }
 	const char *p = t;
 	if (*p == '+' || *p == '-') { p++; }
-	while (isxdigit(*p & 0xFF) && p < e) { p++; }
+	while (isxdigit((unsigned char)(*p) & 0xFF) && p < e) { p++; }
 	if (p < e) {
 		fl_beep(FL_BEEP_ERROR);
 		return 1;
@@ -46,7 +46,7 @@ int Hex_Input::handle_key() {
 	Fl::compose_reset();
 	char a = Fl::event_text()[0];
 	int ip = MIN(position(), mark());
-	if (isxdigit(a) || (!ip && (a == '+' || a == '-'))) {
+	if (isxdigit((unsigned char)a) || (!ip && (a == '+' || a == '-'))) {
 		if (readonly()) {
 			fl_beep();
 		}

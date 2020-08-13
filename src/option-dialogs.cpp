@@ -136,8 +136,8 @@ static void guess_map_constant(const char *name, char *constant) {
 	size_t n = p ? p - name : strlen(name); // ignore extension and attribute data
 	for (size_t i = 0; i < n; i++) {
 		char c = *name;
-		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
-			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...
+		if ((islower((unsigned char)prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
+			(i < n - 1 && isupperordigit(prev) && isupper((unsigned char)c) && islower((unsigned char)*(name+1)))) { // ...ZAb... -> ...Z_AB...
 			*constant++ = '_';
 		}
 		prev = c;
@@ -354,7 +354,7 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	v.erase(v.size() - ext_len, ext_len);
 	std::string p(v);
 
-	if (p.length() == 2 && isdigit(p[0]) && isdigit(p[1])) {
+	if (p.length() == 2 && isdigit((unsigned char)p[0]) && isdigit((unsigned char)p[1])) {
 		Dictionary::const_iterator it = pretty_names.find(p);
 		if (it != pretty_names.end()) {
 			p = it->second;
