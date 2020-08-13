@@ -52,8 +52,9 @@ private:
 		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
-	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
-		*_special_palettes_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL, *_overworld_map_size_mi = NULL;
+	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_custom_roof_color_mi = NULL,
+		*_auto_events_mi = NULL, *_special_palettes_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL,
+		*_overworld_map_size_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_palettes_tb, *_edit_current_palettes_tb;
@@ -131,6 +132,7 @@ public:
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
 	inline bool allow_priority(void) const { return _allow_priority_mi && !!_allow_priority_mi->value(); }
 	inline bool allow_256_tiles(void) const { return _allow_256_tiles_mi && !!_allow_256_tiles_mi->value(); }
+	inline bool custom_roof_color(void) const { return _custom_roof_color_mi && !!_custom_roof_color_mi->value(); }
 	inline bool auto_load_events(void) const { return _auto_events_mi && !!_auto_events_mi->value(); }
 	inline bool auto_load_special_palettes(void) const { return _special_palettes_mi && !!_special_palettes_mi->value(); }
 	inline bool auto_load_roof_colors(void) const { return _roof_colors_mi && !!_roof_colors_mi->value(); }
@@ -273,6 +275,7 @@ private:
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void custom_roof_color_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_special_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);

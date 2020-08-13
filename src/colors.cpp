@@ -240,14 +240,17 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 			pals = Palettes::DAY;
 		}
 		break;
-	case 4 * NUM_GAME_PALETTES: // MORN, DAY, NITE, INDOOR
-		for (int l = 0; l < 4; l++) {
+	case 4 * NUM_GAME_PALETTES: // MORN, DAY, NITE, CUSTOM
+		for (int l = 0; l < 3; l++) {
 			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
 				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
 			}
 		}
-		if (pals == Palettes::CUSTOM) {
-			pals = Palettes::DAY;
+		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+			color(Palettes::CUSTOM, (Palette)p, custom_colors[p+3*NUM_GAME_PALETTES]);
+		}
+		if (pals == Palettes::INDOOR) {
+			pals = Palettes::CUSTOM;
 		}
 		break;
 	case 5 * NUM_GAME_PALETTES: // MORN, DAY, NITE, INDOOR, CUSTOM
@@ -269,13 +272,34 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 			color(Palettes::INDOOR, (Palette)p, custom_colors[p+4*NUM_GAME_PALETTES]);
 		}
 		// apply separate WATER hues
-		bool two_waters = n == 5 * NUM_GAME_PALETTES + 2;
-		color(Palettes::MORN, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5]);
-		color(Palettes::DAY,  Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 0 : 1)]);
-		color(Palettes::NITE, Palette::WATER, custom_colors[NUM_GAME_PALETTES*5+(two_waters ? 1 : 2)]);
+		{
+			bool two_waters = n == 5 * NUM_GAME_PALETTES + 2;
+			color(Palettes::MORN, Palette::WATER, custom_colors[5*NUM_GAME_PALETTES]);
+			color(Palettes::DAY,  Palette::WATER, custom_colors[5*NUM_GAME_PALETTES+(two_waters ? 0 : 1)]);
+			color(Palettes::NITE, Palette::WATER, custom_colors[5*NUM_GAME_PALETTES+(two_waters ? 1 : 2)]);
+		}
 		if (pals == Palettes::CUSTOM) {
 			pals = Palettes::DAY;
 		}
+		break;
+	case 5 * NUM_GAME_PALETTES + 4: // MORN, DAY, NITE, CUSTOM, INDOOR, MORN WATER, DAY WATER, NITE WATER, CUSTOM WATER
+		for (int l = 0; l < 3; l++) {
+			for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_GAME_PALETTES]);
+			}
+		}
+		// DARKNESS is CUSTOM
+		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+			color(Palettes::CUSTOM, (Palette)p, custom_colors[p+3*NUM_GAME_PALETTES]);
+		}
+		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+			color(Palettes::INDOOR, (Palette)p, custom_colors[p+4*NUM_GAME_PALETTES]);
+		}
+		// apply separate WATER hues
+		for (int l = 0; l < 3; l++) {
+			color((Palettes)l, Palette::WATER, custom_colors[5*NUM_GAME_PALETTES+l]);
+		}
+		color(Palettes::CUSTOM, Palette::WATER, custom_colors[5*NUM_GAME_PALETTES+3]);
 		break;
 	}
 	return pals;
@@ -283,16 +307,35 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 
 bool Color::read_roof_colors(const char *f, uint8_t map_group) {
 	PalVec roof_colors = parse_palettes(f);
-	if (roof_colors.size() < (size_t)map_group + 1) { return false; }
-
-	// Each HueArray in a PalVec contains 4 RGB hues, so treat them as <DAY LIGHT, NITE LIGHT, DAY DARK, NITE DARK>
-	color(Palettes::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
-	color(Palettes::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
-	color(Palettes::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
-	color(Palettes::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
-	color(Palettes::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(2)]);
-	color(Palettes::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(3)]);
-
+	if (!Config::custom_roof_color()) {
+		if (roof_colors.size() < (size_t)map_group + 1) { return false; }
+		// Each HueArray in a PalVec contains 4 RGB hues, so treat them as <DAY LIGHT, NITE LIGHT, DAY DARK, NITE DARK>
+		color(Palettes::MORN, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
+		color(Palettes::MORN, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
+		color(Palettes::DAY,  Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(0)]);
+		color(Palettes::DAY,  Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(1)]);
+		color(Palettes::NITE, Palette::ROOF, Hue::LIGHT, roof_colors[map_group][(int)ordered_hue(2)]);
+		color(Palettes::NITE, Palette::ROOF, Hue::DARK,  roof_colors[map_group][(int)ordered_hue(3)]);
+	}
+	else {
+		// Each map group has 6 RGB hues (3 day parts per roof, 2 colors per day part)
+		int ci = (int)map_group * 3 * 2;
+		int p0 = ci / NUM_HUES, h0 = ci % NUM_HUES;
+		int p1 = p0 + (h0 + 1) / NUM_HUES, h1 = (h0 + 1) % NUM_HUES;
+		int p2 = p1 + (h1 + 1) / NUM_HUES, h2 = (h1 + 1) % NUM_HUES;
+		int p3 = p2 + (h2 + 1) / NUM_HUES, h3 = (h2 + 1) % NUM_HUES;
+		int p4 = p3 + (h3 + 1) / NUM_HUES, h4 = (h3 + 1) % NUM_HUES;
+		int p5 = p4 + (h4 + 1) / NUM_HUES, h5 = (h4 + 1) % NUM_HUES;
+		if (roof_colors.size() < (size_t)p5 + 1) { return false; }
+		color(Palettes::MORN,   Palette::ROOF, Hue::LIGHT, roof_colors[p0][(int)ordered_hue(h0)]);
+		color(Palettes::MORN,   Palette::ROOF, Hue::DARK,  roof_colors[p1][(int)ordered_hue(h1)]);
+		color(Palettes::DAY,    Palette::ROOF, Hue::LIGHT, roof_colors[p0][(int)ordered_hue(h0)]);
+		color(Palettes::DAY,    Palette::ROOF, Hue::DARK,  roof_colors[p1][(int)ordered_hue(h1)]);
+		color(Palettes::NITE,   Palette::ROOF, Hue::LIGHT, roof_colors[p2][(int)ordered_hue(h2)]);
+		color(Palettes::NITE,   Palette::ROOF, Hue::DARK,  roof_colors[p3][(int)ordered_hue(h3)]);
+		color(Palettes::CUSTOM, Palette::ROOF, Hue::LIGHT, roof_colors[p4][(int)ordered_hue(h4)]);
+		color(Palettes::CUSTOM, Palette::ROOF, Hue::DARK,  roof_colors[p5][(int)ordered_hue(h5)]);
+	}
 	return true;
 }
 
