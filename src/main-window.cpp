@@ -63,9 +63,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 
 	int allow_512_tiles_config = Preferences::get("all512", 0);
 	int arrange_0_before_1_config = Preferences::get("swap01", 0);
+	int custom_roof_color_config = Preferences::get("roof3", 0);
 	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::allow_512_tiles(!!allow_512_tiles_config);
 	Config::arrange_0_before_1(!!arrange_0_before_1_config);
+	Config::custom_roof_color(!!custom_roof_color_config);
 	Config::drag_and_drop(!!drag_and_drop_config);
 
 	int print_grid_config = Preferences::get("print-grid", 0);
@@ -379,7 +381,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("512 &Tiles", 0, (Fl_Callback *)allow_512_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_512_tiles_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("$0:80-FF &Before $1:80-FF", 0, (Fl_Callback *)arrange_0_before_1_cb, this,
-			FL_MENU_TOGGLE | (arrange_0_before_1_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (arrange_0_before_1_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Custom Roof Color", 0, (Fl_Callback *)custom_roof_color_cb, this,
+			FL_MENU_TOGGLE | (custom_roof_color_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
@@ -433,6 +437,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_events_mode_mi = PM_FIND_MENU_ITEM_CB(events_mode_cb);
 	_allow_512_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_512_tiles_cb);
 	_arrange_0_before_1_mi = PM_FIND_MENU_ITEM_CB(arrange_0_before_1_cb);
+	_custom_roof_color_mi = PM_FIND_MENU_ITEM_CB(custom_roof_color_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
@@ -2600,6 +2605,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("all512", mw->allow_512_tiles());
 	Preferences::set("swap01", mw->arrange_0_before_1());
+	Preferences::set("roof3", mw->custom_roof_color());
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
@@ -3099,6 +3105,10 @@ void Main_Window::allow_512_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 void Main_Window::arrange_0_before_1_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::arrange_0_before_1(!!m->mvalue()->value());
 	mw->redraw();
+}
+
+void Main_Window::custom_roof_color_cb(Fl_Menu_ *m, Main_Window *) {
+	Config::custom_roof_color(!!m->mvalue()->value());
 }
 
 void Main_Window::auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw) {

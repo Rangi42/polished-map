@@ -5,7 +5,8 @@
 
 class Config {
 private:
-	static bool _512_tiles, _0_before_1, _drag_and_drop, _print_grid, _print_ids, _print_priority, _print_events;
+	static bool _512_tiles, _0_before_1, _custom_roof, _drag_and_drop;
+	static bool _print_grid, _print_ids, _print_priority, _print_events;
 	static size_t _overworld_map_size;
 public:
 	static const char *gfx_tileset_dir(void);
@@ -29,6 +30,8 @@ public:
 	inline static void allow_512_tiles(bool t) { _512_tiles = t; }
 	inline static bool arrange_0_before_1(void) { return _0_before_1; }
 	inline static void arrange_0_before_1(bool b) { _0_before_1 = b; }
+	inline static bool custom_roof_color(void) { return _custom_roof; }
+	inline static void custom_roof_color(bool e) { _custom_roof = e; }
 	inline static bool drag_and_drop(void) { return _drag_and_drop; }
 	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
 	inline static bool print_grid(void) { return _print_grid; }
