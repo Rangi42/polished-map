@@ -174,7 +174,7 @@ bool Event::warp_map_name(char *name) const {
 		}
 		else {
 			*name++ = c;
-			downcase = !isdigit(c);
+			downcase = !isdigit((unsigned char)c);
 		}
 	}
 	*name = '\0';
