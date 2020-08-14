@@ -925,6 +925,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_prefixed) {
 		e->_prefix = _prefix->value();
 		trim(e->_prefix);
+		std::replace(e->_prefix.begin(), e->_prefix.end(), '\n', ' ');
 		if (!ends_with(e->_prefix, ",")) {
 			e->_prefix += ",";
 		}
@@ -932,6 +933,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_suffixed) {
 		e->_suffix = _suffix->value();
 		trim(e->_suffix);
+		std::replace(e->_suffix.begin(), e->_suffix.end(), '\n', ' ');
 		if (starts_with(e->_suffix, ";")) {
 			e->_suffix = " " + e->_suffix;
 		}
@@ -973,19 +975,6 @@ void Event_Options_Dialog::initialize_content() {
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h + wgt_m + wgt_h;
-	if (_prefix->visible()) {
-		ch += wgt_h + wgt_m;
-	}
-	if (_suffix->visible()) {
-		ch += wgt_h + wgt_m;
-	}
-	_content->resize(win_m, dy, ww, ch);
-
-	wgt_w = text_width(_line_heading->label(), 6);
-	_macro_heading->resize(win_m, dy, ww-wgt_w, wgt_h);
-	_line_heading->resize(win_m+ww-wgt_w, dy, wgt_w, wgt_h);
-	dy += wgt_h + wgt_m;
 
 	int wgt_off = text_width(_event_x->label(), 2);
 	if (_prefix->visible()) {
@@ -996,9 +985,43 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	}
 	wgt_off += win_m;
 
+	int ph = wgt_h, sh = wgt_h;
 	if (_prefix->visible()) {
-		_prefix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
-		dy += wgt_h + wgt_m;
+		int pvw = ww-wgt_off+win_m, pvh = 0;
+		fl_measure(_prefix->value(), pvw, pvh, 0);
+		ph = MAX(wgt_h, pvh + Fl::box_dh(_prefix->box()));
+	}
+	if (_suffix->visible()) {
+		int svw = ww-wgt_off+win_m, svh = 0;
+		fl_measure(_suffix->value(), svw, svh, 0);
+		sh = MAX(wgt_h, svh + Fl::box_dh(_suffix->box()));
+	}
+
+	int ch = wgt_h + wgt_m + wgt_h;
+	if (_prefix->visible()) {
+		ch += ph + wgt_m;
+	}
+	if (_suffix->visible()) {
+		ch += sh + wgt_m;
+	}
+	_content->resize(win_m, dy, ww, ch);
+
+	wgt_w = text_width(_line_heading->label(), 6);
+	_macro_heading->resize(win_m, dy, ww-wgt_w, wgt_h);
+	_line_heading->resize(win_m+ww-wgt_w, dy, wgt_w, wgt_h);
+	dy += wgt_h + wgt_m;
+
+	if (_prefix->visible()) {
+		if (ph > wgt_h) {
+			_prefix->align(FL_ALIGN_LEFT_TOP | FL_ALIGN_CLIP);
+			_prefix->type(FL_MULTILINE_INPUT_WRAP);
+		}
+		else {
+			_prefix->align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+			_prefix->type(FL_NORMAL_INPUT);
+		}
+		_prefix->resize(wgt_off, dy, ww-wgt_off+win_m, ph);
+		dy += ph + wgt_m;
 	}
 
 	if (_event_x->visible()) {
@@ -1016,7 +1039,15 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	dy += wgt_h + wgt_m;
 
 	if (_suffix->visible()) {
-		_suffix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
+		if (sh > wgt_h) {
+			_suffix->align(FL_ALIGN_LEFT_TOP | FL_ALIGN_CLIP);
+			_suffix->type(FL_MULTILINE_INPUT_WRAP);
+		}
+		else {
+			_suffix->align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+			_suffix->type(FL_NORMAL_INPUT);
+		}
+		_suffix->resize(wgt_off, dy, ww-wgt_off+win_m, sh);
 	}
 
 	return ch;
