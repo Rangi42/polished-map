@@ -2362,7 +2362,7 @@ void Main_Window::save_as_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	mw->_directory.assign(directory);
-	mw->_blk_file.assign(filename ? filename : "");
+	mw->_blk_file.assign(filename);
 
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
