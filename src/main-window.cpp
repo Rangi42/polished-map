@@ -51,6 +51,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	Mode mode_config = (Mode)Preferences::get("mode", (int)Mode::BLOCKS);
 	mode(mode_config);
 
+	Roof_Palettes roof_palettes_config = (Roof_Palettes)Preferences::get("roof-palettes", (int)Roof_Palettes::ROOF_DAY_NITE);
+	_roof_palettes = roof_palettes_config;
+
 	int grid_config = Preferences::get("grid", 1);
 	int rulers_config = Preferences::get("rulers", 0);
 	int zoom_config = Preferences::get("zoom", 0);
@@ -64,12 +67,10 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int monochrome_config = Preferences::get("monochrome", 0);
 	int allow_priority_config = Preferences::get("prioritize", 0);
 	int allow_256_tiles_config = Preferences::get("all256", 0);
-	int custom_roof_color_config = Preferences::get("roof3", 0);
 	int drag_and_drop_config = Preferences::get("drag", 1);
 	Config::monochrome(!!monochrome_config);
 	Config::allow_priority(!!allow_priority_config);
 	Config::allow_256_tiles(!!allow_256_tiles_config);
-	Config::custom_roof_color(!!custom_roof_color_config);
 	Config::drag_and_drop(!!drag_and_drop_config);
 
 	int print_grid_config = Preferences::get("print-grid", 0);
@@ -387,8 +388,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_TOGGLE | (allow_priority_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
 			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Custom Roof Color", 0, (Fl_Callback *)custom_roof_color_cb, this,
-			FL_MENU_TOGGLE | (custom_roof_color_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Roo&f Palettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)roof_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_CUSTOM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Morn/Day, &Night", 0, (Fl_Callback *)roof_day_nite_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_DAY_NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Morn, Day, Night", 0, (Fl_Callback *)roof_morn_day_nite_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_MORN_DAY_NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Morn/Day, Night, C&ustom", 0, (Fl_Callback *)roof_day_nite_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_DAY_NITE_CUSTOM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("M&orn, Day, Night, Custom", 0, (Fl_Callback *)roof_morn_day_nite_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_MORN_DAY_NITE_CUSTOM ? FL_MENU_VALUE : 0)),
+		{},
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
@@ -443,7 +454,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_allow_priority_mi = PM_FIND_MENU_ITEM_CB(allow_priority_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
-	_custom_roof_color_mi = PM_FIND_MENU_ITEM_CB(custom_roof_color_cb);
+	_roof_custom_mi = PM_FIND_MENU_ITEM_CB(roof_custom_cb);
+	_roof_day_nite_mi = PM_FIND_MENU_ITEM_CB(roof_day_nite_cb);
+	_roof_morn_day_nite_mi = PM_FIND_MENU_ITEM_CB(roof_morn_day_nite_cb);
+	_roof_day_nite_custom_mi = PM_FIND_MENU_ITEM_CB(roof_day_nite_custom_cb);
+	_roof_morn_day_nite_custom_mi = PM_FIND_MENU_ITEM_CB(roof_morn_day_nite_custom_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
@@ -1539,7 +1554,7 @@ void Main_Window::load_roof_colors(bool quiet) {
 		if (_unsaved_dialog->canceled()) { return; }
 	}
 
-	if (!Color::read_roof_colors(buffer, _map.group())) {
+	if (!Color::read_roof_colors(buffer, _map.group(), _roof_palettes)) {
 		Config::roofs_pal_path(buffer, "");
 		if (quiet) {
 			std::string msg = "Warning: Could not read ";
@@ -2631,7 +2646,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("prioritize", mw->allow_priority());
 	Preferences::set("all256", mw->allow_256_tiles());
-	Preferences::set("roof3", mw->custom_roof_color());
+	Preferences::set("roof-palettes", (int)mw->_roof_palettes);
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
@@ -3140,8 +3155,29 @@ void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::custom_roof_color_cb(Fl_Menu_ *m, Main_Window *) {
-	Config::custom_roof_color(!!m->mvalue()->value());
+void Main_Window::roof_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_CUSTOM;
+}
+
+void Main_Window::roof_day_nite_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_day_nite_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_DAY_NITE;
+}
+
+void Main_Window::roof_morn_day_nite_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_morn_day_nite_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_MORN_DAY_NITE;
+}
+
+void Main_Window::roof_day_nite_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_day_nite_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_DAY_NITE_CUSTOM;
+}
+
+void Main_Window::roof_morn_day_nite_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_morn_day_nite_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_MORN_DAY_NITE_CUSTOM;
 }
 
 void Main_Window::auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw) {

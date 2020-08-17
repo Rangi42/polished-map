@@ -5,7 +5,7 @@
 
 class Config {
 private:
-	static bool _monochrome, _priority, _256_tiles, _custom_roof, _drag_and_drop;
+	static bool _monochrome, _priority, _256_tiles, _drag_and_drop;
 	static bool _print_grid, _print_ids, _print_priority, _print_events;
 	static size_t _overworld_map_size;
 public:
@@ -33,8 +33,6 @@ public:
 	inline static void allow_priority(bool p) { _priority = p; }
 	inline static bool allow_256_tiles(void) { return _256_tiles; }
 	inline static void allow_256_tiles(bool t) { _256_tiles = t; }
-	inline static bool custom_roof_color(void) { return _custom_roof; }
-	inline static void custom_roof_color(bool e) { _custom_roof = e; }
 	inline static bool drag_and_drop(void) { return _drag_and_drop; }
 	inline static void drag_and_drop(bool d) { _drag_and_drop = d; }
 	inline static bool print_grid(void) { return _print_grid; }

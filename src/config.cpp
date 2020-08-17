@@ -20,7 +20,7 @@ static char *trim_suffix(const char *s) {
 	return t;
 }
 
-bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles = false, Config::_custom_roof = false, Config::_drag_and_drop = true;
+bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles = false, Config::_drag_and_drop = true;
 bool Config::_print_grid = false, Config::_print_ids = false, Config::_print_priority = false, Config::_print_events = false;
 
 // wOverworldMapBlocks (aka OverworldMap or wOverworldMap) buffer size in WRAM
