@@ -163,6 +163,7 @@ bool Event::warp_map_name(char *name) const {
 		if (!ss.good()) { return false; }
 		std::getline(ss, token, ',');
 	}
+	remove_comment(token);
 	trim(token);
 	bool downcase = false;
 	for (char &c : token) {
