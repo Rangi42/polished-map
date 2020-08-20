@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #pragma warning(push, 0)
 #include <FL/fl_draw.H>
@@ -35,7 +36,7 @@ void Metatileset::clear() {
 }
 
 void Metatileset::size(size_t n) {
-	size_t low = MIN(n, _num_metatiles), high = MAX(n, _num_metatiles);
+	size_t low = std::min(n, _num_metatiles), high = std::max(n, _num_metatiles);
 	for (size_t i = low; i < high; i++) {
 		_metatiles[i]->clear();
 	}
@@ -127,7 +128,7 @@ Metatileset::Result Metatileset::read_asm_metatiles(const char *f) {
 
 	size_t c = data.size();
 	size_t n = c / (METATILE_SIZE * METATILE_SIZE);
-	_num_metatiles = MIN(n, MAX_NUM_METATILES);
+	_num_metatiles = std::min(n, (size_t)MAX_NUM_METATILES);
 
 	for (size_t i = 0; i < _num_metatiles; i++) {
 		Metatile *mt = _metatiles[i];

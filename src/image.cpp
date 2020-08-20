@@ -26,7 +26,7 @@ Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset) {
 	size_t n = MAX_NUM_TILES;
 	while (tileset.const_tile((uint8_t)(n-1))->palette() == Palette::UNDEFINED) { n--; }
-	size_t w = MIN(n, TILES_PER_ROW) * TILE_SIZE;
+	size_t w = std::min(n, (size_t)TILES_PER_ROW) * TILE_SIZE;
 	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
 	bool allow_256 = Config::allow_256_tiles();
 	if (!allow_256 && h > 6 * TILE_SIZE) { h -= 2 * TILE_SIZE; } // skip tiles $60 to $7F

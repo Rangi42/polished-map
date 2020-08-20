@@ -213,7 +213,7 @@ void Event::parse(std::istringstream &lss) {
 	std::getline(lss, token, ',');
 	_event_x = parse_coord(token, _hex_coords);
 	std::getline(lss, token);
-	size_t sep = MIN(token.find(','), token.find(';'));
+	size_t sep = std::min(token.find(','), token.find(';'));
 	_suffixed = sep != std::string::npos;
 	if (_suffixed) {
 		_suffix = token.substr(sep);

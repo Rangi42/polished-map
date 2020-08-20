@@ -42,7 +42,7 @@ void Block_Window::initialize() {
 	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
-	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
+	int bsw = std::max(text_width("AA", 2), text_width("FF", 2)) + 22;
 	_bin_collision_spinners[(int)Quadrant::TOP_LEFT]     = new Default_Hex_Spinner(300, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]  = new Default_Hex_Spinner(300, 170, bsw, 22);

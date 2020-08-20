@@ -177,7 +177,7 @@ void Palette_Window::initial_setup() {
 	_color_group = new Fl_Group(10+hhgw, 10, 87, 171);
 	_color_group->end();
 	_window->begin();
-	int rgblw = MAX(MAX(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
+	int rgblw = std::max(std::max(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
 	int rgbsw = text_width("99", 2) + 22;
 	_red_spinner = new Default_Spinner(107 + hhgw + rgblw, 10, rgbsw, 22, "R:");
 	_green_spinner = new Default_Spinner(107 + hhgw + rgblw, 36, rgbsw, 22, "G:");
@@ -247,7 +247,7 @@ void Monochrome_Palette_Window::initial_setup() {
 	_color_group = new Fl_Group(10+phlw, 10, 87, 24);
 	_color_group->end();
 	_window->begin();
-	int rlw = text_width("R:", 2), gblw = MAX(text_width("G:", 2), text_width("B:", 2));
+	int rlw = text_width("R:", 2), gblw = std::max(text_width("G:", 2), text_width("B:", 2));
 	int rgbsw = text_width("99", 2) + 22;
 	_red_spinner = new Default_Spinner(10+rlw, 44, rgbsw, 22, "R:");
 	_green_spinner = new Default_Spinner(20+rlw+rgbsw+gblw, 44, rgbsw, 22, "G:");
