@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cwctype>
-#include <algorithm>
 #include <queue>
 #include <utility>
 
@@ -2277,7 +2276,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->contents(0, 0);
-	FILL(mw->_metatile_buttons, 0, MAX_NUM_METATILES);
+	std::fill_n(mw->_metatile_buttons, MAX_NUM_METATILES, (Metatile_Button *)NULL);
 	mw->_selected = NULL;
 	mw->_copied = false;
 	mw->_hotkey_metatiles.clear();

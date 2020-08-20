@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
-#include <algorithm>
 
 #pragma warning(push, 0)
 #include <FL/Fl_PNG_Image.H>

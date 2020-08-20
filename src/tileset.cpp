@@ -47,7 +47,7 @@ void Tileset::update_palettes(Palettes l) {
 
 uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
-	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	std::fill_n(buffer, w * h * NUM_CHANNELS, (uchar)0xff);
 	for (size_t i = 0; i < n; i++) {
 		const Deep_Tile *dt = _tiles[i];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
@@ -58,7 +58,7 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 
 uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
-	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	std::fill_n(buffer, w * h * NUM_CHANNELS, (uchar)0xff);
 	for (size_t i = 0; i < NUM_ROOF_TILES; i++) {
 		const Deep_Tile *dt = _roof_tiles[i + FIRST_ROOF_TILE_IDX];
 		int ty = (i / ROOF_TILES_PER_ROW) * TILE_SIZE, tx = (i % ROOF_TILES_PER_ROW) * TILE_SIZE;

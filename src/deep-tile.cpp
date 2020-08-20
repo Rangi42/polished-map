@@ -30,7 +30,7 @@ static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 
 void Deep_Tile::clear() {
 	_undefined = true;
-	FILL(_hues, Hue::WHITE, TILE_AREA);
+	std::fill_n(_hues, TILE_AREA, Hue::WHITE);
 	update_palettes(Palettes::DAY);
 }
 
