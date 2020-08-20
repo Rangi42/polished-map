@@ -52,7 +52,7 @@ void Block_Window::initialize() {
 	_window->begin();
 	int off = text_width("Palette:", 3);
 	_palette = new Dropdown(293+off, 176, 174-off, 22, "Palette:");
-	off = MAX(text_width("X flip", 3), text_width("Y flip", 3));
+	off = std::max(text_width("X flip", 3), text_width("Y flip", 3));
 	_x_flip = new OS_Check_Button(293, 202, 22+off, 22, "X flip");
 	_y_flip = new OS_Check_Button(319+off, 202, 22+off, 22, "Y flip");
 	_priority = new OS_Check_Button(293, 228, 174, 22, "Priority (above sprites)");
@@ -60,7 +60,7 @@ void Block_Window::initialize() {
 	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new OS_Input(313, 305, 154, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new OS_Input(313, 331, 154, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new OS_Input(313, 357, 154, 22);
-	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
+	int bsw = std::max(text_width("AA", 2), text_width("FF", 2)) + 22;
 	_bin_collision_spinners[(int)Quadrant::TOP_LEFT] = new Default_Hex_Spinner(313, 279, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT] = new Default_Hex_Spinner(347+bsw, 279, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT] = new Default_Hex_Spinner(313, 305, bsw, 22);

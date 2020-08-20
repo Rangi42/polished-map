@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #pragma warning(push, 0)
 #include <FL/Fl_PNG_Image.H>
@@ -65,7 +66,7 @@ void Metatileset::clear() {
 }
 
 void Metatileset::size(size_t n) {
-	size_t low = MIN(n, _num_metatiles), high = MAX(n, _num_metatiles);
+	size_t low = std::min(n, _num_metatiles), high = std::max(n, _num_metatiles);
 	for (size_t i = low; i < high; i++) {
 		_metatiles[i]->clear();
 	}

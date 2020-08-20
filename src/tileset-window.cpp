@@ -419,7 +419,7 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 		tw->_selected->undefined(false);
 	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
-	int w = MIN(pasted->w(), TILE_SIZE), h = MIN(pasted->h(), TILE_SIZE);
+	int w = std::min(pasted->w(), TILE_SIZE), h = std::min(pasted->h(), TILE_SIZE);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();

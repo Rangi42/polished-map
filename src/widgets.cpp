@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #pragma warning(push, 0)
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
@@ -261,10 +263,10 @@ void Dropdown::draw() {
 	int dx = Fl::box_dx(bb);
 	int dy = Fl::box_dy(bb);
 	int H = h() - 2 * dy;
-	int W = MIN(H, 20);
-	int X = x() + w() - W - MAX(dx, dy);
+	int W = std::min(H, 20);
+	int X = x() + w() - W - std::max(dx, dy);
 	int Y = y() + dy;
-	int w1 = MAX((W - 4) / 3, 1);
+	int w1 = std::max((W - 4) / 3, 1);
 	int x1 = X + (W - 2 * w1 - 1) / 2;
 	int y1 = Y + (H - w1 - 1) / 2;
 	if (Fl::scheme()) {
@@ -362,9 +364,9 @@ int Workspace::handle(int event) {
 	case FL_DRAG:
 		int dx = Fl::event_x(), dy = Fl::event_y();
 		int nx = _ox + (_cx - dx), ny = _oy + (_cy - dy);
-		int max_x = _content_w - w() + (scrollbar.visible() ? Fl::scrollbar_size() : 0) + Fl::box_dw(box());
-		int max_y = _content_h - h() + (hscrollbar.visible() ? Fl::scrollbar_size() : 0) + Fl::box_dh(box());
-		scroll_to(MAX(MIN(nx, max_x), 0), MAX(MIN(ny, max_y), 0));
+		int max_x = std::max(_content_w - w() + (scrollbar.visible() ? Fl::scrollbar_size() : 0) + Fl::box_dw(box()), 0);
+		int max_y = std::max(_content_h - h() + (hscrollbar.visible() ? Fl::scrollbar_size() : 0) + Fl::box_dh(box()), 0);
+		scroll_to(std::clamp(nx, 0, max_x), std::clamp(ny, 0, max_y));
 		return 1;
 	}
 	return Fl_Scroll::handle(event);

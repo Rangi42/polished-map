@@ -365,7 +365,7 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	if (_tileset->find_index(p.c_str()) == -1) {
 		_tileset->add(p.c_str());
 		int m = text_width(p.c_str(), 6);
-		_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+		_max_tileset_name_length = std::max(m, _max_tileset_name_length);
 	}
 
 	return v;
@@ -378,7 +378,7 @@ void Map_Options_Dialog::add_roof(const char *r, int ext_len) {
 	if (_roof->find_index(v.c_str()) == -1) {
 		_roof->add(v.c_str());
 		int m = text_width(v.c_str(), 6);
-		_max_roof_name_length = MAX(m, _max_roof_name_length);
+		_max_roof_name_length = std::max(m, _max_roof_name_length);
 	}
 }
 
@@ -527,7 +527,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 		_map_height->set_visible();
 		_map_sizes->clear_visible();
 
-		wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
+		wgt_off = win_m + std::max(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
 
 		wgt_w = text_width("999", 2) + wgt_h;
 		_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -542,7 +542,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 		_map_height->clear_visible();
 		_map_sizes->set_visible();
 
-		wgt_off = win_m + MAX(text_width(_map_sizes->label(), 2), text_width(_tileset->label(), 2));
+		wgt_off = win_m + std::max(text_width(_map_sizes->label(), 2), text_width(_tileset->label(), 2));
 
 		wgt_w = text_width("9999 x 9999", 2) + wgt_h;
 		_map_sizes->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -640,7 +640,7 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 	int ch = (wgt_h + wgt_m) * 2 + wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
-	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_map_height->label(), 2));
+	int wgt_off = win_m + std::max(text_width(_map_width->label(), 2), text_width(_map_height->label(), 2));
 
 	wgt_w = text_width("999", 2) + wgt_h;
 	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -978,10 +978,10 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 
 	int wgt_off = text_width(_event_x->label(), 2);
 	if (_prefix->visible()) {
-		wgt_off = MAX(wgt_off, text_width(_prefix->label(), 2));
+		wgt_off = std::max(wgt_off, text_width(_prefix->label(), 2));
 	}
 	if (_suffix->visible()) {
-		wgt_off = MAX(wgt_off, text_width(_suffix->label(), 2));
+		wgt_off = std::max(wgt_off, text_width(_suffix->label(), 2));
 	}
 	wgt_off += win_m;
 
@@ -989,12 +989,12 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	if (_prefix->visible()) {
 		int pvw = ww-wgt_off+win_m, pvh = 0;
 		fl_measure(_prefix->value(), pvw, pvh, 0);
-		ph = MAX(wgt_h, pvh + Fl::box_dh(_prefix->box()));
+		ph = std::max(wgt_h, pvh + Fl::box_dh(_prefix->box()));
 	}
 	if (_suffix->visible()) {
 		int svw = ww-wgt_off+win_m, svh = 0;
 		fl_measure(_suffix->value(), svw, svh, 0);
-		sh = MAX(wgt_h, svh + Fl::box_dh(_suffix->box()));
+		sh = std::max(wgt_h, svh + Fl::box_dh(_suffix->box()));
 	}
 
 	int ch = wgt_h + wgt_m + wgt_h;
@@ -1032,7 +1032,7 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	}
 	else {
 		int dx = text_width(_hex_event_y->label(), 2) + win_m;
-		wgt_w = MAX(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
+		wgt_w = std::max(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
 		_hex_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
 		_hex_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
 	}
