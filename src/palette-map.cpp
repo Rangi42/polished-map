@@ -16,7 +16,7 @@ Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(Result::PALET
 }
 
 void Palette_Map::clear() {
-	FILL(_palette, Palette::UNDEFINED, MAX_NUM_TILES);
+	std::fill_n(_palette, MAX_NUM_TILES, Palette::UNDEFINED);
 	_palette_size = 0;
 	_result = Result::PALETTE_NULL;
 }
@@ -31,7 +31,7 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 
 	if (Config::monochrome()) {
 		_palette_size = Config::allow_256_tiles() ? MAX_NUM_TILES : 0x60;
-		FILL(_palette, Palette::MONOCHROME, _palette_size);
+		std::fill_n(_palette, _palette_size, Palette::MONOCHROME);
 		return (_result = Result::PALETTE_OK);
 	}
 	std::string prefix(Config::palette_macro());

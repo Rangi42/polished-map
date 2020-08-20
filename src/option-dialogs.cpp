@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include <algorithm>
-#include <cstdlib>
 
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>

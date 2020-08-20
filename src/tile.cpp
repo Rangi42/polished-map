@@ -76,8 +76,8 @@ void Tile::pixel(int x, int y, Hue h, uchar r, uchar g, uchar b) {
 }
 
 void Tile::clear() {
-	FILL(_hues, Hue::WHITE, TILE_SIZE * TILE_SIZE);
-	FILL(_rgb, 0xff, LINE_PX * LINE_PX * NUM_CHANNELS);
+	std::fill_n(_hues, TILE_SIZE * TILE_SIZE, Hue::WHITE);
+	std::fill_n(_rgb, LINE_PX * LINE_PX * NUM_CHANNELS, (uchar)0xff);
 }
 
 void Tile::copy(const Tile *t) {

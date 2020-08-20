@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
-#include <algorithm>
 
 #pragma warning(push, 0)
 #include <FL/fl_utf8.h>
