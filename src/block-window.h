@@ -19,14 +19,20 @@
 #define CHIP_PX_SIZE (TILE_SIZE * CHIP_ZOOM_FACTOR)
 #define CHIP_LINE_BYTES (CHIP_PX_SIZE * NUM_CHANNELS)
 
+class Block_Double_Window : public Fl_Double_Window {
+public:
+	Block_Double_Window(int x, int y, int w, int h, const char *l = NULL);
+	int handle(int event);
+};
+
 class Block_Window {
 private:
 	int _dx, _dy;
 	const Tileset *_tileset;
 	uint8_t _metatile_id;
 	bool _canceled;
-	Fl_Double_Window *_window;
-	Label *_tileset_heading, *_tile_heading, *_metatile_heading, *_hover_tile_heading, *_collision_heading;
+	Block_Double_Window *_window;
+	Label *_tileset_heading, *_tile_heading, *_multiedit_heading, *_metatile_heading, *_hover_tile_heading, *_collision_heading;
 	Workspace *_tileset_group;
 	Fl_Group *_current_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
@@ -37,6 +43,7 @@ private:
 	Default_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
+	friend class Block_Double_Window;
 public:
 	Block_Window(int x, int y);
 	~Block_Window();
@@ -59,6 +66,7 @@ public:
 	void select(const Tile_Button *tb);
 	void select(const Chip *c);
 	void update_status(const Chip *c);
+	void update_multiedit(void);
 private:
 	static void close_cb(Fl_Widget *w, Block_Window *bw);
 	static void cancel_cb(Fl_Widget *w, Block_Window *bw);

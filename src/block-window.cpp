@@ -5,16 +5,41 @@
 #include "image.h"
 #include "block-window.h"
 
+Block_Double_Window::Block_Double_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
+
+int Block_Double_Window::handle(int event) {
+	Block_Window *bw = (Block_Window *)user_data();
+	switch (event) {
+	case FL_FOCUS:
+	case FL_UNFOCUS:
+		return 1;
+	case FL_KEYUP:
+	case FL_KEYDOWN:
+		switch (Fl::event_key()) {
+		case FL_Control_L:
+		case FL_Control_R:
+		case FL_Alt_L:
+		case FL_Alt_R:
+		case FL_Shift_L:
+		case FL_Shift_R:
+			bw->update_multiedit();
+			return 1;
+		}
+	}
+	return Fl_Double_Window::handle(event);
+}
+
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
-	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL), _hover_tile_heading(NULL),
-	_collision_heading(NULL), _tileset_group(NULL), _current_group(NULL), _metatile_group(NULL), _tile_buttons(),
-	_selected(NULL), _chips(), _current(NULL), _palette(NULL), _x_flip(NULL), _y_flip(NULL), _priority(NULL),
+	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _multiedit_heading(NULL), _metatile_heading(NULL),
+	_hover_tile_heading(NULL), _collision_heading(NULL), _tileset_group(NULL), _current_group(NULL), _metatile_group(NULL),
+	_tile_buttons(), _selected(NULL), _chips(), _current(NULL), _palette(NULL), _x_flip(NULL), _y_flip(NULL), _priority(NULL),
 	_collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
 	delete _tileset_heading;
 	delete _tile_heading;
+	delete _multiedit_heading;
 	delete _metatile_heading;
 	delete _hover_tile_heading;
 	delete _collision_heading;
@@ -33,10 +58,12 @@ void Block_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 477, 432, "Edit Block");
+	_window = new Block_Double_Window(_dx, _dy, 477, 432, "Edit Block");
 	int thw = text_width("Tile: $A:AA", 4);
 	_tileset_heading = new Label(10, 10, 273, 22);
 	_tile_heading = new Label(328-thw, 10, thw, 22);
+	int mhw = text_width("Place 4+4+4+4", 2);
+	_multiedit_heading = new Label(328-mhw, 10, mhw, 22);
 	_metatile_heading = new Label(337, 10, 130-thw, 22);
 	_hover_tile_heading = new Label(467-thw, 10, thw, 22);
 	_collision_heading = new Label(293, 253, 174, 22, "Collision:");
@@ -98,6 +125,8 @@ void Block_Window::initialize() {
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
+	_multiedit_heading->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+	_multiedit_heading->hide();
 	_tileset_group->type(Fl_Scroll::VERTICAL_ALWAYS);
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_current_group->box(OS_SPACER_THIN_DOWN_FRAME);
@@ -297,6 +326,32 @@ void Block_Window::update_status(const Chip *c) {
 	_hover_tile_heading->redraw();
 }
 
+void Block_Window::update_multiedit() {
+	const char *place_labels[8] = {
+		"",              // no modifiers
+		"Place 2/2",     // Shift
+		"Place 2x2",     // Ctrl
+		"Place 4x4",     // Ctrl+Shift
+		"Place 2+2",     // Alt
+		"Place 4+4+4+4", // Alt+Shift
+		"Place 2-2",     // Ctrl+Alt
+		"Place 4-4-4-4", // Ctrl+Alt+Shift
+	};
+	int i = (Fl::event_alt() ? 4 : 0) | (Fl::event_ctrl() ? 2 : 0) | (Fl::event_shift() ? 1 : 0);
+	_multiedit_heading->label(place_labels[i]);
+	if (i) {
+		_tile_heading->hide();
+		_multiedit_heading->show();
+	}
+	else {
+		_tile_heading->show();
+		_multiedit_heading->hide();
+	}
+	_tileset_heading->redraw();
+	_tile_heading->redraw();
+	_multiedit_heading->redraw();
+}
+
 void Block_Window::close_cb(Fl_Widget *, Block_Window *bw) {
 	bw->_window->hide();
 }
@@ -322,19 +377,25 @@ void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		// Left-click to edit
+		// Shift+left-click to edit 2/2
 		// Ctrl+left-click to edit 2x2
 		// Ctrl+Shift+left-click to edit 4x4
+		// Alt+left-click to edit 2+2
+		// Alt+Shift+left-click to edit 4+4+4+4
+		// Ctrl+Alt+left-click to edit 2-2
+		// Ctrl+Alt+Shift+left-click to edit 4-4-4-4
 		int idx = bw->_selected->index();
-		int n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
+		bool ctrl = Fl::event_ctrl(), alt = Fl::event_alt(), shift = Fl::event_shift();
+		bool checkered = !ctrl && !alt && shift;
+		int n = ((ctrl || alt) ? 2 : 1) * (shift ? 2 : 1);
 		for (int dy = 0; dy < n; dy++) {
 			for (int dx = 0; dx < n; dx++) {
 				int y = c->row() + (bw->_y_flip->value() ? n - dy - 1 : dy);
 				int x = c->col() + (bw->_x_flip->value() ? n - dx - 1 : dx);
-				bool row_free = y < METATILE_SIZE && idx < MAX_NUM_TILES - TILES_PER_ROW * dy;
-				bool col_free = x < METATILE_SIZE && idx % TILES_PER_ROW < TILES_PER_ROW - dx;
-				if (row_free && col_free) {
+				int tidx = idx + (checkered ? dy ^ dx : (ctrl ? alt ? -n : TILES_PER_ROW : n) * dy + dx);
+				if (y < METATILE_SIZE && x < METATILE_SIZE && idx < MAX_NUM_TILES) {
 					Chip *chip = bw->chip(x, y);
-					chip->index(idx + TILES_PER_ROW * dy + dx);
+					chip->index(tidx);
 					chip->palette((Palette)bw->_palette->value());
 					chip->priority(!!bw->_priority->value());
 					chip->x_flip(!!bw->_x_flip->value());

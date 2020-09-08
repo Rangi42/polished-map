@@ -12,16 +12,20 @@ The [example/](example/) directory contains a minimal pokecrystal project with t
 
 Browse the menu items, toolbar buttons, and Help dialog to learn how to use Polished Map++. And don't miss the mouse controls:
 
-|                      | Blocks Mode   | Events Mode      | Edit Block      | Edit Tileset |
-|----------------------|---------------|------------------|-----------------|--------------|
-| **Click/drag**       | Place block   | Move event       | Place tile      | Place pixel  |
-| **Middle drag**      | Scroll        | Scroll           |                 |              |
-| **Right-click**      | Select block  | Edit event       | Select tile     | Select hue   |
-| **Double-click**     |               | Open .asm file   |                 |              |
-| **Ctrl+click**       | Replace block |                  | Place 2x2 tiles | Replace hue  |
-| **Shift+click**      | Flood fill    | Folow warp event |                 | Flood fill   |
-| **Ctrl+Shift+click** |               |                  | Place 4x4 tiles |              |
-| **Alt+click**        | Swap blocks   |                  |                 | Swap hues    |
+|                          | Blocks Mode   | Events Mode      | Edit Block          | Edit Tileset |
+|--------------------------|---------------|------------------|---------------------|--------------|
+| **Click/drag**           | Place block   | Move event       | Place tile          | Place pixel  |
+| **Middle drag**          | Scroll        | Scroll           |                     |              |
+| **Right-click**          | Select block  | Edit event       | Select tile         | Select hue   |
+| **Double-click**         |               | Open .asm file   |                     |              |
+| **Ctrl+click**           | Replace block |                  | Place 2x2 tiles     | Replace hue  |
+| **Shift+click**          | Flood fill    | Folow warp event | Place 2/2 tiles     | Flood fill   |
+| **Ctrl+Shift+click**     |               |                  | Place 4x4 tiles     |              |
+| **Alt+click**            | Swap blocks   |                  | Place 2+2 tiles     | Swap hues    |
+| **Alt+Shift+click**      |               |                  | Place 4+4+4+4 tiles |              |
+| **Ctrl+Alt+click**       |               |                  | Place 2-2 tiles     |              |
+| **Ctrl+Alt+Shift+click** |               |                  | Place 4-4-4-4 tiles |              |
+
 
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/) or [PokéCommunity](https://www.pokecommunity.com/showthread.php?t=425994). If you have questions or comments, please go there.
 
