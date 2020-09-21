@@ -27,6 +27,7 @@ public:
 	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
+	static void special_pal_path(char *dest, const char *root, const char *filename, const char *landmark, const char *tileset);
 	inline static bool monochrome(void) { return _monochrome; }
 	inline static void monochrome(bool m) { _monochrome = m; }
 	inline static bool allow_priority(void) { return _priority; }

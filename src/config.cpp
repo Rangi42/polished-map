@@ -8,18 +8,6 @@
 #include "utils.h"
 #include "config.h"
 
-static char *trim_suffix(const char *s) {
-	// remove trailing ".t#", e.g. tileset "overworld.t2" -> name "overworld"
-#ifdef _WIN32
-	char *t = _strdup(s);
-#else
-	char *t = strdup(s);
-#endif
-	char *dot = strchr(t, '.');
-	if (dot) { *dot = '\0'; }
-	return t;
-}
-
 bool Config::_monochrome = false, Config::_priority = false, Config::_256_tiles = false, Config::_drag_and_drop = true;
 bool Config::_print_grid = false, Config::_print_ids = false, Config::_print_priority = false, Config::_print_events = false;
 
@@ -67,8 +55,7 @@ bool Config::project_path_from_blk_path(const char *blk_path, char *project_path
 	}
 }
 
-void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
-	if (monochrome()) { return; }
+static void _palette_map_path(char *dest, const char *root, const char *tileset) {
 	// try gfx/tilesets/*_palette_map.asm (pokecrystal)
 	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
 	if (file_exists(dest)) { return; }
@@ -76,12 +63,21 @@ void Config::palette_map_path(char *dest, const char *root, const char *tileset)
 	sprintf(dest, "%sgfx" DIR_SEP "tilesets" DIR_SEP "%s_palette_map.inc", root, tileset);
 	if (file_exists(dest)) { return; }
 	// try color/tilesets/*.asm (Red++ 3)
-	char *name = trim_suffix(tileset);
-	sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, name);
-	free(name);
+	sprintf(dest, "%scolor" DIR_SEP "tilesets" DIR_SEP "%s.asm", root, tileset);
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/*_palette_map.asm (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_palette_map.asm", root, tileset);
+}
+
+void Config::palette_map_path(char *dest, const char *root, const char *tileset) {
+	if (monochrome()) { return; }
+	// try paths with full tileset name
+	_palette_map_path(dest, root, tileset);
+	if (file_exists(dest)) { return; }
+	// retry paths with trimmed suffix
+	char name[FL_PATH_MAX] = {};
+	remove_suffix(tileset, name);
+	_palette_map_path(dest, root, name);
 }
 
 void Config::tileset_path(char *dest, const char *root, const char *tileset) {
@@ -128,14 +124,12 @@ void Config::roof_png_path(char *dest, const char *root, const char *roof) {
 	sprintf(dest, "%s%s.png", roof_directory, roof);
 }
 
-void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
+static void _metatileset_path(char *dest, const char *root, const char *tileset) {
 	// try data/tilesets/*_metatiles.bin (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 	if (file_exists(dest)) { return; }
 	// try gfx/blocksets/*.bst (pokered)
-	char *name = trim_suffix(tileset);
-	sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, name);
-	free(name);
+	sprintf(dest, "%sgfx" DIR_SEP "blocksets" DIR_SEP "%s.bst", root, tileset);
 	if (file_exists(dest)) { return; }
 	// try MAPDATA/*.CEL (source)
 	sprintf(dest, "%sMAPDATA" DIR_SEP "%s.CEL", root, tileset);
@@ -144,7 +138,17 @@ void Config::metatileset_path(char *dest, const char *root, const char *tileset)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_metatiles.bin", root, tileset);
 }
 
-bool Config::collisions_path(char *dest, const char *root, const char *tileset) {
+void Config::metatileset_path(char *dest, const char *root, const char *tileset) {
+	// try paths with full tileset name
+	_metatileset_path(dest, root, tileset);
+	if (file_exists(dest)) { return; }
+	// retry paths with trimmed suffix
+	char name[FL_PATH_MAX] = {};
+	remove_suffix(tileset, name);
+	_metatileset_path(dest, root, name);
+}
+
+static bool _collisions_path(char *dest, const char *root, const char *tileset) {
 	// try data/tilesets/*_collision.asm (pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.asm", root, tileset);
 	if (file_exists(dest)) { return false; }
@@ -160,6 +164,16 @@ bool Config::collisions_path(char *dest, const char *root, const char *tileset) 
 	// last resort: tilesets/*_collision.bin (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.bin", root, tileset);
 	return true;
+}
+
+bool Config::collisions_path(char *dest, const char *root, const char *tileset) {
+	// try paths with full tileset name
+	bool bin_collisions = _collisions_path(dest, root, tileset);
+	if (file_exists(dest)) { return bin_collisions; }
+	// retry paths with trimmed suffix
+	char name[FL_PATH_MAX] = {};
+	remove_suffix(tileset, name);
+	return _collisions_path(dest, root, name);
 }
 
 void Config::map_constants_path(char *dest, const char *root) {
@@ -229,4 +243,23 @@ void Config::roofs_pal_path(char *dest, const char *root) {
 	if (file_exists(dest)) { return; }
 	// last resort: tilesets/roof.pal (old pokecrystal)
 	sprintf(dest, "%stilesets" DIR_SEP "roof.pal", root);
+}
+
+void Config::special_pal_path(char *dest, const char *root, const char *filename, const char *landmark, const char *tileset) {
+	// try unique map palette
+	strcpy(dest, filename);
+	fl_filename_setext(dest, FL_PATH_MAX, ".pal");
+	if (file_exists(dest)) { return; }
+	// try unique landmark palette
+	char tileset_directory[FL_PATH_MAX] = {};
+	gfx_tileset_dir(tileset_directory, root);
+	sprintf(dest, "%s%s.pal", tileset_directory, landmark);
+	if (file_exists(dest)) { return; }
+	// try unique tileset palette
+	sprintf(dest, "%s%s.pal", tileset_directory, tileset);
+	if (file_exists(dest)) { return; }
+	// try unique tileset palette, trimming the suffix
+	char name[FL_PATH_MAX] = {};
+	remove_suffix(tileset, name);
+	sprintf(dest, "%s%s.pal", tileset_directory, name);
 }
