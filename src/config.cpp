@@ -151,6 +151,9 @@ bool Config::collisions_path(char *dest, const char *root, const char *tileset) 
 	// try data/tilesets/*_collision.inc (SECTION-split pokecrystal)
 	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.inc", root, tileset);
 	if (file_exists(dest)) { return false; }
+	// try data/tilesets/*_collision.bin (pokegold-spaceworld)
+	sprintf(dest, "%sdata" DIR_SEP "tilesets" DIR_SEP "%s_collision.bin", root, tileset);
+	if (file_exists(dest)) { return true; }
 	// try tilesets/*_collision.asm (old pokecrystal, converted from .bin)
 	sprintf(dest, "%stilesets" DIR_SEP "%s_collision.asm", root, tileset);
 	if (file_exists(dest)) { return false; }
