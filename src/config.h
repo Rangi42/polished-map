@@ -26,6 +26,7 @@ public:
 	static void event_script_path(char *dest, const char *root, const char *map_name);
 	static void bg_tiles_pal_path(char *dest, const char *root);
 	static void roofs_pal_path(char *dest, const char *root);
+	static void special_pal_path(char *dest, const char *root, const char *filename, const char *landmark, const char *tileset);
 	inline static bool allow_512_tiles(void) { return _512_tiles; }
 	inline static void allow_512_tiles(bool t) { _512_tiles = t; }
 	inline static bool arrange_0_before_1(void) { return _0_before_1; }

@@ -42,6 +42,12 @@ void remove_comment(std::string &s, char c) {
 	}
 }
 
+void remove_suffix(const char *n, char *s) {
+	strcpy(s, n);
+	char *dot = strchr(s, '.');
+	if (dot) { *dot = '\0'; }
+}
+
 void remove_dot_ext(const char *f, char *s) {
 	strcpy(s, fl_filename_name(f));
 	char *dot = strchr(s, '.');

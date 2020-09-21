@@ -1289,26 +1289,11 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	Config::bg_tiles_pal_path(buffer, directory);
 	load_palettes(buffer);
 
+	// load special palettes if applicable and they exist
 	if (auto_load_special_palettes()) {
-		// load unique tileset palettes if they exist
-		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
+		Config::special_pal_path(buffer, directory, filename, _map.landmark().c_str(), tileset_name);
 		if (file_exists(buffer)) {
 			load_palettes(buffer);
-		}
-		// load unique landmark palettes if they exist
-		if (_map.landmark() != tileset_name) {
-			sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
-			if (file_exists(buffer)) {
-				load_palettes(buffer);
-			}
-		}
-		// load unique map palettes if they exist
-		if (filename) {
-			strcpy(buffer, filename);
-			fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
-			if (file_exists(buffer)) {
-				load_palettes(buffer);
-			}
 		}
 	}
 
