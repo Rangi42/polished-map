@@ -79,23 +79,38 @@ void Config::tileset_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%s%s%s.2bpp.lz", root, gfx_tileset_dir(), tileset);
 }
 
-bool Config::common_tileset_path(char *dest, const char *root, const char *tileset) {
-	char common[FL_PATH_MAX] = {};
-	remove_prefix(tileset, common);
-	if (!common[0]) { return false; }
-	tileset_path(dest, root, common);
+bool Config::tileset_before_path(char *dest, const char *root, const char *tileset) {
+	char before[FL_PATH_MAX] = {};
+	before_suffix(tileset, before);
+	if (!before[0]) { return false; }
+	tileset_path(dest, root, before);
 	return file_exists(dest);
 }
 
-void Config::tileset_png_path(char *dest, char *cdest, const char *root, const char *tileset) {
+bool Config::tileset_after_path(char *dest, const char *root, const char *tileset) {
+	char after[FL_PATH_MAX] = {};
+	after_suffix(tileset, after);
+	if (!after[0]) { return false; }
+	tileset_path(dest, root, after);
+	return file_exists(dest);
+}
+
+void Config::tileset_png_paths(char *dest, char *b_dest, char *a_dest, const char *root, const char *tileset) {
 	sprintf(dest, "%s%s%s.png", root, gfx_tileset_dir(), tileset);
-	char common[FL_PATH_MAX] = {};
-	remove_prefix(tileset, common);
-	if (common[0]) {
-		sprintf(cdest, "%s%s%s.png", root, gfx_tileset_dir(), common);
+	char before[FL_PATH_MAX] = {}, after[FL_PATH_MAX] = {};
+	before_suffix(tileset, before);
+	after_suffix(tileset, after);
+	if (before[0]) {
+		sprintf(b_dest, "%s%s%s.png", root, gfx_tileset_dir(), before);
 	}
 	else {
-		cdest[0] = '\0';
+		b_dest[0] = '\0';
+	}
+	if (after[0]) {
+		sprintf(a_dest, "%s%s%s.png", root, gfx_tileset_dir(), after);
+	}
+	else {
+		a_dest[0] = '\0';
 	}
 }
 

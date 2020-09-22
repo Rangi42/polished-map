@@ -25,7 +25,7 @@ private:
 	std::string _name, _roof_name;
 	Palettes _palettes;
 	Deep_Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
-	size_t _num_tiles, _num_common_tiles, _num_roof_tiles;
+	size_t _num_tiles, _num_before_tiles, _num_mid_tiles, _num_roof_tiles;
 	Result _result;
 	bool _modified, _modified_roof;
 public:
@@ -54,16 +54,17 @@ public:
 private:
 	void read_tile(Deep_Tile *dt, const Tiled_Image &ti, size_t i);
 	static void print_tile_rgb(const Deep_Tile *dt, int tx, int ty, int n, uchar *buffer);
+	Result convert_tiled_image_result(Tiled_Image::Result r);
 public:
 	void clear(void);
 	void clear_roof_graphics(void);
 	void update_palettes(Palettes l);
 	uchar *print_rgb(size_t w, size_t h, size_t off, size_t n) const;
 	uchar *print_roof_rgb(size_t w, size_t h) const;
-	Result read_graphics(const char *f, const char *cf, Palettes l);
+	Result read_graphics(const char *f, const char *bf, const char *af, Palettes l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);
-	bool write_graphics(const char *f, const char *cf);
+	bool write_graphics(const char *f, const char *bf, const char *af);
 	bool write_roof_graphics(const char *f);
 };
 
