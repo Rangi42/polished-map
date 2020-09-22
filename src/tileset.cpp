@@ -2,8 +2,8 @@
 #include "tileset.h"
 #include "image.h"
 
-Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
-	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
+Tileset::Tileset() : _name(), _palettes(), _tiles(), _roof_tiles(), _num_tiles(0), _num_common_tiles(0),
+	_num_roof_tiles(0), _result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Deep_Tile((int)i);
 		_roof_tiles[i] = new Deep_Tile((int)i);
@@ -21,6 +21,7 @@ Tileset::~Tileset() {
 void Tileset::clear() {
 	_name.clear();
 	_num_tiles = 0;
+	_num_common_tiles = 0;
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i]->clear();
 	}
@@ -45,11 +46,12 @@ void Tileset::update_palettes(Palettes l) {
 	}
 }
 
-uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
+uchar *Tileset::print_rgb(size_t w, size_t h, size_t off, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
 	std::fill_n(buffer, w * h * NUM_CHANNELS, (uchar)0xff);
 	for (size_t i = 0; i < n; i++) {
-		const Deep_Tile *dt = _tiles[i];
+		size_t j = i + off;
+		const Deep_Tile *dt = _tiles[j];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
 		print_tile_rgb(dt, tx, ty, TILES_PER_ROW, buffer);
 	}
@@ -90,7 +92,24 @@ void Tileset::print_tile_rgb(const Deep_Tile *dt, int tx, int ty, int n, uchar *
 	}
 }
 
-Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
+Tileset::Result Tileset::read_graphics(const char *f, const char *cf, Palettes l) {
+	Tiled_Image cti(cf);
+	size_t cn = cti.num_tiles();
+	if (cf) {
+		switch (cti.result()) {
+		case Tiled_Image::Result::IMG_OK: break;
+		case Tiled_Image::Result::IMG_NULL: return (_result = Result::GFX_BAD_FILE);
+		case Tiled_Image::Result::IMG_BAD_FILE: return (_result = Result::GFX_BAD_FILE);
+		case Tiled_Image::Result::IMG_BAD_EXT: return (_result = Result::GFX_BAD_EXT);
+		case Tiled_Image::Result::IMG_BAD_DIMS: return (_result = Result::GFX_BAD_DIMS);
+		case Tiled_Image::Result::IMG_TOO_SHORT: return (_result = Result::GFX_TOO_SHORT);
+		case Tiled_Image::Result::IMG_TOO_LARGE: return (_result = Result::GFX_TOO_LARGE);
+		case Tiled_Image::Result::IMG_NOT_GRAYSCALE: return (_result = Result::GFX_NOT_GRAYSCALE);
+		case Tiled_Image::Result::IMG_BAD_CMD: return (_result = Result::GFX_BAD_CMD);
+		default: return (_result = Result::GFX_BAD_FILE);
+		}
+	}
+
 	Tiled_Image ti(f);
 	switch (ti.result()) {
 	case Tiled_Image::Result::IMG_OK: break;
@@ -105,7 +124,8 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	default: return (_result = Result::GFX_BAD_FILE);
 	}
 
-	_num_tiles = ti.num_tiles();
+	_num_common_tiles = ((cn + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILES_PER_ROW;
+	_num_tiles = _num_common_tiles + ti.num_tiles();
 	if (_num_tiles > 0x100) {
 		Config::allow_512_tiles(true);
 	}
@@ -113,7 +133,12 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	_palettes = l;
 	for (size_t i = 0; i < _num_tiles; i++) {
 		Deep_Tile *dt = _tiles[i];
-		read_tile(dt, ti, i);
+		if ((size_t)i < cn) {
+			read_tile(dt, cti, i);
+		}
+		else if ((size_t)i >= _num_common_tiles) {
+			read_tile(dt, ti, i - _num_common_tiles);
+		}
 	}
 
 	_modified = false;
@@ -179,8 +204,12 @@ const char *Tileset::error_message(Result result) {
 	}
 }
 
-bool Tileset::write_graphics(const char *f) {
-	Image::Result result = Image::write_tileset_image(f, *this);
+bool Tileset::write_graphics(const char *f, const char *cf) {
+	if (cf[0]) {
+		Image::Result cresult = Image::write_tileset_image(cf, *this, 0, _num_common_tiles);
+		if (cresult != Image::Result::IMAGE_OK) { return false; }
+	}
+	Image::Result result = Image::write_tileset_image(f, *this, _num_common_tiles, 0);
 	return result == Image::Result::IMAGE_OK;
 }
 

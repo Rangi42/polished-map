@@ -8,7 +8,8 @@
 #include "tiled-image.h"
 
 Tiled_Image::Tiled_Image(const char *f) : _tile_hues(NULL), _num_tiles(0), _result(Result::IMG_NULL) {
-	if (ends_with(f, ".png")) { read_png_graphics(f); }
+	if (!f) { return; }
+	else if (ends_with(f, ".png")) { read_png_graphics(f); }
 	else if (ends_with(f, ".2bpp")) { read_2bpp_graphics(f); }
 	else if (ends_with(f, ".2bpp.lz")) { read_lz_graphics(f); }
 }
