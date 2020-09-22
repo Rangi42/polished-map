@@ -25,7 +25,7 @@ private:
 	Palettes _palettes;
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
-	size_t _num_tiles, _num_common_tiles, _num_roof_tiles;
+	size_t _num_tiles, _num_before_tiles, _num_mid_tiles, _num_roof_tiles;
 	Result _result;
 	bool _modified, _modified_roof;
 public:
@@ -55,6 +55,7 @@ public:
 private:
 	void read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j);
 	static void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer);
+	Result convert_tiled_image_result(Tiled_Image::Result r);
 public:
 	void clear(void);
 	void clear_roof_graphics(void);
@@ -62,10 +63,10 @@ public:
 	uchar *print_rgb(size_t w, size_t h, size_t off, size_t n) const;
 	uchar *print_roof_rgb(size_t w, size_t h) const;
 	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
-	Result read_graphics(const char *f, const char *cf, Palettes l);
+	Result read_graphics(const char *f, const char *bf, const char *af, Palettes l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);
-	bool write_graphics(const char *f, const char *cf);
+	bool write_graphics(const char *f, const char *bf, const char *af);
 	bool write_roof_graphics(const char *f);
 };
 

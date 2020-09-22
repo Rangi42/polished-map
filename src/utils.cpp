@@ -42,15 +42,23 @@ void remove_comment(std::string &s, char c) {
 	}
 }
 
-void remove_prefix(const char *n, char *s) {
-	const char *dot = strchr(n, '.');
-	strcpy(s, dot ? dot + 1 : "");
-}
-
 void remove_suffix(const char *n, char *s) {
 	strcpy(s, n);
 	char *dot = strchr(s, '.');
 	if (dot) { *dot = '\0'; }
+}
+
+void before_suffix(const char *n, char *s) {
+	const char *dot = strchr(n, '.');
+	strcpy(s, dot ? dot + 1 : "");
+	char *comma = strchr(s, ',');
+	if (comma) { *comma = '\0'; }
+}
+
+void after_suffix(const char *n, char *s) {
+	const char *dot = strchr(n, '.');
+	const char *comma = dot ? strchr(dot, ',') : NULL;
+	strcpy(s, comma ? comma + 1 : "");
 }
 
 void remove_dot_ext(const char *f, char *s) {

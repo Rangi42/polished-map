@@ -15,8 +15,9 @@ public:
 	static bool project_path_from_blk_path(const char *blk_path, char *project_path);
 	static void palette_map_path(char *dest, const char *root, const char *tileset);
 	static void tileset_path(char *dest, const char *root, const char *tileset);
-	static bool common_tileset_path(char *dest, const char *root, const char *tileset);
-	static void tileset_png_path(char *dest, char *cdest, const char *root, const char *tileset);
+	static bool tileset_before_path(char *dest, const char *root, const char *tileset);
+	static bool tileset_after_path(char *dest, const char *root, const char *tileset);
+	static void tileset_png_paths(char *dest, char *b_dest, char *a_dest, const char *root, const char *tileset);
 	static void roof_path(char *dest, const char *root, const char *roof);
 	static void roof_png_path(char *dest, const char *root, const char *roof);
 	static void metatileset_path(char *dest, const char *root, const char *tileset);
