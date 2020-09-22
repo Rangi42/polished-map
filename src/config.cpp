@@ -96,10 +96,26 @@ void Config::tileset_path(char *dest, const char *root, const char *tileset) {
 	sprintf(dest, "%s%s.2bpp.lz", tileset_directory, tileset);
 }
 
-void Config::tileset_png_path(char *dest, const char *root, const char *tileset) {
+bool Config::common_tileset_path(char *dest, const char *root, const char *tileset) {
+	char common[FL_PATH_MAX] = {};
+	remove_prefix(tileset, common);
+	if (!common[0]) { return false; }
+	tileset_path(dest, root, common);
+	return file_exists(dest);
+}
+
+void Config::tileset_png_path(char *dest, char *cdest, const char *root, const char *tileset) {
 	char tileset_directory[FL_PATH_MAX] = {};
 	gfx_tileset_dir(tileset_directory, root);
 	sprintf(dest, "%s%s.png", tileset_directory, tileset);
+	char common[FL_PATH_MAX] = {};
+	remove_prefix(tileset, common);
+	if (common[0]) {
+		sprintf(cdest, "%s%s.png", tileset_directory, common);
+	}
+	else {
+		cdest[0] = '\0';
+	}
 }
 
 void Config::roof_path(char *dest, const char *root, const char *roof) {

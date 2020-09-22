@@ -1597,7 +1597,9 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	}
 
 	Config::tileset_path(buffer, directory, tileset_name);
-	Tileset::Result rt = tileset->read_graphics(buffer, palettes());
+	char buffer2[FL_PATH_MAX] = {};
+	bool has_common = Config::common_tileset_path(buffer2, directory, tileset_name);
+	Tileset::Result rt = tileset->read_graphics(buffer, has_common ? buffer2 : NULL, palettes());
 	if (rt != Tileset::Result::GFX_OK) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1900,7 +1902,7 @@ bool Main_Window::save_metatileset() {
 bool Main_Window::save_tileset() {
 	Tileset *tileset = _metatileset.tileset();
 
-	char filename[FL_PATH_MAX] = {};
+	char filename[FL_PATH_MAX] = {}, common_filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
 	const char *tileset_name = tileset->name();
 
@@ -1912,10 +1914,10 @@ bool Main_Window::save_tileset() {
 		return true;
 	}
 
-	Config::tileset_png_path(filename, directory, tileset_name);
+	Config::tileset_png_path(filename, common_filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset->write_graphics(filename)) {
+	if (!tileset->write_graphics(filename, common_filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);

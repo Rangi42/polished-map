@@ -42,6 +42,11 @@ void remove_comment(std::string &s, char c) {
 	}
 }
 
+void remove_prefix(const char *n, char *s) {
+	const char *dot = strchr(n, '.');
+	strcpy(s, dot ? dot + 1 : "");
+}
+
 void remove_suffix(const char *n, char *s) {
 	strcpy(s, n);
 	char *dot = strchr(s, '.');

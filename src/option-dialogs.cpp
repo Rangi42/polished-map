@@ -461,7 +461,10 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 			          ends_with(name, ".CHR") ? 4 :
 			          ends_with(name, ".png") ? 4 : 0;
 		if (ext_len) {
-			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
+			std::string tileset_filename = add_tileset(name, ext_len, pretty_names);
+			char guessable_trimmed[FL_PATH_MAX] = {};
+			remove_suffix(tileset_filename.c_str(), guessable_trimmed);
+			std::string guessable_name(guessable_trimmed);
 			if (guessed_tileset_name == guessable_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 			Dictionary::const_iterator it = guessable_names.find(guessable_name);
 			if (it != guessable_names.end()) {

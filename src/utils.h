@@ -32,6 +32,7 @@ bool ends_with(std::wstring_view s, std::wstring_view p);
 void trim(std::string &s, const std::string &t = whitespace);
 void lowercase(std::string &s);
 void remove_comment(std::string &s, char c = ';');
+void remove_prefix(const char *n, char *s);
 void remove_suffix(const char *n, char *s);
 void remove_dot_ext(const char *f, char *s);
 void add_dot_ext(const char *f, const char *ext, char *s);
