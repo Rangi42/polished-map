@@ -38,10 +38,11 @@
 #define OS_TOOLBAR_BUTTON_HOVER_BOX FL_GLEAM_ROUND_UP_BOX
 #define OS_SWATCH_FRAME FL_ENGRAVED_FRAME
 #define OS_SWATCH_BOX FL_ENGRAVED_BOX
+#define OS_BG_BOX FL_OVAL_BOX
 
 class OS {
 public:
-	enum class Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, METAL, BLUE, OLIVE, ROSE_GOLD, DARK, HIGH_CONTRAST };
+	enum class Theme { CLASSIC, AERO, METRO, AQUA, GREYBIRD, OCEAN, BLUE, OLIVE, ROSE_GOLD, DARK, HIGH_CONTRAST };
 private:
 	static Theme _current_theme;
 	static bool _is_consolas;
@@ -63,7 +64,7 @@ public:
 	static void use_metro_theme(void);
 	static void use_aqua_theme(void);
 	static void use_greybird_theme(void);
-	static void use_metal_theme(void);
+	static void use_ocean_theme(void);
 	static void use_blue_theme(void);
 	static void use_olive_theme(void);
 	static void use_rose_gold_theme(void);
