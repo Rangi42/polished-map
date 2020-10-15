@@ -46,7 +46,7 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_recent_mis[NUM_RECENT];
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
-		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_olive_theme_mi = NULL,
+		*_greybird_theme_mi = NULL, *_ocean_theme_mi = NULL, *_blue_theme_mi = NULL, *_olive_theme_mi = NULL,
 		*_rose_gold_theme_mi = NULL, *_dark_theme_mi = NULL, *_high_contrast_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL,
 		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
@@ -237,7 +237,7 @@ private:
 	static void metro_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void aqua_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void greybird_theme_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void metal_theme_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void ocean_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void blue_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void olive_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void rose_gold_theme_cb(Fl_Menu_ *m, Main_Window *mw);
