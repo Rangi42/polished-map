@@ -122,7 +122,7 @@ int Default_Button::handle(int event) {
 OS_Check_Button::OS_Check_Button(int x, int y, int w, int h, const char *l) : Fl_Check_Button(x, y, w, h, l) {
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
-	box(FL_FLAT_BOX);
+	box(OS_BG_BOX);
 	align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	selection_color(FL_SELECTION_COLOR);
 }

@@ -50,6 +50,7 @@ void Abstract_Palette_Window::initialize() {
 	// Populate window
 	initial_setup();
 	// Initialize window
+	_window->box(OS_BG_BOX);
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
