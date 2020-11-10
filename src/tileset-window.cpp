@@ -116,6 +116,7 @@ void Tileset_Window::initialize() {
 	}
 	_tile_group->end();
 	// Initialize window
+	_window->box(OS_BG_BOX);
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children

@@ -1087,6 +1087,7 @@ void Print_Options_Dialog::initialize() {
 	_cancel_button = new OS_Button(0, 0, 0, 0, "Cancel");
 	_dialog->end();
 	// Initialize dialog
+	_dialog->box(OS_BG_BOX);
 	_dialog->resizable(NULL);
 	_dialog->callback((Fl_Callback *)cancel_cb, this);
 	_dialog->set_modal();
