@@ -1,11 +1,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define PROGRAM_VERSION 2,5,2
+#define PROGRAM_VERSION 2,5,3
 #ifdef _DEBUG
-#define PROGRAM_VERSION_STRING "2.5.2 [DEBUG]"
+#define PROGRAM_VERSION_STRING "2.5.3 [DEBUG]"
 #else
-#define PROGRAM_VERSION_STRING "2.5.2"
+#define PROGRAM_VERSION_STRING "2.5.3"
 #endif
 
 #define PROGRAM_EXE_NAME "polishedmap-plusplus"
