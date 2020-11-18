@@ -224,12 +224,16 @@ void Config::roofs_pal_path(char *dest, const char *root) {
 
 void Config::special_pal_path(char *dest, const char *root, const char *filename, const char *landmark, const char *tileset) {
 	// try unique map palette
-	strcpy(dest, filename);
-	fl_filename_setext(dest, FL_PATH_MAX, ".pal");
-	if (file_exists(dest)) { return; }
+	if (filename) {
+		strcpy(dest, filename);
+		fl_filename_setext(dest, FL_PATH_MAX, ".pal");
+		if (file_exists(dest)) { return; }
+	}
 	// try unique landmark palette
-	sprintf(dest, "%s%s%s.pal", root, gfx_tileset_dir(), landmark);
-	if (file_exists(dest)) { return; }
+	if (landmark) {
+		sprintf(dest, "%s%s%s.pal", root, gfx_tileset_dir(), landmark);
+		if (file_exists(dest)) { return; }
+	}
 	// try unique tileset palette
 	sprintf(dest, "%s%s%s.pal", root, gfx_tileset_dir(), tileset);
 	if (file_exists(dest)) { return; }
