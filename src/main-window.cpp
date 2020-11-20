@@ -1901,6 +1901,18 @@ bool Main_Window::save_metatileset() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
+	size_t n = _metatileset.size();
+	if (_has_collisions && n > 128 && !Preferences::get("meta128", 0)) {
+		msg = "Warning: ";
+		msg = msg + basename + " has " + std::to_string(n) + " blocks.\n\n"
+			"Be sure to fix the 128-block limit:\n"
+			"https://github.com/pret/pokecrystal/blob/master/docs/bugs_and_glitches.md\n"
+			"(\"LoadMetatiles wraps around past 128 blocks\")";
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+		Preferences::set("meta128", 1);
+	}
+
 	return true;
 }
 
