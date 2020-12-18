@@ -177,8 +177,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	std::regex_match(filename, cm, rx);
 	size_t n = cm.size();
 	if (n == 3) {
-		std::string sw(cm[1]), sh(cm[2]);
-		int w = std::stoi(sw), h = std::stoi(sh);
+		int w = strtol(cm[1].first, NULL, 10), h = strtol(cm[2].first, NULL, 10);
 		int i = add_map_size(w, h);
 		select_map_size(i);
 		return true;

@@ -16,18 +16,18 @@ static uint32_t parse_value(std::string s) {
 	if (!s.empty()) {
 		if (s[0] == '$') {
 			s.erase(0, 1);
-			n = std::stoi(s, NULL, 16);
+			n = strtol(s.c_str(), NULL, 16);
 		}
 		else if (s[0] == '%') {
 			s.erase(0, 1);
-			n = std::stoi(s, NULL, 2);
+			n = strtol(s.c_str(), NULL, 2);
 		}
 		else if (s[c-1] == 'h' || s[c-1] == 'H') {
 			s.erase(c - 1);
-			n = std::stoi(s, NULL, 16);
+			n = strtol(s.c_str(), NULL, 16);
 		}
 		else {
-			n = std::stoi(s, NULL);
+			n = strtol(s.c_str(), NULL, 10);
 		}
 	}
 	return (uint32_t)n;
