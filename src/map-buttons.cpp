@@ -274,7 +274,7 @@ void Deep_Tile_Button::copy_pixel(const Pixel_Button *pb) {
 }
 
 void Deep_Tile_Button::copy_pixels(Pixel_Button **pbs) {
-	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+	for (int i = 0; i < TILE_AREA; i++) {
 		copy_pixel(pbs[i]);
 	}
 }

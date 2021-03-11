@@ -12,6 +12,7 @@
 #include "colors.h"
 
 #define TILE_SIZE 8
+#define TILE_AREA (TILE_SIZE * TILE_SIZE)
 #define ZOOM_FACTOR 2
 
 #define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
@@ -27,7 +28,7 @@ class Tile {
 protected:
 	uint8_t _id;
 	Palette _palette;
-	Hue _hues[TILE_SIZE * TILE_SIZE];
+	Hue _hues[TILE_AREA];
 	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
 public:
 	Tile(uint8_t id);

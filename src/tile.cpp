@@ -54,7 +54,7 @@ static Fl_PNG_Image chip_priority_png(NULL, chip_priority_png_buffer, 158);
 Tile::Tile(uint8_t id) : _id(id), _palette(Palette::UNDEFINED), _hues(), _rgb() {}
 
 bool Tile::is_blank() const {
-	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+	for (int i = 0; i < TILE_AREA; i++) {
 		if (_hues[i] != Hue::WHITE) {
 			return false;
 		}
@@ -85,13 +85,13 @@ void Tile::pixel(int x, int y, Hue h, uchar r, uchar g, uchar b) {
 }
 
 void Tile::clear() {
-	std::fill_n(_hues, TILE_SIZE * TILE_SIZE, Hue::WHITE);
+	std::fill_n(_hues, TILE_AREA, Hue::WHITE);
 	std::fill_n(_rgb, LINE_PX * LINE_PX * NUM_CHANNELS, (uchar)0xff);
 }
 
 void Tile::copy(const Tile *t) {
 	_palette = t->_palette;
-	memcpy(_hues, t->_hues, TILE_SIZE * TILE_SIZE * sizeof(Hue));
+	memcpy(_hues, t->_hues, TILE_AREA * sizeof(Hue));
 	memcpy(_rgb, t->_rgb, LINE_PX * LINE_PX * NUM_CHANNELS);
 }
 

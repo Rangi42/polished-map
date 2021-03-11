@@ -34,7 +34,7 @@ private:
 	Label *_tileset_heading, *_tile_heading;
 	Fl_Group *_tileset_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[MAX_NUM_TILES], *_selected;
-	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
+	Pixel_Button *_pixels[TILE_AREA];
 	Toolbar_Button *_copy_tb, *_paste_tb;
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
 	Dropdown *_palette;
