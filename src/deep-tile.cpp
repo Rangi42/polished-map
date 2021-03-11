@@ -28,6 +28,15 @@ static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 	tile[i + LINE_BYTES + NUM_CHANNELS] = rgb[2];
 }
 
+bool Deep_Tile::is_blank() const {
+	for (int i = 0; i < TILE_AREA; i++) {
+		if (_hues[i] != Hue::WHITE) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void Deep_Tile::clear() {
 	_undefined = true;
 	std::fill_n(_hues, TILE_AREA, Hue::WHITE);

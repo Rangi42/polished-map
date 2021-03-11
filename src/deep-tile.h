@@ -45,6 +45,7 @@ public:
 	inline uchar *undefined_pixel(int x, int y) { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
 	inline const uchar *const_undefined_pixel(int x, int y) const { return _undefined_rgb + TILE_PIXEL_OFFSET(x, y); }
 	void clear(void);
+	bool is_blank() const;
 	void copy(const Deep_Tile *dt);
 	void render_pixel(int x, int y, Palettes l, Hue h);
 	void update_palettes(Palettes l);

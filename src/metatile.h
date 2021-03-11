@@ -42,6 +42,7 @@ public:
 	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[(int)q]; }
 	inline const uint8_t *bin_collisions(void) const { return _bin_collisions; }
 	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[(int)q] = c; }
+	bool uses_tile(int idx) const;
 	void clear(void);
 	void copy(const Metatile *src);
 	void swap(Metatile *mt);

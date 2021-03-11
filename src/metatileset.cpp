@@ -73,6 +73,24 @@ void Metatileset::size(size_t n) {
 	_modified = true;
 }
 
+bool Metatileset::uses_tile(int idx) const {
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		if (_metatiles[i]->uses_tile(idx)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Metatileset::trim_tileset() {
+	for (int i = 0; i < MAX_NUM_TILES; i++) {
+		Deep_Tile *dt = _tileset.tile(i);
+		if (!dt->undefined() && dt->is_blank() && !uses_tile(i)) {
+			dt->undefined(true);
+		}
+	}
+}
+
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const {
 	int s = TILE_SIZE * (zoom ? ZOOM_FACTOR : 1);
 	if (id >= size()) {
