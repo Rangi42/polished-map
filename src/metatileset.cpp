@@ -43,6 +43,26 @@ void Metatileset::size(size_t n) {
 	_modified = true;
 }
 
+bool Metatileset::uses_tile(uint8_t id) const {
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		if (_metatiles[i]->uses_tile(id)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Metatileset::trim_tileset() {
+	for (uint8_t i = MAX_NUM_TILES - 1; i > 0; i--) {
+		Tile *t = _tileset.tile(i);
+		if (t->palette() != Palette::UNDEFINED && (!t->is_blank() || uses_tile(i))) {
+			break;
+		}
+		t->palette(Palette::UNDEFINED);
+		_tileset.palette_map().palette(i, Palette::UNDEFINED);
+	}
+}
+
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const {
 	if (id < size()) {
 		Metatile *mt = _metatiles[id];

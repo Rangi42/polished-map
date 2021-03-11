@@ -1917,6 +1917,8 @@ bool Main_Window::save_metatileset() {
 }
 
 bool Main_Window::save_tileset() {
+	_metatileset.trim_tileset();
+
 	Tileset *tileset = _metatileset.tileset();
 
 	char filename[FL_PATH_MAX] = {}, b_filename[FL_PATH_MAX] = {}, a_filename[FL_PATH_MAX] = {};

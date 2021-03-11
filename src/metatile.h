@@ -31,8 +31,9 @@ public:
 	inline std::string collision(Quadrant q) const { return _collisions[(int)q]; }
 	inline void collision(Quadrant q, const std::string &c) { _collisions[(int)q] = c; }
 	inline uint8_t bin_collision(Quadrant q) const { return _bin_collisions[(int)q]; }
-	const uint8_t *bin_collisions(void) const { return _bin_collisions; }
-	void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[(int)q] = c; }
+	inline const uint8_t *bin_collisions(void) const { return _bin_collisions; }
+	inline void bin_collision(Quadrant q, uint8_t c) { _bin_collisions[(int)q] = c; }
+	bool uses_tile(uint8_t id) const;
 	void clear(void);
 	void copy(const Metatile *src);
 	void swap(Metatile *mt);

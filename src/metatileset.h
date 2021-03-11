@@ -32,6 +32,8 @@ public:
 	inline void modified(bool m) { _modified = m; }
 	inline bool bin_collisions(void) const { return _bin_collisions; }
 	inline void bin_collisions(bool b) { _bin_collisions = b; }
+	bool uses_tile(uint8_t id) const;
+	void trim_tileset(void);
 	void clear(void);
 	void draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const;
 	uchar *print_rgb(const Map &map) const;

@@ -53,6 +53,15 @@ static Fl_PNG_Image chip_priority_png(NULL, chip_priority_png_buffer, 158);
 
 Tile::Tile(uint8_t id) : _id(id), _palette(Palette::UNDEFINED), _hues(), _rgb() {}
 
+bool Tile::is_blank() const {
+	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+		if (_hues[i] != Hue::WHITE) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void Tile::pixel(int x, int y, Hue h, uchar r, uchar g, uchar b) {
 	_hues[y * TILE_SIZE + x] = h;
 	int i = (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR;

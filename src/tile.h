@@ -40,6 +40,7 @@ public:
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	inline const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
+	bool is_blank(void) const;
 	void pixel(int x, int y, Hue h, uchar r, uchar g, uchar b);
 	void clear(void);
 	void copy(const Tile *t);
