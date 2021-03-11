@@ -269,7 +269,7 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) const {
 
 void Tileset_Window::swap_hues(Hue f, Hue t) const {
 	if (f == t) { return; }
-	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+	for (size_t i = 0; i < TILE_AREA; i++) {
 		Pixel_Button *pb = _pixels[i];
 		if (pb->hue() == f) {
 			pb->hue(t);
