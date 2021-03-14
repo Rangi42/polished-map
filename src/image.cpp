@@ -25,9 +25,10 @@ Image::Result Image::write_rgb_image(const char *f, Fl_RGB_Image *image) {
 
 Image::Result Image::write_tileset_image(const char *f, const Tileset &tileset, size_t off, size_t n) {
 	if (!n) {
-		for (n = MAX_NUM_TILES; tileset.const_tile((int)(n+off-1))->undefined(); n--);
+		for (n = MAX_NUM_TILES; n > 0 && tileset.const_tile((int)(n+off-1))->undefined(); n--);
+		if (!n) { return Result::IMAGE_EMPTY; }
 	}
-	size_t w = std::min(n, (size_t)TILES_PER_ROW) * TILE_SIZE;
+	size_t w = TILES_PER_ROW * TILE_SIZE;
 	size_t h = ((n + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILE_SIZE;
 	uchar *buffer = tileset.print_rgb(w, h, off, n);
 	return write_image(f, w, h, buffer, true);
@@ -116,6 +117,8 @@ const char *Image::error_message(Result result) {
 		return "Cannot open file.";
 	case Result::IMAGE_BAD_PNG:
 		return "Cannot write PNG data.";
+	case Result::IMAGE_EMPTY:
+		return "Cannot write empty image.";
 	default:
 		return "Unspecified error.";
 	}
