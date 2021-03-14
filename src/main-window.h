@@ -129,6 +129,7 @@ public:
 	inline bool show_priority(void) const { return _show_priority_mi && !!_show_priority_mi->value(); }
 	inline bool gameboy_screen(void) const { return _gameboy_screen_mi && !!_gameboy_screen_mi->value(); }
 	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
+	inline bool full_screen(void) const { return _full_screen_mi && !!_full_screen_mi->value(); }
 	inline Palettes palettes(void) const { return (Palettes)_palettes->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
