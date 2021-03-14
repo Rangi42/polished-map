@@ -18,8 +18,8 @@
 
 class Tileset {
 public:
-	enum class Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
-		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
+	enum class Result { GFX_OK, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS, GFX_TOO_SHORT,
+		GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name, _roof_name;
 	Palettes _palettes;

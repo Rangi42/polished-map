@@ -123,8 +123,6 @@ Tileset::Result Tileset::convert_tiled_image_result(Tiled_Image::Result r) {
 }
 
 Tileset::Result Tileset::read_graphics(const char *f, const char *bf, const char *af, Palettes l) {
-	if (!_palette_map.size()) { return (_result = Result::GFX_NO_PALETTE); } // no colors
-
 	Tiled_Image bti(bf);
 	size_t bn = bti.num_tiles();
 	if (bf && convert_tiled_image_result(bti.result()) != Result::GFX_OK) { return _result; }
@@ -164,8 +162,6 @@ Tileset::Result Tileset::read_graphics(const char *f, const char *bf, const char
 }
 
 Tileset::Result Tileset::read_roof_graphics(const char *f) {
-	if (!_palette_map.size()) { return Result::GFX_NO_PALETTE; } // no colors
-
 	Tiled_Image ti(f);
 	switch (ti.result()) {
 	case Tiled_Image::Result::IMG_OK: break;
@@ -203,8 +199,6 @@ const char *Tileset::error_message(Result result) {
 	switch (result) {
 	case Result::GFX_OK:
 		return "OK.";
-	case Result::GFX_NO_PALETTE:
-		return "No corresponding palette file chosen.";
 	case Result::GFX_BAD_FILE:
 		return "Cannot parse file format.";
 	case Result::GFX_BAD_EXT:
