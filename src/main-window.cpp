@@ -90,6 +90,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		_recent[i] = Preferences::get_string(Fl_Preferences::Name("recent%d", i));
 	}
 
+	int fullscreen = Preferences::get("fullscreen", 0);
+
 	// Populate window
 
 	int wx = 0, wy = 0, ww = w, wh = h;
@@ -362,7 +364,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
-		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
+		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this,
+			FL_MENU_TOGGLE | (fullscreen ? FL_MENU_VALUE : 0)),
 		{},
 		OS_SUBMENU("&Mode"),
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + 'B', (Fl_Callback *)blocks_mode_cb, this,
@@ -2597,10 +2600,20 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 
 	// Save global config
 	Preferences::set("theme", (int)OS::current_theme());
-	Preferences::set("x", mw->x());
-	Preferences::set("y", mw->y());
-	Preferences::set("w", mw->w());
-	Preferences::set("h", mw->h());
+	if (mw->full_screen()) {
+		Preferences::set("x", mw->_wx);
+		Preferences::set("y", mw->_wy);
+		Preferences::set("w", mw->_ww);
+		Preferences::set("h", mw->_wh);
+		Preferences::set("fullscreen", 1);
+	}
+	else {
+		Preferences::set("x", mw->x());
+		Preferences::set("y", mw->y());
+		Preferences::set("w", mw->w());
+		Preferences::set("h", mw->h());
+		Preferences::set("fullscreen", 0);
+	}
 	Preferences::set("mode", (int)mw->mode());
 	Preferences::set("grid", mw->grid());
 	Preferences::set("rulers", mw->rulers());
