@@ -13,7 +13,7 @@
 #define RGB5C(x) (uchar)((x) * 33 / 4) // 5-bit to 8-bit
 #define CRGB5(c) (uchar)((c) / 8)      // 8-bit to 5-bit
 
-enum class Palettes { MORN, DAY, NITE, INDOOR, CUSTOM };
+enum class Palettes { MORN, DAY, NITE, DARKNESS, INDOOR, CUSTOM };
 
 enum class Palette { GRAY, RED, GREEN, WATER, YELLOW, BROWN, ROOF, TEXT, MONOCHROME, UNDEFINED,
 	PRIORITY_GRAY = 0x80, PRIORITY_RED, PRIORITY_GREEN, PRIORITY_WATER,
@@ -24,7 +24,7 @@ enum class Hue { WHITE, DARK, LIGHT, BLACK };
 enum class Roof_Palettes { ROOF_CUSTOM, ROOF_DAY_NITE, ROOF_MORN_DAY_NITE,
 	ROOF_DAY_NITE_CUSTOM, ROOF_MORN_DAY_NITE_CUSTOM };
 
-#define NUM_PALETTE_SETS 5
+#define NUM_PALETTE_SETS 6
 #define NUM_GAME_PALETTES 8
 #define NUM_HUES 4
 #define NUM_CHANNELS 3
