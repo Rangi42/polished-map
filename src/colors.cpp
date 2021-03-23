@@ -57,6 +57,17 @@ uchar tileset_colors[NUM_PALETTE_SETS][NUM_PALETTES][NUM_HUES][NUM_CHANNELS] = {
 		{RGB5(15,14,24), RGB5(11, 9,20), RGB5(13,12,23), RGB5( 0, 0, 0)}, // ROOF
 		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT
 	},
+	{ // DARKNESS
+		// WHITE, DARK, LIGHT, BLACK
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // GRAY
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // RED
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // GREEN
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // WATER
+		{RGB5(30,30,11), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // YELLOW
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // BROWN
+		{RGB5( 1, 1, 2), RGB5( 0, 0, 0), RGB5( 0, 0, 0), RGB5( 0, 0, 0)}, // ROOF
+		{RGB5(31, 0,31), RGB5(16, 0,16), RGB5(31, 0,31), RGB5( 0, 0, 0)}, // TEXT
+	},
 	{ // INDOOR
 		// WHITE, DARK, LIGHT, BLACK
 		{RGB5(30,28,26), RGB5(13,13,13), RGB5(19,19,19), RGB5( 7, 7, 7)}, // GRAY
@@ -207,36 +218,35 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 			pals = Palettes::DAY;
 		}
 		break;
-	case 4 * NUM_PALETTES: // MORN, DAY, NITE, CUSTOM
+	case 4 * NUM_PALETTES: // MORN, DAY, NITE, INDOOR
 		for (int l = 0; l < 3; l++) {
 			for (int p = 0; p < NUM_PALETTES; p++) {
 				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_PALETTES]);
 			}
 		}
 		for (int p = 0; p < NUM_PALETTES; p++) {
-			color(Palettes::CUSTOM, (Palette)p, custom_colors[p+3*NUM_PALETTES]);
+			color(Palettes::INDOOR, (Palette)p, custom_colors[p+3*NUM_PALETTES]);
 		}
-		if (pals == Palettes::INDOOR) {
-			pals = Palettes::CUSTOM;
+		if (pals != Palettes::MORN && pals != Palettes::NITE && pals != Palettes::INDOOR) {
+			pals = Palettes::DAY;
 		}
 		break;
-	case 5 * NUM_PALETTES: // MORN, DAY, NITE, INDOOR, CUSTOM
+	case 5 * NUM_PALETTES: // MORN, DAY, NITE, DARKNESS, INDOOR
 		for (int l = 0; l < 5; l++) {
 			for (int p = 0; p < NUM_PALETTES; p++) {
 				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_PALETTES]);
 			}
 		}
+		if (pals == Palettes::CUSTOM) {
+			pals = Palettes::DAY;
+		}
 		break;
-	case 5 * NUM_PALETTES + 2: // MORN, DAY, NITE, (DARKNESS), INDOOR, MORN/DAY WATER, NITE WATER
-	case 5 * NUM_PALETTES + 3: // MORN, DAY, NITE, (DARKNESS), INDOOR, MORN WATER, DAY WATER, NITE WATER
-		for (int l = 0; l < 3; l++) {
+	case 5 * NUM_PALETTES + 2: // MORN, DAY, NITE, DARKNESS, INDOOR, MORN/DAY WATER, NITE WATER
+	case 5 * NUM_PALETTES + 3: // MORN, DAY, NITE, DARKNESS, INDOOR, MORN WATER, DAY WATER, NITE WATER
+		for (int l = 0; l < 5; l++) {
 			for (int p = 0; p < NUM_PALETTES; p++) {
 				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_PALETTES]);
 			}
-		}
-		// skip DARKNESS
-		for (int p = 0; p < NUM_PALETTES; p++) {
-			color(Palettes::INDOOR, (Palette)p, custom_colors[p+4*NUM_PALETTES]);
 		}
 		// apply separate WATER hues
 		{
@@ -255,7 +265,6 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_PALETTES]);
 			}
 		}
-		// DARKNESS is CUSTOM
 		for (int p = 0; p < NUM_PALETTES; p++) {
 			color(Palettes::CUSTOM, (Palette)p, custom_colors[p+3*NUM_PALETTES]);
 		}
@@ -267,6 +276,13 @@ Palettes Color::read_palettes(const char *f, Palettes pals) {
 			color((Palettes)l, Palette::WATER, custom_colors[5*NUM_PALETTES+l]);
 		}
 		color(Palettes::CUSTOM, Palette::WATER, custom_colors[5*NUM_PALETTES+3]);
+		break;
+	case 6 * NUM_PALETTES: // MORN, DAY, NITE, DARKNESS, INDOOR, CUSTOM
+		for (int l = 0; l < 6; l++) {
+			for (int p = 0; p < NUM_PALETTES; p++) {
+				color((Palettes)l, (Palette)p, custom_colors[p+l*NUM_PALETTES]);
+			}
+		}
 		break;
 	}
 	return pals;
@@ -306,7 +322,7 @@ bool Color::read_roof_colors(const char *f, uint8_t map_group, Roof_Palettes roo
 		palettes[3] = Palettes::CUSTOM;
 		break;
 	}
-	if (num_palettes < 0 || num_palettes > 4) { return false; }
+	if (num_palettes < 1 || num_palettes > 4) { return false; }
 	// Each HueArray in a PalVec contains 4 RGB hues
 	int ps[8] = {}, hs[8] = {};
 	int ci = (int)map_group * num_palettes * 2;

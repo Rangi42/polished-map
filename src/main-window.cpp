@@ -359,6 +359,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_RADIO | (palettes_config == Palettes::DAY ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Dar&kness", 0, (Fl_Callback *)darkness_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::DARKNESS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::INDOOR ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
@@ -448,6 +450,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_palettes_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_palettes_cb);
 	_night_mi = PM_FIND_MENU_ITEM_CB(night_palettes_cb);
+	_darkness_mi = PM_FIND_MENU_ITEM_CB(darkness_palettes_cb);
 	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_palettes_cb);
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_palettes_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
@@ -596,6 +599,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_palettes->add("Morn");   // Palettes::MORN
 	_palettes->add("Day");    // Palettes::DAY
 	_palettes->add("Night");  // Palettes::NITE
+	_palettes->add("Dark");   // Palettes::DARKNESS
 	_palettes->add("Indoor"); // Palettes::INDOOR
 	_palettes->add("Custom"); // Palettes::CUSTOM
 	_palettes->value((int)palettes_config);
@@ -2903,6 +2907,12 @@ void Main_Window::night_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::darkness_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value((int)Palettes::DARKNESS);
+	mw->update_palettes();
+	mw->redraw();
+}
+
 void Main_Window::indoor_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_palettes->value((int)Palettes::INDOOR);
 	mw->update_palettes();
@@ -2918,11 +2928,12 @@ void Main_Window::custom_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::palettes_cb(Dropdown *, Main_Window *mw) {
 	Palettes palettes = (Palettes)mw->_palettes->value();
 	switch (palettes) {
-	case Palettes::MORN:   mw->_morn_mi->setonly(); break;
-	case Palettes::DAY:    mw->_day_mi->setonly(); break;
-	case Palettes::NITE:   mw->_night_mi->setonly(); break;
-	case Palettes::INDOOR: mw->_indoor_mi->setonly(); break;
-	case Palettes::CUSTOM: mw->_custom_mi->setonly(); break;
+	case Palettes::MORN:     mw->_morn_mi->setonly(); break;
+	case Palettes::DAY:      mw->_day_mi->setonly(); break;
+	case Palettes::NITE:     mw->_night_mi->setonly(); break;
+	case Palettes::DARKNESS: mw->_darkness_mi->setonly(); break;
+	case Palettes::INDOOR:   mw->_indoor_mi->setonly(); break;
+	case Palettes::CUSTOM:   mw->_custom_mi->setonly(); break;
 	}
 	mw->update_palettes();
 	mw->redraw();

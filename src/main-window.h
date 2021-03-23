@@ -50,7 +50,8 @@ private:
 		*_rose_gold_theme_mi = NULL, *_dark_theme_mi = NULL, *_brushed_metal_theme_mi = NULL, *_high_contrast_theme_mi = NULL;
 	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL,
 		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
-	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
+	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_darkness_mi = NULL, *_indoor_mi = NULL,
+		*_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_allow_512_tiles_mi = NULL, *_arrange_0_before_1_mi = NULL, *_auto_events_mi = NULL, *_special_palettes_mi = NULL,
 		*_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL, *_overworld_map_size_mi = NULL;
@@ -256,6 +257,7 @@ private:
 	static void morn_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void darkness_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void indoor_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void custom_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
