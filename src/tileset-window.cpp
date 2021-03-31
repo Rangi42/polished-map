@@ -169,6 +169,7 @@ void Tileset_Window::refresh() {
 		}
 		_tileset_group->contents(TILES_PER_ROW * TILE_PX_SIZE, (TILES_PER_COL / 2) * TILE_PX_SIZE);
 	}
+	_tileset_group->scroll_to(0, 0);
 }
 
 void Tileset_Window::update_icons() {
