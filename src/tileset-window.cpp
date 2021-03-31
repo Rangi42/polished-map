@@ -420,13 +420,21 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 		tw->_selected->undefined(false);
 	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
-	int w = std::min(pasted->w(), TILE_SIZE), h = std::min(pasted->h(), TILE_SIZE);
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
+	int ox = tw->_selected->index() % TILES_PER_ROW, oy = tw->_selected->index() / TILES_PER_ROW;
+	int pw = std::min(pasted->w(), (TILES_PER_ROW - ox) * TILE_SIZE);
+	int ph = std::min(pasted->h(), (TILES_PER_COL - oy) * TILE_SIZE);
+	for (int py = 0; py < ph; py++) {
+		int ty = oy + py / TILE_SIZE;
+		if (ty >= (Config::allow_512_tiles() ? MAX_NUM_TILES : 0x100) / TILES_PER_ROW) { continue; }
+		for (int px = 0; px < pw; px++) {
+			int tx = ox + px / TILE_SIZE;
+			if (tx >= TILES_PER_ROW) { continue; }
+			int idx = ty * TILES_PER_ROW + tx;
+			Deep_Tile_Button *dtb = tw->_deep_tile_buttons[idx];
+			const char *p = *pasted->data() + (px + py * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			tw->_selected->render_pixel(x, y, tw->_tileset->palettes(), e);
+			dtb->render_pixel(px % TILE_SIZE, py % TILE_SIZE, tw->_tileset->palettes(), e);
 		}
 	}
 	delete pasted;
