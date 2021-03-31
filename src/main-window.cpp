@@ -362,7 +362,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_RADIO | (palettes_config == Palettes::DAY ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::NITE ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Dar&kness", 0, (Fl_Callback *)darkness_palettes_cb, this,
+		OS_MENU_ITEM("Dar&k", 0, (Fl_Callback *)darkness_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::DARKNESS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::INDOOR ? FL_MENU_VALUE : 0)),
