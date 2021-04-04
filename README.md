@@ -26,6 +26,8 @@ Browse the menu items, toolbar buttons, and Help dialog to learn how to use Poli
 | **Ctrl+Alt+click**       |               |                  | Place 2-2 tiles     |              |
 | **Ctrl+Alt+Shift+click** |               |                  | Place 4-4-4-4 tiles |              |
 
+(All those "Edit Block" mouse controls are explained further in [doc/edit-block.md](doc/edit-block.md).)
+
 More information is at the [Skeetendo Forums](https://hax.iimarckus.org/topic/7222/) or [PokéCommunity](https://www.pokecommunity.com/showthread.php?t=425994). If you have questions or comments, please go there.
 
 ![Screenshot](screenshot.png)
