@@ -157,7 +157,8 @@ Fl_Color Color::fl_color(Palettes l, Palette p, Hue h) {
 PalVec Color::parse_palettes(const char *f) {
 	PalVec colors;
 	int palette = 0, hue = 0, channel = 0;
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);

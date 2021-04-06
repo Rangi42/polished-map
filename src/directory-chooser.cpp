@@ -2,34 +2,6 @@
 
 #ifdef _WIN32
 
-// utf8towchar and wchartoutf8 copied from Fl_Native_File_Chooser_WIN32.cxx
-
-static LPCWSTR utf8towchar(const char *in) {
-	if (in == NULL) { return NULL; }
-	WCHAR *wout = NULL;
-	int lwout = 0;
-	int wlen = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
-	if (wlen > lwout) {
-		lwout = wlen;
-		wout = (WCHAR *)malloc(lwout * sizeof(WCHAR));
-	}
-	MultiByteToWideChar(CP_UTF8, 0, in, -1, wout, wlen);
-	return wout;
-}
-
-static const char *wchartoutf8(LPCWSTR in) {
-	if (in == NULL) { return NULL; }
-	char *out = NULL;
-	int lchar = 0;
-	int utf8len  = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
-	if (utf8len > lchar) {
-		lchar = utf8len;
-		out = (char *)malloc(lchar);
-	}
-	WideCharToMultiByte(CP_UTF8, 0, in, -1, out, utf8len, NULL, NULL);
-	return out;
-}
-
 Directory_Chooser::Directory_Chooser(int) : _title(NULL), _filename(NULL), _fod_ptr(NULL) {}
 
 Directory_Chooser::~Directory_Chooser() {
@@ -47,10 +19,9 @@ int Directory_Chooser::show() {
 	free((void *)_filename);
 	_filename = NULL;
 
-	static WCHAR wtitle[256];
-	wcsncpy(wtitle, utf8towchar(_title), 256);
-	wtitle[255] = '\0';
+	WCHAR *wtitle = utf8towchar(_title);
 	_fod_ptr->SetTitle(wtitle);
+	free(wtitle);
 
 	FILEOPENDIALOGOPTIONS fod_opts;
 	_fod_ptr->GetOptions(&fod_opts);

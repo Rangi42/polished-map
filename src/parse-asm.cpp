@@ -34,7 +34,8 @@ static uint32_t parse_value(std::string s) {
 }
 
 Parsed_Asm::Result Parsed_Asm::parse_asm(const char *f) {
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	if (!ifs.good()) { return (_result = Result::ASM_BAD_FILE); }
 
 	while (ifs.good()) {

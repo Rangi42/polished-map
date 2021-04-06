@@ -183,7 +183,8 @@ bool Metatileset::write_metatiles(const char *f) const {
 Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = Result::META_NO_GFX); } // no graphics
 
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	if (!ifs.is_open()) { return (_result = Result::META_BAD_FILE); } // cannot load file
 
 	size_t i = 0;

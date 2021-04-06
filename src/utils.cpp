@@ -95,3 +95,45 @@ size_t file_size(const char *f) {
 	int r = stat64(f, &s);
 	return r ? 0 : (size_t)s.st_size;
 }
+
+void open_ifstream(std::ifstream &ifs, const char *f) {
+#ifdef _WIN32
+	wchar_t *wf = utf8towchar(f);
+	ifs.open(wf);
+	free(wf);
+#else
+	ifs.open(f);
+#endif
+}
+
+#ifdef _WIN32
+
+// utf8towchar and wchartoutf8 copied from Fl_Native_File_Chooser_WIN32.cxx
+
+wchar_t *utf8towchar(const char *in) {
+	if (in == NULL) { return NULL; }
+	wchar_t *wout = NULL;
+	int lwout = 0;
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
+	if (wlen > lwout) {
+		lwout = wlen;
+		wout = (wchar_t *)malloc(lwout * sizeof(wchar_t));
+	}
+	MultiByteToWideChar(CP_UTF8, 0, in, -1, wout, wlen);
+	return wout;
+}
+
+char *wchartoutf8(const wchar_t *in) {
+	if (in == NULL) { return NULL; }
+	char *out = NULL;
+	int lchar = 0;
+	int utf8len  = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
+	if (utf8len > lchar) {
+		lchar = utf8len;
+		out = (char *)malloc(lchar);
+	}
+	WideCharToMultiByte(CP_UTF8, 0, in, -1, out, utf8len, NULL, NULL);
+	return out;
+}
+
+#endif

@@ -63,7 +63,8 @@ void Map_Events::resize_events(int x, int y, int s) const {
 }
 
 Map_Events::Result Map_Events::read_events(const char *f) {
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	if (!ifs.good()) { return (_result = Result::BAD_MAP_EVENTS_FILE); }
 
 	size_t n = 0;

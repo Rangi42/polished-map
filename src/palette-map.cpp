@@ -24,7 +24,8 @@ void Palette_Map::clear() {
 Palette_Map::Result Palette_Map::read_from(const char *f) {
 	clear();
 
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	if (!ifs.good()) {
 		Config::monochrome(true);
 	}
