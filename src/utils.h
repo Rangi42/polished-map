@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
+#include <fstream>
 
 #ifdef _WIN32
 #define DIR_SEP "\\"
@@ -41,5 +42,11 @@ int text_width(const char *l, int pad);
 int text_width(const char *l, int pad = 0);
 bool file_exists(const char *f);
 size_t file_size(const char *f);
+void open_ifstream(std::ifstream &ifs, const char *f);
+
+#ifdef _WIN32
+wchar_t *utf8towchar(const char *in);
+char *wchartoutf8(const wchar_t *in);
+#endif
 
 #endif

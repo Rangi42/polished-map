@@ -181,7 +181,8 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	char map_constants[FL_PATH_MAX] = {};
 	Config::map_constants_path(map_constants, directory);
 
-	std::ifstream ifs(map_constants);
+	std::ifstream ifs;
+	open_ifstream(ifs, map_constants);
 	if (!ifs.good()) { return false; }
 
 	char constant[FL_PATH_MAX] = {};
@@ -249,7 +250,8 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 	char map_headers[FL_PATH_MAX] = {};
 	Config::map_headers_path(map_headers, directory);
 
-	std::ifstream ifs(map_headers);
+	std::ifstream ifs;
+	open_ifstream(ifs, map_headers);
 	if (!ifs.good()) { return ""; }
 
 	while (ifs.good()) {
@@ -322,7 +324,8 @@ void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &
 	char tileset_constants[FL_PATH_MAX] = {};
 	Config::tileset_constants_path(tileset_constants, directory);
 
-	std::ifstream ifs(tileset_constants);
+	std::ifstream ifs;
+	open_ifstream(ifs, tileset_constants);
 	if (!ifs.good()) { return; }
 
 	int id = 1;
