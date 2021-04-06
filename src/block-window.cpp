@@ -5,6 +5,125 @@
 #include "image.h"
 #include "block-window.h"
 
+Autocomplete_Input::Autocomplete_Input(int x, int y, int w, int h, const char *l) : OS_Input(x, y, w, h, l),
+	_popup(NULL) {
+	Fl_Group *prev_current = Fl_Group::current();
+	Fl_Group::current(NULL);
+	_popup = new Autocomplete_Popup(x, y+h, w, 100);
+	_popup->_auto_input = this;
+	Fl_Group::current(prev_current);
+}
+
+int Autocomplete_Input::handle(int event) {
+	int ret = OS_Input::handle(event);
+	switch (event) {
+	case FL_PUSH:
+	case FL_RELEASE:
+		if (value() && value()[0] && (mark() > 0 || position() < (int)strlen(value()) - 1)) {
+			return ret;
+		}
+		break;
+	case FL_KEYDOWN:
+	case FL_KEYUP:
+		switch (Fl::event_key()) {
+		case FL_Escape:
+		case FL_Tab:
+		case FL_Left:
+		case FL_Right:
+		case FL_Control_L:
+		case FL_Control_R:
+		case FL_Alt_L:
+		case FL_Alt_R:
+		case FL_Shift_L:
+		case FL_Shift_R:
+			return ret;
+		}
+		if (Fl::event_ctrl() || Fl::event_alt() || Fl::event_shift()) {
+			return ret;
+		}
+		break;
+	default:
+		return ret;
+	}
+	_popup->position(window()->x() + x(), window()->y() + y() + h());
+	_popup->show();
+	_popup->wait_for_expose();
+	Fl::focus(this);
+	Fl::grab(_popup);
+	return 1;
+}
+
+Autocomplete_Popup::Autocomplete_Popup(int x, int y, int w, int h, const char *l) : Fl_Menu_Window(x, y, w, h, l),
+	_browser(0, 0, w, h), _auto_input(NULL) {
+	end();
+	clear_border();
+	set_modal();
+	_browser.textfont(OS_FONT);
+	_browser.textsize(OS_FONT_SIZE);
+	_browser.user_data(this);
+	_browser.callback((Fl_Callback *)browser_cb);
+	_browser.when(FL_WHEN_CHANGED);
+	// XXX
+	_browser.add("FLOOR");
+	_browser.add("WALL");
+	_browser.add("CUT_TREE");
+	_browser.add("LONG_GRASS");
+	_browser.add("HEADBUTT_TREE");
+	_browser.add("TALL_GRASS");
+	_browser.add("ICE");
+	_browser.add("WHIRLPOOL");
+	_browser.add("BUOY");
+	_browser.add("WATER");
+}
+
+int Autocomplete_Popup::handle(int event) {
+	int ret = Fl_Menu_Window::handle(event);
+	switch (event) {
+	case FL_FOCUS:
+		return 1;
+	case FL_UNFOCUS:
+		return 1;
+	case FL_SHORTCUT:
+	case FL_KEYDOWN:
+		switch (Fl::event_key()) {
+		case FL_Enter:
+		case FL_Escape:
+		case FL_Tab:
+			hide();
+			Fl::grab(NULL);
+			_auto_input->take_focus();
+			return 1;
+		}
+		break;
+	case FL_PUSH:
+		if (!ret && visible()) {
+			hide();
+			Fl::grab(NULL);
+			_auto_input->take_focus();
+		}
+		return 1;
+	case FL_RELEASE:
+		_browser.handle(event);
+		_browser.scrollbar.handle(event);
+		_browser.hscrollbar.handle(event);
+		break;
+	}
+	if (!ret) {
+		ret = _auto_input->handle(event);
+		_auto_input->redraw();
+	}
+	return ret;
+}
+
+void Autocomplete_Popup::browser_cb(Fl_Hold_Browser *browser, Autocomplete_Popup *popup) {
+	if (browser->value()) {
+		popup->_auto_input->value(browser->text(browser->value()));
+	}
+	popup->hide();
+	Fl::grab(NULL);
+	popup->_auto_input->take_focus();
+}
+
 Block_Double_Window::Block_Double_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
 
 int Block_Double_Window::handle(int event) {
@@ -66,10 +185,10 @@ void Block_Window::initialize() {
 	_metatile_group = new Fl_Group(278, 36, 98, 98);
 	_metatile_group->end();
 	_window->begin();
-	_collision_inputs[(int)Quadrant::TOP_LEFT]     = new OS_Input(300, 144, 156, 22);
-	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
-	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
-	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
+	_collision_inputs[(int)Quadrant::TOP_LEFT]     = new Autocomplete_Input(300, 144, 156, 22);
+	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new Autocomplete_Input(300, 170, 156, 22);
+	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new Autocomplete_Input(300, 196, 156, 22);
+	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new Autocomplete_Input(300, 222, 156, 22);
 	int bsw = std::max(text_width("AA", 2), text_width("FF", 2)) + 22;
 	_bin_collision_spinners[(int)Quadrant::TOP_LEFT]     = new Default_Hex_Spinner(300, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 144, bsw, 22);
@@ -178,7 +297,7 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 		}
 	}
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
-		OS_Input *cin = _collision_inputs[i];
+		Autocomplete_Input *cin = _collision_inputs[i];
 		Default_Hex_Spinner *bin = _bin_collision_spinners[i];
 		if (bin_collisions) {
 			cin->hide();

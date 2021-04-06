@@ -6,6 +6,8 @@
 #pragma warning(push, 0)
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Menu_Window.H>
+#include <FL/Fl_Hold_Browser.H>
 #pragma warning(pop)
 
 #include "tileset.h"
@@ -13,6 +15,31 @@
 #include "palette-map.h"
 #include "metatile.h"
 #include "widgets.h"
+
+class Autocomplete_Popup;
+
+class Autocomplete_Input : public OS_Input {
+private:
+	Autocomplete_Popup *_popup;
+	friend class Autocomplete_Popup;
+public:
+	Autocomplete_Input(int x, int y, int w, int h, const char *l = NULL);
+protected:
+	int handle(int event);
+};
+
+class Autocomplete_Popup : public Fl_Menu_Window {
+private:
+	Fl_Hold_Browser _browser;
+	Autocomplete_Input *_auto_input;
+	friend class Autocomplete_Input;
+public:
+	Autocomplete_Popup(int x, int y, int w, int h, const char *l = NULL);
+protected:
+	int handle(int event);
+private:
+	static void browser_cb(Fl_Hold_Browser *browser, Autocomplete_Popup *popup);
+};
 
 class Block_Double_Window : public Fl_Double_Window {
 public:
@@ -32,7 +59,7 @@ private:
 	Fl_Group *_tileset_group, *_metatile_group;
 	Tile_Button *_tile_buttons[MAX_NUM_TILES], *_selected;
 	Chip *_chips[METATILE_SIZE * METATILE_SIZE];
-	OS_Input *_collision_inputs[NUM_QUADRANTS];
+	Autocomplete_Input *_collision_inputs[NUM_QUADRANTS];
 	Default_Hex_Spinner *_bin_collision_spinners[NUM_QUADRANTS];
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
