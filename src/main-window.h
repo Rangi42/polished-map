@@ -122,6 +122,8 @@ public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
 	void show(void);
+	bool maximized(void) const;
+	void maximize(void);
 	inline bool grid(void) const { return _grid_mi && !!_grid_mi->value(); }
 	inline bool rulers(void) const { return _rulers_mi && !!_rulers_mi->value(); }
 	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
