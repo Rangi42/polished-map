@@ -89,6 +89,9 @@ int main(int argc, char **argv) {
 	if (window.full_screen()) {
 		window.fullscreen();
 	}
+	else if (Preferences::get("maximized")) {
+		window.maximize();
+	}
 
 	if (argc > 1) {
 		window.open_map(argv[1]);
