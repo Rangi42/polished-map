@@ -2,6 +2,8 @@
 
 A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal), [pokered](https://github.com/pret/pokered), and hacks including [Polished Crystal v2](https://github.com/Rangi42/polishedcrystal/tree/v2.2.0), [Red++ v3](https://github.com/TheFakeMateo/rpp-backup), [Orange](https://github.com/PiaCarrot/pokeorange), [Prism](https://www.reddit.com/r/PokemonPrism), and many more.
 
+(For projects that use [256–512 tiles](https://github.com/pret/pokecrystal/wiki/Expand-tilesets-from-192-to-255-tiles) and [per-block attributes](https://github.com/pret/pokecrystal/wiki/Allow-tiles-to-have-different-attributes-in-different-blocks-\(including-X-and-Y-flip\)), including [Polished Crystal v3](https://github.com/Rangi42/polishedcrystal), [Red++ v4](https://github.com/TheFakeMateo/RedPlusPlus), [Coral](https://github.com/pkmncoraldev/polishedcoral), and [Ancient Ruby](https://github.com/BloodlessNS/ancientruby), use [Polished Map++](https://github.com/Rangi42/polished-map/tree/plusplus)!)
+
 Inspired by [crowdmap](https://github.com/yenatch/crowdmap), but implemented with C++ and [FLTK](http://www.fltk.org/), and with more functions for graphics editing.
 
 Latest release: [**4.5.4**](https://github.com/Rangi42/polished-map/releases/tag/v4.5.4)
