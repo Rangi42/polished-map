@@ -1,11 +1,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define PROGRAM_VERSION 4,5,4
+#define PROGRAM_VERSION 4,6,0
 #ifdef _DEBUG
-#define PROGRAM_VERSION_STRING "4.5.4 [DEBUG]"
+#define PROGRAM_VERSION_STRING "4.6.0 [DEBUG]"
 #else
-#define PROGRAM_VERSION_STRING "4.5.4"
+#define PROGRAM_VERSION_STRING "4.6.0"
 #endif
 
 #define PROGRAM_EXE_NAME "polishedmap"
@@ -20,6 +20,6 @@
 
 #define PROGRAM_AUTHOR "Rangi"
 
-#define CURRENT_YEAR "2020"
+#define CURRENT_YEAR "2021"
 
 #endif
