@@ -1,4 +1,4 @@
-# Polished Map [![Build Status](https://travis-ci.org/Rangi42/polished-map.svg?branch=master)](https://travis-ci.org/Rangi42/polished-map)
+# Polished Map [![Build Status](https://github.com/Rangi42/polished-map/actions/workflows/main.yml/badge.svg)](https://github.com/Rangi42/polished-map/actions)
 
 A map and tileset editor for [pokecrystal](https://github.com/pret/pokecrystal), [pokered](https://github.com/pret/pokered), and hacks including [Polished Crystal v2](https://github.com/Rangi42/polishedcrystal/tree/v2.2.0), [Red++ v3](https://github.com/TheFakeMateo/rpp-backup), [Orange](https://github.com/PiaCarrot/pokeorange), [Prism](https://www.reddit.com/r/PokemonPrism), and many more.
 
