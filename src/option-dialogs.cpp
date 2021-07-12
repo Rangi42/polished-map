@@ -518,7 +518,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 int Map_Options_Dialog::add_map_size(int w, int h) {
 	std::pair<int, int> s(w, h);
-	std::vector<std::pair<int, int>>::iterator it = std::find(_valid_sizes.begin(), _valid_sizes.end(), s);
+	const auto it = std::find(_valid_sizes.begin(), _valid_sizes.end(), s);
 	if (it == _valid_sizes.end()) {
 		_valid_sizes.push_back(s);
 		char buffer[128] = {};
