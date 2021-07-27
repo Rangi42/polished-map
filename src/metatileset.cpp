@@ -250,10 +250,9 @@ Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		trim(line);
-		if (!starts_with(line, "tilecoll")) { continue; }
-		line.erase(0, strlen("tilecoll") + 1); // include next whitespace character
 		std::istringstream lss(line);
+		std::string token;
+		if (!leading_macro(lss, token, "tilecoll")) { continue; }
 		std::string c1, c2, c3, c4;
 		std::getline(lss, c1, ','); trim(c1);
 		std::getline(lss, c2, ','); trim(c2);

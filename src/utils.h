@@ -9,6 +9,7 @@
 #include <string_view>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 #ifdef _WIN32
 #define DIR_SEP "\\"
@@ -31,8 +32,9 @@ bool starts_with(std::string_view s, std::string_view p);
 bool ends_with(std::string_view s, std::string_view p);
 bool ends_with(std::wstring_view s, std::wstring_view p);
 void trim(std::string &s, const std::string &t = whitespace);
-void lowercase(std::string & s);
-void remove_comment(std::string &s, char c = ';');
+void lowercase(std::string &s);
+bool leading_macro(std::istringstream &iss, std::string &macro, const char *v = NULL);
+void remove_comment(std::string &s);
 void remove_suffix(const char *n, char *s);
 void before_suffix(const char *n, char *s);
 void after_suffix(const char *n, char *s);
