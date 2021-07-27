@@ -27,10 +27,6 @@ void Config::gfx_roof_dir(char *dest, const char *root) {
 	sprintf(dest, "%s%s", root, "gfx" DIR_SEP "tilesets" DIR_SEP "roofs" DIR_SEP);
 }
 
-const char *Config::palette_macro() {
-	return "\ttilepal";
-}
-
 bool Config::project_path_from_blk_path(const char *blk_path, char *project_path) {
 	char scratch_path[FL_PATH_MAX] = {};
 	fl_filename_absolute(scratch_path, blk_path);

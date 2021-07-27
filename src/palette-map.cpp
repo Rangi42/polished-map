@@ -35,14 +35,13 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 		std::fill_n(_palette, _palette_size, Palette::MONOCHROME);
 		return (_result = Result::PALETTE_OK);
 	}
-	std::string prefix(Config::palette_macro());
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		if (!starts_with(line, prefix)) { continue; }
 		remove_comment(line);
 		std::istringstream lss(line);
 		std::string token;
+		if (!leading_macro(lss, token, "tilepal")) { continue; }
 		std::getline(lss, token, ','); // skip bank ID
 		while (std::getline(lss, token, ',')) {
 			if (_palette_size == MAX_NUM_TILES) { return (_result = Result::PALETTE_TOO_LONG); }
@@ -94,7 +93,6 @@ bool Palette_Map::write_palette_map(const char *f) const {
 	if (!file) { return false; }
 	size_t n = MAX_NUM_TILES;
 	while (_palette[n-1] == Palette::UNDEFINED) { n--; }
-	const char *prefix = Config::palette_macro();
 	for (size_t i = 0; i < n; i++) {
 		if (!Config::allow_256_tiles() && (i == 0x60 || i == 0xe0)) {
 			fputs(Config::allow_priority()
@@ -104,8 +102,7 @@ bool Palette_Map::write_palette_map(const char *f) const {
 			continue;
 		}
 		if (i % PALETTES_PER_LINE == 0) {
-			fputs(prefix, file);
-			fputc(' ', file);
+			fputs("\ttilepal ", file);
 			fputc(i < 0x80 ? '0' : '1', file);
 		}
 		fputs(", ", file);

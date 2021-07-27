@@ -75,8 +75,10 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 		n++;
 		std::istringstream lss(line);
 		std::string token;
-		std::getline(lss, token, ' ');
-		trim(token);
+		if (!leading_macro(lss, token)) {
+			prelude += line + '\n';
+			continue;
+		}
 		const auto it = events_meta.find(token);
 		if (it == events_meta.end()) {
 			prelude += line + '\n';

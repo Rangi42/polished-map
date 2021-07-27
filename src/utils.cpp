@@ -35,8 +35,15 @@ void lowercase(std::string &s) {
 	std::transform(s.begin(), s.end(), s.begin(), [](char c) { return (char)std::tolower(c); });
 }
 
-void remove_comment(std::string &s, char c) {
-	size_t p = s.find(c);
+bool leading_macro(std::istringstream &iss, std::string &macro, const char *v) {
+	int first = iss.peek();
+	bool indented = first == ' ' || first == '\t';
+	if (indented) { iss >> std::ws >> macro; }
+	return indented && (!v || macro == v);
+}
+
+void remove_comment(std::string &s) {
+	size_t p = s.find(';');
 	if (p != std::string::npos) {
 		s.erase(p);
 	}

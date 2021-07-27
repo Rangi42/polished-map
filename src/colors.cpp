@@ -162,11 +162,10 @@ PalVec Color::parse_palettes(const char *f) {
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		trim(line);
-		if (!starts_with(line, "RGB")) { continue; }
-		line.erase(0, strlen("RGB") + 1); // include next whitespace character
 		line += ";"; // ensure trailing separator
 		std::istringstream lss(line);
+		std::string macro;
+		if (!leading_macro(lss, macro, "RGB")) { continue; }
 		while (lss.good()) {
 			unsigned int v;
 			char sep;
