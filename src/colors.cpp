@@ -23,7 +23,7 @@ static const uchar hue_monos[NUM_HUES] = {0xFF, 0x55, 0xAA, 0x00}; // WHITE, DAR
 static const Hue mono_hues[NUM_HUES] = {Hue::BLACK, Hue::DARK, Hue::LIGHT, Hue::WHITE}; // 00-3F, 40-7F, 80-BF, C0-FF
 
 // Palettes x Palette x Hue x RGB
-uchar tileset_colors[NUM_PALETTE_SETS][NUM_PALETTES][NUM_HUES][NUM_CHANNELS] = {
+static uchar tileset_colors[NUM_PALETTE_SETS][NUM_PALETTES][NUM_HUES][NUM_CHANNELS] = {
 	{ // MORN
 		// WHITE, DARK, LIGHT, BLACK
 		{RGB5(28,31,16), RGB5(13,13,13), RGB5(21,21,21), RGB5( 7, 7, 7)}, // GRAY
@@ -344,11 +344,12 @@ bool Color::read_roof_colors(const char *f, uint8_t map_group, Roof_Palettes roo
 	return true;
 }
 
+static const char *palettes_names[NUM_PALETTE_SETS] = {"morn", "day", "nite", "indoor", "custom"};
+static const char *palette_names[NUM_PALETTES] = {"gray", "red", "green", "water", "yellow", "brown", "roof", "text"};
+
 bool Color::write_palettes(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
-	const char *palettes_names[NUM_PALETTE_SETS] = {"morn", "day", "nite", "indoor", "custom"};
-	const char *palette_names[NUM_PALETTES] = {"gray", "red", "green", "water", "yellow", "brown", "roof", "text"};
 	for (int l = 0; l < NUM_PALETTE_SETS; l++) {
 		fprintf(file, "; %s\n", palettes_names[l]);
 		for (int p = 0; p < NUM_PALETTES; p++) {
