@@ -1,3 +1,4 @@
+#include <cctype>
 #include <iomanip>
 
 #pragma warning(push, 0)

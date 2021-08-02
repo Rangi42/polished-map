@@ -89,7 +89,7 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 			// warp is a script command in pokecrystal, but with 2 commas, not 3
 			std::string tail(lss.str().substr((size_t)lss.tellg()));
 			remove_comment(tail);
-			if (std::count(tail.begin(), tail.end(), ',') != 3) {
+			if (std::count(RANGE(tail), ',') != 3) {
 				prelude += line + '\n';
 				continue;
 			}

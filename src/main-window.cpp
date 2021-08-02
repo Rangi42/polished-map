@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cwctype>
 #include <queue>
 #include <utility>
 
@@ -1328,10 +1327,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	copy_label(buffer);
-	if (ends_with(basename, ".blk")) {
+	if (ends_with_ignore_case(basename, ".blk")) {
 		strcpy(buffer, basename);
 		size_t n = strlen(buffer);
-		buffer[n-4] = '\0';
+		buffer[n - strlen(".blk")] = '\0';
 		strcat(buffer, ".png");
 	}
 	else {
@@ -1527,24 +1526,21 @@ void Main_Window::view_event_script(Event *e) {
 		GetCurrentDirectory(FL_PATH_MAX, directory);
 		FindExecutable(filename, directory, program);
 
-		std::wstring program_lower(program);
-		std::transform(program_lower.begin(), program_lower.end(), program_lower.begin(), towlower);
-
 		std::wstringstream wss;
 		// Notepad2 or Notepad3: /g <#> <filename>
-		if (ends_with(program_lower, L"notepad2.exe") || ends_with(program_lower, L"notepad3.exe")) {
+		if (ends_with_ignore_case(program, L"notepad2.exe") || ends_with_ignore_case(program, L"notepad3.exe")) {
 			wss << L"/g " << e->line() << L" \"" << filename << L"\"";
 		}
 		// Notepad++: -n<#> <filename>
-		else if (ends_with(program_lower, L"notepad++.exe")) {
+		else if (ends_with_ignore_case(program, L"notepad++.exe")) {
 			wss << L"-n" << e->line() << L" \"" << filename << L"\"";
 		}
 		// VS Code: -g <filename>:<#>
-		else if (ends_with(program_lower, L"code.exe")) {
+		else if (ends_with_ignore_case(program, L"code.exe")) {
 			wss << L"-g \"" << filename << L"\":" << e->line();
 		}
 		// Sublime Text: <filename>:<#>
-		else if (ends_with(program_lower, L"subl.exe") || ends_with(program_lower, L"sublime_text.exe")) {
+		else if (ends_with_ignore_case(program, L"subl.exe") || ends_with_ignore_case(program, L"sublime_text.exe")) {
 			wss << L"\"" << filename << L"\":" << e->line();
 		}
 

@@ -143,7 +143,6 @@ static void guess_map_constant(const char *name, char *constant) {
 		prev = c;
 		*constant++ = (char)toconstant(*name++);
 	}
-	*constant++ = ',';
 	*constant = '\0';
 }
 
@@ -164,7 +163,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	_map_header->copy_label(buffer);
 
 	size_t fs = file_size(filename);
-	if (ends_with(filename, ".MAP")) {
+	if (ends_with_ignore_case(filename, ".map")) {
 		Parsed_Asm data(filename);
 		fs = data.size();
 	}
@@ -195,33 +194,27 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 
 	attrs.group = 0;
 	while (ifs.good()) {
-		bool w_x_h = false;
 		std::string line;
 		std::getline(ifs, line);
-		trim(line);
-		if (starts_with(line, "newgroup") && line[strlen("newgroup")] != ':') {
+		std::istringstream lss(line);
+
+		std::string macro;
+		if (!leading_macro(lss, macro)) { continue; }
+		if (macro == "newgroup") {
 			attrs.group++;
 			continue;
 		}
-		else if (starts_with(line, "map_const")) {
-			// "map_const": pokecrystal
-			line.erase(0, strlen("map_const") + 1); // include next whitespace character
-			w_x_h = true;
-		}
-		else if (starts_with(line, "mapgroup")) {
-			// "mapgroup": pokecrystal pre-2018
-			line.erase(0, strlen("mapgroup") + 1); // include next whitespace character
-		}
-		else if (starts_with(line, "mapconst")) {
-			// "mapconst": pokered
-			line.erase(0, strlen("mapconst") + 1); // include next whitespace character
-		}
-		else {
-			continue;
-		}
-		if (!starts_with(line, constant)) { continue; }
-		line.erase(0, strlen(constant));
-		std::istringstream lss(line);
+		if (macro != "map_const"   // "map_const": pokecrystal
+			&& macro != "mapgroup" // "mapgroup": pokecrystal pre-2018
+			&& macro != "mapconst" // "mapconst": pokered
+		) { continue; }
+		bool w_x_h = macro == "map_const";
+
+		std::string map;
+		std::getline(lss, map, ',');
+		trim(map);
+		if (map != constant) { continue; }
+
 		int w, h;
 		char comma;
 		if (w_x_h) {
@@ -289,13 +282,13 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 				lowercase(tileset_name);
 			}
 			else if (starts_with(tileset_name, "$")) {
-				tileset_name.erase(0, 1);
-				int ti = std::stoi(tileset_name, NULL, 16);
+				tileset_name.erase(0, strlen("$"));
+				int ti = strtol(tileset_name.c_str(), NULL, 16);
 				char tileset_num[16] = {};
 				sprintf(tileset_num, "%02d", ti);
 				tileset_name = tileset_num;
 			}
-			else if (std::all_of(tileset_name.begin(), tileset_name.end(), isdigit)) {
+			else if (std::all_of(RANGE(tileset_name), isdigit)) {
 				if (tileset_name.length() == 1) {
 					tileset_name = "0" + tileset_name;
 				}
@@ -383,8 +376,7 @@ void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &
 		std::getline(ifs, line);
 		std::istringstream lss(line);
 		std::string token;
-		lss >> token;
-		if (token != "const") { continue; }
+		if (!leading_macro(lss, token, "const")) { continue; }
 		lss >> token;
 		if (starts_with(token, "TILESET_")) { token.erase(0, strlen("TILESET_")); }
 		sprintf(original, "%02d", id++);
@@ -458,12 +450,12 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	int v = 0;
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
-		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
-		int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
-			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
-			          ends_with(name, ".2bpp") ? 5 :
-			          ends_with(name, ".CHR") ? 4 :
-			          ends_with(name, ".png") ? 4 : 0;
+		if (ends_with_ignore_case(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
+		int ext_len = ends_with_ignore_case(name, ".2bpp.lz") ? strlen(".2bpp.lz") :
+			ends_with_ignore_case(name, ".2bpp.unique.lz") ? strlen(".2bpp.unique.lz") : // for Red++ 3.0's unique tilesets
+			ends_with_ignore_case(name, ".2bpp") ? strlen(".2bpp") :
+			ends_with_ignore_case(name, ".chr") ? strlen(".chr") :
+			ends_with_ignore_case(name, ".png") ? strlen(".png") : 0;
 		if (ext_len) {
 			std::string tileset_filename = add_tileset(name, ext_len, pretty_names);
 			char guessable_trimmed[FL_PATH_MAX] = {};
@@ -495,10 +487,10 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	if (n >= 0) {
 		for (int i = 0; i < n; i++) {
 			const char *name = list[i]->d_name;
-			int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
-			              ends_with(name, ".2bpp") ? 5 :
-			              ends_with(name, ".CHR") ? 4 :
-			              ends_with(name, ".png") ? 4 : 0;
+			int ext_len = ends_with_ignore_case(name, ".2bpp.lz") ? strlen(".2bpp.lz") :
+			              ends_with_ignore_case(name, ".2bpp") ? strlen(".2bpp") :
+			              ends_with_ignore_case(name, ".chr") ? strlen(".chr") :
+			              ends_with_ignore_case(name, ".png") ? strlen(".png") : 0;
 			if (ext_len) {
 				add_roof(name, ext_len);
 			}
@@ -518,7 +510,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 int Map_Options_Dialog::add_map_size(int w, int h) {
 	std::pair<int, int> s(w, h);
-	const auto it = std::find(_valid_sizes.begin(), _valid_sizes.end(), s);
+	const auto it = std::find(RANGE(_valid_sizes), s);
 	if (it == _valid_sizes.end()) {
 		_valid_sizes.push_back(s);
 		char buffer[128] = {};
@@ -986,7 +978,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_prefixed) {
 		e->_prefix = _prefix->value();
 		trim(e->_prefix);
-		std::replace(e->_prefix.begin(), e->_prefix.end(), '\n', ' ');
+		std::replace(RANGE(e->_prefix), '\n', ' ');
 		if (!ends_with(e->_prefix, ",")) {
 			e->_prefix += ",";
 		}
@@ -994,7 +986,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_suffixed) {
 		e->_suffix = _suffix->value();
 		trim(e->_suffix);
-		std::replace(e->_suffix.begin(), e->_suffix.end(), '\n', ' ');
+		std::replace(RANGE(e->_suffix), '\n', ' ');
 		if (starts_with(e->_suffix, ";")) {
 			e->_suffix = " " + e->_suffix;
 		}

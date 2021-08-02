@@ -100,7 +100,7 @@ void Map::redo() {
 }
 
 Map::Result Map::read_blocks(const char *f) {
-	if (ends_with(f, ".MAP")) { return read_asm_blocks(f); }
+	if (ends_with_ignore_case(f, ".map")) { return read_asm_blocks(f); }
 
 	bool too_long = false;
 

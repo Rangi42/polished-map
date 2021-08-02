@@ -116,7 +116,7 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = Result::META_NO_GFX); } // no graphics
 
-	if (ends_with(f, ".CEL")) { return read_asm_metatiles(f); }
+	if (ends_with_ignore_case(f, ".cel")) { return read_asm_metatiles(f); }
 
 	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = Result::META_BAD_FILE); } // cannot load file

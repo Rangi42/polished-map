@@ -41,23 +41,14 @@ Parsed_Asm::Result Parsed_Asm::parse_asm(const char *f) {
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-
-		bool words;
-		if (starts_with(line, "\tdb\t") || starts_with(line, "\tDB\t")) {
-			words = false;
-		}
-		else if (starts_with(line, "\tdw\t") || starts_with(line, "\tDW\t")) {
-			words = true;
-		}
-		else {
-			continue; // skip line
-		}
-
-		// Remove declaration and comment
-		line.erase(0, 4);
 		remove_comment(line);
-
 		std::istringstream lss(line);
+
+		std::string macro;
+		if (!leading_macro(lss, macro)) { continue; }
+		bool words = equals_ignore_case(macro, "dw");
+		if (!words && !equals_ignore_case(macro, "db")) { continue; }
+
 		for (std::string token; std::getline(lss, token, ',');) {
 			uint32_t v = parse_value(token);
 			if (words) {
