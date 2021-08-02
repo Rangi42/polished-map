@@ -21,6 +21,8 @@
 #define _countof(a) (sizeof(a) / sizeof(a[0]))
 #endif
 
+#define RANGE(x) (x).begin(), (x).end()
+
 typedef uint8_t size8_t;
 typedef uint16_t size16_t;
 typedef uint32_t size32_t;
@@ -28,9 +30,11 @@ typedef uint64_t size64_t;
 
 extern const std::string whitespace;
 
+bool equals_ignore_case(std::string_view s, std::string_view p);
 bool starts_with(std::string_view s, std::string_view p);
 bool ends_with(std::string_view s, std::string_view p);
-bool ends_with(std::wstring_view s, std::wstring_view p);
+bool ends_with_ignore_case(std::string_view s, std::string_view p);
+bool ends_with_ignore_case(std::wstring_view s, std::wstring_view p);
 void trim(std::string &s, const std::string &t = whitespace);
 void lowercase(std::string &s);
 bool leading_macro(std::istringstream &iss, std::string &macro, const char *v = NULL);

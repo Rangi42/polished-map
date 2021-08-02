@@ -1,4 +1,6 @@
 #include <cstring>
+#include <cctype>
+#include <cwctype>
 #include <algorithm>
 #include <sys/stat.h>
 
@@ -12,6 +14,14 @@
 
 const std::string whitespace(" \f\n\r\t\v");
 
+static bool cmp_ignore_case(const char &a, const char &b) {
+	return tolower(a) == tolower(b);
+}
+
+bool equals_ignore_case(std::string_view s, std::string_view p) {
+	return s.size() == p.size() && std::equal(RANGE(s), RANGE(p), cmp_ignore_case);
+}
+
 bool starts_with(std::string_view s, std::string_view p) {
 	return !s.compare(0, p.size(), p);
 }
@@ -20,8 +30,18 @@ bool ends_with(std::string_view s, std::string_view p) {
 	return s.size() >= p.size() && !s.compare(s.size() - p.size(), p.size(), p);
 }
 
-bool ends_with(std::wstring_view s, std::wstring_view p) {
-	return s.size() >= p.size() && !s.compare(s.size() - p.size(), p.size(), p);
+bool ends_with_ignore_case(std::string_view s, std::string_view p) {
+	if (s.size() < p.size()) { return false; }
+	std::string_view ss = s.substr(s.size() - p.size());
+	return std::equal(RANGE(ss), RANGE(p), cmp_ignore_case);
+}
+
+bool ends_with_ignore_case(std::wstring_view s, std::wstring_view p) {
+	if (s.size() < p.size()) { return false; }
+	std::wstring_view ss = s.substr(s.size() - p.size());
+	return std::equal(RANGE(ss), RANGE(p), [](const wchar_t &a, const wchar_t &b) {
+		return towlower(a) == towlower(b);
+	});
 }
 
 void trim(std::string &s, const std::string &t) {
@@ -31,14 +51,14 @@ void trim(std::string &s, const std::string &t) {
 	s.erase(p + 1);
 }
 
-void lowercase(std::string& s) {
-	std::transform(s.begin(), s.end(), s.begin(), [](char c) { return (char)std::tolower(c); });
+void lowercase(std::string &s) {
+	std::transform(RANGE(s), s.begin(), [](char c) { return (char)tolower(c); });
 }
 
 bool leading_macro(std::istringstream &iss, std::string &macro, const char *v) {
 	int first = iss.peek();
 	bool indented = first == ' ' || first == '\t';
-	if (indented) { iss >> std::ws >> macro; }
+	if (indented) { iss >> std::ws >> macro >> std::ws; }
 	return indented && (!v || macro == v);
 }
 
