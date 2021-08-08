@@ -54,8 +54,7 @@ protected:
 	static void close_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void cancel_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void select_color_cb(Color_Button *cb, Abstract_Palette_Window *alw);
-	static void change_spinner_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
-	static void change_slider_cb(Default_Slider *sd, Abstract_Palette_Window *alw);
+	static void change_channel_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void hex_color_rgb_cb(OS_Hex_Input *hi, Abstract_Palette_Window *alw);
 	static void hex_color_swatch_cb(Fl_Button *w, Abstract_Palette_Window *alw);
 	static void copy_color_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
