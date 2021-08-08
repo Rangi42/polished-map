@@ -533,7 +533,7 @@ void Map_Options_Dialog::add_valid_sizes(size_t n) {
 		int i = ((int)_valid_sizes.size() - 1) / 2;
 		// Prefer size multiples of 10x9, the typical unit size
 		for (int j = i; j >= 0; j--) {
-			auto[w, h] = _valid_sizes[j];
+			auto &[w, h] = _valid_sizes[j];
 			if (w % 10 == 0 && h % 9 == 0) {
 				select_map_size(j);
 				return;
