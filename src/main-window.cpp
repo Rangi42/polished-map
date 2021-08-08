@@ -208,7 +208,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
 	_overworld_map_size_dialog = new Overworld_Map_Size_Dialog("Overworld Map Size");
-	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
+	_help_window = new Help_Window(48, 48, 700, 500, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
 	_tileset_window = new Tileset_Window(48, 48);
 	_roof_window = new Roof_Window(48, 48);
