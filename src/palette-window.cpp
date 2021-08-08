@@ -62,20 +62,20 @@ void Abstract_Palette_Window::initialize() {
 	_window->set_modal();
 	// Initialize window's children
 	_red_spinner->range(0, 31);
-	_red_spinner->callback((Fl_Callback *)change_spinner_cb, this);
+	_red_spinner->callback((Fl_Callback *)change_channel_cb, this);
 	_green_spinner->range(0, 31);
-	_green_spinner->callback((Fl_Callback *)change_spinner_cb, this);
+	_green_spinner->callback((Fl_Callback *)change_channel_cb, this);
 	_blue_spinner->range(0, 31);
-	_blue_spinner->callback((Fl_Callback *)change_spinner_cb, this);
+	_blue_spinner->callback((Fl_Callback *)change_channel_cb, this);
 	_red_slider->range(0, 31);
 	_red_slider->step(1);
-	_red_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_red_slider->callback((Fl_Callback *)change_channel_cb, this);
 	_green_slider->range(0, 31);
 	_green_slider->step(1);
-	_green_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_green_slider->callback((Fl_Callback *)change_channel_cb, this);
 	_blue_slider->range(0, 31);
 	_blue_slider->step(1);
-	_blue_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_blue_slider->callback((Fl_Callback *)change_channel_cb, this);
 	_hex_color_rgb->maximum_size(6);
 	_hex_color_rgb->callback((Fl_Callback *)hex_color_rgb_cb, this);
 	_hex_color_rgb->when(FL_WHEN_ENTER_KEY);
@@ -190,14 +190,9 @@ void Abstract_Palette_Window::select_color_cb(Color_Button *cb, Abstract_Palette
 	alw->_window->redraw();
 }
 
-void Abstract_Palette_Window::change_spinner_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
+void Abstract_Palette_Window::change_channel_cb(Fl_Widget *w, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
-	alw->update_color(sp);
-}
-
-void Abstract_Palette_Window::change_slider_cb(Default_Slider *sd, Abstract_Palette_Window *alw) {
-	if (!alw->_selected) { return; }
-	alw->update_color(sd);
+	alw->update_color(w);
 }
 
 void Abstract_Palette_Window::hex_color_rgb_cb(OS_Hex_Input *, Abstract_Palette_Window *alw) {
