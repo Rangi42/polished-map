@@ -24,7 +24,11 @@ protected:
 	bool _canceled;
 	Swatch_Window *_window;
 	Color_Button *_selected, *_chosen;
+	Fl_Group *_color_group;
 	Default_Spinner *_red_spinner, *_green_spinner, *_blue_spinner;
+	Default_Slider *_red_slider, *_green_slider, *_blue_slider;
+	OS_Hex_Input *_hex_color_rgb;
+	Fl_Button *_hex_color_swatch;
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 	friend class Swatch_Window;
@@ -36,6 +40,7 @@ public:
 	virtual ~Abstract_Palette_Window();
 protected:
 	void initialize(void);
+	void update_color(Fl_Widget *wgt);
 	virtual void initial_setup(void) = 0;
 	virtual void refresh(void) = 0;
 public:
@@ -49,9 +54,10 @@ protected:
 	static void close_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void cancel_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void select_color_cb(Color_Button *cb, Abstract_Palette_Window *alw);
-	static void change_red_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
-	static void change_green_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
-	static void change_blue_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
+	static void change_spinner_cb(Default_Spinner *sp, Abstract_Palette_Window *alw);
+	static void change_slider_cb(Default_Slider *sd, Abstract_Palette_Window *alw);
+	static void hex_color_rgb_cb(OS_Hex_Input *hi, Abstract_Palette_Window *alw);
+	static void hex_color_swatch_cb(Fl_Button *w, Abstract_Palette_Window *alw);
 	static void copy_color_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void paste_color_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
 	static void swap_colors_cb(Fl_Widget *w, Abstract_Palette_Window *alw);
@@ -59,7 +65,7 @@ protected:
 
 class Palette_Window : public Abstract_Palette_Window {
 private:
-	Fl_Group *_palette_heading_group, *_color_group;
+	Fl_Group *_palette_heading_group;
 	Label *_palette_headings[NUM_PALETTES];
 	Color_Button *_color_buttons[NUM_PALETTES][NUM_HUES];
 public:

@@ -57,6 +57,15 @@ OS_Input::OS_Input(int x, int y, int w, int h, const char *l) : Fl_Input(x, y, w
 	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
 }
 
+OS_Hex_Input::OS_Hex_Input(int x, int y, int w, int h, const char *l) : Hex_Input(x, y, w, h, l) {
+	labelfont(OS_FONT);
+	labelsize(OS_FONT_SIZE);
+	textfont(OS_FONT);
+	textsize(OS_FONT_SIZE);
+	box(OS_INPUT_THIN_DOWN_BOX);
+	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+}
+
 OS_Button::OS_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y, w, h, l) {
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
@@ -235,6 +244,82 @@ int Default_Hex_Spinner::handle(int event) {
 		break;
 	}
 	return Hex_Spinner::handle(event);
+}
+
+OS_Slider::OS_Slider(int x, int y, int w, int h, const char *l) : Fl_Hor_Nice_Slider(x, y, w, h, l) {
+	labelfont(OS_FONT);
+	labelsize(OS_FONT_SIZE);
+	box(OS_BG_BOX);
+	color(FL_BACKGROUND_COLOR);
+	slider(OS_BUTTON_UP_BOX);
+	slider_size(0.0);
+	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+}
+
+int OS_Slider::handle(int event) {
+	if (event == FL_PUSH) {
+		Fl::focus(this);
+	}
+	return Fl_Hor_Nice_Slider::handle(event);
+}
+
+void OS_Slider::draw() {
+	// Based on Fl_Slider::draw()
+	Fl_Boxtype b = box();
+	if (damage() & FL_DAMAGE_ALL) { draw_box(b, active_r() ? color() : fl_inactive(color())); }
+	draw(x()+Fl::box_dx(b), y()+Fl::box_dy(b), w()-Fl::box_dw(b), h()-Fl::box_dh(b));
+}
+
+void OS_Slider::draw(int x, int y, int w, int h) {
+	// Based on Fl_Slider::draw(...)
+	double v = 0.5;
+	if (minimum() != maximum()) {
+		v = std::clamp((value() - minimum()) / (maximum() - minimum()), 0.0, 1.0);
+	}
+	int s = std::max((int)(slider_size() * w + 0.5), h / 2 + 2);
+	int ws = w - s;
+	int lx = x + (int)(v * ws + 0.5);
+	fl_push_clip(x, y, w, h);
+	draw_box(box(), active_r() ? color() : fl_inactive(color()));
+	fl_pop_clip();
+	draw_box(OS::current_theme() == OS::Theme::OCEAN || OS::current_theme() == OS::Theme::HIGH_CONTRAST ?
+		OS_BUTTON_UP_BOX : OS_SPACER_THIN_DOWN_BOX, x, y+h/2-2, w, 4, active_r() ? FL_DARK2 : fl_inactive(FL_DARK2));
+	draw_box(slider(), lx, y, s, h, FL_GRAY);
+	draw_label(lx, y, s, h);
+	if (Fl::focus() == this) {
+		draw_focus(slider(), lx, y, s, h);
+	}
+}
+
+Default_Slider::Default_Slider(int x, int y, int w, int h, const char *l) : OS_Slider(x, y, w, h, l),
+	_default_value(0.0) {}
+
+int Default_Slider::handle(int event) {
+	return handle(event, x(), y(), w(), h());
+}
+
+int Default_Slider::handle(int event, int x, int y, int w, int h) {
+	switch (event) {
+	case FL_PUSH:
+		Fl::focus(this);
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 1;
+		}
+		break;
+	case FL_DRAG:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 0;
+		}
+		break;
+	case FL_RELEASE:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			value(_default_value);
+			do_callback();
+			return 1;
+		}
+		break;
+	}
+	return Fl_Hor_Nice_Slider::handle(event, x, y, w, h);
 }
 
 HTML_View::HTML_View(int x, int y, int w, int h, const char *l) : Fl_Help_View(x, y, w, h, l) {

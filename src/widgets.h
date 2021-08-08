@@ -8,6 +8,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Spinner.H>
+#include <FL/Fl_Hor_Nice_Slider.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Scroll.H>
@@ -49,6 +50,11 @@ public:
 class OS_Input : public Fl_Input {
 public:
 	OS_Input(int x, int y, int w, int h, const char *l = NULL);
+};
+
+class OS_Hex_Input : public Hex_Input {
+public:
+	OS_Hex_Input(int x, int y, int w, int h, const char *l = NULL);
 };
 
 class OS_Button : public Fl_Button {
@@ -103,6 +109,27 @@ public:
 	inline void default_value(int v) { _default_value = v; value(_default_value); }
 protected:
 	int handle(int event);
+};
+
+class OS_Slider : public Fl_Hor_Nice_Slider {
+public:
+	OS_Slider(int x, int y, int w, int h, const char *l = NULL);
+	void draw(void);
+	void draw(int x, int y, int w, int h);
+protected:
+	int handle(int event);
+};
+
+class Default_Slider : public OS_Slider {
+private:
+	double _default_value;
+public:
+	Default_Slider(int x, int y, int w, int h, const char *l = NULL);
+	inline double default_value(void) const { return _default_value; }
+	inline void default_value(double v) { _default_value = v; value(_default_value); }
+protected:
+	int handle(int event);
+	int handle(int event, int x, int y, int w, int h);
 };
 
 class HTML_View : public Fl_Help_View {

@@ -31,14 +31,21 @@ int Swatch_Window::handle(int event) {
 }
 
 Abstract_Palette_Window::Abstract_Palette_Window(int x, int y) : _dx(x), _dy(y), _current_palettes(), _canceled(false),
-	_window(NULL), _selected(NULL), _chosen(NULL), _red_spinner(NULL), _green_spinner(NULL), _blue_spinner(NULL),
-	_ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(), _debounce() {}
+	_window(NULL), _selected(NULL), _chosen(NULL), _color_group(NULL), _red_spinner(NULL), _green_spinner(NULL),
+	_blue_spinner(NULL), _red_slider(NULL), _green_slider(NULL), _blue_slider(NULL), _hex_color_rgb(NULL),
+	_hex_color_swatch(NULL), _ok_button(NULL), _cancel_button(NULL), _copied(false), _clipboard(), _debounce() {}
 
 Abstract_Palette_Window::~Abstract_Palette_Window() {
 	delete _window;
+	delete _color_group;
 	delete _red_spinner;
 	delete _green_spinner;
 	delete _blue_spinner;
+	delete _red_slider;
+	delete _green_slider;
+	delete _blue_slider;
+	delete _hex_color_rgb;
+	delete _hex_color_swatch;
 	delete _ok_button;
 	delete _cancel_button;
 }
@@ -55,17 +62,100 @@ void Abstract_Palette_Window::initialize() {
 	_window->set_modal();
 	// Initialize window's children
 	_red_spinner->range(0, 31);
-	_red_spinner->callback((Fl_Callback *)change_red_cb, this);
+	_red_spinner->callback((Fl_Callback *)change_spinner_cb, this);
 	_green_spinner->range(0, 31);
-	_green_spinner->callback((Fl_Callback *)change_green_cb, this);
+	_green_spinner->callback((Fl_Callback *)change_spinner_cb, this);
 	_blue_spinner->range(0, 31);
-	_blue_spinner->callback((Fl_Callback *)change_blue_cb, this);
+	_blue_spinner->callback((Fl_Callback *)change_spinner_cb, this);
+	_red_slider->range(0, 31);
+	_red_slider->step(1);
+	_red_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_green_slider->range(0, 31);
+	_green_slider->step(1);
+	_green_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_blue_slider->range(0, 31);
+	_blue_slider->step(1);
+	_blue_slider->callback((Fl_Callback *)change_slider_cb, this);
+	_hex_color_rgb->maximum_size(6);
+	_hex_color_rgb->callback((Fl_Callback *)hex_color_rgb_cb, this);
+	_hex_color_rgb->when(FL_WHEN_ENTER_KEY);
+	_hex_color_swatch->box(OS_SWATCH_BOX);
+	_hex_color_swatch->down_box(OS_SWATCH_BOX);
+	_hex_color_swatch->callback((Fl_Callback *)hex_color_swatch_cb, this);
 	_ok_button->tooltip("OK (Enter)");
 	_ok_button->callback((Fl_Callback *)close_cb, this);
 	_cancel_button->tooltip("Cancel (Esc)");
 	_cancel_button->shortcut(FL_Escape);
 	_cancel_button->callback((Fl_Callback *)cancel_cb, this);
 	Fl_Group::current(prev_current);
+}
+
+void Abstract_Palette_Window::update_color(Fl_Widget *wgt) {
+	uchar r, g, b;
+	Fl::get_color(_selected->color(), r, g, b);
+
+	if (wgt->parent() == _color_group) {
+		_red_spinner->default_value(CRGB5(r));
+		_green_spinner->default_value(CRGB5(g));
+		_blue_spinner->default_value(CRGB5(b));
+		_red_slider->default_value(CRGB5(r));
+		_green_slider->default_value(CRGB5(g));
+		_blue_slider->default_value(CRGB5(b));
+	}
+	else {
+		if (wgt == _red_spinner) {
+			double v = _red_spinner->value();
+			_red_slider->value(v);
+			r = RGB5C((uchar)v);
+		}
+		else if (wgt == _green_spinner) {
+			double v = _green_spinner->value();
+			_green_slider->value(v);
+			g = RGB5C((uchar)v);
+		}
+		else if (wgt == _blue_spinner) {
+			double v = _blue_spinner->value();
+			_blue_slider->value(v);
+			b = RGB5C((uchar)v);
+		}
+		else if (wgt == _red_slider) {
+			double v = _red_slider->value();
+			_red_spinner->value(v);
+			r = RGB5C((uchar)v);
+		}
+		else if (wgt == _green_slider) {
+			double v = _green_slider->value();
+			_green_spinner->value(v);
+			g = RGB5C((uchar)v);
+		}
+		else if (wgt == _blue_slider) {
+			double v = _blue_slider->value();
+			_blue_spinner->value(v);
+			b = RGB5C((uchar)v);
+		}
+		else {
+			_red_spinner->value(CRGB5(r));
+			_green_spinner->value(CRGB5(g));
+			_blue_spinner->value(CRGB5(b));
+			_red_slider->value(CRGB5(r));
+			_green_slider->value(CRGB5(g));
+			_blue_slider->value(CRGB5(b));
+		}
+	}
+
+	Fl_Color c = fl_rgb_color(r, g, b);
+	_selected->color(c);
+	_selected->damage(1);
+
+	char buffer[10] = {};
+	sprintf(buffer, "%02X%02X%02X", r, g, b);
+	_hex_color_rgb->value(buffer);
+
+	_hex_color_swatch->color(c);
+	_hex_color_swatch->selection_color(c);
+	_hex_color_swatch->damage(1);
+
+	_window->redraw();
 }
 
 void Abstract_Palette_Window::show(const Fl_Widget *p) {
@@ -82,11 +172,7 @@ void Abstract_Palette_Window::show(const Fl_Widget *p) {
 void Abstract_Palette_Window::select(Color_Button *cb) {
 	_selected = cb;
 	_selected->setonly();
-	uchar r, g, b;
-	Fl::get_color(cb->color(), r, g, b);
-	_red_spinner->default_value(CRGB5(r));
-	_green_spinner->default_value(CRGB5(g));
-	_blue_spinner->default_value(CRGB5(b));
+	update_color(cb);
 }
 
 void Abstract_Palette_Window::close_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
@@ -104,31 +190,68 @@ void Abstract_Palette_Window::select_color_cb(Color_Button *cb, Abstract_Palette
 	alw->_window->redraw();
 }
 
-void Abstract_Palette_Window::change_red_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
+void Abstract_Palette_Window::change_spinner_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
-	uchar r, g, b;
-	Fl::get_color(alw->_selected->color(), r, g, b);
-	r = RGB5C((uchar)sp->value());
-	alw->_selected->color(fl_rgb_color(r, g, b));
-	alw->_window->redraw();
+	alw->update_color(sp);
 }
 
-void Abstract_Palette_Window::change_green_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
+void Abstract_Palette_Window::change_slider_cb(Default_Slider *sd, Abstract_Palette_Window *alw) {
 	if (!alw->_selected) { return; }
-	uchar r, g, b;
-	Fl::get_color(alw->_selected->color(), r, g, b);
-	g = RGB5C((uchar)sp->value());
-	alw->_selected->color(fl_rgb_color(r, g, b));
-	alw->_window->redraw();
+	alw->update_color(sd);
 }
 
-void Abstract_Palette_Window::change_blue_cb(Default_Spinner *sp, Abstract_Palette_Window *alw) {
-	if (!alw->_selected) { return; }
+void Abstract_Palette_Window::hex_color_rgb_cb(OS_Hex_Input *, Abstract_Palette_Window *alw) {
+	const char *s = alw->_hex_color_rgb->value();
+	char rgb[7] = {};
+	if (size_t n = strlen(s); n < 6) {
+		for (size_t i = 0; i < 6 - n; i++) {
+			rgb[i] = '0';
+		}
+	}
+	strncat(rgb, s, 6);
+
+	char buffer[3] = {};
+	buffer[0] = rgb[0];
+	buffer[1] = rgb[1];
+	uchar r = (uchar)strtoul(buffer, NULL, 16);
+	buffer[0] = rgb[2];
+	buffer[1] = rgb[3];
+	uchar g = (uchar)strtoul(buffer, NULL, 16);
+	buffer[0] = rgb[4];
+	buffer[1] = rgb[5];
+	uchar b = (uchar)strtoul(buffer, NULL, 16);
+
+	alw->_selected->color(fl_rgb_color(NORMRGB(r), NORMRGB(g), NORMRGB(b)));
+	alw->update_color(alw->_hex_color_rgb);
+}
+
+#ifdef _WIN32
+static DWORD fl_to_win_color(Fl_Color c) {
 	uchar r, g, b;
-	Fl::get_color(alw->_selected->color(), r, g, b);
-	b = RGB5C((uchar)sp->value());
-	alw->_selected->color(fl_rgb_color(r, g, b));
-	alw->_window->redraw();
+	Fl::get_color(c, r, g, b);
+	return RGB(r, g, b);
+}
+#endif
+
+void Abstract_Palette_Window::hex_color_swatch_cb(Fl_Button *, Abstract_Palette_Window *alw) {
+#ifdef _WIN32
+	static COLORREF customColors[16] = {};
+
+	CHOOSECOLOR cc = {};
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = fl_xid(alw->_window);
+	cc.lpCustColors = (LPDWORD)customColors;
+	cc.rgbResult = fl_to_win_color(alw->_selected->color());
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+	if (ChooseColor(&cc)) {
+		uchar r = GetRValue(cc.rgbResult), g = GetGValue(cc.rgbResult), b = GetBValue(cc.rgbResult);
+		alw->_selected->color(fl_rgb_color(r, g, b));
+		alw->update_color(alw->_hex_color_swatch);
+	}
+#else
+	alw->update_color(alw->_hex_color_swatch);
+#endif
 }
 
 void Abstract_Palette_Window::copy_color_cb(Fl_Widget *, Abstract_Palette_Window *alw) {
@@ -161,17 +284,19 @@ void Abstract_Palette_Window::swap_colors_cb(Fl_Widget *, Abstract_Palette_Windo
 }
 
 Palette_Window::Palette_Window(int x, int y) : Abstract_Palette_Window(x, y), _palette_heading_group(NULL),
-	_color_group(NULL), _palette_headings(), _color_buttons() {}
+	_palette_headings(), _color_buttons() {}
 
 Palette_Window::~Palette_Window() {
 	delete _palette_heading_group;
 	delete _color_group;
 }
 
+static const char *palette_labels[NUM_PALETTES] = {"GRAY:", "RED:", "GREEN:", "WATER:", "YELLOW:", "BROWN:", "ROOF:", "TEXT:"};
+
 void Palette_Window::initial_setup() {
 	// Populate window
-	int hhgw = text_width("YELLOW:", 2);
-	_window = new Swatch_Window(_dx, _dy, 201+hhgw, 191, "Edit Current Palettes");
+	int hhgw = std::max(text_width("YELLOW:", 2), text_width("BROWN:", 2));
+	_window = new Swatch_Window(_dx, _dy, 295+hhgw, 191, "Edit Current Palettes");
 	_palette_heading_group = new Fl_Group(10, 10, hhgw, 171);
 	_palette_heading_group->end();
 	_window->begin();
@@ -180,17 +305,29 @@ void Palette_Window::initial_setup() {
 	_window->begin();
 	int rgblw = std::max(std::max(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
 	int rgbsw = text_width("99", 2) + 22;
-	_red_spinner = new Default_Spinner(107 + hhgw + rgblw, 10, rgbsw, 22, "R:");
-	_green_spinner = new Default_Spinner(107 + hhgw + rgblw, 36, rgbsw, 22, "G:");
-	_blue_spinner = new Default_Spinner(107 + hhgw + rgblw, 62, rgbsw, 22, "B:");
-	_ok_button = new Default_Button(111 + hhgw, 120, 80, 22, "OK");
-	_cancel_button = new OS_Button(111 + hhgw, 159, 80, 22, "Cancel");
+	int rgbo = 107 + hhgw + rgblw;
+	_red_spinner = new Default_Spinner(rgbo, 10, rgbsw, 22, "R:");
+	_red_slider = new Default_Slider(rgbo+rgbsw+6, 10, 172-rgblw-rgbsw, 22);
+	_green_spinner = new Default_Spinner(rgbo, 36, rgbsw, 22, "G:");
+	_green_slider = new Default_Slider(rgbo+rgbsw+6, 36, 172-rgblw-rgbsw, 22);
+	_blue_spinner = new Default_Spinner(rgbo, 62, rgbsw, 22, "B:");
+	_blue_slider = new Default_Slider(rgbo+rgbsw+6, 62, 172-rgblw-rgbsw, 22);
+	int hco = 107 + hhgw + text_width("Hex: #", 2);
+	int hcw = std::max(text_width("AAAAAA", 2), text_width("FFFFFF", 2));
+	_hex_color_rgb = new OS_Hex_Input(hco, 88, hcw, 22, "Hex: #");
+	_hex_color_swatch = new Fl_Button(hco+hcw+4, 88, 22, 22);
+#ifdef _WIN32
+	_ok_button = new Default_Button(111+hhgw, 159, 80, 22, "OK");
+	_cancel_button = new OS_Button(205+hhgw, 159, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(111+hhgw, 159, 80, 22, "Cancel");
+	_ok_button = new Default_Button(205+hhgw, 159, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate hue heading group
-	const char *hhll[NUM_PALETTES] = {"GRAY:", "RED:", "GREEN:", "WATER:", "YELLOW:", "BROWN:", "ROOF:", "TEXT:"};
 	_palette_heading_group->begin();
 	for (int i = 0; i < NUM_PALETTES; i++) {
-		Label *hhl = new Label(10, 11+21*i, hhgw, 22, hhll[i]);
+		Label *hhl = new Label(10, 11+21*i, hhgw, 22, palette_labels[i]);
 		hhl->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
 	}
 	_palette_heading_group->end();
