@@ -79,6 +79,7 @@ void Abstract_Palette_Window::initialize() {
 	_hex_color_rgb->maximum_size(6);
 	_hex_color_rgb->callback((Fl_Callback *)hex_color_rgb_cb, this);
 	_hex_color_rgb->when(FL_WHEN_ENTER_KEY);
+	_hex_color_rgb->textfont(FL_COURIER);
 	_hex_color_swatch->box(OS_SWATCH_BOX);
 	_hex_color_swatch->down_box(OS_SWATCH_BOX);
 	_hex_color_swatch->callback((Fl_Callback *)hex_color_swatch_cb, this);
@@ -88,6 +89,33 @@ void Abstract_Palette_Window::initialize() {
 	_cancel_button->shortcut(FL_Escape);
 	_cancel_button->callback((Fl_Callback *)cancel_cb, this);
 	Fl_Group::current(prev_current);
+}
+
+void Abstract_Palette_Window::initialize_inputs(int ox, int oy, int ss, int bx, int by) {
+	_window->begin();
+	int wo = std::max(std::max(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
+	int ww = text_width("99", 2) + 22;
+	_red_spinner = new Default_Spinner(ox+wo, oy, ww, 22, "R:");
+	_red_slider = new Default_Slider(ox+wo+ww+6, oy, ss-wo-ww, 22);
+	_green_spinner = new Default_Spinner(ox+wo, oy+26, ww, 22, "G:");
+	_green_slider = new Default_Slider(ox+wo+ww+6, oy+26, ss-wo-ww, 22);
+	_blue_spinner = new Default_Spinner(ox+wo, oy+52, ww, 22, "B:");
+	_blue_slider = new Default_Slider(ox+wo+ww+6, oy+52, ss-wo-ww, 22);
+	wo = text_width("Hex: #", 2);
+	Fl_Font font = fl_font();
+	fl_font(FL_COURIER, fl_size());
+	ww = std::max(text_width("AAAAAA", 4), text_width("FFFFFF", 4));
+	fl_font(font, fl_size());
+	_hex_color_rgb = new OS_Hex_Input(ox+wo, oy+78, ww, 22, "Hex: #");
+	_hex_color_swatch = new Fl_Button(ox+wo+ww+4, oy+78, 22, 22);
+#ifdef _WIN32
+	_ok_button = new Default_Button(bx, by, 80, 22, "OK");
+	_cancel_button = new OS_Button(bx+94, by, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(bx, by, 80, 22, "Cancel");
+	_ok_button = new Default_Button(bx+94, by, 80, 22, "OK");
+#endif
+	_window->end();
 }
 
 void Abstract_Palette_Window::update_color(Fl_Widget *wgt) {
@@ -290,39 +318,18 @@ static const char *palette_labels[NUM_PALETTES] = {"GRAY:", "RED:", "GREEN:", "W
 
 void Palette_Window::initial_setup() {
 	// Populate window
-	int hhgw = std::max(text_width("YELLOW:", 2), text_width("BROWN:", 2));
-	_window = new Swatch_Window(_dx, _dy, 295+hhgw, 191, "Edit Current Palettes");
-	_palette_heading_group = new Fl_Group(10, 10, hhgw, 171);
+	int off = std::max(text_width("YELLOW:", 2), text_width("BROWN:", 2));
+	_window = new Swatch_Window(_dx, _dy, 295+off, 191, "Edit Current Palettes");
+	_palette_heading_group = new Fl_Group(10, 10, off, 171);
 	_palette_heading_group->end();
 	_window->begin();
-	_color_group = new Fl_Group(10+hhgw, 10, 87, 171);
+	_color_group = new Fl_Group(10+off, 10, 87, 171);
 	_color_group->end();
-	_window->begin();
-	int rgblw = std::max(std::max(text_width("R:", 2), text_width("G:", 2)), text_width("B:", 2));
-	int rgbsw = text_width("99", 2) + 22;
-	int rgbo = 107 + hhgw + rgblw;
-	_red_spinner = new Default_Spinner(rgbo, 10, rgbsw, 22, "R:");
-	_red_slider = new Default_Slider(rgbo+rgbsw+6, 10, 172-rgblw-rgbsw, 22);
-	_green_spinner = new Default_Spinner(rgbo, 36, rgbsw, 22, "G:");
-	_green_slider = new Default_Slider(rgbo+rgbsw+6, 36, 172-rgblw-rgbsw, 22);
-	_blue_spinner = new Default_Spinner(rgbo, 62, rgbsw, 22, "B:");
-	_blue_slider = new Default_Slider(rgbo+rgbsw+6, 62, 172-rgblw-rgbsw, 22);
-	int hco = 107 + hhgw + text_width("Hex: #", 2);
-	int hcw = std::max(text_width("AAAAAA", 2), text_width("FFFFFF", 2));
-	_hex_color_rgb = new OS_Hex_Input(hco, 88, hcw, 22, "Hex: #");
-	_hex_color_swatch = new Fl_Button(hco+hcw+4, 88, 22, 22);
-#ifdef _WIN32
-	_ok_button = new Default_Button(111+hhgw, 159, 80, 22, "OK");
-	_cancel_button = new OS_Button(205+hhgw, 159, 80, 22, "Cancel");
-#else
-	_cancel_button = new OS_Button(111+hhgw, 159, 80, 22, "Cancel");
-	_ok_button = new Default_Button(205+hhgw, 159, 80, 22, "OK");
-#endif
-	_window->end();
+	initialize_inputs(107+off, 10, 172, 111+off, 159);
 	// Populate hue heading group
 	_palette_heading_group->begin();
 	for (int i = 0; i < NUM_PALETTES; i++) {
-		Label *hhl = new Label(10, 11+21*i, hhgw, 22, palette_labels[i]);
+		Label *hhl = new Label(10, 11+21*i, off, 22, palette_labels[i]);
 		hhl->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
 	}
 	_palette_heading_group->end();
