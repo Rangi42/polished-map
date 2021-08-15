@@ -12,7 +12,6 @@
 
 #define RGB5C(x) (uchar)((x) * 33 / 4) // 5-bit to 8-bit
 #define CRGB5(c) (uchar)((c) / 8)      // 8-bit to 5-bit
-#define NORMRGB(c) (uchar)(((c) & 0xF8) | (((c) & 0xF8) >> 5)) // normalize 8-bit
 
 enum class Palettes { MORN, DAY, NITE, DARKNESS, INDOOR, CUSTOM };
 
