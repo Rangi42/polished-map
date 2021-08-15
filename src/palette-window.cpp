@@ -216,7 +216,7 @@ void Abstract_Palette_Window::hex_color_rgb_cb(OS_Hex_Input *, Abstract_Palette_
 	buffer[1] = rgb[5];
 	uchar b = (uchar)strtoul(buffer, NULL, 16);
 
-	alw->_selected->color(fl_rgb_color(NORMRGB(r), NORMRGB(g), NORMRGB(b)));
+	alw->_selected->color(fl_rgb_color(r, g, b));
 	alw->update_color(alw->_hex_color_rgb);
 }
 
