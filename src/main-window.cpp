@@ -2265,6 +2265,14 @@ void Main_Window::select_metatile(Metatile_Button *mb) {
 void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
 	Fl_Window *top = Fl::modal();
 	if (top && top != mw) { return; }
+	if (mw->unsaved()) {
+		std::string msg = mw->modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Open another map anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
 	std::string filename = dndr->text().substr(0, dndr->text().find('\n'));
 	mw->open_map(filename.c_str());
 }
