@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <cstdlib>
+#include <cstdio>
 #include <stdint.h>
 #include <limits>
 #include <cmath>
@@ -47,6 +48,7 @@ void add_dot_ext(const char *f, const char *ext, char *s);
 int text_width(const char *l, int pad = 0);
 bool file_exists(const char *f);
 size_t file_size(const char *f);
+size_t file_size(FILE *f);
 void open_ifstream(std::ifstream &ifs, const char *f);
 
 #ifdef _WIN32

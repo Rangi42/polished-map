@@ -59,15 +59,13 @@ Tiled_Image::Result Tiled_Image::read_2bpp_graphics(const char *f) {
 	FILE *file = fl_fopen(f, "rb");
 	if (!file) { return (_result = Result::IMG_BAD_FILE); }
 
-	fseek(file, 0, SEEK_END);
-	long n = ftell(file);
-	rewind(file);
+	size_t n = file_size(file);
 	if (n % BYTES_PER_2BPP_TILE) { fclose(file); return (_result = Result::IMG_BAD_DIMS); }
 
 	uchar *data = new uchar[n];
 	size_t r = fread(data, 1, n, file);
 	fclose(file);
-	if (r != (size_t)n) { delete [] data; return (_result = Result::IMG_BAD_FILE); }
+	if (r != n) { delete [] data; return (_result = Result::IMG_BAD_FILE); }
 
 	return (_result = parse_2bpp_data(n, data));
 }
@@ -108,13 +106,11 @@ Tiled_Image::Result Tiled_Image::read_lz_graphics(const char *f) {
 	FILE *file = fl_fopen(f, "rb");
 	if (!file) { return (_result = Result::IMG_BAD_FILE); }
 
-	fseek(file, 0, SEEK_END);
-	long n = ftell(file);
-	rewind(file);
+	size_t n = file_size(file);
 	uchar *lz_data = new uchar[n];
 	size_t r = fread(lz_data, 1, n, file);
 	fclose(file);
-	if (r != (size_t)n) { delete [] lz_data; return (_result = Result::IMG_BAD_FILE); }
+	if (r != n) { delete [] lz_data; return (_result = Result::IMG_BAD_FILE); }
 
 	uchar *twobpp_data = new uchar[MAX_NUM_TILES * BYTES_PER_2BPP_TILE]();
 	size_t address = 0, marker = 0;
