@@ -41,6 +41,7 @@ public:
 	virtual ~Abstract_Palette_Window();
 protected:
 	void initialize(void);
+	void initialize_inputs(int ox, int oy, int ss, int bx, int by);
 	void update_color(Fl_Widget *wgt);
 	virtual void initial_setup(void) = 0;
 	virtual void refresh(void) = 0;
