@@ -3104,7 +3104,6 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 
 	char old_name[FL_PATH_MAX] = {};
 	strcpy(old_name, tileset->name());
-	size_t old_size = mw->_metatileset.size();
 
 	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
@@ -3119,6 +3118,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	bool canceled = mw->_tileset_options_dialog->canceled();
 	if (canceled) { return; }
 
+	size_t old_size = mw->_metatileset.size();
 	mw->_metatileset.clear();
 
 	const char *tileset_name = mw->_tileset_options_dialog->tileset();
