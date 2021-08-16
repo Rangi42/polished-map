@@ -808,7 +808,7 @@ void Main_Window::maximize() {
 
 bool Main_Window::unsaved() const {
 	return _map.modified() || _map_events.modified() || _metatileset.modified() ||
-		_metatileset.const_tileset()->modified() || _metatileset.const_tileset()->modified_roof();
+		_metatileset.const_tileset().modified() || _metatileset.const_tileset().modified_roof();
 }
 
 const char *Main_Window::modified_filename() {
@@ -821,15 +821,15 @@ const char *Main_Window::modified_filename() {
 		return fl_filename_name(_asm_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
-	const Tileset *tileset = _metatileset.const_tileset();
-	if (tileset->modified()) {
-		Config::tileset_path(buffer, _directory.c_str(), tileset->name());
+	const Tileset &tileset = _metatileset.const_tileset();
+	if (tileset.modified()) {
+		Config::tileset_path(buffer, _directory.c_str(), tileset.name());
 	}
-	else if (tileset->modified_roof()) {
-		Config::roof_path(buffer, _directory.c_str(), tileset->roof_name());
+	else if (tileset.modified_roof()) {
+		Config::roof_path(buffer, _directory.c_str(), tileset.roof_name());
 	}
 	else {
-		Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+		Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset().name());
 	}
 	return fl_filename_name(buffer);
 }
@@ -1006,8 +1006,7 @@ void Main_Window::update_active_controls() {
 			_save_event_script_mi->deactivate();
 			_reload_event_script_tb->deactivate();
 		}
-		const Tileset *tileset = _metatileset.const_tileset();
-		if (tileset && _map.group()) {
+		if (_map.group()) {
 			_load_roof_colors_mi->activate();
 		}
 		else {
@@ -1054,7 +1053,7 @@ void Main_Window::update_active_controls() {
 			_change_roof_mi->deactivate();
 			_change_roof_tb->deactivate();
 		}
-		if (tileset && tileset->num_roof_tiles() > 0) {
+		if (_metatileset.const_tileset().num_roof_tiles() > 0) {
 			_save_roof_mi->activate();
 			_edit_roof_mi->activate();
 			_edit_roof_tb->activate();
@@ -1357,10 +1356,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	_copied = false;
 
-	Tileset *tileset = _metatileset.tileset();
-	_block_window->tileset(tileset);
-	_tileset_window->tileset(tileset);
-	_roof_window->tileset(tileset);
+	Tileset &tileset = _metatileset.tileset();
+	_block_window->tileset(&tileset);
+	_tileset_window->tileset(&tileset);
+	_roof_window->tileset(&tileset);
 
 	// load default palettes
 	Config::bg_tiles_pal_path(buffer, directory);
@@ -1621,14 +1620,14 @@ void Main_Window::load_roof_colors(bool quiet) {
 bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_name) {
 	char buffer[FL_PATH_MAX] = {};
 
-	Tileset *tileset = _metatileset.tileset();
-	tileset->name(tileset_name);
-	tileset->roof_name(roof_name);
+	Tileset &tileset = _metatileset.tileset();
+	tileset.name(tileset_name);
+	tileset.roof_name(roof_name);
 
 	const char *directory = _directory.c_str();
 
 	Config::palette_map_path(buffer, directory, tileset_name);
-	Palette_Map::Result rp = tileset->read_palette_map(buffer);
+	Palette_Map::Result rp = tileset.read_palette_map(buffer);
 	// 'monochrome' becomes true if the palette map could not be read
 	update_monochrome_controls();
 	// 'allow_priority' become true if a PRIORITY_* color was used
@@ -1656,7 +1655,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	char b_buffer[FL_PATH_MAX] = {}, a_buffer[FL_PATH_MAX] = {};
 	bool has_before = Config::tileset_before_path(b_buffer, directory, tileset_name);
 	bool has_after = Config::tileset_after_path(a_buffer, directory, tileset_name);
-	Tileset::Result rt = tileset->read_graphics(buffer, has_before ? b_buffer : NULL, has_after ? a_buffer : NULL, palettes());
+	Tileset::Result rt = tileset.read_graphics(buffer, has_before ? b_buffer : NULL, has_after ? a_buffer : NULL, palettes());
 	if (rt != Tileset::Result::GFX_OK) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1689,9 +1688,9 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	rm = _metatileset.read_collisions(buffer);
 	_has_collisions = (rm == Metatileset::Result::META_OK);
 
-	if (tileset->has_roof()) {
+	if (tileset.has_roof()) {
 		Config::roof_path(buffer, directory, roof_name);
-		rt = tileset->read_roof_graphics(buffer);
+		rt = tileset.read_roof_graphics(buffer);
 		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(buffer, "", roof_name);
 			std::string msg = "Error reading ";
@@ -1759,10 +1758,10 @@ void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
-	Tileset *tileset = _metatileset.tileset();
-	_block_window->tileset(tileset);
-	_tileset_window->tileset(tileset);
-	_roof_window->tileset(tileset);
+	Tileset &tileset = _metatileset.tileset();
+	_block_window->tileset(&tileset);
+	_tileset_window->tileset(&tileset);
+	_roof_window->tileset(&tileset);
 
 	update_labels();
 	update_status((Block *)NULL);
@@ -1915,7 +1914,7 @@ bool Main_Window::save_map(bool force) {
 
 bool Main_Window::save_metatileset() {
 	const char *directory = _directory.c_str();
-	const char *tileset_name = _metatileset.tileset()->name();
+	const char *tileset_name = _metatileset.tileset().name();
 
 	char filename[FL_PATH_MAX] = {};
 	Config::metatileset_path(filename, directory, tileset_name);
@@ -1971,13 +1970,13 @@ bool Main_Window::save_metatileset() {
 bool Main_Window::save_tileset() {
 	_metatileset.trim_tileset();
 
-	Tileset *tileset = _metatileset.tileset();
+	Tileset &tileset = _metatileset.tileset();
 
 	char filename[FL_PATH_MAX] = {}, b_filename[FL_PATH_MAX] = {}, a_filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
-	const char *tileset_name = tileset->name();
+	const char *tileset_name = tileset.name();
 
-	if (!tileset->modified()) {
+	if (!tileset.modified()) {
 		std::string msg = "Saved ";
 		msg = msg + tileset_name + "!";
 		_success_dialog->message(msg);
@@ -1988,7 +1987,7 @@ bool Main_Window::save_tileset() {
 	Config::tileset_png_paths(filename, b_filename, a_filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset->write_graphics(filename, b_filename, a_filename)) {
+	if (!tileset.write_graphics(filename, b_filename, a_filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -2005,7 +2004,7 @@ bool Main_Window::save_tileset() {
 		Config::palette_map_path(filename, directory, tileset_name);
 		basename = fl_filename_name(filename);
 
-		if (!tileset->palette_map().write_palette_map(filename)) {
+		if (!tileset.palette_map().write_palette_map(filename)) {
 			msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -2019,18 +2018,18 @@ bool Main_Window::save_tileset() {
 		_success_dialog->show(this);
 	}
 
-	tileset->modified(false);
+	tileset.modified(false);
 	return true;
 }
 
 bool Main_Window::save_roof() {
-	Tileset *tileset = _metatileset.tileset();
+	Tileset &tileset = _metatileset.tileset();
 
 	char filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
-	const char *roof_name = tileset->roof_name();
+	const char *roof_name = tileset.roof_name();
 
-	if (!tileset->modified_roof()) {
+	if (!tileset.modified_roof()) {
 		std::string msg = "Saved ";
 		msg = msg + roof_name + "!";
 		_success_dialog->message(msg);
@@ -2041,7 +2040,7 @@ bool Main_Window::save_roof() {
 	Config::roof_png_path(filename, directory, roof_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset->write_roof_graphics(filename)) {
+	if (!tileset.write_roof_graphics(filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -2054,7 +2053,7 @@ bool Main_Window::save_roof() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
-	tileset->modified_roof(false);
+	tileset.modified_roof(false);
 	return true;
 }
 
@@ -2242,8 +2241,8 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::update_palettes() {
-	Tileset *tileset = _metatileset.tileset();
-	tileset->update_palettes(palettes());
+	Tileset &tileset = _metatileset.tileset();
+	tileset.update_palettes(palettes());
 	redraw();
 }
 
@@ -2392,11 +2391,11 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	bool other_modified = false;
-	if (mw->_metatileset.const_tileset()->modified()) {
+	if (mw->_metatileset.const_tileset().modified()) {
 		save_tileset_cb(w, mw);
 		other_modified = true;
 	}
-	if (mw->_metatileset.const_tileset()->modified_roof()) {
+	if (mw->_metatileset.const_tileset().modified_roof()) {
 		save_roof_cb(w, mw);
 		other_modified = true;
 	}
@@ -2473,7 +2472,7 @@ void Main_Window::save_tileset_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::save_roof_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map.size() || !mw->_metatileset.const_tileset()->num_roof_tiles()) { return; }
+	if (!mw->_map.size() || !mw->_metatileset.const_tileset().num_roof_tiles()) { return; }
 	mw->save_roof();
 }
 
@@ -3127,9 +3126,9 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	const Tileset *tileset = mw->_metatileset.tileset();
+	const Tileset &tileset = mw->_metatileset.tileset();
 
-	if (mw->_metatileset.modified() || tileset->modified() || tileset->modified_roof()) {
+	if (mw->_metatileset.modified() || tileset.modified() || tileset.modified_roof()) {
 		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the tileset anyway?";
@@ -3139,7 +3138,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 	}
 
 	char tileset_name[FL_PATH_MAX] = {};
-	strcpy(tileset_name, tileset->name());
+	strcpy(tileset_name, tileset.name());
 
 	if (w) {
 		if (!mw->_tileset_options_dialog->limit_tileset_options(tileset_name)) {
@@ -3161,7 +3160,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 	size_t old_size = mw->_metatileset.size();
 	mw->_metatileset.clear();
 
-	const char *roof_name = tileset->roof_name();
+	const char *roof_name = tileset.roof_name();
 	if (!mw->read_metatile_data(tileset_name, roof_name)) {
 		mw->_map.modified(false);
 		mw->_metatileset.modified(false);
@@ -3177,7 +3176,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	mw->_tileset_window->tileset(mw->_metatileset.tileset());
+	mw->_tileset_window->tileset(&mw->_metatileset.tileset());
 	mw->_tileset_window->show(mw, mw->show_priority());
 	bool canceled = mw->_tileset_window->canceled();
 	if (canceled) { return; }
@@ -3189,11 +3188,11 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	Tileset *tileset = mw->_metatileset.tileset();
+	Tileset &tileset = mw->_metatileset.tileset();
 
-	if (tileset->modified_roof()) {
+	if (tileset.modified_roof()) {
 		char basename[FL_PATH_MAX] = {};
-		Config::roof_png_path(basename, "", tileset->roof_name());
+		Config::roof_png_path(basename, "", tileset.roof_name());
 		std::string msg = fl_filename_name(basename);
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the roof anyway?";
@@ -3203,7 +3202,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, tileset->roof_name());
+	strcpy(old_name, tileset.roof_name());
 
 	if (!mw->_roof_options_dialog->limit_roof_options(old_name)) {
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
@@ -3219,11 +3218,11 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (canceled) { return; }
 
 	const char *roof_name = mw->_roof_options_dialog->roof();
-	tileset->roof_name(roof_name);
-	if (tileset->has_roof()) {
+	tileset.roof_name(roof_name);
+	if (tileset.has_roof()) {
 		char filename[FL_PATH_MAX] = {};
 		Config::roof_path(filename, mw->_directory.c_str(), roof_name);
-		Tileset::Result rt = tileset->read_roof_graphics(filename);
+		Tileset::Result rt = tileset.read_roof_graphics(filename);
 		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(filename, "", roof_name);
 			std::string msg = "Error reading ";
@@ -3233,7 +3232,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 		}
 	}
 	else {
-		tileset->clear_roof_graphics();
+		tileset.clear_roof_graphics();
 	}
 
 	mw->update_active_controls();
@@ -3243,7 +3242,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::edit_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	mw->_roof_window->tileset(mw->_metatileset.tileset());
+	mw->_roof_window->tileset(&mw->_metatileset.tileset());
 	mw->_roof_window->show(mw);
 	bool canceled = mw->_roof_window->canceled();
 	if (canceled) { return; }
