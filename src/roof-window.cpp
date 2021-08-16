@@ -84,8 +84,13 @@ void Roof_Window::initialize() {
 	_swatch4 = new Swatch(38, 128, 22, "4");
 	_copy_tb = new Toolbar_Button(16, 160, 22, 22);
 	_paste_tb = new Toolbar_Button(38, 160, 22, 22);
+#ifdef _WIN32
 	_ok_button = new Default_Button(42, 196, 80, 22, "OK");
 	_cancel_button = new OS_Button(136, 196, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(42, 196, 80, 22, "Cancel");
+	_ok_button = new Default_Button(136, 196, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_roof_group->begin();

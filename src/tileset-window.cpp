@@ -86,8 +86,13 @@ void Tileset_Window::initialize() {
 	_swatch2 = new Swatch(321, 184, 22, "2");
 	_swatch3 = new Swatch(349, 184, 22, "3");
 	_swatch4 = new Swatch(377, 184, 22, "4");
+#ifdef _WIN32
 	_ok_button = new Default_Button(351, 233, 80, 22, "OK");
 	_cancel_button = new OS_Button(351, 272, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(351, 233, 80, 22, "Cancel");
+	_ok_button = new Default_Button(351, 272, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
