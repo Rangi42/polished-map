@@ -75,8 +75,13 @@ void Block_Window::initialize() {
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]  = new Default_Hex_Spinner(300, 170, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT] = new Default_Hex_Spinner(332+bsw, 170, bsw, 22);
+#ifdef _WIN32
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(282, 272, 80, 22, "Cancel");
+	_ok_button = new Default_Button(376, 272, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();

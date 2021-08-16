@@ -92,8 +92,13 @@ void Tileset_Window::initialize() {
 	int off = text_width("Palette:", 3);
 	_palette = new Dropdown(278 + off, 192, 146 - off, 22, "Palette:");
 	_priority = new OS_Check_Button(278, 218, 178, 22, "Priority (above sprites)");
+#ifdef _WIN32
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(282, 272, 80, 22, "Cancel");
+	_ok_button = new Default_Button(376, 272, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
