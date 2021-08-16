@@ -3124,7 +3124,7 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	}
 }
 
-void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
 	const Tileset *tileset = mw->_metatileset.tileset();
@@ -3138,26 +3138,29 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, tileset->name());
-	size_t old_size = mw->_metatileset.size();
+	char tileset_name[FL_PATH_MAX] = {};
+	strcpy(tileset_name, tileset->name());
 
-	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
-		const char *basename = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = "This is not a valid project!\n\n";
-		msg = msg + "Make sure the Options match\n" + basename + ".";
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
+	if (w) {
+		if (!mw->_tileset_options_dialog->limit_tileset_options(tileset_name)) {
+			const char *basename = fl_filename_name(mw->_blk_file.c_str());
+			std::string msg = "This is not a valid project!\n\n";
+			msg = msg + "Make sure the Options match\n" + basename + ".";
+			mw->_error_dialog->message(msg);
+			mw->_error_dialog->show(mw);
+			return;
+		}
+
+		mw->_tileset_options_dialog->show(mw);
+		bool canceled = mw->_tileset_options_dialog->canceled();
+		if (canceled) { return; }
+
+		strcpy(tileset_name, mw->_tileset_options_dialog->tileset());
 	}
 
-	mw->_tileset_options_dialog->show(mw);
-	bool canceled = mw->_tileset_options_dialog->canceled();
-	if (canceled) { return; }
-
+	size_t old_size = mw->_metatileset.size();
 	mw->_metatileset.clear();
 
-	const char *tileset_name = mw->_tileset_options_dialog->tileset();
 	const char *roof_name = tileset->roof_name();
 	if (!mw->read_metatile_data(tileset_name, roof_name)) {
 		mw->_map.modified(false);
@@ -3265,7 +3268,7 @@ void Main_Window::edit_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::monochrome(!!m->mvalue()->value());
-	mw->redraw();
+	change_tileset_cb(NULL, mw);
 }
 
 void Main_Window::allow_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
@@ -3276,7 +3279,7 @@ void Main_Window::allow_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::allow_256_tiles(!!m->mvalue()->value());
-	mw->redraw();
+	change_tileset_cb(NULL, mw);
 }
 
 void Main_Window::roof_custom_cb(Fl_Menu_ *, Main_Window *mw) {
