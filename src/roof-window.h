@@ -56,6 +56,7 @@ public:
 	void choose(Swatch *swatch);
 	void flood_fill(Pixel_Button *pb, Hue f, Hue t) const;
 	void substitute_hue(Hue f, Hue t) const;
+	void swap_hues(Hue f, Hue t) const;
 private:
 	static void close_cb(Fl_Widget *w, Roof_Window *rw);
 	static void cancel_cb(Fl_Widget *w, Roof_Window *rw);
