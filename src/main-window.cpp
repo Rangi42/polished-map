@@ -3345,31 +3345,25 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 			// Shift+left-click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			mw->substitute_block(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else if (Fl::event_alt()) {
 			// Alt+left-click to replace
 			mw->swap_blocks(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else {
 			// Left-click/drag to edit
 			uint8_t id = mw->_selected->id();
 			b->id(id);
 			b->damage(1);
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
+		mw->_map.modified(true);
+		mw->update_status(b);
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
