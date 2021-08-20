@@ -256,6 +256,18 @@ void Roof_Window::substitute_hue(Hue f, Hue t) const {
 	}
 }
 
+void Roof_Window::swap_hues(Hue f, Hue t) const {
+	if (f == t) { return; }
+	for (Pixel_Button *pb : _pixels) {
+		if (pb->hue() == f) {
+			pb->hue(t);
+		}
+		else if (pb->hue() == t) {
+			pb->hue(f);
+		}
+	}
+}
+
 void Roof_Window::close_cb(Fl_Widget *, Roof_Window *rw) {
 	rw->_window->hide();
 }
@@ -290,6 +302,13 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			rw->substitute_hue(pb->hue(), rw->_chosen->hue());
+			rw->_tile_group->redraw();
+			rw->_selected->copy_pixels(rw->_pixels);
+			rw->_selected->redraw();
+		}
+		else if (Fl::event_alt()) {
+			// Alt+left-click to swap
+			rw->swap_hues(pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
 			rw->_selected->copy_pixels(rw->_pixels);
 			rw->_selected->redraw();
