@@ -57,9 +57,7 @@ void Map_Events::clear() {
 }
 
 void Map_Events::resize_events(int x, int y, int s) const {
-	size_t n = size();
-	for (size_t i = 0; i < n; i++) {
-		Event *e = _events[i];
+	for (Event *e : _events) {
 		int ex = x + ((int)e->event_x() + EVENT_MARGIN) * s;
 		int ey = y + ((int)e->event_y() + EVENT_MARGIN) * s;
 		e->resize(ex, ey, s, s);

@@ -195,8 +195,9 @@ void Tileset_Window::tileset(Tileset *t) {
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Deep_Tile *dt = _tileset->const_tile(i);
-		_deep_tile_buttons[i]->copy(dt);
-		_deep_tile_buttons[i]->activate();
+		Deep_Tile_Button *dtb = _deep_tile_buttons[i];
+		dtb->copy(dt);
+		dtb->activate();
 	}
 }
 
@@ -265,8 +266,7 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 }
 
 void Tileset_Window::substitute_hue(Hue f, Hue t) const {
-	for (size_t i = 0; i < TILE_AREA; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
@@ -275,8 +275,7 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) const {
 
 void Tileset_Window::swap_hues(Hue f, Hue t) const {
 	if (f == t) { return; }
-	for (size_t i = 0; i < TILE_AREA; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}

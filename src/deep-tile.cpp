@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #pragma warning(push, 0)
 #include <FL/fl_draw.H>
 #pragma warning(pop)
@@ -29,12 +31,9 @@ static void fill_tile_pixel(uchar *tile, int x, int y, const uchar *rgb) {
 }
 
 bool Deep_Tile::is_blank() const {
-	for (int i = 0; i < TILE_AREA; i++) {
-		if (_hues[i] != Hue::WHITE) {
-			return false;
-		}
-	}
-	return true;
+	return std::all_of(RANGE(_hues), [](const Hue &h) {
+		return h == Hue::WHITE;
+	});
 }
 
 void Deep_Tile::clear() {

@@ -227,9 +227,7 @@ void Abstract_Palette_Window::hex_color_rgb_cb(OS_Hex_Input *, Abstract_Palette_
 	const char *s = alw->_hex_color_rgb->value();
 	char rgb[7] = {};
 	if (size_t n = strlen(s); n < 6) {
-		for (size_t i = 0; i < 6 - n; i++) {
-			rgb[i] = '0';
-		}
+		memset(rgb, '0', 6 - n);
 	}
 	strncat(rgb, s, 6);
 

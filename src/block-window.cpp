@@ -177,8 +177,7 @@ void Block_Window::refresh() {
 	_tileset_group->init_sizes();
 	bool has_512_tiles = Config::allow_512_tiles();
 	if (!has_512_tiles) {
-		for (int i = 0; i < METATILE_SIZE * METATILE_SIZE; i++) {
-			Chip *c = _chips[i];
+		for (const Chip *c : _chips) {
 			if (c->index() >= 0x100) {
 				has_512_tiles = true;
 				break;
@@ -419,8 +418,7 @@ void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 }
 
 void Block_Window::change_attributes_cb(Fl_Widget *, Block_Window *bw) {
-	for (int i = 0; i < MAX_NUM_TILES; i++) {
-		Tile_Button *tb = bw->_tile_buttons[i];
+	for (Tile_Button *tb : bw->_tile_buttons) {
 		tb->palette((Palette)bw->_palette->value());
 		tb->damage(1);
 	}

@@ -23,8 +23,8 @@ void Tileset::clear() {
 	_num_tiles = 0;
 	_num_before_tiles = 0;
 	_num_mid_tiles = 0;
-	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_tiles[i]->clear();
+	for (Deep_Tile *dt : _tiles) {
+		dt->clear();
 	}
 	clear_roof_graphics();
 	_result = Result::GFX_NULL;
@@ -34,8 +34,8 @@ void Tileset::clear() {
 
 void Tileset::clear_roof_graphics() {
 	_num_roof_tiles = 0;
-	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_roof_tiles[i]->clear();
+	for (Deep_Tile *dt : _roof_tiles) {
+		dt->clear();
 	}
 }
 

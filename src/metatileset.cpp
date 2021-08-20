@@ -48,15 +48,15 @@ Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _resul
 
 Metatileset::~Metatileset() {
 	clear();
-	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
-		delete _metatiles[i];
+	for (Metatile *mt : _metatiles) {
+		delete mt;
 	}
 }
 
 void Metatileset::clear() {
 	_tileset.clear();
-	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
-		_metatiles[i]->clear();
+	for (Metatile *mt : _metatiles) {
+		mt->clear();
 	}
 	_num_metatiles = 0;
 	_result = Result::META_NULL;
