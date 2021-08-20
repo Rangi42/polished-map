@@ -193,10 +193,9 @@ void Tileset_Window::tileset(Tileset *t) {
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *ti = _tileset->const_tile((uint8_t)i);
-		_deep_tile_buttons[i]->copy(ti);
-	}
-	for (int i = 0x00; i < 0x100; i++) {
-		_deep_tile_buttons[i]->activate();
+		Deep_Tile_Button *dtb = _deep_tile_buttons[i];
+		dtb->copy(ti);
+		dtb->activate();
 	}
 	if (!Config::allow_256_tiles()) {
 		for (int i = 0x60; i < 0x80; i++) {
@@ -316,8 +315,7 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 }
 
 void Tileset_Window::substitute_hue(Hue f, Hue t) const {
-	for (size_t i = 0; i < TILE_AREA; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
@@ -326,8 +324,7 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) const {
 
 void Tileset_Window::swap_hues(Hue f, Hue t) const {
 	if (f == t) { return; }
-	for (size_t i = 0; i < TILE_AREA; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
@@ -338,8 +335,8 @@ void Tileset_Window::swap_hues(Hue f, Hue t) const {
 }
 
 void Tileset_Window::palette(Palette p) {
-	for (int i = 0; i < TILE_AREA; i++) {
-		_pixels[i]->palette(p);
+	for (Pixel_Button *pb : _pixels) {
+		pb->palette(p);
 	}
 	Palettes l = _tileset->palettes();
 	_swatch1->coloring(l, p, Hue::WHITE);

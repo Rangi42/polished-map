@@ -22,7 +22,7 @@
 #define _countof(a) (sizeof(a) / sizeof(a[0]))
 #endif
 
-#define RANGE(x) (x).begin(), (x).end()
+#define RANGE(x) std::begin(x), std::end(x)
 
 typedef uint8_t size8_t;
 typedef uint16_t size16_t;

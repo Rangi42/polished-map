@@ -48,7 +48,7 @@ void Map::clear() {
 void Map::resize_blocks(int x, int y, int s) const {
 	size_t n = size();
 	for (size_t i = 0; i < n; i++) {
-		Block *b = _blocks[i];
+		Block *b = block(i);
 		int bx = x + ((int)b->col() + MAP_MARGIN) * s, by = y + ((int)b->row() + MAP_MARGIN) * s;
 		b->resize(bx, by, s, s);
 	}

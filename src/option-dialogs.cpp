@@ -639,7 +639,7 @@ Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(220, t), _map_width(
 Resize_Dialog::~Resize_Dialog() {
 	delete _map_width;
 	delete _map_height;
-	for (int i = 0; i < 9; i++) { delete _anchor_buttons[i]; }
+	for (Anchor_Button *ab : _anchor_buttons) { delete ab; }
 }
 
 Resize_Dialog::Hor_Align Resize_Dialog::horizontal_anchor() const {
@@ -714,8 +714,8 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 
 void Resize_Dialog::anchor_button_cb(Anchor_Button *ab, Resize_Dialog *rd) {
 	ab->setonly();
-	for (int i = 0; i < 9; i++) {
-		rd->_anchor_buttons[i]->label(NULL);
+	for (Anchor_Button *abi : rd->_anchor_buttons) {
+		abi->label(NULL);
 	}
 	int a = ab->anchor();
 	int y = a / 3, x = a % 3;

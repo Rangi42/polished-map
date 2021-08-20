@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #pragma warning(push, 0)
 #include <FL/Fl_PNG_Image.H>
 #include <FL/fl_draw.H>
@@ -54,12 +56,9 @@ static Fl_PNG_Image chip_priority_png(NULL, chip_priority_png_buffer, sizeof(chi
 Tile::Tile(uint8_t id) : _id(id), _palette(Palette::UNDEFINED), _hues(), _rgb() {}
 
 bool Tile::is_blank() const {
-	for (int i = 0; i < TILE_AREA; i++) {
-		if (_hues[i] != Hue::WHITE) {
-			return false;
-		}
-	}
-	return true;
+	return std::all_of(RANGE(_hues), [](const Hue &h) {
+		return h == Hue::WHITE;
+	});
 }
 
 void Tile::pixel(int x, int y, Hue h, uchar r, uchar g, uchar b) {

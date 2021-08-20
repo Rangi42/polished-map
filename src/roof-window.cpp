@@ -175,8 +175,9 @@ void Roof_Window::tileset(Tileset *t) {
 	for (uint8_t i = 0; i < NUM_ROOF_TILES; i++) {
 		uint8_t id = i + FIRST_ROOF_TILE_ID;
 		const Tile *ti = _tileset->const_roof_tile(id);
-		_deep_tile_buttons[i]->copy(ti);
-		_deep_tile_buttons[i]->activate();
+		Deep_Tile_Button *dtb = _deep_tile_buttons[i];
+		dtb->copy(ti);
+		dtb->activate();
 	}
 }
 
@@ -192,8 +193,7 @@ void Roof_Window::show(const Fl_Widget *p) {
 }
 
 void Roof_Window::apply_modifications() {
-	for (int i = 0; i < NUM_ROOF_TILES; i++) {
-		const Tile *t = _deep_tile_buttons[i];
+	for (const Tile *t : _deep_tile_buttons) {
 		uint8_t id = t->id();
 		_tileset->roof_tile(id)->copy(t);
 	}
@@ -249,8 +249,7 @@ void Roof_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 }
 
 void Roof_Window::substitute_hue(Hue f, Hue t) const {
-	for (size_t i = 0; i < TILE_AREA; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
