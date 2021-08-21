@@ -11,7 +11,7 @@
 #include "config.h"
 #include "palette-map.h"
 
-Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(Result::PALETTE_NULL) {
+Palette_Map::Palette_Map() : _palette(), _palette_size(0), _result(Result::PALETTE_NULL), _mod_time(0) {
 	clear();
 }
 
@@ -19,6 +19,7 @@ void Palette_Map::clear() {
 	std::fill_n(_palette, MAX_NUM_TILES, Palette::UNDEFINED);
 	_palette_size = 0;
 	_result = Result::PALETTE_NULL;
+	_mod_time = 0;
 }
 
 Palette_Map::Result Palette_Map::read_from(const char *f) {
@@ -26,7 +27,11 @@ Palette_Map::Result Palette_Map::read_from(const char *f) {
 
 	std::ifstream ifs;
 	open_ifstream(ifs, f);
-	if (!ifs.good()) {
+	if (ifs.good()) {
+		_mod_time = file_modified(f);
+	}
+	else {
+		_mod_time = 0;
 		Config::monochrome(true);
 	}
 
@@ -88,7 +93,7 @@ const char *Palette_Map::error_message(Result result) {
 	}
 }
 
-bool Palette_Map::write_palette_map(const char *f) const {
+bool Palette_Map::write_palette_map(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	size_t n = MAX_NUM_TILES;
@@ -137,5 +142,6 @@ bool Palette_Map::write_palette_map(const char *f) const {
 		}
 	}
 	fclose(file);
+	_mod_time = file_modified(f);
 	return true;
 }

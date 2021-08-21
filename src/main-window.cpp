@@ -1866,24 +1866,23 @@ bool Main_Window::save_map(bool force) {
 	const char *filename = _blk_file.c_str();
 	const char *basename = fl_filename_name(filename);
 
+	if (_map.modified() && _map.other_modified(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the map and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
 	if (_map.modified() || force) {
-		FILE *file = fl_fopen(filename, "wb");
-		if (!file) {
+		if (!_map.write_blocks(filename)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
 			_error_dialog->show(this);
 			return false;
 		}
-
-		size_t n = _map.size();
-		for (size_t i = 0; i < n; i++) {
-			uint8_t id = _map.block(i)->id();
-			fputc(id, file);
-		}
-		fclose(file);
-
-		_map.modified(false);
 
 		size_t w = _map.width(), h = _map.height();
 		size_t b = (w + MAP_MARGIN * 2) * (h + MAP_MARGIN * 2);
@@ -1898,6 +1897,8 @@ bool Main_Window::save_map(bool force) {
 			_warning_dialog->message(ss.str());
 			_warning_dialog->show(this);
 		}
+
+		_map.modified(false);
 	}
 
 	if (force) {
@@ -1925,6 +1926,15 @@ bool Main_Window::save_metatileset() {
 	const char *basename_coll = fl_filename_name(filename_coll);
 
 	if (_metatileset.modified()) {
+		if (_metatileset.other_modified(filename)) {
+			std::string msg = basename;
+			msg = msg + " was modified by another program!\n\n"
+				"Save the blockset and overwrite it anyway?";
+			_unsaved_dialog->message(msg);
+			_unsaved_dialog->show(this);
+			if (_unsaved_dialog->canceled()) { return true; }
+		}
+
 		if (!_metatileset.write_metatiles(filename)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
@@ -1933,11 +1943,22 @@ bool Main_Window::save_metatileset() {
 			return false;
 		}
 
-		if (_has_collisions && !_metatileset.write_collisions(filename_coll)) {
-			std::string msg = "Could not write to ";
-			msg = msg + basename_coll + "!";
-			_error_dialog->message(msg);
-			_error_dialog->show(this);
+		if (_has_collisions) {
+			if (_metatileset.other_modified_collisions(filename_coll)) {
+				std::string msg = basename_coll;
+				msg = msg + " was modified by another program!\n\n"
+					"Save the collisions and overwrite it anyway?";
+				_unsaved_dialog->message(msg);
+				_unsaved_dialog->show(this);
+				if (_unsaved_dialog->canceled()) { return true; }
+			}
+
+			if (!_metatileset.write_collisions(filename_coll)) {
+				std::string msg = "Could not write to ";
+				msg = msg + basename_coll + "!";
+				_error_dialog->message(msg);
+				_error_dialog->show(this);
+			}
 		}
 
 		_metatileset.modified(false);
@@ -1987,9 +2008,29 @@ bool Main_Window::save_tileset() {
 	Config::tileset_png_paths(filename, b_filename, a_filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset.write_graphics(filename, b_filename, a_filename)) {
+	const char *mod_basename = NULL;
+	if (tileset.other_modified(filename)) {
+		mod_basename = basename;
+	}
+	else if (tileset.other_modified_before(b_filename)) {
+		mod_basename = fl_filename_name(b_filename);
+	}
+	else if (tileset.other_modified_before(a_filename)) {
+		mod_basename = fl_filename_name(a_filename);
+	}
+	if (mod_basename) {
+		std::string msg = mod_basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the tileset and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
+	if (const char *ff = tileset.write_graphics(filename, b_filename, a_filename); ff) {
+		const char *bff = fl_filename_name(ff);
 		std::string msg = "Could not write to ";
-		msg = msg + basename + "!";
+		msg = msg + bff + "!";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return false;
@@ -2003,6 +2044,15 @@ bool Main_Window::save_tileset() {
 	if (!Config::monochrome()) {
 		Config::palette_map_path(filename, directory, tileset_name);
 		basename = fl_filename_name(filename);
+
+		if (tileset.palette_map().other_modified(filename)) {
+			std::string msg = basename;
+			msg = msg + " was modified by another program!\n\n"
+				"Save the palette map and overwrite it anyway?";
+			_unsaved_dialog->message(msg);
+			_unsaved_dialog->show(this);
+			if (_unsaved_dialog->canceled()) { return true; }
+		}
 
 		if (!tileset.palette_map().write_palette_map(filename)) {
 			msg = "Could not write to ";
@@ -2040,6 +2090,15 @@ bool Main_Window::save_roof() {
 	Config::roof_png_path(filename, directory, roof_name);
 	const char *basename = fl_filename_name(filename);
 
+	if (tileset.other_modified_roof(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the roof and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
 	if (!tileset.write_roof_graphics(filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
@@ -2067,6 +2126,15 @@ bool Main_Window::save_event_script() {
 		_success_dialog->message(msg);
 		_success_dialog->show(this);
 		return true;
+	}
+
+	if (_map_events.other_modified(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the events and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
 	}
 
 	if (!_map_events.write_event_script(filename)) {

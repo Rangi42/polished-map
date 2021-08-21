@@ -135,6 +135,13 @@ size_t file_size(FILE *f) {
 	return r ? 0 : (size_t)s.st_size;
 }
 
+int64_t file_modified(const char *f) {
+	if (!f) { return 0; }
+	struct stat64 s;
+	int r = stat64(f, &s);
+	return r ? 0 : s.st_mtime;
+}
+
 void open_ifstream(std::ifstream &ifs, const char *f) {
 #ifdef _WIN32
 	wchar_t *wf = utf8towchar(f);

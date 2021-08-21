@@ -37,6 +37,7 @@ private:
 	Result _result;
 	bool _modified;
 	std::deque<Map_State> _history, _future;
+	int64_t _mod_time;
 public:
 	Map();
 	~Map();
@@ -71,6 +72,7 @@ public:
 	inline Result result(void) const { return _result; }
 	inline bool modified(void) const { return _modified; }
 	inline void modified(bool m) { _modified = m; }
+	inline bool other_modified(const char *f) const { return file_modified(f) > _mod_time; }
 	inline bool can_undo(void) const { return !_history.empty(); }
 	inline bool can_redo(void) const { return !_future.empty(); }
 	void clear();
@@ -79,6 +81,7 @@ public:
 	void undo(void);
 	void redo(void);
 	Result read_blocks(const char *f);
+	bool write_blocks(const char *f);
 private:
 	Result read_asm_blocks(const char *f);
 public:
