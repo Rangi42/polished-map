@@ -9,7 +9,7 @@ void Map_Attributes::clear() {
 	palette.clear();
 }
 
-Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(Result::MAP_NULL), _modified(false),
+Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(Result::MAP_NULL), _modified(false), _mod_time(0),
 	_history(), _future() {}
 
 Map::~Map() {
@@ -40,6 +40,7 @@ void Map::clear() {
 	_width = _height = 0;
 	_result = Result::MAP_NULL;
 	_modified = false;
+	_mod_time = 0;
 	_history.clear();
 	_future.clear();
 }
@@ -107,6 +108,7 @@ Map::Result Map::read_blocks(const char *f) {
 	uint8_t *data = new uint8_t[size() + 1];
 	size_t c = fread(data, 1, size() + 1, file);
 	fclose(file);
+	_mod_time = file_modified(f);
 	if (c < size()) { delete [] data; return (_result = Result::MAP_TOO_SHORT); } // too-short blk
 	if (c == size() + 1) { too_long = true; }
 
@@ -120,6 +122,19 @@ Map::Result Map::read_blocks(const char *f) {
 
 	delete [] data;
 	return (_result = too_long ? Result::MAP_TOO_LONG : Result::MAP_OK);
+}
+
+bool Map::write_blocks(const char *f) {
+	FILE *file = fl_fopen(f, "wb");
+	if (!file) { return false; }
+	size_t n = size();
+	for (size_t i = 0; i < n; i++) {
+		uint8_t id = block(i)->id();
+		fputc(id, file);
+	}
+	fclose(file);
+	_mod_time = file_modified(f);
+	return true;
 }
 
 const char *Map::error_message(Result result) {

@@ -28,6 +28,7 @@ private:
 	size_t _num_tiles, _num_before_tiles, _num_mid_tiles, _num_roof_tiles;
 	Result _result;
 	bool _modified, _modified_roof;
+	int64_t _mod_time, _mod_time_before, _mod_time_after, _mod_time_roof;
 public:
 	Tileset();
 	~Tileset();
@@ -51,6 +52,10 @@ public:
 	inline void modified(bool m) { _modified = m; }
 	inline bool modified_roof(void) const { return _modified_roof; }
 	inline void modified_roof(bool m) { _modified_roof = m; }
+	inline bool other_modified(const char *f) const { return file_modified(f) > _mod_time; }
+	inline bool other_modified_before(const char *bf) const { return file_modified(bf) > _mod_time_before; }
+	inline bool other_modified_after(const char *af) const { return file_modified(af) > _mod_time_after; }
+	inline bool other_modified_roof(const char *rf) const { return file_modified(rf) > _mod_time_roof; }
 private:
 	void read_tile(Deep_Tile *dt, const Tiled_Image &ti, size_t i);
 	static void print_tile_rgb(const Deep_Tile *dt, int tx, int ty, int n, uchar *buffer);
@@ -64,7 +69,7 @@ public:
 	Result read_graphics(const char *f, const char *bf, const char *af, Palettes l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);
-	bool write_graphics(const char *f, const char *bf, const char *af);
+	const char *write_graphics(const char *f, const char *bf, const char *af);
 	bool write_roof_graphics(const char *f);
 };
 

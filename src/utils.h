@@ -49,6 +49,7 @@ int text_width(const char *l, int pad = 0);
 bool file_exists(const char *f);
 size_t file_size(const char *f);
 size_t file_size(FILE *f);
+int64_t file_modified(const char *f);
 void open_ifstream(std::ifstream &ifs, const char *f);
 
 #ifdef _WIN32

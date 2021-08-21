@@ -43,7 +43,7 @@ static const std::unordered_map<std::string, Event_Meta> events_meta = {
 	{"treebase_right_event_2", {EventTexture::TX_ORANGE, '!', 0, false, 0}},
 };
 
-Map_Events::Map_Events() : _events(), _result(Result::MAP_EVENTS_NULL), _loaded(false), _modified(false) {}
+Map_Events::Map_Events() : _events(), _result(Result::MAP_EVENTS_NULL), _loaded(false), _modified(false), _mod_time(0) {}
 
 Map_Events::~Map_Events() {
 	clear();
@@ -54,6 +54,7 @@ void Map_Events::clear() {
 	_result = Result::MAP_EVENTS_NULL;
 	_loaded = false;
 	_modified = false;
+	_mod_time = 0;
 }
 
 void Map_Events::resize_events(int x, int y, int s) const {
@@ -99,6 +100,7 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 
 	_loaded = true;
 	_modified = false;
+	_mod_time = file_modified(f);
 
 	return (_result = Result::MAP_EVENTS_OK);
 }
@@ -127,5 +129,6 @@ bool Map_Events::write_event_script(const char *f) {
 	}
 	fputs(_coda.c_str(), file);
 	fclose(file);
+	_mod_time = file_modified(f);
 	return true;
 }

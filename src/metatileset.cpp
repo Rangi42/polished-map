@@ -40,7 +40,7 @@ static uchar large_priority_png_buffer[] = {
 static Fl_PNG_Image large_priority_png(NULL, large_priority_png_buffer, sizeof(large_priority_png_buffer));
 
 Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(Result::META_NULL), _modified(false),
-	_bin_collisions(false) {
+	_bin_collisions(false), _mod_time(0), _mod_time_attr(0), _mod_time_coll(0) {
 	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
 		_metatiles[i] = new Metatile((uint8_t)i);
 	}
@@ -62,6 +62,7 @@ void Metatileset::clear() {
 	_result = Result::META_NULL;
 	_modified = false;
 	_bin_collisions = false;
+	_mod_time = _mod_time_attr = _mod_time_coll = 0;
 }
 
 void Metatileset::size(size_t n) {
@@ -175,10 +176,11 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	}
 
 	fclose(file);
+	_mod_time = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
-bool Metatileset::write_metatiles(const char *f) const {
+bool Metatileset::write_metatiles(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -191,6 +193,7 @@ bool Metatileset::write_metatiles(const char *f) const {
 		}
 	}
 	fclose(file);
+	_mod_time = file_modified(f);
 	return true;
 }
 
@@ -220,10 +223,11 @@ Metatileset::Result Metatileset::read_attributes(const char *f) {
 	}
 
 	fclose(file);
+	_mod_time_attr = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
-bool Metatileset::write_attributes(const char *f) const {
+bool Metatileset::write_attributes(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -236,6 +240,7 @@ bool Metatileset::write_attributes(const char *f) const {
 		}
 	}
 	fclose(file);
+	_mod_time_attr = file_modified(f);
 	return true;
 }
 
@@ -266,6 +271,7 @@ Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	}
 
 	_bin_collisions = false;
+	_mod_time_coll = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
@@ -289,10 +295,11 @@ Metatileset::Result Metatileset::read_bin_collisions(const char *f) {
 
 	fclose(file);
 	_bin_collisions = true;
+	_mod_time_coll = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
-bool Metatileset::write_asm_collisions(const char *f) const {
+bool Metatileset::write_asm_collisions(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -302,10 +309,11 @@ bool Metatileset::write_asm_collisions(const char *f) const {
 			mt->collision(Quadrant::BOTTOM_LEFT).c_str(), mt->collision(Quadrant::BOTTOM_RIGHT).c_str(), (uint32_t)i);
 	}
 	fclose(file);
+	_mod_time_coll = file_modified(f);
 	return true;
 }
 
-bool Metatileset::write_bin_collisions(const char *f) const {
+bool Metatileset::write_bin_collisions(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -313,6 +321,7 @@ bool Metatileset::write_bin_collisions(const char *f) const {
 		fwrite(mt->bin_collisions(), 1, NUM_QUADRANTS, file);
 	}
 	fclose(file);
+	_mod_time_coll = file_modified(f);
 	return true;
 }
 
