@@ -2046,7 +2046,7 @@ bool Main_Window::save_tileset() {
 		basename = fl_filename_name(filename);
 
 		if (tileset.palette_map().other_modified(filename)) {
-			std::string msg = basename;
+			msg = basename;
 			msg = msg + " was modified by another program!\n\n"
 				"Save the palette map and overwrite it anyway?";
 			_unsaved_dialog->message(msg);
