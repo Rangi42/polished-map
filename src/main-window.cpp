@@ -89,6 +89,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		_recent[i] = Preferences::get_string(Fl_Preferences::Name("recent%d", i));
 	}
 
+	int transparent = Preferences::get("transparent", 0);
 	int fullscreen = Preferences::get("fullscreen", 0);
 
 	// Populate window
@@ -365,6 +366,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
+		OS_MENU_ITEM("Tr&ansparent", FL_F + 10, (Fl_Callback *)transparent_cb, this,
+			FL_MENU_TOGGLE | (transparent ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this,
 			FL_MENU_TOGGLE | (fullscreen ? FL_MENU_VALUE : 0)),
 		{},
@@ -445,6 +448,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
 	_gameboy_screen_mi = PM_FIND_MENU_ITEM_CB(gameboy_screen_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
+	_transparent_mi = PM_FIND_MENU_ITEM_CB(transparent_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_palettes_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_palettes_cb);
@@ -796,6 +800,22 @@ void Main_Window::maximize() {
 	event.xclient.data.l[2] = XInternAtom(fl_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 	event.xclient.data.l[3] = 1;
 	XSendEvent(fl_display, DefaultRootWindow(fl_display), False, SubstructureNotifyMask | SubstructureNotifyMask, &event);
+#endif
+}
+
+void Main_Window::apply_transparency() {
+	double alpha = transparent() ? 0.75 : 1.0;
+#ifdef _WIN32
+	HWND hwnd = fl_xid(this);
+	LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+	if (!(exstyle & WS_EX_LAYERED)) {
+		SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle | WS_EX_LAYERED);
+	}
+	SetLayeredWindowAttributes(hwnd, 0, (BYTE)(alpha * 0xFF), LWA_ALPHA);
+#else
+	Atom atom = XInternAtom(fl_display, "_NET_WM_WINDOW_OPACITY", False);
+	uint32_t opacity = (uint32_t)(UINT32_MAX * alpha);
+	XChangeProperty(fl_display, fl_xid(this), atom, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&opacity, 1);
 #endif
 }
 
@@ -2784,6 +2804,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("priority", mw->show_priority());
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
+	Preferences::set("transparent", mw->transparent());
 	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("all512", mw->allow_512_tiles());
 	Preferences::set("swap01", mw->arrange_0_before_1());
@@ -2933,6 +2954,10 @@ void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_high_contrast_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+}
+
+void Main_Window::transparent_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->apply_transparency();
 }
 
 void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {

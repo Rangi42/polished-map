@@ -48,8 +48,8 @@ private:
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
 		*_greybird_theme_mi = NULL, *_ocean_theme_mi = NULL, *_blue_theme_mi = NULL, *_olive_theme_mi = NULL,
 		*_rose_gold_theme_mi = NULL, *_dark_theme_mi = NULL, *_brushed_metal_theme_mi = NULL, *_high_contrast_theme_mi = NULL;
-	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL,
-		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
+	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
+		*_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_transparent_mi = NULL, *_full_screen_mi = NULL;
 	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_darkness_mi = NULL, *_indoor_mi = NULL,
 		*_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
@@ -123,6 +123,8 @@ public:
 	void show(void);
 	bool maximized(void) const;
 	void maximize(void);
+	void apply_transparency(void);
+	inline bool transparent(void) const { return _transparent_mi && !!_transparent_mi->value(); }
 	inline bool grid(void) const { return _grid_mi && !!_grid_mi->value(); }
 	inline bool rulers(void) const { return _rulers_mi && !!_rulers_mi->value(); }
 	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
@@ -256,6 +258,7 @@ private:
 	static void show_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void transparent_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void morn_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
