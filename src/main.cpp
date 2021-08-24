@@ -92,6 +92,9 @@ int main(int argc, char **argv) {
 	int w = Preferences::get("w", 800), h = Preferences::get("h", 600);
 	Main_Window window(x, y, w, h);
 	window.show();
+	if (window.transparent()) {
+		window.apply_transparency();
+	}
 	if (window.full_screen()) {
 		window.fullscreen();
 	}
