@@ -474,7 +474,7 @@ void Workspace::scrollbar_cb(Fl_Scrollbar *sb, void *) {
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Group(x, y, w, h, l), _spacer(0, 0, 0, 0) {
 	labeltype(FL_NO_LABEL);
-	box(OS_PANEL_THIN_UP_FRAME);
+	box(OS_TOOLBAR_FRAME);
 	resizable(_spacer);
 	clip_children(1);
 	begin();
