@@ -1,6 +1,8 @@
 #ifndef TILED_IMAGE_H
 #define TILED_IMAGE_H
 
+#include <vector>
+
 #pragma warning(push, 0)
 #include <FL/fl_ask.H>
 #pragma warning(pop)
@@ -14,7 +16,7 @@ public:
 	enum class Result { IMG_OK, IMG_BAD_FILE, IMG_BAD_EXT, IMG_BAD_DIMS, IMG_TOO_SHORT,
 		IMG_TOO_LARGE, IMG_NOT_GRAYSCALE, IMG_BAD_CMD, IMG_NULL };
 private:
-	Hue *_tile_hues;
+	std::vector<Hue> _tile_hues;
 	size_t _num_tiles;
 	Result _result;
 public:
@@ -30,7 +32,7 @@ private:
 	Result read_2bpp_graphics(const char *f);
 	Result read_lz_graphics(const char *f);
 	Result read_asm_graphics(const char *f);
-	Result parse_2bpp_data(size_t n, uchar *data);
+	Result parse_2bpp_data(const std::vector<uchar> &data);
 };
 
 #endif
