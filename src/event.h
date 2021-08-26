@@ -48,7 +48,7 @@ public:
 	}
 	inline std::string tip(void) const { return _tip; }
 	inline void tip(const std::string &l) { _tip = l; tooltip(_tip.c_str()); }
-	bool warp_map_name(char *name) const;
+	std::string warp_map_name(void) const;
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);
 	void draw(void);

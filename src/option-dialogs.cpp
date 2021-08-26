@@ -284,6 +284,7 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 			trim(tileset_name);
 			if (starts_with(tileset_name, "TILESET_")) {
 				tileset_name.erase(0, strlen("TILESET_"));
+				tileset_name = constant_to_label(tileset_name);
 				lowercase(tileset_name);
 			}
 			else if (starts_with(tileset_name, "$")) {
