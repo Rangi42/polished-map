@@ -157,16 +157,35 @@ Event::Event(size_t line, const std::string &prelude, const std::string &macro, 
 }
 
 std::string Event::warp_map_name() const {
-	if (_meta.warp == 0) { return ""; }
+	std::string name;
+	if (_meta.warp == 0) { return name; }
 	std::istringstream ss(_suffix);
 	std::string token;
 	for (uint8_t i = 0; i <= _meta.warp; i++) {
-		if (!ss.good()) { return ""; }
+		if (!ss.good()) { return name; }
 		std::getline(ss, token, ',');
 	}
 	remove_comment(token);
 	trim(token);
-	return constant_to_label(token);
+	bool letter = false, digit = false, digit_underscore = false;
+	for (char c : token) {
+		if (c != '_') {
+			if (digit_underscore && isdigit(c)) {
+				name += '_'; // ...1__2... -> ...1_2...
+			}
+			if (letter) {
+				c = (char)tolower(c); // ...ABC_DEF_B1F... -> ...AbcDefB1F...
+			}
+			name += c;
+			digit_underscore = false;
+		}
+		else if (digit) {
+			digit_underscore = true;
+		}
+		letter = isalpha(c);
+		digit = isdigit(c);
+	}
+	return name;
 }
 
 static int16_t parse_coord(std::string s, bool &hex) {
