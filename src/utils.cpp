@@ -62,29 +62,6 @@ bool leading_macro(std::istringstream &iss, std::string &macro, const char *v) {
 	return indented && (!v || macro == v);
 }
 
-std::string constant_to_label(std::string_view constant) {
-	std::string label;
-	bool letter = false, digit = false, digit_underscore = false;
-	for (char c : constant) {
-		if (c != '_') {
-			if (digit_underscore && isdigit(c)) {
-				label += '_';
-			}
-			if (letter) {
-				c = (char)tolower(c);
-			}
-			label += c;
-			digit_underscore = false;
-		}
-		else if (digit) {
-			digit_underscore = true;
-		}
-		letter = isalpha(c);
-		digit = isdigit(c);
-	}
-	return label;
-}
-
 void remove_comment(std::string &s) {
 	size_t p = s.find(';');
 	if (p != std::string::npos) {

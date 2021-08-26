@@ -39,7 +39,6 @@ bool ends_with_ignore_case(std::wstring_view s, std::wstring_view p);
 void trim(std::string &s, const std::string &t = whitespace);
 void lowercase(std::string &s);
 bool leading_macro(std::istringstream &iss, std::string &macro, const char *v = NULL);
-std::string constant_to_label(std::string_view constant);
 void remove_comment(std::string &s);
 void remove_suffix(const char *n, char *s);
 void before_suffix(const char *n, char *s);

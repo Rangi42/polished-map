@@ -135,8 +135,8 @@ static void guess_map_constant(const char *name, char *constant) {
 	size_t n = p ? p - name : strlen(name); // ignore extension and attribute data
 	for (size_t i = 0; i < n; i++) {
 		char c = *name;
-		if ((islower((unsigned char)prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
-			(i < n - 1 && isupperordigit(prev) && isupper((unsigned char)c) && islower((unsigned char)*(name+1)))) { // ...ZAb... -> ...Z_AB...
+		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
+			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(name[1]))) { // ...ZAb... -> ...Z_AB...
 			*constant++ = '_';
 		}
 		prev = c;
@@ -277,7 +277,6 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		trim(tileset_name);
 		if (starts_with(tileset_name, "TILESET_")) {
 			tileset_name.erase(0, strlen("TILESET_"));
-			tileset_name = constant_to_label(tileset_name);
 			lowercase(tileset_name);
 		}
 		else if (starts_with(tileset_name, "$")) {
