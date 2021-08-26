@@ -1449,12 +1449,12 @@ void Main_Window::open_recent(int n) {
 }
 
 void Main_Window::warp_to_map(Event *e) {
-	char destination[FL_PATH_MAX] = {};
-	if (!e->warp_map_name(destination)) { return; }
+	std::string destination = e->warp_map_name();
+	if (destination.empty()) { return; }
 
 	char filename[FL_PATH_MAX] = {};
 	strcpy(filename, _blk_file.c_str());
-	strcpy(const_cast<char *>(fl_filename_name(filename)), destination);
+	strcpy(const_cast<char *>(fl_filename_name(filename)), destination.c_str());
 	strcat(filename, fl_filename_ext(_blk_file.c_str()));
 
 	const char *basename = fl_filename_name(filename);
