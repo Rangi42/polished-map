@@ -166,18 +166,23 @@ bool Event::warp_map_name(char *name) const {
 	}
 	remove_comment(token);
 	trim(token);
-	bool downcase = false;
+	bool letter = false, digit = false, digit_underscore = false;
 	for (char &c : token) {
-		if (downcase) {
-			c = (char)tolower(c);
-		}
-		if (c == '_') {
-			downcase = false;
-		}
-		else {
+		if (c != '_') {
+			if (digit_underscore && isdigit(c)) {
+				*name++ = '_';
+			}
+			if (letter) {
+				c = (char)tolower(c);
+			}
 			*name++ = c;
-			downcase = !isdigit((unsigned char)c);
+			digit_underscore = false;
 		}
+		else if (digit) {
+			digit_underscore = true;
+		}
+		letter = isalpha(c);
+		digit = isdigit(c);
 	}
 	*name = '\0';
 	return true;

@@ -213,7 +213,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 		std::string map;
 		std::getline(lss, map, ',');
 		trim(map);
-		if (map != constant) { continue; }
+		if (map != constant) { continue; } // rgbasm is case-sensitive
 
 		int w, h;
 		char comma;
@@ -272,7 +272,12 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 			std::string map_label;
 			std::getline(lss, map_label, ',');
 			trim(map_label);
+#ifdef _WIN32
+			// Windows filenames are case-insensitive
+			if (!equals_ignore_case(map_label, map_name)) { continue; }
+#else
 			if (map_label != map_name) { continue; }
+#endif
 
 			std::string tileset_name;
 			std::getline(lss, tileset_name, ',');
