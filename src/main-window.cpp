@@ -132,6 +132,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	new Label(0, 0, text_width("Palettes:", 3), 24, "Palettes:");
 	_palettes = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
+	new Fl_Box(0, 0, 4, 24);
 	_load_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_current_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
