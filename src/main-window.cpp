@@ -956,19 +956,21 @@ void Main_Window::update_status(Block *b) {
 }
 
 void Main_Window::update_event_cursor(Block *b) {
-	if (_mode != Mode::EVENTS || !b) {
-		_status_event_x = _status_event_y = INT_MIN;
-		_hover_event->label("");
-		_status_bar->redraw();
-		_hor_ruler->redraw();
-		_ver_ruler->redraw();
-		return;
+	if (b) {
+		_status_event_x = (int)b->col() * 2 + b->right_half();
+		_status_event_y = (int)b->row() * 2 + b->bottom_half();
 	}
-	char buffer[64] = {};
-	_status_event_x = (int)b->col() * 2 + b->right_half();
-	_status_event_y = (int)b->row() * 2 + b->bottom_half();
-	sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), _status_event_x, _status_event_y);
-	_hover_event->copy_label(buffer);
+	else {
+		_status_event_x = _status_event_y = INT_MIN;
+	}
+	if (_mode == Mode::EVENTS && b) {
+		char buffer[64] = {};
+		sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), _status_event_x, _status_event_y);
+		_hover_event->copy_label(buffer);
+	}
+	else {
+		_hover_event->label("");
+	}
 	_status_bar->redraw();
 	_hor_ruler->redraw();
 	_ver_ruler->redraw();
