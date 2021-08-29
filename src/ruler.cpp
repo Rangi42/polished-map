@@ -58,17 +58,19 @@ void Ruler::draw() {
 		fl_font(FL_COURIER, OS::is_consolas() ? 10 : 9);
 		fl_color(FL_FOREGROUND_COLOR);
 		fl_push_clip(X, Y, W, H);
+		bool bb = mw->mode() == Mode::BLOCKS;
 		int en = mw->status_event_x();
 		int mn = mw->max_ruler_x();
 		int n = mx / es - EVENT_MARGIN;
 		for (int i = S-r-1; i < W+S && n <= mn; i += S, n++) {
+			bool highlight = n == en || bb && (n & ~1) == (en & ~1);
 			print_tick_label(t, n, hex);
-			if (n == en) {
+			if (highlight) {
 				fl_rectf(X+i-S+1, Y, S-1, H-1);
 				fl_color(FL_BACKGROUND_COLOR);
 			}
 			fl_draw(t, X+i-S+1, Y, S-2, H, FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-			if (n == en) {
+			if (highlight) {
 				fl_color(FL_FOREGROUND_COLOR);
 			}
 		}
@@ -89,17 +91,19 @@ void Ruler::draw() {
 		fl_font(FL_COURIER, OS::is_consolas() ? 10 : 9);
 		fl_color(FL_FOREGROUND_COLOR);
 		fl_push_clip(X, Y, W, H);
+		bool bb = mw->mode() == Mode::BLOCKS;
 		int en = mw->status_event_y();
 		int mn = mw->max_ruler_y();
 		int n = my / es - EVENT_MARGIN;
 		for (int i = S-r-1; i < H+S && n <= mn; i += S, n++) {
+			bool highlight = n == en || bb && (n & ~1) == (en & ~1);
 			print_tick_label(t, n, hex);
-			if (n == en) {
+			if (highlight) {
 				fl_rectf(X, Y+i-S+1, W-1, S-1);
 				fl_color(FL_BACKGROUND_COLOR);
 			}
 			fl_draw(t, X, Y+i-S+1, W-2, S, FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-			if (n == en) {
+			if (highlight) {
 				fl_color(FL_FOREGROUND_COLOR);
 			}
 		}
