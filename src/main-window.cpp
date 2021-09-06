@@ -591,7 +591,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_gameboy_screen_tb->image(GAMEBOY_ICON);
 	_gameboy_screen_tb->value(gameboy_screen());
 
-	_show_events_tb->tooltip("Show Events (Ctrl+Shift+R)");
+	_show_events_tb->tooltip("Show Events (Ctrl+Shift+V)");
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->value(show_events());
