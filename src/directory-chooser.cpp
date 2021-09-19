@@ -6,7 +6,7 @@ Directory_Chooser::Directory_Chooser(int) : _title(NULL), _filename(NULL), _fod_
 
 Directory_Chooser::~Directory_Chooser() {
 	if (_fod_ptr) { _fod_ptr->Release(); }
-	free((void *)_filename);
+	delete [] _filename;
 }
 
 int Directory_Chooser::show() {
@@ -16,12 +16,14 @@ int Directory_Chooser::show() {
 		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void **>(&_fod_ptr));
 		if (!SUCCEEDED(hr)) { return -1; }
 	}
-	free((void *)_filename);
+	delete [] _filename;
 	_filename = NULL;
 
-	WCHAR *wtitle = utf8towchar(_title);
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, _title, -1, NULL, 0);
+	WCHAR *wtitle = new WCHAR[wlen];
+	MultiByteToWideChar(CP_UTF8, 0, _title, -1, wtitle, wlen);
 	_fod_ptr->SetTitle(wtitle);
-	free(wtitle);
+	delete [] wtitle;
 
 	FILEOPENDIALOGOPTIONS fod_opts;
 	_fod_ptr->GetOptions(&fod_opts);
@@ -41,7 +43,11 @@ int Directory_Chooser::show() {
 	hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 	if (!SUCCEEDED(hr)) { pItem->Release(); return -1; }
 
-	_filename = wchartoutf8(pszFilePath);
+	int len = WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, NULL, 0, NULL, NULL);
+	char *filename = new char[len];
+	WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, filename, len, NULL, NULL);
+	_filename = filename;
+
 	CoTaskMemFree(pszFilePath);
 	pItem->Release();
 	return 0;
