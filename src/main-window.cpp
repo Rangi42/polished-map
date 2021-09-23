@@ -148,15 +148,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
-	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 8), 21, "");
+	_metatile_count = new Label(0, 0, text_width("Blocks: 999", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 8), 21, "");
+	_map_dimensions = new Label(0, 0, text_width("Map: 999 x 999", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $99", 8), 21, "");
+	_hover_id = new Label(0, 0, text_width("ID: $99", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
+	_hover_xy = new Label(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
+	_hover_event = new Label(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
 	_status_bar->end();
 	begin();
 

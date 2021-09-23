@@ -66,7 +66,7 @@ private:
 	Dropdown *_palettes;
 	// GUI outputs
 	Ruler *_hor_ruler, *_ver_ruler, *_corner_ruler;
-	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
+	Label *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
 	Fl_Menu_Item *_load_event_script_mi = NULL, *_view_event_script_mi, *_reload_event_script_mi = NULL,
 		*_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL,
