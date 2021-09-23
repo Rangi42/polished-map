@@ -1,3 +1,8 @@
+#pragma warning(push, 0)
+#include <FL/filename.H>
+#include <FL/fl_utf8.h>
+#pragma warning(pop)
+
 #include "directory-chooser.h"
 
 #ifdef _WIN32
@@ -19,11 +24,9 @@ int Directory_Chooser::show() {
 	delete [] _filename;
 	_filename = NULL;
 
-	int wlen = MultiByteToWideChar(CP_UTF8, 0, _title, -1, NULL, 0);
-	WCHAR *wtitle = new WCHAR[wlen];
-	MultiByteToWideChar(CP_UTF8, 0, _title, -1, wtitle, wlen);
+	wchar_t wtitle[FL_PATH_MAX] = {};
+	fl_utf8towc(_title, strlen(_title), wtitle, sizeof(wtitle));
 	_fod_ptr->SetTitle(wtitle);
-	delete [] wtitle;
 
 	FILEOPENDIALOGOPTIONS fod_opts;
 	_fod_ptr->GetOptions(&fod_opts);
@@ -43,9 +46,9 @@ int Directory_Chooser::show() {
 	hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 	if (!SUCCEEDED(hr)) { pItem->Release(); return -1; }
 
-	int len = WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, NULL, 0, NULL, NULL);
-	char *filename = new char[len];
-	WideCharToMultiByte(CP_UTF8, 0, pszFilePath, -1, filename, len, NULL, NULL);
+	size_t len = wcslen(pszFilePath);
+	char *filename = new char[len + 1];
+	fl_utf8fromwc(filename, sizeof(filename), pszFilePath, len);
 	_filename = filename;
 
 	CoTaskMemFree(pszFilePath);
