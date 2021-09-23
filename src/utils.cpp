@@ -113,21 +113,18 @@ bool file_exists(const char *f) {
 }
 
 size_t file_size(const char *f) {
-#ifdef __CYGWIN__
-#define stat64 stat
-#elif defined(_WIN32)
-#define stat64 _stat32i64
-#endif
-	struct stat64 s;
-	int r = stat64(f, &s);
+	struct stat s;
+	int r = fl_stat(f, &s);
 	return r ? 0 : (size_t)s.st_size;
 }
 
 size_t file_size(FILE *f) {
 #ifdef __CYGWIN__
+#define stat64 stat
 #define fstat64 fstat
 #elif defined(_WIN32)
 #define fileno _fileno
+#define stat64 _stat32i64
 #define fstat64 _fstat32i64
 #endif
 	struct stat64 s;
@@ -137,8 +134,8 @@ size_t file_size(FILE *f) {
 
 int64_t file_modified(const char *f) {
 	if (!f) { return 0; }
-	struct stat64 s;
-	int r = stat64(f, &s);
+	struct stat s;
+	int r = fl_stat(f, &s);
 	return r ? 0 : s.st_mtime;
 }
 
