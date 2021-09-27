@@ -42,6 +42,15 @@ int Tile_Window::handle(int event) {
 	else if (Fl::test_shortcut(FL_Delete)) {
 		Tileset_Window::delete_tile_cb(NULL, tw);
 	}
+	else if (tw->_palette->active() && Fl::event_alt()) {
+		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+			if (Fl::test_shortcut(FL_ALT + '1' + p)) {
+				tw->_palette->value(p);
+				Tileset_Window::change_palette_cb(NULL, tw);
+				break;
+			}
+		}
+	}
 	return Fl_Double_Window::handle(event);
 }
 
