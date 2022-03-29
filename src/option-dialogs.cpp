@@ -433,8 +433,8 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	// Initialize map size
 	if (!guess_map_size(filename, directory, attrs) && _valid_sizes.empty()) {
-		_map_width->value(1);
-		_map_height->value(1);
+		_map_width->value(10);
+		_map_height->value(9);
 	}
 
 	// Initialize tileset choices

@@ -48,7 +48,7 @@ int Directory_Chooser::show() {
 
 	size_t len = wcslen(pszFilePath);
 	char *filename = new char[len + 1];
-	fl_utf8fromwc(filename, sizeof(filename), pszFilePath, len);
+	fl_utf8fromwc(filename, len + 1, pszFilePath, len);
 	_filename = filename;
 
 	CoTaskMemFree(pszFilePath);
