@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 
 #pragma warning(push, 0)
-#include <FL/fl_draw.H>
 #include <FL/filename.H>
 #include <FL/fl_utf8.h>
 #pragma warning(pop)
@@ -147,4 +146,14 @@ void open_ifstream(std::ifstream &ifs, const char *f) {
 #else
 	ifs.open(f);
 #endif
+}
+
+void draw_outlined_text(const char *l, int x, int y, int w, int h, Fl_Align a, Fl_Color c, Fl_Color s) {
+	fl_color(s);
+	fl_draw(l, x-1, y-1, w, h, a);
+	fl_draw(l, x-1, y+1, w, h, a);
+	fl_draw(l, x+1, y-1, w, h, a);
+	fl_draw(l, x+1, y+1, w, h, a);
+	fl_color(c);
+	fl_draw(l, x, y, w, h, a);
 }

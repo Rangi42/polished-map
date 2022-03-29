@@ -68,6 +68,7 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 
 	size_t n = 0;
 	std::string prelude;
+	int warp_id = 1;
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
@@ -94,7 +95,8 @@ Map_Events::Result Map_Events::read_events(const char *f) {
 			}
 		}
 
-		Event *e = new Event(n, prelude, token, it->second, line);
+		bool is_warp = it->second.texture == EventTexture::TX_PURPLE;
+		Event *e = new Event(n, prelude, token, it->second, line, is_warp ? warp_id++ : 0);
 		e->parse(lss);
 		_events.push_back(e);
 		prelude.clear();

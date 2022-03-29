@@ -34,10 +34,11 @@ private:
 	Event_Meta _meta;
 	int16_t _event_x, _event_y;
 	std::string _prelude, _macro, _prefix, _suffix, _tip;
+	int _warp_id;
 	bool _prefixed, _suffixed, _hex_coords;
 	friend class Event_Options_Dialog;
 public:
-	Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_);
+	Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_, int warp_id);
 	inline size_t line(void) const { return _line; }
 	inline std::string prelude(void) const { return _prelude; }
 	inline int16_t event_x(void) const { return _event_x; }
@@ -54,6 +55,9 @@ public:
 	void draw(void);
 	void print(void) const;
 	int handle(int event);
+private:
+	void draw_warp_id(void) const;
+	void draw_warp_id_zoomed(void) const;
 };
 
 #endif
