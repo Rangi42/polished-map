@@ -148,9 +148,23 @@ static Fl_PNG_Image zoomed_texture_images[NUM_EVENT_TEXTURES] = {
 	{NULL, texture_azure32_png_buffer,  sizeof(texture_azure32_png_buffer)}   // TX_AZURE
 };
 
-Event::Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_) :
+static const uchar warp_digits_png_buffer[] = {
+	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+	0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x07, 0x01, 0x03, 0x00, 0x00, 0x00, 0xa5, 0x54, 0x58,
+	0xa1, 0x00, 0x00, 0x00, 0x06, 0x50, 0x4c, 0x54, 0x45, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x55,
+	0xc2, 0xd3, 0x7e, 0x00, 0x00, 0x00, 0x41, 0x49, 0x44, 0x41, 0x54, 0x78, 0x5e, 0x63, 0x40, 0x02,
+	0xc5, 0x32, 0x4f, 0x2d, 0xcf, 0x15, 0x77, 0x1c, 0x36, 0x3c, 0xc7, 0x10, 0xc8, 0xa2, 0xaa, 0xc8,
+	0x14, 0x34, 0x65, 0x89, 0x26, 0x07, 0x43, 0xa0, 0x4c, 0xba, 0xe5, 0xa1, 0xe2, 0x39, 0x47, 0x34,
+	0x7b, 0x18, 0x02, 0x05, 0x14, 0x39, 0x5d, 0x02, 0xc0, 0xa2, 0xc5, 0x73, 0x1e, 0x5a, 0x1e, 0x29,
+	0x98, 0x72, 0xd8, 0xf0, 0x04, 0x92, 0x01, 0x00, 0xf3, 0x8c, 0x14, 0x1d, 0x65, 0x4c, 0x16, 0x38,
+	0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+};
+
+static Fl_PNG_Image warp_digits_image(NULL, warp_digits_png_buffer, sizeof(warp_digits_png_buffer));
+
+Event::Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_, int warp_id) :
 	Fl_Box(0, 0, 0, 0), _line(line), _meta(meta), _event_x(0), _event_y(0), _prelude(prelude), _macro(macro), _prefix(),
-	_suffix(), _tip(tip_), _prefixed(false), _suffixed(false), _hex_coords(false) {
+	_suffix(), _tip(tip_), _warp_id(warp_id), _prefixed(false), _suffixed(false), _hex_coords(false) {
 	user_data(NULL);
 	trim(_tip);
 	tip(_tip);
@@ -248,6 +262,36 @@ void Event::update_tooltip() {
 	tip(ss.str());
 }
 
+void Event::draw_warp_id() const {
+	int X = x(), Y = y();
+	if (_hex_coords) {
+		warp_digits_image.draw(X+10, Y+8, 5, 7, 5 * (_warp_id % 0x10), 0);
+		if (_warp_id >= 0x10) {
+			warp_digits_image.draw(X+6, Y+8, 5, 7, 5 * ((_warp_id / 0x10) % 0x10), 0);
+		}
+	}
+	else {
+		warp_digits_image.draw(X+10, Y+8, 5, 7, 5 * (_warp_id % 10), 0);
+		if (_warp_id >= 10) {
+			warp_digits_image.draw(X+6, Y+8, 5, 7, 5 * ((_warp_id / 10) % 10), 0);
+			if (_warp_id >= 100) {
+				warp_digits_image.draw(X+2, Y+8, 5, 7, 5 * ((_warp_id / 100) % 10), 0);
+			}
+		}
+	}
+}
+
+void Event::draw_warp_id_zoomed() const {
+	fl_font(FL_COURIER, OS::is_consolas() ? 12 : 11);
+	char warp_id[4] = {};
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	_snprintf_s(warp_id, sizeof(warp_id), _hex_coords ? "%X" : "%d", _warp_id);
+#else
+	snprintf(warp_id, sizeof(warp_id), _hex_coords ? "%X" : "%d", _warp_id);
+#endif
+	draw_outlined_text(warp_id, x()-4, y()-2, w(), h(), FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE, FL_BLACK, FL_WHITE);
+}
+
 void Event::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	if (mw->mode() != Mode::EVENTS && !mw->show_events()) { return; }
@@ -258,6 +302,14 @@ void Event::draw() {
 	fl_color(FL_WHITE);
 	char buffer[] = {_meta.symbol, '\0'};
 	fl_draw(buffer, X, Y, W, H, FL_ALIGN_CENTER);
+	if (_warp_id > 0) {
+		if (zoom) {
+			draw_warp_id_zoomed();
+		}
+		else {
+			draw_warp_id();
+		}
+	}
 	fl_font(OS_FONT, OS_FONT_SIZE);
 	if (Fl::belowmouse() != this) { return; }
 	fl_rect(X, Y, W, H, FL_BLACK);
@@ -278,6 +330,9 @@ void Event::print() const {
 	fl_color(FL_WHITE);
 	char buffer[] = {_meta.symbol, '\0'};
 	fl_draw(buffer, X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE, FL_ALIGN_CENTER);
+	if (_warp_id > 0) {
+		draw_warp_id();
+	}
 	fl_font(OS_FONT, OS_FONT_SIZE);
 }
 

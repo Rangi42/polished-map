@@ -12,6 +12,10 @@
 #include <fstream>
 #include <sstream>
 
+#pragma warning(push, 0)
+#include <FL/fl_draw.H>
+#pragma warning(pop)
+
 #ifdef _WIN32
 #define DIR_SEP "\\"
 #else
@@ -51,10 +55,6 @@ size_t file_size(const char *f);
 size_t file_size(FILE *f);
 int64_t file_modified(const char *f);
 void open_ifstream(std::ifstream &ifs, const char *f);
-
-#ifdef _WIN32
-wchar_t *utf8towchar(const char *in);
-char *wchartoutf8(const wchar_t *in);
-#endif
+void draw_outlined_text(const char *l, int x, int y, int w, int h, Fl_Align a, Fl_Color c, Fl_Color s);
 
 #endif

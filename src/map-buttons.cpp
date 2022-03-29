@@ -7,6 +7,7 @@
 #include "main-window.h"
 #include "block-window.h"
 #include "map-buttons.h"
+#include "utils.h"
 
 // 32x32 translucent zigzag pattern for tile priority
 static uchar chip_priority_png_buffer[] = {
@@ -24,16 +25,6 @@ static uchar chip_priority_png_buffer[] = {
 };
 
 static Fl_PNG_Image chip_priority_png(NULL, chip_priority_png_buffer, sizeof(chip_priority_png_buffer));
-
-static void draw_outlined_text(const char *l, int x, int y, int w, int h, Fl_Align a, Fl_Color c, Fl_Color s) {
-	fl_color(s);
-	fl_draw(l, x-1, y-1, w, h, a);
-	fl_draw(l, x-1, y+1, w, h, a);
-	fl_draw(l, x+1, y-1, w, h, a);
-	fl_draw(l, x+1, y+1, w, h, a);
-	fl_color(c);
-	fl_draw(l, x, y, w, h, a);
-}
 
 static void draw_selection_border(int x, int y, int rs, bool zoom) {
 	fl_rect(x, y, rs, rs, FL_BLACK);
