@@ -2362,6 +2362,7 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 		strcpy(directory, mw->_directory.c_str());
 	}
 
+	Config::project_path_from_blk_path(directory, directory);
 	mw->open_map(directory, NULL);
 }
 
