@@ -1698,6 +1698,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		_warning_dialog->show(this);
 	}
 	else if (rm != Metatileset::Result::META_OK) {
+		_metatileset.clear();
 		Config::metatileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
