@@ -1470,7 +1470,7 @@ void Main_Window::open_recent(int n) {
 }
 
 void Main_Window::warp_to_map(Event *e) {
-	std::string destination = e->warp_map_name();
+	std::string destination = e->warp_destination().first;
 	if (destination.empty()) { return; }
 
 	char filename[FL_PATH_MAX] = {};
@@ -3547,6 +3547,7 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 		if (!mw->_event_options_dialog->canceled()) {
 			mw->_event_options_dialog->update_event(e);
 			e->reposition(sx, sy);
+			mw->_map_events.refresh_warps();
 			mw->_map_events.modified(true);
 			mw->redraw();
 		}
