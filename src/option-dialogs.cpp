@@ -883,11 +883,20 @@ Event_Options_Dialog::~Event_Options_Dialog() {
 void Event_Options_Dialog::use_event(const Event *e) {
 	initialize();
 	char buffer[512];
+	if (e->_warp_id > 0) {
 #if defined(_MSC_VER) && _MSC_VER < 1900
-	_snprintf_s(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+		_snprintf_s(buffer, sizeof(buffer), e->_hex_coords ? "%s $%X:" : "%s #%d:", e->_macro.c_str(), e->_warp_id);
 #else
-	snprintf(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+		snprintf(buffer, sizeof(buffer), e->_hex_coords ? "%s $%X:" : "%s #%d:", e->_macro.c_str(), e->_warp_id);
 #endif
+	}
+	else {
+#if defined(_MSC_VER) && _MSC_VER < 1900
+		_snprintf_s(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#else
+		snprintf(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#endif
+	}
 	_macro_heading->copy_label(buffer);
 
 	sprintf(buffer, "Line: %zu", e->_line);
