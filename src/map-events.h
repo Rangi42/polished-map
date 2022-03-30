@@ -2,6 +2,7 @@
 #define MAP_EVENTS_H
 
 #include <vector>
+#include <unordered_map>
 
 #include "utils.h"
 #include "event.h"
@@ -13,7 +14,9 @@ class Map_Events {
 public:
 	enum class Result { MAP_EVENTS_OK, BAD_MAP_EVENTS_FILE, MAP_EVENTS_NULL };
 private:
+	char _map_name[FL_PATH_MAX];
 	std::vector<Event *> _events;
+	std::unordered_map<int, Event *> _warps;
 	Result _result;
 	bool _loaded, _modified;
 	std::string _coda;
@@ -34,6 +37,7 @@ public:
 	inline void coda(const std::string &c) { _coda = c; }
 	void clear();
 	void resize_events(int x, int y, int s) const;
+	void refresh_warps(void);
 	Result read_events(const char *f);
 public:
 	static const char *error_message(Result result);

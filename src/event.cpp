@@ -164,25 +164,55 @@ static Fl_PNG_Image warp_digits_image(NULL, warp_digits_png_buffer, sizeof(warp_
 
 Event::Event(size_t line, const std::string &prelude, const std::string &macro, Event_Meta meta, const std::string &tip_, int warp_id) :
 	Fl_Box(0, 0, 0, 0), _line(line), _meta(meta), _event_x(0), _event_y(0), _prelude(prelude), _macro(macro), _prefix(),
-	_suffix(), _tip(tip_), _warp_id(warp_id), _prefixed(false), _suffixed(false), _hex_coords(false) {
+	_suffix(), _tip(tip_), _warp_id(warp_id), _warp_to(NULL), _prefixed(false), _suffixed(false), _hex_coords(false) {
 	user_data(NULL);
 	trim(_tip);
 	tip(_tip);
 }
 
-std::string Event::warp_map_name() const {
-	std::string name;
-	if (_meta.warp == 0) { return name; }
-	std::istringstream ss(_suffix);
-	std::string token;
-	for (uint8_t i = 0; i <= _meta.warp; i++) {
-		if (!ss.good()) { return name; }
-		std::getline(ss, token, ',');
+static int parse_value(std::string &s, bool *hex = NULL) {
+	int n = 0;
+	trim(s);
+	if (!s.empty()) {
+		if (s[0] == '$') {
+			s.erase(0, 1);
+			n = strtol(s.c_str(), NULL, 16);
+			if (hex) { *hex = true; }
+		}
+		else if (s[0] == '%') {
+			s.erase(0, 1);
+			n = strtol(s.c_str(), NULL, 2);
+		}
+		else {
+			n = strtol(s.c_str(), NULL, 10);
+		}
 	}
-	remove_comment(token);
-	trim(token);
+	return n;
+}
+
+std::pair<std::string, int> Event::warp_destination() const {
+	std::string name;
+	int id = 0;
+	if (!_meta.is_warp()) { return std::make_pair(name, id); }
+
+	std::istringstream ss(_suffix);
+	std::string map_token, id_token;
+
+	// Skip leading comma
+	if (!ss.good()) { return std::make_pair(name, id); }
+	std::getline(ss, map_token, ',');
+
+	// Get destination map and ID
+	if (!ss.good()) { return std::make_pair(name, id); }
+	std::getline(ss, map_token, ',');
+	if (!ss.good()) { return std::make_pair(name, id); }
+	std::getline(ss, id_token, ',');
+	if (_meta.id_map) { std::swap(map_token, id_token); }
+
+	remove_comment(map_token);
+	trim(map_token);
 	bool letter = false, digit = false, digit_underscore = false;
-	for (char c : token) {
+	for (char c : map_token) {
 		if (c != '_') {
 			if (digit_underscore && isdigit(c)) {
 				name += '_'; // ...1__2... -> ...1_2...
@@ -199,26 +229,14 @@ std::string Event::warp_map_name() const {
 		letter = isalpha(c);
 		digit = isdigit(c);
 	}
-	return name;
+
+	id = parse_value(id_token);
+
+	return std::make_pair(name, id);
 }
 
-static int16_t parse_coord(std::string s, bool &hex) {
-	int n = 0;
-	trim(s);
-	if (!s.empty()) {
-		if (s[0] == '$') {
-			s.erase(0, 1);
-			n = strtol(s.c_str(), NULL, 16);
-			hex = true;
-		}
-		else if (s[0] == '%') {
-			s.erase(0, 1);
-			n = strtol(s.c_str(), NULL, 2);
-		}
-		else {
-			n = strtol(s.c_str(), NULL, 10);
-		}
-	}
+static int16_t parse_coord(std::string s, bool *hex) {
+	int n = parse_value(s, hex);
 	n = (n + EVENT_MARGIN) % 0x100 - EVENT_MARGIN;
 	return (int16_t)n;
 }
@@ -231,7 +249,7 @@ void Event::parse(std::istringstream &lss) {
 		_prefix += token + ',';
 	}
 	std::getline(lss, token, ',');
-	_event_x = parse_coord(token, _hex_coords);
+	_event_x = parse_coord(token, &_hex_coords);
 	std::getline(lss, token);
 	size_t sep = std::min(token.find(','), token.find(';'));
 	_suffixed = sep != std::string::npos;
@@ -239,7 +257,7 @@ void Event::parse(std::istringstream &lss) {
 		_suffix = token.substr(sep);
 		token.erase(sep);
 	}
-	_event_y = parse_coord(token, _hex_coords);
+	_event_y = parse_coord(token, &_hex_coords);
 	if (_meta.yx) {
 		std::swap(_event_x, _event_y);
 	}
@@ -296,6 +314,8 @@ void Event::draw() {
 	Main_Window *mw = (Main_Window *)user_data();
 	if (mw->mode() != Mode::EVENTS && !mw->show_events()) { return; }
 	int X = x(), Y = y(), W = w(), H = h();
+	const Event *source = dynamic_cast<Event *>(Fl::belowmouse());
+	bool warped_from = source && source->warp_to() == this;
 	bool zoom = mw->zoom();
 	(zoom ? zoomed_texture_images : texture_images)[(int)_meta.texture].draw(X, Y, W, H);
 	fl_font(FL_HELVETICA_BOLD, zoom ? 24 : 14);
@@ -311,11 +331,12 @@ void Event::draw() {
 		}
 	}
 	fl_font(OS_FONT, OS_FONT_SIZE);
-	if (Fl::belowmouse() != this) { return; }
+	if (Fl::belowmouse() != this && !warped_from) { return; }
+	Fl_Color c = warped_from ? FL_YELLOW : FL_WHITE;
 	fl_rect(X, Y, W, H, FL_BLACK);
-	fl_rect(X+1, Y+1, W-2, H-2, FL_WHITE);
+	fl_rect(X+1, Y+1, W-2, H-2, c);
 	if (zoom) {
-		fl_rect(X+2, Y+2, W-4, H-4, FL_WHITE);
+		fl_rect(X+2, Y+2, W-4, H-4, c);
 		fl_rect(X+3, Y+3, W-6, H-6, FL_BLACK);
 	}
 	else {
@@ -341,11 +362,17 @@ int Event::handle(int event) {
 	if (mw->mode() != Mode::EVENTS) { return 0; }
 	switch (event) {
 	case FL_ENTER:
+		if (_warp_to) {
+			_warp_to->redraw();
+		}
 		mw->update_status(this);
 		mw->update_gameboy_screen(this);
 		redraw();
 		return 1;
 	case FL_LEAVE:
+		if (_warp_to) {
+			_warp_to->redraw();
+		}
 		mw->update_status((Block *)NULL);
 		mw->update_gameboy_screen((Block *)NULL);
 		redraw();

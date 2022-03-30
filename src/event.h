@@ -24,8 +24,9 @@ public:
 	EventTexture texture;
 	char symbol;
 	uint8_t skip;
-	bool yx;
-	uint8_t warp;
+	bool yx, id_map;
+public:
+	bool is_warp(void) const { return texture == EventTexture::TX_PURPLE; }
 };
 
 class Event : public Fl_Box {
@@ -35,6 +36,7 @@ private:
 	int16_t _event_x, _event_y;
 	std::string _prelude, _macro, _prefix, _suffix, _tip;
 	int _warp_id;
+	Event *_warp_to;
 	bool _prefixed, _suffixed, _hex_coords;
 	friend class Event_Options_Dialog;
 public:
@@ -49,7 +51,9 @@ public:
 	}
 	inline std::string tip(void) const { return _tip; }
 	inline void tip(const std::string &l) { _tip = l; tooltip(_tip.c_str()); }
-	std::string warp_map_name(void) const;
+	inline Event *warp_to(void) const { return _warp_to; }
+	inline void warp_to(Event *w) { _warp_to = w; }
+	std::pair<std::string, int> warp_destination(void) const;
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);
 	void draw(void);
