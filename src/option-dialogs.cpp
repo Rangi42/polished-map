@@ -1076,8 +1076,8 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 }
 
 Print_Options_Dialog::Print_Options_Dialog(const char *t) : _title(t), _copied(false), _canceled(false), _dialog(NULL),
-	_show_heading(NULL), _grid(NULL), _ids(NULL), _priority(NULL), _events(NULL), _export_button(NULL), _copy_button(NULL),
-	_cancel_button(NULL) {}
+	_show_heading(NULL), _grid(NULL), _ids(NULL), _priority(NULL), _events(NULL), _warp_ids(NULL), _export_button(NULL),
+	_copy_button(NULL), _cancel_button(NULL) {}
 
 Print_Options_Dialog::~Print_Options_Dialog() {
 	delete _dialog;
@@ -1086,6 +1086,7 @@ Print_Options_Dialog::~Print_Options_Dialog() {
 	delete _ids;
 	delete _priority;
 	delete _events;
+	delete _warp_ids;
 	delete _export_button;
 	delete _copy_button;
 	delete _cancel_button;
@@ -1102,6 +1103,7 @@ void Print_Options_Dialog::initialize() {
 	_ids = new OS_Check_Button(0, 0, 0, 0, "IDs");
 	_priority = new OS_Check_Button(0, 0, 0, 0, "Priority");
 	_events = new OS_Check_Button(0, 0, 0, 0, "Events");
+	_warp_ids = new OS_Check_Button(0, 0, 0, 0, "Warp IDs");
 	_export_button = new Default_Button(0, 0, 0, 0, "Export...");
 	_copy_button = new OS_Button(0, 0, 0, 0, "Copy");
 	_cancel_button = new OS_Button(0, 0, 0, 0, "Cancel");
@@ -1144,7 +1146,10 @@ void Print_Options_Dialog::refresh() {
 	dx += _priority->w() + wgt_m;
 	wgt_w = text_width(_events->label(), 2) + wgt_h;
 	_events->resize(dx, dy, wgt_w, wgt_h);
-	dx += _events->w() + win_m;
+	dx += _events->w() + wgt_m;
+	wgt_w = text_width(_warp_ids->label(), 2) + wgt_h;
+	_warp_ids->resize(dx, dy, wgt_w, wgt_h);
+	dx += _warp_ids->w() + win_m;
 	if (dx < 288) { dx = 288; }
 	dy += wgt_h + 16;
 #ifdef _WIN32

@@ -57,11 +57,11 @@ public:
 	void parse(std::istringstream &lss);
 	void update_tooltip(void);
 	void draw(void);
-	void print(void) const;
+	void print(bool print_warp_ids) const;
 	int handle(int event);
 private:
-	void draw_warp_id(void) const;
-	void draw_warp_id_zoomed(void) const;
+	void draw_warp_id(int x, int y) const;
+	void draw_warp_id_zoomed(int x, int y) const;
 };
 
 #endif

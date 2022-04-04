@@ -280,26 +280,25 @@ void Event::update_tooltip() {
 	tip(ss.str());
 }
 
-void Event::draw_warp_id() const {
-	int X = x(), Y = y();
+void Event::draw_warp_id(int x, int y) const {
 	if (_hex_coords) {
-		warp_digits_image.draw(X+10, Y+8, 5, 7, 5 * (_warp_id % 0x10), 0);
+		warp_digits_image.draw(x+10, y+8, 5, 7, 5 * (_warp_id % 0x10), 0);
 		if (_warp_id >= 0x10) {
-			warp_digits_image.draw(X+6, Y+8, 5, 7, 5 * ((_warp_id / 0x10) % 0x10), 0);
+			warp_digits_image.draw(x+6, y+8, 5, 7, 5 * ((_warp_id / 0x10) % 0x10), 0);
 		}
 	}
 	else {
-		warp_digits_image.draw(X+10, Y+8, 5, 7, 5 * (_warp_id % 10), 0);
+		warp_digits_image.draw(x+10, y+8, 5, 7, 5 * (_warp_id % 10), 0);
 		if (_warp_id >= 10) {
-			warp_digits_image.draw(X+6, Y+8, 5, 7, 5 * ((_warp_id / 10) % 10), 0);
+			warp_digits_image.draw(x+6, y+8, 5, 7, 5 * ((_warp_id / 10) % 10), 0);
 			if (_warp_id >= 100) {
-				warp_digits_image.draw(X+2, Y+8, 5, 7, 5 * ((_warp_id / 100) % 10), 0);
+				warp_digits_image.draw(x+2, y+8, 5, 7, 5 * ((_warp_id / 100) % 10), 0);
 			}
 		}
 	}
 }
 
-void Event::draw_warp_id_zoomed() const {
+void Event::draw_warp_id_zoomed(int x, int y) const {
 	fl_font(FL_COURIER, OS::is_consolas() ? 12 : 11);
 	char warp_id[4] = {};
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -307,7 +306,7 @@ void Event::draw_warp_id_zoomed() const {
 #else
 	snprintf(warp_id, sizeof(warp_id), _hex_coords ? "%X" : "%d", _warp_id);
 #endif
-	draw_outlined_text(warp_id, x()-4, y()-2, w(), h(), FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE, FL_BLACK, FL_WHITE);
+	draw_outlined_text(warp_id, x-4, y-2, w(), h(), FL_ALIGN_BOTTOM_RIGHT | FL_ALIGN_INSIDE, FL_BLACK, FL_WHITE);
 }
 
 void Event::draw() {
@@ -322,12 +321,12 @@ void Event::draw() {
 	fl_color(FL_WHITE);
 	char buffer[] = {_meta.symbol, '\0'};
 	fl_draw(buffer, X, Y, W, H, FL_ALIGN_CENTER);
-	if (_warp_id > 0) {
+	if (_warp_id > 0 && mw->show_warp_ids()) {
 		if (zoom) {
-			draw_warp_id_zoomed();
+			draw_warp_id_zoomed(X, Y);
 		}
 		else {
-			draw_warp_id();
+			draw_warp_id(X, Y);
 		}
 	}
 	fl_font(OS_FONT, OS_FONT_SIZE);
@@ -344,15 +343,15 @@ void Event::draw() {
 	}
 }
 
-void Event::print() const {
+void Event::print(bool print_warp_ids) const {
 	int X = (int)_event_x * EVENT_PX_SIZE, Y = (int)_event_y * EVENT_PX_SIZE;
 	texture_images[(int)_meta.texture].draw(X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE);
 	fl_font(FL_HELVETICA_BOLD, 14);
 	fl_color(FL_WHITE);
 	char buffer[] = {_meta.symbol, '\0'};
 	fl_draw(buffer, X, Y, EVENT_PX_SIZE, EVENT_PX_SIZE, FL_ALIGN_CENTER);
-	if (_warp_id > 0) {
-		draw_warp_id();
+	if (_warp_id > 0 && print_warp_ids) {
+		draw_warp_id(X, Y);
 	}
 	fl_font(OS_FONT, OS_FONT_SIZE);
 }

@@ -9,7 +9,8 @@
 #include "config.h"
 
 bool Config::_512_tiles = false, Config::_0_before_1 = false, Config::_drag_and_drop = true;
-bool Config::_print_grid = false, Config::_print_ids = false, Config::_print_priority = false, Config::_print_events = false;
+bool Config::_print_grid = false, Config::_print_ids = false, Config::_print_priority = false, Config::_print_events = false,
+	Config::_print_warp_ids = false;
 
 // wOverworldMapBlocks (aka OverworldMap or wOverworldMap) buffer size in WRAM
 size_t Config::_overworld_map_size = 1300;

@@ -265,9 +265,6 @@
     <None Include="..\res\change.xpm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\cursor.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\events.xpm">
       <Filter>Resource Files</Filter>
     </None>
@@ -347,6 +344,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\brushed-metal.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\warp.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
