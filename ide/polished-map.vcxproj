@@ -197,7 +197,6 @@
     <None Include="..\res\coll-top-right-dark.xpm" />
     <None Include="..\res\coll-top-right.xpm" />
     <None Include="..\res\copy.xpm" />
-    <None Include="..\res\cursor.xpm" />
     <None Include="..\res\error.xpm" />
     <None Include="..\res\events.xpm" />
     <None Include="..\res\gameboy.xpm" />
@@ -227,6 +226,7 @@
     <None Include="..\res\tileset.xpm" />
     <None Include="..\res\undo.xpm" />
     <None Include="..\res\warning.xpm" />
+    <None Include="..\res\warp.xpm" />
     <None Include="..\res\zoom.xpm" />
   </ItemGroup>
   <ItemGroup>

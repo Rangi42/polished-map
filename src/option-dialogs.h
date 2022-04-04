@@ -189,7 +189,7 @@ private:
 	bool _copied, _canceled;
 	Fl_Double_Window *_dialog;
 	Label *_show_heading;
-	OS_Check_Button *_grid, *_ids, *_priority, *_events;
+	OS_Check_Button *_grid, *_ids, *_priority, *_events, *_warp_ids;
 	Default_Button *_export_button;
 	OS_Button *_copy_button, *_cancel_button;
 public:
@@ -207,6 +207,8 @@ public:
 	inline void priority(bool p) { initialize(); _priority->value(p); }
 	inline bool events(void) const { return !!_events->value(); }
 	inline void events(bool e) { initialize(); _events->value(e); }
+	inline bool warp_ids(void) const { return !!_warp_ids->value(); }
+	inline void warp_ids(bool w) { initialize(); _warp_ids->value(w); }
 private:
 	void initialize(void);
 	void refresh(void);

@@ -60,6 +60,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int show_priority_config = Preferences::get("priority", 1);
 	int gameboy_screen_config = Preferences::get("gameboy", 0);
 	int show_events_config = Preferences::get("event", 1);
+	int show_warp_ids_config = Preferences::get("warp-ids", 1);
 	Palettes palettes_config = (Palettes)Preferences::get("palettes", (int)Palettes::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
@@ -75,10 +76,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int print_ids_config = Preferences::get("print-ids", 0);
 	int print_priority_config = Preferences::get("print-priority", 0);
 	int print_events_config = Preferences::get("print-events", 0);
+	int print_warp_ids_config = Preferences::get("print-warp-ids", 0);
 	Config::print_grid(!!print_grid_config);
 	Config::print_ids(!!print_ids_config);
 	Config::print_priority(!!print_priority_config);
 	Config::print_events(!!print_events_config);
+	Config::print_warp_ids(!!print_warp_ids_config);
 
 	int auto_events_config = Preferences::get("events", 1);
 	int special_palettes_config = Preferences::get("special", 1);
@@ -126,6 +129,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_gameboy_screen_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_show_warp_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
@@ -355,7 +359,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'V', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | show_events_config ? FL_MENU_VALUE : 0),
+		OS_MENU_ITEM("Show &Warp IDs", FL_COMMAND + FL_SHIFT + '3', (Fl_Callback *)show_warp_ids_cb, this,
+			FL_MENU_TOGGLE | (show_warp_ids_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Pa&lettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::MORN ? FL_MENU_VALUE : 0)),
@@ -454,6 +460,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
 	_gameboy_screen_mi = PM_FIND_MENU_ITEM_CB(gameboy_screen_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
+	_show_warp_ids_mi = PM_FIND_MENU_ITEM_CB(show_warp_ids_cb);
 	_transparent_mi = PM_FIND_MENU_ITEM_CB(transparent_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_palettes_cb);
@@ -569,6 +576,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_zoom_tb->tooltip("Zoom (Ctrl+=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
 	_zoom_tb->image(ZOOM_ICON);
+	_zoom_tb->shortcut(FL_COMMAND + '+');
 	_zoom_tb->value(zoom());
 
 	_ids_tb->tooltip("Block IDs (Ctrl+I)");
@@ -579,6 +587,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_hex_tb->tooltip("Hexadecimal (Ctrl+$)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
+	_hex_tb->shortcut(FL_COMMAND + '$');
 	_hex_tb->value(hex());
 
 	_show_priority_tb->tooltip("Show Priority (Ctrl+Shift+P)");
@@ -595,6 +604,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->value(show_events());
+
+	_show_warp_ids_tb->tooltip("Show Warp IDs (Ctrl+#)");
+	_show_warp_ids_tb->callback((Fl_Callback *)show_warp_ids_tb_cb, this);
+	_show_warp_ids_tb->image(WARP_ICON);
+	_show_warp_ids_tb->shortcut(FL_COMMAND + '#');
+	_show_warp_ids_tb->value(show_warp_ids());
 
 	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+Shift+B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
@@ -687,6 +702,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_print_options_dialog->ids(Config::print_ids());
 	_print_options_dialog->priority(Config::print_priority());
 	_print_options_dialog->events(Config::print_events());
+	_print_options_dialog->warp_ids(Config::print_warp_ids());
 
 	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
 		"Copyright \xc2\xa9 " CURRENT_YEAR " " PROGRAM_AUTHOR ".\n"
@@ -2208,7 +2224,7 @@ void Main_Window::print_map() {
 		size_t ne = _map_events.size();
 		for (size_t i = 0; i < ne; i++) {
 			Event *e = _map_events.event(i);
-			e->print();
+			e->print(Config::print_warp_ids());
 		}
 	}
 }
@@ -2253,6 +2269,7 @@ void Main_Window::update_icons() {
 	Image::make_deimage(_show_priority_tb);
 	Image::make_deimage(_gameboy_screen_tb);
 	Image::make_deimage(_show_events_tb);
+	Image::make_deimage(_show_warp_ids_tb);
 	Image::make_deimage(_blocks_mode_tb);
 	Image::make_deimage(_events_mode_tb);
 	Image::make_deimage(_add_sub_tb);
@@ -2708,6 +2725,7 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 	Config::print_ids(mw->_print_options_dialog->ids());
 	Config::print_priority(mw->_print_options_dialog->priority());
 	Config::print_events(mw->_print_options_dialog->events());
+	Config::print_warp_ids(mw->_print_options_dialog->warp_ids());
 	if (mw->_print_options_dialog->canceled()) { return; }
 
 	int w = (int)mw->_map.width() * METATILE_PX_SIZE, h = (int)mw->_map.height() * METATILE_PX_SIZE;
@@ -2844,6 +2862,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("priority", mw->show_priority());
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
+	Preferences::set("warp-ids", mw->show_warp_ids());
 	Preferences::set("transparent", mw->transparent());
 	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("monochrome", mw->monochrome());
@@ -2859,6 +2878,7 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("print-ids", Config::print_ids());
 	Preferences::set("print-priority", Config::print_priority());
 	Preferences::set("print-events", Config::print_events());
+	Preferences::set("print-warp-ids", Config::print_warp_ids());
 	for (int i = 0; i < NUM_RECENT; i++) {
 		Preferences::set_string(Fl_Preferences::Name("recent%d", i), mw->_recent[i]);
 	}
@@ -3060,6 +3080,12 @@ void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::show_warp_ids_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_show_warp_ids_tb, m);
+	mw->update_labels();
+	mw->redraw();
+}
+
 #undef SYNC_TB_WITH_M
 
 #define SYNC_MI_WITH_TB(tb, mi) if (tb->value()) mi->set(); else mi->clear()
@@ -3106,6 +3132,12 @@ void Main_Window::gameboy_screen_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw)
 
 void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	SYNC_MI_WITH_TB(mw->_show_events_tb, mw->_show_events_mi);
+	mw->update_labels();
+	mw->redraw();
+}
+
+void Main_Window::show_warp_ids_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_show_warp_ids_tb, mw->_show_warp_ids_mi);
 	mw->update_labels();
 	mw->redraw();
 }
