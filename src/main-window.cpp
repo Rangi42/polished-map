@@ -1183,7 +1183,9 @@ void Main_Window::update_recent_maps() {
 		}
 		_recent_mis[i]->flags &= ~FL_MENU_DIVIDER;
 	}
-	_recent_mis[last]->flags |= FL_MENU_DIVIDER;
+	if (last > -1) {
+		_recent_mis[last]->flags |= FL_MENU_DIVIDER;
+	}
 }
 
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
