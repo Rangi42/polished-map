@@ -134,13 +134,12 @@ Map::Result Map::read_asm_blocks(const char *f) {
 	}
 
 	bool too_long = false;
-
-	FILE *file = fl_fopen(f, "rb");
-	if (file == NULL) { return (_result = Result::MAP_BAD_FILE); } // cannot load file
-
 	size_t c = data.size();
 	if (c < size()) { return (_result = Result::MAP_TOO_SHORT); } // too-short CHR
 	if (c > size()) { too_long = true; }
+
+	FILE *file = fl_fopen(f, "rb");
+	if (file == NULL) { return (_result = Result::MAP_BAD_FILE); } // cannot load file
 
 	for (uint8_t y = 0; y < (size_t)_height; y++) {
 		for (uint8_t x = 0; x < (size_t)_width; x++) {
