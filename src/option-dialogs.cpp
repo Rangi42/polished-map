@@ -295,25 +295,19 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 			tileset_name.erase();
 		}
 
-		std::string environment;
-		std::getline(lss, environment, ',');
-		trim(environment);
-		attrs.environment = environment;
+		std::getline(lss, attrs.environment, ',');
+		trim(attrs.environment);
 
-		std::string landmark;
-		std::getline(lss, landmark, ',');
-		trim(landmark);
-		lowercase(landmark);
-		attrs.landmark = landmark;
+		std::getline(lss, attrs.landmark, ',');
+		trim(attrs.landmark);
+		lowercase(attrs.landmark);
 
 		std::string skip_token;
 		std::getline(lss, skip_token, ','); // music
 		std::getline(lss, skip_token, ','); // phone service flag
 
-		std::string palette;
-		std::getline(lss, palette, ',');
-		trim(palette);
-		attrs.palette = palette;
+		std::getline(lss, attrs.palette, ',');
+		trim(attrs.palette);
 
 		return tileset_name;
 	}
