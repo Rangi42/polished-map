@@ -1183,7 +1183,7 @@ void Main_Window::update_recent_maps() {
 	for (int i = 0; i < NUM_RECENT; i++) {
 		Fl_Multi_Label *ml = (Fl_Multi_Label *)_recent_mis[i]->label();
 		if (ml->labelb[0]) {
-			delete ml->labelb;
+			delete [] ml->labelb;
 			ml->labelb = "";
 		}
 		if (_recent[i].empty()) {
@@ -1464,7 +1464,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	update_labels();
 	update_status((Block *)NULL);
 
-	store_recent_map();
+	if (filename) {
+		store_recent_map();
+	}
 
 	redraw();
 }
