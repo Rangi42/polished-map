@@ -356,7 +356,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'V', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | show_events_config ? FL_MENU_VALUE : 0),
+			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Warp IDs", FL_COMMAND + FL_SHIFT + '3', (Fl_Callback *)show_warp_ids_cb, this,
 			FL_MENU_TOGGLE | (show_warp_ids_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Pa&lettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
