@@ -89,7 +89,7 @@ std::string Preferences::get_string(const char *key) {
 	char *value;
 	_preferences->get(key, value, "");
 	std::string s(value ? value : "");
-	delete value;
+	free(value);
 	return s;
 }
 
