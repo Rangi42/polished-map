@@ -9,13 +9,37 @@ Block_Double_Window::Block_Double_Window(int x, int y, int w, int h, const char 
 
 int Block_Double_Window::handle(int event) {
 	Block_Window *bw = (Block_Window *)user_data();
-	if (Fl::event_alt()) {
+	if (Fl::event_alt() && !bw->_debounce) {
 		for (int p = 0; p < NUM_PALETTES; p++) {
 			if (Fl::test_shortcut(FL_ALT + '1' + p)) {
 				bw->_palette->value(p);
 				Block_Window::change_attributes_cb(NULL, bw);
-				break;
+				bw->_debounce = true;
+				return 1;
 			}
+		}
+		if (Fl::test_shortcut(FL_ALT + 'x')) {
+			bw->_x_flip->value(!bw->_x_flip->value());
+			Block_Window::change_attributes_cb(NULL, bw);
+			bw->_debounce = true;
+			return 1;
+		}
+		else if (Fl::test_shortcut(FL_ALT + 'y')) {
+			bw->_y_flip->value(!bw->_y_flip->value());
+			Block_Window::change_attributes_cb(NULL, bw);
+			bw->_debounce = true;
+			return 1;
+		}
+		else if (Fl::test_shortcut(FL_ALT + 'p')) {
+			bw->_priority->value(!bw->_priority->value());
+			Block_Window::change_attributes_cb(NULL, bw);
+			bw->_debounce = true;
+			return 1;
+		}
+	}
+	if (bw->_debounce) {
+		if (Fl::event() == FL_KEYUP) {
+			bw->_debounce = false;
 		}
 	}
 	switch (event) {
@@ -42,7 +66,7 @@ Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _meta
 	_window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _multiedit_heading(NULL), _metatile_heading(NULL),
 	_hover_tile_heading(NULL), _collision_heading(NULL), _tileset_group(NULL), _current_group(NULL), _metatile_group(NULL),
 	_tile_buttons(), _selected(NULL), _chips(), _current(NULL), _palette(NULL), _x_flip(NULL), _y_flip(NULL), _priority(NULL),
-	_collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL), _debounce() {}
 
 Block_Window::~Block_Window() {
 	delete _window;

@@ -44,6 +44,7 @@ private:
 	Default_Button *_ok_button;
 	OS_Button *_cancel_button;
 	friend class Block_Double_Window;
+	bool _debounce;
 public:
 	Block_Window(int x, int y);
 	~Block_Window();
