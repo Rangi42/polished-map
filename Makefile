@@ -26,7 +26,7 @@ OBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(tmpdir)/%.o)
 DEBUGOBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(debugdir)/%.o)
 TARGET = $(bindir)/$(polishedmap)
 DEBUGTARGET = $(bindir)/$(polishedmapd)
-DESKTOP = "$(DESTDIR)$(PREFIX)/share/applications/Polished Map.desktop"
+DESKTOP = "$(DESTDIR)$(PREFIX)/share/applications/io.github.Rangi42.polished-map.desktop"
 
 .PHONY: all $(polishedmap) $(polishedmapd) release debug clean install uninstall
 
@@ -76,9 +76,15 @@ install: release
 	echo "Exec=$(PREFIX)/bin/$(polishedmap)" >> $(DESKTOP)
 	echo "Type=Application" >> $(DESKTOP)
 	echo "Terminal=false" >> $(DESKTOP)
+	echo "Category=Game;" >> $(DESKTOP)
+	echo "Keywords=Nintendo;PokemonGameBoy;Hack;Mapeditor;" >> $(DESKTOP)
+	install -Dm644 io.github.Rangi42.polished-map.png -t $(DESTDIR)$(PREFIX)/share/icons/hicolor/128x128/apps
+	install -Dm644 io.github.Rangi42.polished-map.metainfo.xml -t $(DESTDIR)$(PREFIX)/share/metainfo
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
 	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm
 	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap16.xpm
 	rm -f $(DESKTOP)
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/128x128/apps/io.github.Rangi42.polished-map.png
+	$(DESTDIR)$(PREFIX)/share/metainfo/io.github.Rangi42.polished-map.metainfo.xml
