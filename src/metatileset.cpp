@@ -7,9 +7,10 @@
 #pragma warning(pop)
 
 #include "metatileset.h"
+#include "parse-asm.h"
 
 Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _result(Result::META_NULL), _modified(false),
-	_bin_collisions(false) {
+	_bin_collisions(false), _mod_time(0), _mod_time_coll(0) {
 	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
 		_metatiles[i] = new Metatile((uint8_t)i);
 	}
@@ -17,29 +18,50 @@ Metatileset::Metatileset() : _tileset(), _metatiles(), _num_metatiles(0), _resul
 
 Metatileset::~Metatileset() {
 	clear();
-	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
-		delete _metatiles[i];
+	for (Metatile *mt : _metatiles) {
+		delete mt;
 	}
 }
 
 void Metatileset::clear() {
 	_tileset.clear();
-	for (size_t i = 0; i < MAX_NUM_METATILES; i++) {
-		_metatiles[i]->clear();
+	for (Metatile *mt : _metatiles) {
+		mt->clear();
 	}
 	_num_metatiles = 0;
 	_result = Result::META_NULL;
 	_modified = false;
 	_bin_collisions = false;
+	_mod_time = _mod_time_coll = 0;
 }
 
 void Metatileset::size(size_t n) {
-	size_t low = MIN(n, _num_metatiles), high = MAX(n, _num_metatiles);
+	size_t low = std::min(n, _num_metatiles), high = std::max(n, _num_metatiles);
 	for (size_t i = low; i < high; i++) {
 		_metatiles[i]->clear();
 	}
 	_num_metatiles = n;
 	_modified = true;
+}
+
+bool Metatileset::uses_tile(uint8_t id) const {
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		if (_metatiles[i]->uses_tile(id)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Metatileset::trim_tileset() {
+	for (uint8_t i = MAX_NUM_TILES - 1; i > 0; i--) {
+		Tile *t = _tileset.tile(i);
+		if (t->palette() != Palette::UNDEFINED && (!t->is_blank() || uses_tile(i))) {
+			break;
+		}
+		t->palette(Palette::UNDEFINED);
+		_tileset.palette_map().palette(i, Palette::UNDEFINED);
+	}
 }
 
 void Metatileset::draw_metatile(int x, int y, uint8_t id, bool zoom, bool show_priority) const {
@@ -95,6 +117,8 @@ uchar *Metatileset::print_rgb(const Map &map) const {
 Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = Result::META_NO_GFX); } // no graphics
 
+	if (ends_with_ignore_case(f, ".cel")) { return read_asm_metatiles(f); }
+
 	FILE *file = fl_fopen(f, "rb");
 	if (file == NULL) { return (_result = Result::META_BAD_FILE); } // cannot load file
 
@@ -113,10 +137,38 @@ Metatileset::Result Metatileset::read_metatiles(const char *f) {
 	}
 
 	fclose(file);
+	_mod_time = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
-bool Metatileset::write_metatiles(const char *f) const {
+Metatileset::Result Metatileset::read_asm_metatiles(const char *f) {
+	Parsed_Asm data(f);
+	if (data.result() != Parsed_Asm::Result::ASM_OK) {
+		return (_result = Result::META_BAD_FILE); // cannot parse file
+	}
+
+	size_t c = data.size();
+	size_t n = c / (METATILE_SIZE * METATILE_SIZE);
+	_num_metatiles = std::min(n, (size_t)MAX_NUM_METATILES);
+
+	for (size_t i = 0; i < _num_metatiles; i++) {
+		Metatile *mt = _metatiles[i];
+		int off = (int)i * METATILE_SIZE * METATILE_SIZE;
+		for (int y = 0; y < METATILE_SIZE; y++) {
+			for (int x = 0; x < METATILE_SIZE; x++) {
+				mt->tile_id(x, y, data.get(off  + y * METATILE_SIZE + x));
+			}
+		}
+	}
+
+	_mod_time = file_modified(f);
+
+	if (n > MAX_NUM_METATILES) { return (_result = Result::META_TOO_LONG); }
+	if (c % (METATILE_SIZE * METATILE_SIZE)) { return (_result = Result::META_TOO_SHORT); }
+	return (_result = Result::META_OK);
+}
+
+bool Metatileset::write_metatiles(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -129,23 +181,24 @@ bool Metatileset::write_metatiles(const char *f) const {
 		}
 	}
 	fclose(file);
+	_mod_time = file_modified(f);
 	return true;
 }
 
 Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	if (!_tileset.num_tiles()) { return (_result = Result::META_NO_GFX); } // no graphics
 
-	std::ifstream ifs(f);
+	std::ifstream ifs;
+	open_ifstream(ifs, f);
 	if (!ifs.is_open()) { return (_result = Result::META_BAD_FILE); } // cannot load file
 
 	size_t i = 0;
 	while (ifs.good()) {
 		std::string line;
 		std::getline(ifs, line);
-		trim(line);
-		if (!starts_with(line, "tilecoll")) { continue; }
-		line.erase(0, strlen("tilecoll") + 1); // include next whitespace character
 		std::istringstream lss(line);
+		std::string token;
+		if (!leading_macro(lss, token, "tilecoll")) { continue; }
 		std::string c1, c2, c3, c4;
 		std::getline(lss, c1, ','); trim(c1);
 		std::getline(lss, c2, ','); trim(c2);
@@ -159,6 +212,7 @@ Metatileset::Result Metatileset::read_asm_collisions(const char *f) {
 	}
 
 	_bin_collisions = false;
+	_mod_time_coll = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
@@ -182,10 +236,11 @@ Metatileset::Result Metatileset::read_bin_collisions(const char *f) {
 
 	fclose(file);
 	_bin_collisions = true;
+	_mod_time_coll = file_modified(f);
 	return (_result = Result::META_OK);
 }
 
-bool Metatileset::write_asm_collisions(const char *f) const {
+bool Metatileset::write_asm_collisions(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -195,10 +250,11 @@ bool Metatileset::write_asm_collisions(const char *f) const {
 			mt->collision(Quadrant::BOTTOM_LEFT).c_str(), mt->collision(Quadrant::BOTTOM_RIGHT).c_str(), (uint32_t)i);
 	}
 	fclose(file);
+	_mod_time_coll = file_modified(f);
 	return true;
 }
 
-bool Metatileset::write_bin_collisions(const char *f) const {
+bool Metatileset::write_bin_collisions(const char *f) {
 	FILE *file = fl_fopen(f, "wb");
 	if (!file) { return false; }
 	for (size_t i = 0; i < _num_metatiles; i++) {
@@ -206,6 +262,7 @@ bool Metatileset::write_bin_collisions(const char *f) const {
 		fwrite(mt->bin_collisions(), 1, NUM_QUADRANTS, file);
 	}
 	fclose(file);
+	_mod_time_coll = file_modified(f);
 	return true;
 }
 

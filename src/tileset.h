@@ -18,16 +18,17 @@
 
 class Tileset {
 public:
-	enum class Result { GFX_OK, GFX_NO_PALETTE, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS,
-		GFX_TOO_SHORT, GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
+	enum class Result { GFX_OK, GFX_BAD_FILE, GFX_BAD_EXT, GFX_BAD_DIMS, GFX_TOO_SHORT,
+		GFX_TOO_LARGE, GFX_NOT_GRAYSCALE, GFX_BAD_CMD, GFX_NULL };
 private:
 	std::string _name, _roof_name;
 	Palettes _palettes;
 	Palette_Map _palette_map;
 	Tile *_tiles[MAX_NUM_TILES], *_roof_tiles[MAX_NUM_TILES];
-	size_t _num_tiles, _num_roof_tiles;
+	size_t _num_tiles, _num_before_tiles, _num_mid_tiles, _num_roof_tiles;
 	Result _result;
 	bool _modified, _modified_roof;
+	int64_t _mod_time, _mod_time_before, _mod_time_after, _mod_time_roof;
 public:
 	Tileset();
 	~Tileset();
@@ -52,20 +53,25 @@ public:
 	inline void modified(bool m) { _modified = m; }
 	inline bool modified_roof(void) const { return _modified_roof; }
 	inline void modified_roof(bool m) { _modified_roof = m; }
+	inline bool other_modified(const char *f) const { return file_modified(f) > _mod_time; }
+	inline bool other_modified_before(const char *bf) const { return file_modified(bf) > _mod_time_before; }
+	inline bool other_modified_after(const char *af) const { return file_modified(af) > _mod_time_after; }
+	inline bool other_modified_roof(const char *rf) const { return file_modified(rf) > _mod_time_roof; }
 private:
 	void read_tile(Tile *t, const Tiled_Image &ti, uint8_t i, size_t j);
 	static void print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer);
+	Result convert_tiled_image_result(Tiled_Image::Result r);
 public:
 	void clear(void);
 	void clear_roof_graphics(void);
 	void update_palettes(Palettes l);
-	uchar *print_rgb(size_t w, size_t h, size_t n) const;
+	uchar *print_rgb(size_t w, size_t h, size_t off, size_t n) const;
 	uchar *print_roof_rgb(size_t w, size_t h) const;
 	inline Palette_Map::Result read_palette_map(const char *f) { return _palette_map.read_from(f); }
-	Result read_graphics(const char *f, Palettes l);
+	Result read_graphics(const char *f, const char *bf, const char *af, Palettes l);
 	Result read_roof_graphics(const char *f);
 	static const char *error_message(Result result);
-	bool write_graphics(const char *f);
+	const char *write_graphics(const char *f, const char *bf, const char *af);
 	bool write_roof_graphics(const char *f);
 };
 

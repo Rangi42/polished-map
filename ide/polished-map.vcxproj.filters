@@ -105,6 +105,9 @@
     <ClCompile Include="..\src\palette-window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\parse-asm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\image.h">
@@ -203,6 +206,9 @@
     <ClInclude Include="..\src\palette-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\parse-asm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\app.ico">
@@ -263,9 +269,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\change.xpm">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\cursor.xpm">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\events.xpm">
@@ -347,6 +350,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\ids-dark.xpm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\brushed-metal.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\warp.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

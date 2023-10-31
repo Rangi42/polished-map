@@ -46,24 +46,28 @@ private:
 	DnD_Receiver *_dnd_receiver;
 	Fl_Menu_Item *_recent_mis[NUM_RECENT];
 	Fl_Menu_Item *_classic_theme_mi = NULL, *_aero_theme_mi = NULL, *_metro_theme_mi = NULL, *_aqua_theme_mi = NULL,
-		*_greybird_theme_mi = NULL, *_metal_theme_mi = NULL, *_blue_theme_mi = NULL, *_olive_theme_mi = NULL,
-		*_rose_gold_theme_mi = NULL, *_dark_theme_mi = NULL, *_high_contrast_theme_mi = NULL;
-	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL,
-		*_show_priority_mi = NULL, *_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_full_screen_mi = NULL;
-	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_indoor_mi = NULL, *_custom_mi = NULL;
+		*_greybird_theme_mi = NULL, *_ocean_theme_mi = NULL, *_blue_theme_mi = NULL, *_olive_theme_mi = NULL,
+		*_rose_gold_theme_mi = NULL, *_dark_theme_mi = NULL, *_brushed_metal_theme_mi = NULL, *_high_contrast_theme_mi = NULL;
+	Fl_Menu_Item *_grid_mi = NULL, *_rulers_mi, *_zoom_mi = NULL, *_ids_mi = NULL, *_hex_mi = NULL, *_show_priority_mi = NULL,
+		*_gameboy_screen_mi = NULL, *_show_events_mi = NULL, *_show_warp_ids_mi = NULL, *_transparent_mi = NULL,
+		*_full_screen_mi = NULL;
+	Fl_Menu_Item *_morn_mi = NULL, *_day_mi = NULL, *_night_mi = NULL, *_darkness_mi = NULL, *_indoor_mi = NULL,
+		*_custom_mi = NULL;
 	Fl_Menu_Item *_blocks_mode_mi = NULL, *_events_mode_mi = NULL;
 	Fl_Menu_Item *_monochrome_mi = NULL, *_allow_priority_mi = NULL, *_allow_256_tiles_mi = NULL, *_auto_events_mi = NULL,
-		*_special_palettes_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL;
+		*_special_palettes_mi = NULL, *_roof_colors_mi = NULL, *_drag_and_drop_mi = NULL, *_overworld_map_size_mi = NULL;
+	Fl_Menu_Item *_roof_custom_mi = NULL, *_roof_day_nite_mi = NULL, *_roof_morn_day_nite_mi = NULL,
+		*_roof_day_nite_custom_mi = NULL, *_roof_morn_day_nite_custom_mi = NULL;
 	Toolbar_Button *_new_tb, *_open_tb, *_load_event_script_tb, *_reload_event_script_tb, *_save_tb, *_print_tb,
 		*_undo_tb, *_redo_tb, *_add_sub_tb, *_resize_tb, *_change_tileset_tb, *_change_roof_tb, *_edit_tileset_tb,
 		*_edit_roof_tb, *_load_palettes_tb, *_edit_current_palettes_tb;
-	Toolbar_Toggle_Button *_grid_tb, *_rulers_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_priority_tb,
-		*_gameboy_screen_tb;
+	Toolbar_Toggle_Button *_grid_tb, *_rulers_tb, *_zoom_tb, *_ids_tb, *_hex_tb, *_show_events_tb, *_show_warp_ids_tb,
+		*_show_priority_tb, *_gameboy_screen_tb;
 	Toolbar_Radio_Button *_blocks_mode_tb, *_events_mode_tb;
 	Dropdown *_palettes;
 	// GUI outputs
 	Ruler *_hor_ruler, *_ver_ruler, *_corner_ruler;
-	Status_Bar_Field *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
+	Label *_metatile_count, *_map_dimensions, *_hover_id, *_hover_xy, *_hover_event;
 	// Conditional menu items
 	Fl_Menu_Item *_load_event_script_mi = NULL, *_view_event_script_mi, *_reload_event_script_mi = NULL,
 		*_unload_event_script_mi = NULL, *_load_roof_colors_mi = NULL, *_close_mi = NULL, *_save_mi = NULL,
@@ -84,6 +88,7 @@ private:
 	Print_Options_Dialog *_print_options_dialog;
 	Resize_Dialog *_resize_dialog;
 	Add_Sub_Dialog *_add_sub_dialog;
+	Overworld_Map_Size_Dialog *_overworld_map_size_dialog;
 	Help_Window *_help_window;
 	Block_Window *_block_window;
 	Tileset_Window *_tileset_window;
@@ -103,6 +108,7 @@ private:
 	Metatile_Button *_selected = NULL;
 	// Work properties
 	Mode _mode = Mode::BLOCKS;
+	Roof_Palettes _roof_palettes = Roof_Palettes::ROOF_DAY_NITE;
 	bool _has_collisions = false, _edited_palettes = false, _copied = false, _map_editable = false;
 	Metatile _clipboard;
 	std::unordered_map<int, uint8_t> _hotkey_metatiles;
@@ -120,6 +126,10 @@ public:
 	using Fl_Double_Window::show; // fix for "warning: 'Main_Window::show' hides overloaded virtual function" in macOS
 #endif
 	void show(void);
+	bool maximized(void) const;
+	void maximize(void);
+	void apply_transparency(void);
+	inline bool transparent(void) const { return _transparent_mi && !!_transparent_mi->value(); }
 	inline bool grid(void) const { return _grid_mi && !!_grid_mi->value(); }
 	inline bool rulers(void) const { return _rulers_mi && !!_rulers_mi->value(); }
 	inline bool zoom(void) const { return _zoom_mi && !!_zoom_mi->value(); }
@@ -128,6 +138,8 @@ public:
 	inline bool show_priority(void) const { return _show_priority_mi && !!_show_priority_mi->value(); }
 	inline bool gameboy_screen(void) const { return _gameboy_screen_mi && !!_gameboy_screen_mi->value(); }
 	inline bool show_events(void) const { return _show_events_mi && !!_show_events_mi->value(); }
+	inline bool show_warp_ids(void) const { return _show_warp_ids_mi && !!_show_warp_ids_mi->value(); }
+	inline bool full_screen(void) const { return _full_screen_mi && !!_full_screen_mi->value(); }
 	inline Palettes palettes(void) const { return (Palettes)_palettes->value(); }
 	inline Mode mode(void) const { return _mode; }
 	inline bool monochrome(void) const { return _monochrome_mi && !!_monochrome_mi->value(); }
@@ -192,7 +204,7 @@ private:
 	bool save_tileset(void);
 	bool save_roof(void);
 	bool save_event_script(void);
-	bool export_palettes(const char *filename, Palettes l);
+	bool export_palettes(const char *filename);
 	void print_map(void);
 	void edit_metatile(Metatile *mt);
 	void update_icons(void);
@@ -226,7 +238,7 @@ private:
 	static void save_event_script_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_roof_colors_cb(Fl_Widget *w, Main_Window *mw);
 	static void load_palettes_cb(Fl_Widget *w, Main_Window *mw);
-	static void export_current_palettes_cb(Fl_Widget *w, Main_Window *mw);
+	static void export_palettes_cb(Fl_Widget *w, Main_Window *mw);
 	// Edit menu
 	static void undo_cb(Fl_Widget *w, Main_Window *mw);
 	static void redo_cb(Fl_Widget *w, Main_Window *mw);
@@ -239,11 +251,12 @@ private:
 	static void metro_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void aqua_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void greybird_theme_cb(Fl_Menu_ *m, Main_Window *mw);
-	static void metal_theme_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void ocean_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void blue_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void olive_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void rose_gold_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void dark_theme_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void brushed_metal_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void high_contrast_theme_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void grid_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void rulers_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -253,9 +266,12 @@ private:
 	static void show_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void gameboy_screen_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void show_events_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void show_warp_ids_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void transparent_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void morn_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void day_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void night_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void darkness_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void indoor_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void custom_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void full_screen_cb(Fl_Menu_ *m, Main_Window *mw);
@@ -275,10 +291,16 @@ private:
 	static void monochrome_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_priority_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void roof_custom_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void roof_day_nite_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void roof_morn_day_nite_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void roof_day_nite_custom_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void roof_morn_day_nite_custom_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_special_palettes_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw);
 	static void drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *mw);
+	static void overworld_map_size_cb(Fl_Menu_ *m, Main_Window *mw);
 	// Toolbar buttons
 	static void grid_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void rulers_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
@@ -288,6 +310,7 @@ private:
 	static void show_priority_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void gameboy_screen_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void show_events_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
+	static void show_warp_ids_tb_cb(Toolbar_Toggle_Button *tb, Main_Window *mw);
 	static void palettes_cb(Dropdown *dd, Main_Window *mw);
 	static void blocks_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);
 	static void events_mode_tb_cb(Toolbar_Radio_Button *tb, Main_Window *mw);

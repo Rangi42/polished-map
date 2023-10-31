@@ -1,6 +1,4 @@
 #include <cstdlib>
-#include <cwctype>
-#include <algorithm>
 #include <queue>
 #include <utility>
 
@@ -58,6 +56,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	Mode mode_config = (Mode)Preferences::get("mode", (int)Mode::BLOCKS);
 	mode(mode_config);
 
+	Roof_Palettes roof_palettes_config = (Roof_Palettes)Preferences::get("roof-palettes", (int)Roof_Palettes::ROOF_DAY_NITE);
+	_roof_palettes = roof_palettes_config;
+
 	int grid_config = Preferences::get("grid", 1);
 	int rulers_config = Preferences::get("rulers", 0);
 	int zoom_config = Preferences::get("zoom", 0);
@@ -66,6 +67,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int show_priority_config = Preferences::get("priority", 1);
 	int gameboy_screen_config = Preferences::get("gameboy", 0);
 	int show_events_config = Preferences::get("event", 1);
+	int show_warp_ids_config = Preferences::get("warp-ids", 1);
 	Palettes palettes_config = (Palettes)Preferences::get("palettes", (int)Palettes::DAY);
 
 	int monochrome_config = Preferences::get("monochrome", 0);
@@ -81,18 +83,26 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int print_ids_config = Preferences::get("print-ids", 0);
 	int print_priority_config = Preferences::get("print-priority", 0);
 	int print_events_config = Preferences::get("print-events", 0);
+	int print_warp_ids_config = Preferences::get("print-warp-ids", 0);
 	Config::print_grid(!!print_grid_config);
 	Config::print_ids(!!print_ids_config);
 	Config::print_priority(!!print_priority_config);
 	Config::print_events(!!print_events_config);
+	Config::print_warp_ids(!!print_warp_ids_config);
 
 	int auto_events_config = Preferences::get("events", 1);
 	int special_palettes_config = Preferences::get("special", 1);
 	int roof_colors_config = Preferences::get("roofs", 1);
 
+	size_t overworld_map_size_config = Preferences::get("overworld-map", 1300);
+	Config::overworld_map_size(overworld_map_size_config);
+
 	for (int i = 0; i < NUM_RECENT; i++) {
 		_recent[i] = Preferences::get_string(Fl_Preferences::Name("recent%d", i));
 	}
+
+	int transparent = Preferences::get("transparent", 0);
+	int fullscreen = Preferences::get("fullscreen", 0);
 
 	// Populate window
 
@@ -142,12 +152,14 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_gameboy_screen_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
+	_show_warp_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	SEPARATE_TOOLBAR_BUTTONS;
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	SEPARATE_TOOLBAR_BUTTONS;
 	new Label(0, 0, text_width("Palettes:", 3), 24, "Palettes:");
 	_palettes = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
+	new Fl_Box(0, 0, 4, 24);
 	_load_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_current_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	SEPARATE_TOOLBAR_BUTTONS;
@@ -166,15 +178,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	// Status bar
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
-	_metatile_count = new Status_Bar_Field(0, 0, text_width("Blocks: 999", 8), 21, "");
+	_metatile_count = new Label(0, 0, text_width("Blocks: 999", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_map_dimensions = new Status_Bar_Field(0, 0, text_width("Map: 999 x 999", 8), 21, "");
+	_map_dimensions = new Label(0, 0, text_width("Map: 999 x 999", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_id = new Status_Bar_Field(0, 0, text_width("ID: $99", 8), 21, "");
+	_hover_id = new Label(0, 0, text_width("ID: $99", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_xy = new Status_Bar_Field(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
+	_hover_xy = new Label(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
 	new Spacer(0, 0, 2, 21);
-	_hover_event = new Status_Bar_Field(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
+	_hover_event = new Label(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
 	_status_bar->end();
 	begin();
 
@@ -227,7 +239,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_print_options_dialog = new Print_Options_Dialog("Print Options");
 	_resize_dialog = new Resize_Dialog("Resize Map");
 	_add_sub_dialog = new Add_Sub_Dialog("Resize Blockset");
-	_help_window = new Help_Window(48, 48, 500, 400, PROGRAM_NAME " Help");
+	_overworld_map_size_dialog = new Overworld_Map_Size_Dialog("Overworld Map Size");
+	_help_window = new Help_Window(48, 48, 700, 500, PROGRAM_NAME " Help");
 	_block_window = new Block_Window(48, 48);
 	_tileset_window = new Tileset_Window(48, 48);
 	_roof_window = new Roof_Window(48, 48);
@@ -240,6 +253,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_dnd_receiver->user_data(this);
 
 	// Configure window
+	box(OS_BG_BOX);
 	size_range(335, 262);
 	resizable(_map_scroll);
 	callback((Fl_Callback *)exit_cb, this);
@@ -321,7 +335,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Reloa&d Event Script", FL_COMMAND + 'r', (Fl_Callback *)reload_event_script_cb, this, 0),
 		OS_MENU_ITEM("&Unload Event Script", FL_COMMAND + 'W', (Fl_Callback *)unload_event_script_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load &Palettes...", FL_COMMAND + 'l', (Fl_Callback *)load_palettes_cb, this, 0),
-		OS_MENU_ITEM("Export Current Pa&lettes...", 0, (Fl_Callback *)export_current_palettes_cb, this, FL_MENU_DIVIDER),
+		OS_MENU_ITEM("Export Pa&lettes...", 0, (Fl_Callback *)export_palettes_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Load Roo&f Colors", 0, (Fl_Callback *)load_roof_colors_cb, this, 0),
 		{},
 		OS_SUBMENU("&Edit"),
@@ -343,16 +357,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::AQUA ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Greybird", 0, (Fl_Callback *)greybird_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::GREYBIRD ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Me&tal", 0, (Fl_Callback *)metal_theme_cb, this,
-			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::METAL ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Ocean", 0, (Fl_Callback *)ocean_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::OCEAN ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Blue", 0, (Fl_Callback *)blue_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::BLUE ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("&Olive", 0, (Fl_Callback *)olive_theme_cb, this,
+		OS_MENU_ITEM("Oli&ve", 0, (Fl_Callback *)olive_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::OLIVE ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Rose Gold", 0, (Fl_Callback *)rose_gold_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::ROSE_GOLD ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Dark", 0, (Fl_Callback *)dark_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::DARK ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Brushed Me&tal", 0, (Fl_Callback *)brushed_metal_theme_cb, this,
+			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::BRUSHED_METAL ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&High Contrast", 0, (Fl_Callback *)high_contrast_theme_cb, this,
 			FL_MENU_RADIO | (OS::current_theme() == OS::Theme::HIGH_CONTRAST ? FL_MENU_VALUE : 0)),
 		{},
@@ -371,7 +387,9 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Game &Boy Screen", FL_COMMAND + 'M', (Fl_Callback *)gameboy_screen_cb, this,
 			FL_MENU_TOGGLE | (gameboy_screen_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Show &Events", FL_COMMAND + 'V', (Fl_Callback *)show_events_cb, this,
-			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (show_events_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Show &Warp IDs", FL_COMMAND + FL_SHIFT + '3', (Fl_Callback *)show_warp_ids_cb, this,
+			FL_MENU_TOGGLE | (show_warp_ids_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Pa&lettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Morn", 0, (Fl_Callback *)morn_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::MORN ? FL_MENU_VALUE : 0)),
@@ -379,11 +397,15 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 			FL_MENU_RADIO | (palettes_config == Palettes::DAY ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Night", 0, (Fl_Callback *)night_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Dar&k", 0, (Fl_Callback *)darkness_palettes_cb, this,
+			FL_MENU_RADIO | (palettes_config == Palettes::DARKNESS ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Indoor", 0, (Fl_Callback *)indoor_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::INDOOR ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)custom_palettes_cb, this,
 			FL_MENU_RADIO | (palettes_config == Palettes::CUSTOM ? FL_MENU_VALUE : 0)),
 		{},
+		OS_MENU_ITEM("Tr&ansparent", FL_F + 10, (Fl_Callback *)transparent_cb, this,
+			FL_MENU_TOGGLE | (transparent ? FL_MENU_VALUE : 0)),
 #ifdef __APPLE__
 		// F11 toggles all open windows in macOS
 		OS_MENU_ITEM("Full &Screen", FL_COMMAND + FL_SHIFT + 'f', (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
@@ -422,7 +444,19 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Tile &Priority", 0, (Fl_Callback *)allow_priority_cb, this,
 			FL_MENU_TOGGLE | (allow_priority_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("256 &Tiles", 0, (Fl_Callback *)allow_256_tiles_cb, this,
-			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+			FL_MENU_TOGGLE | (allow_256_tiles_config ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Roo&f Palettes", 0, NULL, NULL, FL_SUBMENU | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Custom", 0, (Fl_Callback *)roof_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_CUSTOM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Morn + Day, &Night", 0, (Fl_Callback *)roof_day_nite_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_DAY_NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("&Morn, Day, Night", 0, (Fl_Callback *)roof_morn_day_nite_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_MORN_DAY_NITE ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("Morn + Day, Night, C&ustom", 0, (Fl_Callback *)roof_day_nite_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_DAY_NITE_CUSTOM ? FL_MENU_VALUE : 0)),
+		OS_MENU_ITEM("M&orn, Day, Night, Custom", 0, (Fl_Callback *)roof_morn_day_nite_custom_cb, this,
+			FL_MENU_RADIO | (_roof_palettes == Roof_Palettes::ROOF_MORN_DAY_NITE_CUSTOM ? FL_MENU_VALUE : 0)),
+		{},
 		OS_MENU_ITEM("Auto-Load &Events", 0, (Fl_Callback *)auto_load_events_cb, this,
 			FL_MENU_TOGGLE | (auto_events_config ? FL_MENU_VALUE : 0)),
 		OS_MENU_ITEM("Auto-Load &Special Palettes", 0, (Fl_Callback *)auto_load_special_palettes_cb, this,
@@ -430,7 +464,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Auto-Load &Roof Colors", 0, (Fl_Callback *)auto_load_roof_colors_cb, this,
 			FL_MENU_TOGGLE | (roof_colors_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&Drag and Drop", 0, (Fl_Callback *)drag_and_drop_option_cb, this,
-			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0)),
+			FL_MENU_TOGGLE | (drag_and_drop_config ? FL_MENU_VALUE : 0) | FL_MENU_DIVIDER),
+		OS_MENU_ITEM("&Overworld Map Size...", 0, (Fl_Callback *)overworld_map_size_cb, this, 0),
 		{},
 		OS_SUBMENU("&Help"),
 #ifdef __APPLE__
@@ -464,11 +499,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_metro_theme_mi = PM_FIND_MENU_ITEM_CB(metro_theme_cb);
 	_aqua_theme_mi = PM_FIND_MENU_ITEM_CB(aqua_theme_cb);
 	_greybird_theme_mi = PM_FIND_MENU_ITEM_CB(greybird_theme_cb);
-	_metal_theme_mi = PM_FIND_MENU_ITEM_CB(metal_theme_cb);
+	_ocean_theme_mi = PM_FIND_MENU_ITEM_CB(ocean_theme_cb);
 	_blue_theme_mi = PM_FIND_MENU_ITEM_CB(blue_theme_cb);
 	_olive_theme_mi = PM_FIND_MENU_ITEM_CB(olive_theme_cb);
 	_rose_gold_theme_mi = PM_FIND_MENU_ITEM_CB(rose_gold_theme_cb);
 	_dark_theme_mi = PM_FIND_MENU_ITEM_CB(dark_theme_cb);
+	_brushed_metal_theme_mi = PM_FIND_MENU_ITEM_CB(brushed_metal_theme_cb);
 	_high_contrast_theme_mi = PM_FIND_MENU_ITEM_CB(high_contrast_theme_cb);
 	_grid_mi = PM_FIND_MENU_ITEM_CB(grid_cb);
 	_rulers_mi = PM_FIND_MENU_ITEM_CB(rulers_cb);
@@ -478,10 +514,13 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_priority_mi = PM_FIND_MENU_ITEM_CB(show_priority_cb);
 	_gameboy_screen_mi = PM_FIND_MENU_ITEM_CB(gameboy_screen_cb);
 	_show_events_mi = PM_FIND_MENU_ITEM_CB(show_events_cb);
+	_show_warp_ids_mi = PM_FIND_MENU_ITEM_CB(show_warp_ids_cb);
+	_transparent_mi = PM_FIND_MENU_ITEM_CB(transparent_cb);
 	_full_screen_mi = PM_FIND_MENU_ITEM_CB(full_screen_cb);
 	_morn_mi = PM_FIND_MENU_ITEM_CB(morn_palettes_cb);
 	_day_mi = PM_FIND_MENU_ITEM_CB(day_palettes_cb);
 	_night_mi = PM_FIND_MENU_ITEM_CB(night_palettes_cb);
+	_darkness_mi = PM_FIND_MENU_ITEM_CB(darkness_palettes_cb);
 	_indoor_mi = PM_FIND_MENU_ITEM_CB(indoor_palettes_cb);
 	_custom_mi = PM_FIND_MENU_ITEM_CB(custom_palettes_cb);
 	_blocks_mode_mi = PM_FIND_MENU_ITEM_CB(blocks_mode_cb);
@@ -489,6 +528,11 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_monochrome_mi = PM_FIND_MENU_ITEM_CB(monochrome_cb);
 	_allow_priority_mi = PM_FIND_MENU_ITEM_CB(allow_priority_cb);
 	_allow_256_tiles_mi = PM_FIND_MENU_ITEM_CB(allow_256_tiles_cb);
+	_roof_custom_mi = PM_FIND_MENU_ITEM_CB(roof_custom_cb);
+	_roof_day_nite_mi = PM_FIND_MENU_ITEM_CB(roof_day_nite_cb);
+	_roof_morn_day_nite_mi = PM_FIND_MENU_ITEM_CB(roof_morn_day_nite_cb);
+	_roof_day_nite_custom_mi = PM_FIND_MENU_ITEM_CB(roof_day_nite_custom_cb);
+	_roof_morn_day_nite_custom_mi = PM_FIND_MENU_ITEM_CB(roof_morn_day_nite_custom_cb);
 	_auto_events_mi = PM_FIND_MENU_ITEM_CB(auto_load_events_cb);
 	_special_palettes_mi = PM_FIND_MENU_ITEM_CB(auto_load_special_palettes_cb);
 	_roof_colors_mi = PM_FIND_MENU_ITEM_CB(auto_load_roof_colors_cb);
@@ -524,7 +568,8 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 #ifndef __APPLE__
 	for (int i = 0, md = 0; i < _menu_bar->size(); i++) {
 		Fl_Menu_Item *mi = (Fl_Menu_Item *)&_menu_bar->menu()[i];
-		if (md > 0 && mi && mi->label() && !mi->checkbox() && !mi->radio()) {
+		if (!mi) { continue; }
+		if (md > 0 && mi->label() && !mi->checkbox() && !mi->radio()) {
 			Fl_Pixmap *icon = &BLANK_ICON;
 			Fl_Multi_Label *ml = new Fl_Multi_Label();
 			ml->typea = _FL_IMAGE_LABEL;
@@ -579,6 +624,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_grid_tb->image(GRID_ICON);
 	_grid_tb->value(grid());
 
+	_rulers_tb->tooltip("Rulers (Ctrl+Shift+R)");
 	_rulers_tb->callback((Fl_Callback *)rulers_tb_cb, this);
 	_rulers_tb->image(RULERS_ICON);
 	_rulers_tb->value(rulers());
@@ -586,6 +632,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_zoom_tb->tooltip("Zoom (" COMMAND_KEY_PLUS "=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
 	_zoom_tb->image(ZOOM_ICON);
+	_zoom_tb->shortcut(FL_COMMAND + '+');
 	_zoom_tb->value(zoom());
 
 	_ids_tb->tooltip("Block IDs (" COMMAND_KEY_PLUS "I)");
@@ -596,6 +643,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_hex_tb->tooltip("Hexadecimal (" COMMAND_KEY_PLUS "$)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
+	_hex_tb->shortcut(FL_COMMAND + '$');
 	_hex_tb->value(hex());
 
 	_show_priority_tb->tooltip("Show Priority (" COMMAND_SHIFT_KEYS_PLUS "P)");
@@ -613,6 +661,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->value(show_events());
 
+	_show_warp_ids_tb->tooltip("Show Warp IDs (Ctrl+#)");
+	_show_warp_ids_tb->callback((Fl_Callback *)show_warp_ids_tb_cb, this);
+	_show_warp_ids_tb->image(WARP_ICON);
+	_show_warp_ids_tb->shortcut(FL_COMMAND + '#');
+	_show_warp_ids_tb->value(show_warp_ids());
+
 	_blocks_mode_tb->tooltip("Blocks Mode (" COMMAND_SHIFT_KEYS_PLUS "B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
 	_blocks_mode_tb->image(BLOCKS_ICON);
@@ -626,6 +680,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_palettes->add("Morn");   // Palettes::MORN
 	_palettes->add("Day");    // Palettes::DAY
 	_palettes->add("Night");  // Palettes::NITE
+	_palettes->add("Dark");   // Palettes::DARKNESS
 	_palettes->add("Indoor"); // Palettes::INDOOR
 	_palettes->add("Custom"); // Palettes::CUSTOM
 	_palettes->value((int)palettes_config);
@@ -676,7 +731,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_new_dir_chooser->title("Choose Project Directory");
 
 	_blk_open_chooser->title("Open Map");
-	_blk_open_chooser->filter("BLK Files\t*.blk\n");
+	_blk_open_chooser->filter("BLK Files\t*.blk\nMAP Files\t*.map\n");
 
 	_blk_save_chooser->title("Save Map");
 	_blk_save_chooser->filter("BLK Files\t*.blk\n");
@@ -689,7 +744,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_pal_save_chooser->title("Save Palettes");
 	_pal_save_chooser->filter("PAL Files\t*.pal\n");
 	_pal_save_chooser->options(Fl_Native_File_Chooser::Option::SAVEAS_CONFIRM);
-	_pal_save_chooser->preset_file("custom.pal");
+	_pal_save_chooser->preset_file("palettes.pal");
 
 	_roof_chooser->title("Open Roof Tiles");
 	_roof_chooser->filter("PNG Files\t*.png\n2BPP Files\t*.2bpp\n");
@@ -711,6 +766,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_print_options_dialog->ids(Config::print_ids());
 	_print_options_dialog->priority(Config::print_priority());
 	_print_options_dialog->events(Config::print_events());
+	_print_options_dialog->warp_ids(Config::print_warp_ids());
 
 	std::string subject(PROGRAM_NAME " " PROGRAM_VERSION_STRING), message(
 		"Copyright \xc2\xa9 " CURRENT_YEAR " " PROGRAM_AUTHOR ".\n"
@@ -786,9 +842,78 @@ void Main_Window::show() {
 #endif
 }
 
+bool Main_Window::maximized() const {
+#ifdef _WIN32
+	WINDOWPLACEMENT wp;
+	wp.length = sizeof(wp);
+	if (!GetWindowPlacement(fl_xid(this), &wp)) { return false; }
+	return wp.showCmd == SW_MAXIMIZE;
+#elif defined(__LINUX__)
+	Atom wmState = XInternAtom(fl_display, "_NET_WM_STATE", True);
+	Atom actual;
+	int format;
+	unsigned long numItems, bytesAfter;
+	unsigned char *properties = NULL;
+	int result = XGetWindowProperty(fl_display, fl_xid(this), wmState, 0, 1024, False, AnyPropertyType, &actual, &format,
+		&numItems, &bytesAfter, &properties);
+	int numMax = 0;
+	if (result == Success && format == 32 && properties) {
+		Atom maxVert = XInternAtom(fl_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+		Atom maxHorz = XInternAtom(fl_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+		for (unsigned long i = 0; i < numItems; i++) {
+			Atom property = ((Atom *)properties)[i];
+			if (property == maxVert || property == maxHorz) {
+				numMax++;
+			}
+		}
+		XFree(properties);
+	}
+	return numMax == 2;
+	return false;
+#endif
+// TODO: Implement for macOS
+return false;
+}
+
+void Main_Window::maximize() {
+#ifdef _WIN32
+	ShowWindow(fl_xid(this), SW_MAXIMIZE);
+#elif defined(__LINUX__)
+	XEvent event;
+	memset(&event, 0, sizeof(event));
+	event.xclient.type = ClientMessage;
+	event.xclient.window = fl_xid(this);
+	event.xclient.message_type = XInternAtom(fl_display, "_NET_WM_STATE", False);
+	event.xclient.format = 32;
+	event.xclient.data.l[0] = 1;
+	event.xclient.data.l[1] = XInternAtom(fl_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+	event.xclient.data.l[2] = XInternAtom(fl_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+	event.xclient.data.l[3] = 1;
+	XSendEvent(fl_display, DefaultRootWindow(fl_display), False, SubstructureNotifyMask | SubstructureNotifyMask, &event);
+#endif
+	// TODO: Implement for macOS
+}
+
+void Main_Window::apply_transparency() {
+	double alpha = transparent() ? 0.75 : 1.0;
+#ifdef _WIN32
+	HWND hwnd = fl_xid(this);
+	LONG_PTR exstyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+	if (!(exstyle & WS_EX_LAYERED)) {
+		SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle | WS_EX_LAYERED);
+	}
+	SetLayeredWindowAttributes(hwnd, 0, (BYTE)(alpha * 0xFF), LWA_ALPHA);
+#elif defined(__LINUX__)
+	Atom atom = XInternAtom(fl_display, "_NET_WM_WINDOW_OPACITY", False);
+	uint32_t opacity = (uint32_t)(UINT32_MAX * alpha);
+	XChangeProperty(fl_display, fl_xid(this), atom, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&opacity, 1);
+#endif
+	// TODO: Implement for macOS
+}
+
 bool Main_Window::unsaved() const {
 	return _map.modified() || _map_events.modified() || _metatileset.modified() ||
-		_metatileset.const_tileset()->modified() || _metatileset.const_tileset()->modified_roof();
+		_metatileset.const_tileset().modified() || _metatileset.const_tileset().modified_roof();
 }
 
 const char *Main_Window::modified_filename() {
@@ -801,15 +926,15 @@ const char *Main_Window::modified_filename() {
 		return fl_filename_name(_asm_file.c_str());
 	}
 	static char buffer[FL_PATH_MAX] = {};
-	const Tileset *tileset = _metatileset.const_tileset();
-	if (tileset->modified()) {
-		Config::tileset_path(buffer, _directory.c_str(), tileset->name());
+	const Tileset &tileset = _metatileset.const_tileset();
+	if (tileset.modified()) {
+		Config::tileset_path(buffer, _directory.c_str(), tileset.name());
 	}
-	else if (tileset->modified_roof()) {
-		Config::roof_path(buffer, _directory.c_str(), tileset->roof_name());
+	else if (tileset.modified_roof()) {
+		Config::roof_path(buffer, _directory.c_str(), tileset.roof_name());
 	}
 	else {
-		Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset()->name());
+		Config::metatileset_path(buffer, _directory.c_str(), _metatileset.tileset().name());
 	}
 	return fl_filename_name(buffer);
 }
@@ -834,7 +959,7 @@ int Main_Window::handle(int event) {
 		key = Fl::event_key();
 		//if (key & FL_KP == FL_KP) { key -= FL_KP; } // normalize numpad keys into digits
 		if (handle_hotkey(key)) { return 1; }
-		// fall through
+		[[fallthrough]];
 	default:
 		return Fl_Overlay_Window::handle(event);
 	}
@@ -923,19 +1048,21 @@ void Main_Window::update_status(Block *b) {
 }
 
 void Main_Window::update_event_cursor(Block *b) {
-	if (_mode != Mode::EVENTS || !b) {
-		_status_event_x = _status_event_y = INT_MIN;
-		_hover_event->label("");
-		_status_bar->redraw();
-		_hor_ruler->redraw();
-		_ver_ruler->redraw();
-		return;
+	if (b) {
+		_status_event_x = (int)b->col() * 2 + b->right_half();
+		_status_event_y = (int)b->row() * 2 + b->bottom_half();
 	}
-	char buffer[64] = {};
-	_status_event_x = (int)b->col() * 2 + b->right_half();
-	_status_event_y = (int)b->row() * 2 + b->bottom_half();
-	sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), _status_event_x, _status_event_y);
-	_hover_event->copy_label(buffer);
+	else {
+		_status_event_x = _status_event_y = INT_MIN;
+	}
+	if (_mode == Mode::EVENTS && b) {
+		char buffer[64] = {};
+		sprintf(buffer, (hex() ? "Event: X/Y ($%X, $%X)" : "Event: X/Y (%u, %u)"), _status_event_x, _status_event_y);
+		_hover_event->copy_label(buffer);
+	}
+	else {
+		_hover_event->label("");
+	}
 	_status_bar->redraw();
 	_hor_ruler->redraw();
 	_ver_ruler->redraw();
@@ -986,8 +1113,7 @@ void Main_Window::update_active_controls() {
 			_save_event_script_mi->deactivate();
 			_reload_event_script_tb->deactivate();
 		}
-		const Tileset *tileset = _metatileset.const_tileset();
-		if (tileset && _map.group()) {
+		if (_map.group()) {
 			_load_roof_colors_mi->activate();
 		}
 		else {
@@ -1034,7 +1160,7 @@ void Main_Window::update_active_controls() {
 			_change_roof_mi->deactivate();
 			_change_roof_tb->deactivate();
 		}
-		if (tileset && tileset->num_roof_tiles() > 0) {
+		if (_metatileset.const_tileset().num_roof_tiles() > 0) {
 			_save_roof_mi->activate();
 			_edit_roof_mi->activate();
 			_edit_roof_tb->activate();
@@ -1126,7 +1252,7 @@ void Main_Window::update_recent_maps() {
 #ifndef __APPLE__
 		Fl_Multi_Label *ml = (Fl_Multi_Label *)_recent_mis[i]->label();
 		if (ml->labelb[0]) {
-			delete ml->labelb;
+			delete [] ml->labelb;
 			ml->labelb = "";
 		}
 #endif
@@ -1152,7 +1278,9 @@ void Main_Window::update_recent_maps() {
 		}
 		_recent_mis[i]->flags &= ~FL_MENU_DIVIDER;
 	}
-	_recent_mis[last]->flags |= FL_MENU_DIVIDER;
+	if (last > -1) {
+		_recent_mis[last]->flags |= FL_MENU_DIVIDER;
+	}
 }
 
 void Main_Window::flood_fill(Block *b, uint8_t f, uint8_t t) {
@@ -1206,7 +1334,7 @@ void Main_Window::open_map(const char *filename) {
 	char directory[FL_PATH_MAX] = {};
 	if (!Config::project_path_from_blk_path(filename, directory)) {
 		std::string msg = "Could not find the project directory for\n";
-		msg = msg + basename + "!\nMake sure it contains a main.asm or layout.link file.";
+		msg = msg + basename + "!\nMake sure it contains a Makefile.";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return;
@@ -1218,6 +1346,7 @@ void Main_Window::open_map(const char *filename) {
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	Map_Attributes attrs;
+	printf("limit_blk_options(%s, %s, %p)\n", filename, directory, &attrs);
 	if (!_map_options_dialog->limit_blk_options(filename, directory, attrs)) {
 		std::string msg = "This is not a valid project!\n\n"
 			"Make sure the Options are correct.";
@@ -1316,10 +1445,10 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	char buffer[FL_PATH_MAX] = {};
 	sprintf(buffer, PROGRAM_NAME " - %s", basename);
 	copy_label(buffer);
-	if (ends_with(basename, ".blk")) {
-		sprintf(buffer, "%s", basename);
+	if (ends_with_ignore_case(basename, ".blk")) {
+		strcpy(buffer, basename);
 		size_t n = strlen(buffer);
-		buffer[n-4] = '\0';
+		buffer[n - strlen(".blk")] = '\0';
 		strcat(buffer, ".png");
 	}
 	else {
@@ -1346,35 +1475,20 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 	_copied = false;
 
-	Tileset *tileset = _metatileset.tileset();
-	_block_window->tileset(tileset);
-	_tileset_window->tileset(tileset);
-	_roof_window->tileset(tileset);
+	Tileset &tileset = _metatileset.tileset();
+	_block_window->tileset(&tileset);
+	_tileset_window->tileset(&tileset);
+	_roof_window->tileset(&tileset);
 
 	// load default palettes
 	Config::bg_tiles_pal_path(buffer, directory);
 	load_palettes(buffer);
 
+	// load special palettes if applicable and they exist
 	if (auto_load_special_palettes()) {
-		// load unique tileset palettes if they exist
-		sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), tileset_name);
+		Config::special_pal_path(buffer, directory, filename, _map.landmark().c_str(), tileset_name);
 		if (file_exists(buffer)) {
 			load_palettes(buffer);
-		}
-		// load unique landmark palettes if they exist
-		if (_map.landmark() != tileset_name) {
-			sprintf(buffer, "%s%s%s.pal", directory, Config::gfx_tileset_dir(), _map.landmark().c_str());
-			if (file_exists(buffer)) {
-				load_palettes(buffer);
-			}
-		}
-		// load unique map palettes if they exist
-		if (filename) {
-			strcpy(buffer, filename);
-			fl_filename_setext(buffer, FL_PATH_MAX, ".pal");
-			if (file_exists(buffer)) {
-				load_palettes(buffer);
-			}
 		}
 	}
 
@@ -1406,7 +1520,7 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	}
 
 	// load roof colors if applicable
-	if (auto_load_roof_colors() && _map.group() && _map.is_outside()) {
+	if (auto_load_roof_colors() && _map.group() && _map.is_outside() && !Config::monochrome()) {
 		load_roof_colors(true);
 	}
 
@@ -1428,7 +1542,9 @@ void Main_Window::open_map(const char *directory, const char *filename) {
 	update_labels();
 	update_status((Block *)NULL);
 
-	store_recent_map();
+	if (filename) {
+		store_recent_map();
+	}
 
 	redraw();
 }
@@ -1452,12 +1568,12 @@ void Main_Window::open_recent(int n) {
 }
 
 void Main_Window::warp_to_map(Event *e) {
-	char destination[FL_PATH_MAX] = {};
-	if (!e->warp_map_name(destination)) { return; }
+	std::string destination = e->warp_destination().first;
+	if (destination.empty()) { return; }
 
 	char filename[FL_PATH_MAX] = {};
 	strcpy(filename, _blk_file.c_str());
-	strcpy(const_cast<char *>(fl_filename_name(filename)), destination);
+	strcpy(const_cast<char *>(fl_filename_name(filename)), destination.c_str());
 	strcat(filename, fl_filename_ext(_blk_file.c_str()));
 
 	const char *basename = fl_filename_name(filename);
@@ -1530,24 +1646,21 @@ void Main_Window::view_event_script(Event *e) {
 		GetCurrentDirectory(FL_PATH_MAX, directory);
 		FindExecutable(filename, directory, program);
 
-		std::wstring program_lower(program);
-		std::transform(program_lower.begin(), program_lower.end(), program_lower.begin(), towlower);
-
 		std::wstringstream wss;
 		// Notepad2 or Notepad3: /g <#> <filename>
-		if (ends_with(program_lower, L"notepad2.exe") || ends_with(program_lower, L"notepad3.exe")) {
+		if (ends_with_ignore_case(program, L"notepad2.exe") || ends_with_ignore_case(program, L"notepad3.exe")) {
 			wss << L"/g " << e->line() << L" \"" << filename << L"\"";
 		}
 		// Notepad++: -n<#> <filename>
-		else if (ends_with(program_lower, L"notepad++.exe")) {
+		else if (ends_with_ignore_case(program, L"notepad++.exe")) {
 			wss << L"-n" << e->line() << L" \"" << filename << L"\"";
 		}
 		// VS Code: -g <filename>:<#>
-		else if (ends_with(program_lower, L"code.exe")) {
+		else if (ends_with_ignore_case(program, L"code.exe")) {
 			wss << L"-g \"" << filename << L"\":" << e->line();
 		}
 		// Sublime Text: <filename>:<#>
-		else if (ends_with(program_lower, L"subl.exe") || ends_with(program_lower, L"sublime_text.exe")) {
+		else if (ends_with_ignore_case(program, L"subl.exe") || ends_with_ignore_case(program, L"sublime_text.exe")) {
 			wss << L"\"" << filename << L"\":" << e->line();
 		}
 
@@ -1604,7 +1717,7 @@ void Main_Window::load_roof_colors(bool quiet) {
 		if (_unsaved_dialog->canceled()) { return; }
 	}
 
-	if (!Color::read_roof_colors(buffer, _map.group())) {
+	if (!Color::read_roof_colors(buffer, _map.group(), _roof_palettes)) {
 		Config::roofs_pal_path(buffer, "");
 		if (quiet) {
 			std::string msg = "Warning: Could not read ";
@@ -1633,14 +1746,14 @@ void Main_Window::load_roof_colors(bool quiet) {
 bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_name) {
 	char buffer[FL_PATH_MAX] = {};
 
-	Tileset *tileset = _metatileset.tileset();
-	tileset->name(tileset_name);
-	tileset->roof_name(roof_name);
+	Tileset &tileset = _metatileset.tileset();
+	tileset.name(tileset_name);
+	tileset.roof_name(roof_name);
 
 	const char *directory = _directory.c_str();
 
 	Config::palette_map_path(buffer, directory, tileset_name);
-	Palette_Map::Result rp = tileset->read_palette_map(buffer);
+	Palette_Map::Result rp = tileset.read_palette_map(buffer);
 	// 'monochrome' becomes true if the palette map could not be read
 	update_monochrome_controls();
 	// 'allow_priority' become true if a PRIORITY_* color was used
@@ -1665,7 +1778,10 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	}
 
 	Config::tileset_path(buffer, directory, tileset_name);
-	Tileset::Result rt = tileset->read_graphics(buffer, palettes());
+	char b_buffer[FL_PATH_MAX] = {}, a_buffer[FL_PATH_MAX] = {};
+	bool has_before = Config::tileset_before_path(b_buffer, directory, tileset_name);
+	bool has_after = Config::tileset_after_path(a_buffer, directory, tileset_name);
+	Tileset::Result rt = tileset.read_graphics(buffer, has_before ? b_buffer : NULL, has_after ? a_buffer : NULL, palettes());
 	if (rt != Tileset::Result::GFX_OK) {
 		Config::tileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
@@ -1685,6 +1801,7 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 		_warning_dialog->show(this);
 	}
 	else if (rm != Metatileset::Result::META_OK) {
+		_metatileset.clear();
 		Config::metatileset_path(buffer, "", tileset_name);
 		std::string msg = "Error reading ";
 		msg = msg + buffer + "!\n\n" + Metatileset::error_message(rm);
@@ -1698,9 +1815,9 @@ bool Main_Window::read_metatile_data(const char *tileset_name, const char *roof_
 	rm = _metatileset.read_collisions(buffer);
 	_has_collisions = (rm == Metatileset::Result::META_OK);
 
-	if (tileset->has_roof()) {
+	if (tileset.has_roof()) {
 		Config::roof_path(buffer, directory, roof_name);
-		rt = tileset->read_roof_graphics(buffer);
+		rt = tileset.read_roof_graphics(buffer);
 		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(buffer, "", roof_name);
 			std::string msg = "Error reading ";
@@ -1760,7 +1877,7 @@ void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 		}
 		int k = ms * ((int)(n - 1) / METATILES_PER_ROW + 1);
 		if (_sidebar->yposition() + _sidebar->h() > k) {
-			_sidebar->scroll_to(0, MAX(k - _sidebar->h(), 0));
+			_sidebar->scroll_to(0, std::max(k - _sidebar->h(), 0));
 		}
 	}
 
@@ -1768,10 +1885,10 @@ void Main_Window::force_add_sub_metatiles(size_t s, size_t n) {
 	_sidebar->init_sizes();
 	_sidebar->contents(ms * METATILES_PER_ROW, ms * (((int)_metatileset.size() + METATILES_PER_ROW - 1) / METATILES_PER_ROW));
 
-	Tileset *tileset = _metatileset.tileset();
-	_block_window->tileset(tileset);
-	_tileset_window->tileset(tileset);
-	_roof_window->tileset(tileset);
+	Tileset &tileset = _metatileset.tileset();
+	_block_window->tileset(&tileset);
+	_tileset_window->tileset(&tileset);
+	_roof_window->tileset(&tileset);
 
 	update_labels();
 	update_status((Block *)NULL);
@@ -1809,7 +1926,7 @@ void Main_Window::resize_map(int w, int h) {
 	while (_map_group->children()) {
 		_map_group->remove(0);
 	}
-	int mx = MAX(px, 0), my = MAX(py, 0), mw = MIN(w, _map.width() + px), mh = MIN(h, _map.height() + py);
+	int mx = std::max(px, 0), my = std::max(py, 0), mw = std::min(w, _map.width() + px), mh = std::min(h, _map.height() + py);
 	for (int y = 0; y < py; y++) {
 		for (int x = 0; x < w; x++) {
 			_map_group->add(new Block());
@@ -1839,8 +1956,8 @@ void Main_Window::resize_map(int w, int h) {
 		if (px || py) {
 			int rx = (int)e->event_x() + px * 2;
 			int ry = (int)e->event_y() + py * 2;
-			int16_t ex = (int16_t)MIN(MAX(rx, MIN_EVENT_COORD), MAX_EVENT_COORD);
-			int16_t ey = (int16_t)MIN(MAX(ry, MIN_EVENT_COORD), MAX_EVENT_COORD);
+			int16_t ex = std::clamp((int16_t)rx, MIN_EVENT_COORD, MAX_EVENT_COORD);
+			int16_t ey = std::clamp((int16_t)ry, MIN_EVENT_COORD, MAX_EVENT_COORD);
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			e->update_tooltip();
@@ -1876,9 +1993,17 @@ bool Main_Window::save_map(bool force) {
 	const char *filename = _blk_file.c_str();
 	const char *basename = fl_filename_name(filename);
 
+	if (_map.modified() && _map.other_modified(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the map and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
 	if (_map.modified() || force) {
-		FILE *file = fl_fopen(filename, "wb");
-		if (!file) {
+		if (!_map.write_blocks(filename)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -1886,12 +2011,19 @@ bool Main_Window::save_map(bool force) {
 			return false;
 		}
 
-		size_t n = _map.size();
-		for (size_t i = 0; i < n; i++) {
-			uint8_t id = _map.block(i)->id();
-			fputc(id, file);
+		size_t w = _map.width(), h = _map.height();
+		size_t b = (w + MAP_MARGIN * 2) * (h + MAP_MARGIN * 2);
+		size_t s = Config::overworld_map_size();
+		if (b > s) {
+			std::ostringstream ss;
+			ss << "A " << w << " x " << h << " map will overflow a "
+				<< s << "-byte buffer!\n\n"
+				<< "Make sure the overworld map block buffer in WRAM\n"
+				"(wOverworldMapBlocks, wOverworldMap, or OverworldMap)\n"
+				"has at least " << b << " bytes.";
+			_warning_dialog->message(ss.str());
+			_warning_dialog->show(this);
 		}
-		fclose(file);
 
 		_map.modified(false);
 	}
@@ -1910,7 +2042,7 @@ bool Main_Window::save_map(bool force) {
 
 bool Main_Window::save_metatileset() {
 	const char *directory = _directory.c_str();
-	const char *tileset_name = _metatileset.tileset()->name();
+	const char *tileset_name = _metatileset.tileset().name();
 
 	char filename[FL_PATH_MAX] = {};
 	Config::metatileset_path(filename, directory, tileset_name);
@@ -1921,6 +2053,15 @@ bool Main_Window::save_metatileset() {
 	const char *basename_coll = fl_filename_name(filename_coll);
 
 	if (_metatileset.modified()) {
+		if (_metatileset.other_modified(filename)) {
+			std::string msg = basename;
+			msg = msg + " was modified by another program!\n\n"
+				"Save the blockset and overwrite it anyway?";
+			_unsaved_dialog->message(msg);
+			_unsaved_dialog->show(this);
+			if (_unsaved_dialog->canceled()) { return true; }
+		}
+
 		if (!_metatileset.write_metatiles(filename)) {
 			std::string msg = "Could not write to ";
 			msg = msg + basename + "!";
@@ -1929,11 +2070,22 @@ bool Main_Window::save_metatileset() {
 			return false;
 		}
 
-		if (_has_collisions && !_metatileset.write_collisions(filename_coll)) {
-			std::string msg = "Could not write to ";
-			msg = msg + basename_coll + "!";
-			_error_dialog->message(msg);
-			_error_dialog->show(this);
+		if (_has_collisions) {
+			if (_metatileset.other_modified_collisions(filename_coll)) {
+				std::string msg = basename_coll;
+				msg = msg + " was modified by another program!\n\n"
+					"Save the collisions and overwrite it anyway?";
+				_unsaved_dialog->message(msg);
+				_unsaved_dialog->show(this);
+				if (_unsaved_dialog->canceled()) { return true; }
+			}
+
+			if (!_metatileset.write_collisions(filename_coll)) {
+				std::string msg = "Could not write to ";
+				msg = msg + basename_coll + "!";
+				_error_dialog->message(msg);
+				_error_dialog->show(this);
+			}
 		}
 
 		_metatileset.modified(false);
@@ -1948,17 +2100,31 @@ bool Main_Window::save_metatileset() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
+	size_t n = _metatileset.size();
+	if (_has_collisions && n > 128 && !Preferences::get("meta128", 0)) {
+		msg = "Warning: ";
+		msg = msg + basename + " has " + std::to_string(n) + " blocks.\n\n"
+			"Be sure to fix the 128-block limit:\n"
+			"https://github.com/pret/pokecrystal/blob/master/docs/bugs_and_glitches.md\n"
+			"(\"LoadMetatiles wraps around past 128 blocks\")";
+		_warning_dialog->message(msg);
+		_warning_dialog->show(this);
+		Preferences::set("meta128", 1);
+	}
+
 	return true;
 }
 
 bool Main_Window::save_tileset() {
-	Tileset *tileset = _metatileset.tileset();
+	_metatileset.trim_tileset();
 
-	char filename[FL_PATH_MAX] = {};
+	Tileset &tileset = _metatileset.tileset();
+
+	char filename[FL_PATH_MAX] = {}, b_filename[FL_PATH_MAX] = {}, a_filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
-	const char *tileset_name = tileset->name();
+	const char *tileset_name = tileset.name();
 
-	if (!tileset->modified()) {
+	if (!tileset.modified()) {
 		std::string msg = "Saved ";
 		msg = msg + tileset_name + "!";
 		_success_dialog->message(msg);
@@ -1966,12 +2132,32 @@ bool Main_Window::save_tileset() {
 		return true;
 	}
 
-	Config::tileset_png_path(filename, directory, tileset_name);
+	Config::tileset_png_paths(filename, b_filename, a_filename, directory, tileset_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset->write_graphics(filename)) {
+	const char *mod_basename = NULL;
+	if (tileset.other_modified(filename)) {
+		mod_basename = basename;
+	}
+	else if (tileset.other_modified_before(b_filename)) {
+		mod_basename = fl_filename_name(b_filename);
+	}
+	else if (tileset.other_modified_before(a_filename)) {
+		mod_basename = fl_filename_name(a_filename);
+	}
+	if (mod_basename) {
+		std::string msg = mod_basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the tileset and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
+	if (const char *ff = tileset.write_graphics(filename, b_filename, a_filename); ff) {
+		const char *bff = fl_filename_name(ff);
 		std::string msg = "Could not write to ";
-		msg = msg + basename + "!";
+		msg = msg + bff + "!";
 		_error_dialog->message(msg);
 		_error_dialog->show(this);
 		return false;
@@ -1986,7 +2172,16 @@ bool Main_Window::save_tileset() {
 		Config::palette_map_path(filename, directory, tileset_name);
 		basename = fl_filename_name(filename);
 
-		if (!tileset->palette_map().write_palette_map(filename)) {
+		if (tileset.palette_map().other_modified(filename)) {
+			msg = basename;
+			msg = msg + " was modified by another program!\n\n"
+				"Save the palette map and overwrite it anyway?";
+			_unsaved_dialog->message(msg);
+			_unsaved_dialog->show(this);
+			if (_unsaved_dialog->canceled()) { return true; }
+		}
+
+		if (!tileset.palette_map().write_palette_map(filename)) {
 			msg = "Could not write to ";
 			msg = msg + basename + "!";
 			_error_dialog->message(msg);
@@ -2000,18 +2195,18 @@ bool Main_Window::save_tileset() {
 		_success_dialog->show(this);
 	}
 
-	tileset->modified(false);
+	tileset.modified(false);
 	return true;
 }
 
 bool Main_Window::save_roof() {
-	Tileset *tileset = _metatileset.tileset();
+	Tileset &tileset = _metatileset.tileset();
 
 	char filename[FL_PATH_MAX] = {};
 	const char *directory = _directory.c_str();
-	const char *roof_name = tileset->roof_name();
+	const char *roof_name = tileset.roof_name();
 
-	if (!tileset->modified_roof()) {
+	if (!tileset.modified_roof()) {
 		std::string msg = "Saved ";
 		msg = msg + roof_name + "!";
 		_success_dialog->message(msg);
@@ -2022,7 +2217,16 @@ bool Main_Window::save_roof() {
 	Config::roof_png_path(filename, directory, roof_name);
 	const char *basename = fl_filename_name(filename);
 
-	if (!tileset->write_roof_graphics(filename)) {
+	if (tileset.other_modified_roof(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the roof and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
+	}
+
+	if (!tileset.write_roof_graphics(filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -2035,7 +2239,7 @@ bool Main_Window::save_roof() {
 	_success_dialog->message(msg);
 	_success_dialog->show(this);
 
-	tileset->modified_roof(false);
+	tileset.modified_roof(false);
 	return true;
 }
 
@@ -2049,6 +2253,15 @@ bool Main_Window::save_event_script() {
 		_success_dialog->message(msg);
 		_success_dialog->show(this);
 		return true;
+	}
+
+	if (_map_events.other_modified(filename)) {
+		std::string msg = basename;
+		msg = msg + " was modified by another program!\n\n"
+			"Save the events and overwrite it anyway?";
+		_unsaved_dialog->message(msg);
+		_unsaved_dialog->show(this);
+		if (_unsaved_dialog->canceled()) { return true; }
 	}
 
 	if (!_map_events.write_event_script(filename)) {
@@ -2068,10 +2281,10 @@ bool Main_Window::save_event_script() {
 	return true;
 }
 
-bool Main_Window::export_palettes(const char *filename, Palettes l) {
+bool Main_Window::export_palettes(const char *filename) {
 	const char *basename = fl_filename_name(filename);
 
-	if (!Color::write_palettes(filename, l)) {
+	if (!Color::write_palettes(filename)) {
 		std::string msg = "Could not write to ";
 		msg = msg + basename + "!";
 		_error_dialog->message(msg);
@@ -2098,7 +2311,7 @@ void Main_Window::print_map() {
 		size_t ne = _map_events.size();
 		for (size_t i = 0; i < ne; i++) {
 			Event *e = _map_events.event(i);
-			e->print();
+			e->print(Config::print_warp_ids());
 		}
 	}
 }
@@ -2143,6 +2356,7 @@ void Main_Window::update_icons() {
 	Image::make_deimage(_show_priority_tb);
 	Image::make_deimage(_gameboy_screen_tb);
 	Image::make_deimage(_show_events_tb);
+	Image::make_deimage(_show_warp_ids_tb);
 	Image::make_deimage(_blocks_mode_tb);
 	Image::make_deimage(_events_mode_tb);
 	Image::make_deimage(_add_sub_tb);
@@ -2223,8 +2437,8 @@ void Main_Window::update_labels() {
 }
 
 void Main_Window::update_palettes() {
-	Tileset *tileset = _metatileset.tileset();
-	tileset->update_palettes(palettes());
+	Tileset &tileset = _metatileset.tileset();
+	tileset.update_palettes(palettes());
 	redraw();
 }
 
@@ -2246,6 +2460,14 @@ void Main_Window::select_metatile(Metatile_Button *mb) {
 void Main_Window::drag_and_drop_cb(DnD_Receiver *dndr, Main_Window *mw) {
 	Fl_Window *top = Fl::modal();
 	if (top && top != mw) { return; }
+	if (mw->unsaved()) {
+		std::string msg = mw->modified_filename();
+		msg = msg + " has unsaved changes!\n\n"
+			"Open another map anyway?";
+		mw->_unsaved_dialog->message(msg);
+		mw->_unsaved_dialog->show(mw);
+		if (mw->_unsaved_dialog->canceled()) { return; }
+	}
 	std::string filename = dndr->text().substr(0, dndr->text().find('\n'));
 	mw->open_map(filename.c_str());
 }
@@ -2280,6 +2502,7 @@ void Main_Window::new_cb(Fl_Widget *, Main_Window *mw) {
 		strcpy(directory, mw->_directory.c_str());
 	}
 
+	Config::project_path_from_blk_path(directory, directory);
 	mw->open_map(directory, NULL);
 }
 
@@ -2338,7 +2561,7 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 	mw->_sidebar->clear();
 	mw->_sidebar->scroll_to(0, 0);
 	mw->_sidebar->contents(0, 0);
-	FILL(mw->_metatile_buttons, 0, MAX_NUM_METATILES);
+	std::fill_n(mw->_metatile_buttons, MAX_NUM_METATILES, (Metatile_Button *)NULL);
 	mw->_selected = NULL;
 	mw->_copied = false;
 	mw->_hotkey_metatiles.clear();
@@ -2365,11 +2588,11 @@ void Main_Window::close_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::save_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 	bool other_modified = false;
-	if (mw->_metatileset.const_tileset()->modified()) {
+	if (mw->_metatileset.const_tileset().modified()) {
 		save_tileset_cb(w, mw);
 		other_modified = true;
 	}
-	if (mw->_metatileset.const_tileset()->modified_roof()) {
+	if (mw->_metatileset.const_tileset().modified_roof()) {
 		save_roof_cb(w, mw);
 		other_modified = true;
 	}
@@ -2446,7 +2669,7 @@ void Main_Window::save_tileset_cb(Fl_Widget *, Main_Window *mw) {
 }
 
 void Main_Window::save_roof_cb(Fl_Widget *, Main_Window *mw) {
-	if (!mw->_map.size() || !mw->_metatileset.const_tileset()->num_roof_tiles()) { return; }
+	if (!mw->_map.size() || !mw->_metatileset.const_tileset().num_roof_tiles()) { return; }
 	mw->save_roof();
 }
 
@@ -2562,7 +2785,7 @@ void Main_Window::load_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::export_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::export_palettes_cb(Fl_Widget *, Main_Window *mw) {
 	int status = mw->_pal_save_chooser->show();
 	if (status == 1) { return; }
 
@@ -2578,7 +2801,7 @@ void Main_Window::export_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 		return;
 	}
 
-	mw->export_palettes(filename, mw->palettes());
+	mw->export_palettes(filename);
 }
 
 void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
@@ -2589,6 +2812,7 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 	Config::print_ids(mw->_print_options_dialog->ids());
 	Config::print_priority(mw->_print_options_dialog->priority());
 	Config::print_events(mw->_print_options_dialog->events());
+	Config::print_warp_ids(mw->_print_options_dialog->warp_ids());
 	if (mw->_print_options_dialog->canceled()) { return; }
 
 	int w = (int)mw->_map.width() * METATILE_PX_SIZE, h = (int)mw->_map.height() * METATILE_PX_SIZE;
@@ -2665,10 +2889,57 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 
 	// Save global config
 	Preferences::set("theme", (int)OS::current_theme());
-	Preferences::set("x", mw->x());
-	Preferences::set("y", mw->y());
-	Preferences::set("w", mw->w());
-	Preferences::set("h", mw->h());
+	if (mw->full_screen()) {
+		Preferences::set("x", mw->_wx);
+		Preferences::set("y", mw->_wy);
+		Preferences::set("w", mw->_ww);
+		Preferences::set("h", mw->_wh);
+		Preferences::set("fullscreen", 1);
+	}
+	else if (mw->maximized()) {
+#ifdef _WIN32
+		HWND hwnd = fl_xid(mw);
+		WINDOWPLACEMENT wp;
+		wp.length = sizeof(wp);
+		if (GetWindowPlacement(hwnd, &wp)) {
+			// Get the window border size
+			RECT br;
+			SetRectEmpty(&br);
+			DWORD styleEx = GetWindowLong(hwnd, GWL_EXSTYLE);
+			AdjustWindowRectEx(&br, WS_OVERLAPPEDWINDOW, FALSE, styleEx);
+			// Subtract the border size from the normal window position
+			RECT wr = wp.rcNormalPosition;
+			wr.left -= br.left;
+			wr.right -= br.right;
+			wr.top -= br.top;
+			wr.bottom -= br.bottom;
+			Preferences::set("x", wr.left);
+			Preferences::set("y", wr.top);
+			Preferences::set("w", wr.right - wr.left);
+			Preferences::set("h", wr.bottom - wr.top);
+		}
+		else {
+			Preferences::set("x", mw->x());
+			Preferences::set("y", mw->y());
+			Preferences::set("w", mw->w());
+			Preferences::set("h", mw->h());
+		}
+#else
+		Preferences::set("x", mw->_wx);
+		Preferences::set("y", mw->_wy);
+		Preferences::set("w", mw->_ww);
+		Preferences::set("h", mw->_wh);
+#endif
+		Preferences::set("fullscreen", 0);
+	}
+	else {
+		Preferences::set("x", mw->x());
+		Preferences::set("y", mw->y());
+		Preferences::set("w", mw->w());
+		Preferences::set("h", mw->h());
+		Preferences::set("fullscreen", 0);
+	}
+	Preferences::set("maximized", mw->maximized());
 	Preferences::set("mode", (int)mw->mode());
 	Preferences::set("grid", mw->grid());
 	Preferences::set("rulers", mw->rulers());
@@ -2678,18 +2949,23 @@ void Main_Window::exit_cb(Fl_Widget *, Main_Window *mw) {
 	Preferences::set("priority", mw->show_priority());
 	Preferences::set("gameboy", mw->gameboy_screen());
 	Preferences::set("event", mw->show_events());
+	Preferences::set("warp-ids", mw->show_warp_ids());
+	Preferences::set("transparent", mw->transparent());
 	Preferences::set("palettes", (int)mw->palettes());
 	Preferences::set("monochrome", mw->monochrome());
 	Preferences::set("prioritize", mw->allow_priority());
 	Preferences::set("all256", mw->allow_256_tiles());
+	Preferences::set("roof-palettes", (int)mw->_roof_palettes);
 	Preferences::set("events", mw->auto_load_events());
 	Preferences::set("special", mw->auto_load_special_palettes());
 	Preferences::set("roofs", mw->auto_load_roof_colors());
 	Preferences::set("drag", mw->drag_and_drop());
+	Preferences::set("overworld-map", (int)Config::overworld_map_size());
 	Preferences::set("print-grid", Config::print_grid());
 	Preferences::set("print-ids", Config::print_ids());
 	Preferences::set("print-priority", Config::print_priority());
 	Preferences::set("print-events", Config::print_events());
+	Preferences::set("print-warp-ids", Config::print_warp_ids());
 	for (int i = 0; i < NUM_RECENT; i++) {
 		Preferences::set_string(Fl_Preferences::Name("recent%d", i), mw->_recent[i]);
 	}
@@ -2779,9 +3055,9 @@ void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
-void Main_Window::metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
-	OS::use_metal_theme();
-	mw->_metal_theme_mi->setonly();
+void Main_Window::ocean_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_ocean_theme();
+	mw->_ocean_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
 }
@@ -2814,11 +3090,22 @@ void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::brushed_metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
+	OS::use_brushed_metal_theme();
+	mw->_brushed_metal_theme_mi->setonly();
+	mw->update_icons();
+	mw->redraw();
+}
+
 void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	OS::use_high_contrast_theme();
 	mw->_high_contrast_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+}
+
+void Main_Window::transparent_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->apply_transparency();
 }
 
 void Main_Window::full_screen_cb(Fl_Menu_ *m, Main_Window *mw) {
@@ -2880,6 +3167,12 @@ void Main_Window::show_events_cb(Fl_Menu_ *m, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::show_warp_ids_cb(Fl_Menu_ *m, Main_Window *mw) {
+	SYNC_TB_WITH_M(mw->_show_warp_ids_tb, m);
+	mw->update_labels();
+	mw->redraw();
+}
+
 #undef SYNC_TB_WITH_M
 
 #define SYNC_MI_WITH_TB(tb, mi) if (tb->value()) mi->set(); else mi->clear()
@@ -2930,6 +3223,12 @@ void Main_Window::show_events_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::show_warp_ids_tb_cb(Toolbar_Toggle_Button *, Main_Window *mw) {
+	SYNC_MI_WITH_TB(mw->_show_warp_ids_tb, mw->_show_warp_ids_mi);
+	mw->update_labels();
+	mw->redraw();
+}
+
 #undef SYNC_MI_WITH_TB
 
 void Main_Window::morn_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2950,6 +3249,12 @@ void Main_Window::night_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->redraw();
 }
 
+void Main_Window::darkness_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_palettes->value((int)Palettes::DARKNESS);
+	mw->update_palettes();
+	mw->redraw();
+}
+
 void Main_Window::indoor_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_palettes->value((int)Palettes::INDOOR);
 	mw->update_palettes();
@@ -2965,11 +3270,12 @@ void Main_Window::custom_palettes_cb(Fl_Menu_ *, Main_Window *mw) {
 void Main_Window::palettes_cb(Dropdown *, Main_Window *mw) {
 	Palettes palettes = (Palettes)mw->_palettes->value();
 	switch (palettes) {
-	case Palettes::MORN:   mw->_morn_mi->setonly(); break;
-	case Palettes::DAY:    mw->_day_mi->setonly(); break;
-	case Palettes::NITE:   mw->_night_mi->setonly(); break;
-	case Palettes::INDOOR: mw->_indoor_mi->setonly(); break;
-	case Palettes::CUSTOM: mw->_custom_mi->setonly(); break;
+	case Palettes::MORN:     mw->_morn_mi->setonly(); break;
+	case Palettes::DAY:      mw->_day_mi->setonly(); break;
+	case Palettes::NITE:     mw->_night_mi->setonly(); break;
+	case Palettes::DARKNESS: mw->_darkness_mi->setonly(); break;
+	case Palettes::INDOOR:   mw->_indoor_mi->setonly(); break;
+	case Palettes::CUSTOM:   mw->_custom_mi->setonly(); break;
 	}
 	mw->update_palettes();
 	mw->redraw();
@@ -3034,12 +3340,12 @@ void Main_Window::resize_cb(Fl_Widget *, Main_Window *mw) {
 	}
 }
 
-void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
+void Main_Window::change_tileset_cb(Fl_Widget *w, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	const Tileset *tileset = mw->_metatileset.tileset();
+	const Tileset &tileset = mw->_metatileset.tileset();
 
-	if (mw->_metatileset.modified() || tileset->modified() || tileset->modified_roof()) {
+	if (mw->_metatileset.modified() || tileset.modified() || tileset.modified_roof()) {
 		std::string msg = mw->modified_filename();
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the tileset anyway?";
@@ -3048,27 +3354,30 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 		if (mw->_unsaved_dialog->canceled()) { return; }
 	}
 
-	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, tileset->name());
-	size_t old_size = mw->_metatileset.size();
+	char tileset_name[FL_PATH_MAX] = {};
+	strcpy(tileset_name, tileset.name());
 
-	if (!mw->_tileset_options_dialog->limit_tileset_options(old_name)) {
-		const char *basename = fl_filename_name(mw->_blk_file.c_str());
-		std::string msg = "This is not a valid project!\n\n";
-		msg = msg + "Make sure the Options match\n" + basename + ".";
-		mw->_error_dialog->message(msg);
-		mw->_error_dialog->show(mw);
-		return;
+	if (w) {
+		if (!mw->_tileset_options_dialog->limit_tileset_options(tileset_name)) {
+			const char *basename = fl_filename_name(mw->_blk_file.c_str());
+			std::string msg = "This is not a valid project!\n\n";
+			msg = msg + "Make sure the Options match\n" + basename + ".";
+			mw->_error_dialog->message(msg);
+			mw->_error_dialog->show(mw);
+			return;
+		}
+
+		mw->_tileset_options_dialog->show(mw);
+		bool canceled = mw->_tileset_options_dialog->canceled();
+		if (canceled) { return; }
+
+		strcpy(tileset_name, mw->_tileset_options_dialog->tileset());
 	}
 
-	mw->_tileset_options_dialog->show(mw);
-	bool canceled = mw->_tileset_options_dialog->canceled();
-	if (canceled) { return; }
-
+	size_t old_size = mw->_metatileset.size();
 	mw->_metatileset.clear();
 
-	const char *tileset_name = mw->_tileset_options_dialog->tileset();
-	const char *roof_name = tileset->roof_name();
+	const char *roof_name = tileset.roof_name();
 	if (!mw->read_metatile_data(tileset_name, roof_name)) {
 		mw->_map.modified(false);
 		mw->_metatileset.modified(false);
@@ -3084,7 +3393,7 @@ void Main_Window::change_tileset_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	mw->_tileset_window->tileset(mw->_metatileset.tileset());
+	mw->_tileset_window->tileset(&mw->_metatileset.tileset());
 	mw->_tileset_window->show(mw, mw->show_priority());
 	bool canceled = mw->_tileset_window->canceled();
 	if (canceled) { return; }
@@ -3096,11 +3405,11 @@ void Main_Window::edit_tileset_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	Tileset *tileset = mw->_metatileset.tileset();
+	Tileset &tileset = mw->_metatileset.tileset();
 
-	if (tileset->modified_roof()) {
+	if (tileset.modified_roof()) {
 		char basename[FL_PATH_MAX] = {};
-		Config::roof_png_path(basename, "", tileset->roof_name());
+		Config::roof_png_path(basename, "", tileset.roof_name());
 		std::string msg = fl_filename_name(basename);
 		msg = msg + " has unsaved changes!\n\n"
 			"Change the roof anyway?";
@@ -3110,7 +3419,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	}
 
 	char old_name[FL_PATH_MAX] = {};
-	strcpy(old_name, tileset->roof_name());
+	strcpy(old_name, tileset.roof_name());
 
 	if (!mw->_roof_options_dialog->limit_roof_options(old_name)) {
 		const char *basename = fl_filename_name(mw->_blk_file.c_str());
@@ -3126,11 +3435,11 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (canceled) { return; }
 
 	const char *roof_name = mw->_roof_options_dialog->roof();
-	tileset->roof_name(roof_name);
-	if (tileset->has_roof()) {
+	tileset.roof_name(roof_name);
+	if (tileset.has_roof()) {
 		char filename[FL_PATH_MAX] = {};
 		Config::roof_path(filename, mw->_directory.c_str(), roof_name);
-		Tileset::Result rt = tileset->read_roof_graphics(filename);
+		Tileset::Result rt = tileset.read_roof_graphics(filename);
 		if (rt != Tileset::Result::GFX_OK) {
 			Config::roof_path(filename, "", roof_name);
 			std::string msg = "Error reading ";
@@ -3140,7 +3449,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 		}
 	}
 	else {
-		tileset->clear_roof_graphics();
+		tileset.clear_roof_graphics();
 	}
 
 	mw->update_active_controls();
@@ -3150,7 +3459,7 @@ void Main_Window::change_roof_cb(Fl_Widget *, Main_Window *mw) {
 void Main_Window::edit_roof_cb(Fl_Widget *, Main_Window *mw) {
 	if (!mw->_map.size()) { return; }
 
-	mw->_roof_window->tileset(mw->_metatileset.tileset());
+	mw->_roof_window->tileset(&mw->_metatileset.tileset());
 	mw->_roof_window->show(mw);
 	bool canceled = mw->_roof_window->canceled();
 	if (canceled) { return; }
@@ -3175,7 +3484,7 @@ void Main_Window::edit_current_palettes_cb(Fl_Widget *, Main_Window *mw) {
 
 void Main_Window::monochrome_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::monochrome(!!m->mvalue()->value());
-	mw->redraw();
+	change_tileset_cb(NULL, mw);
 }
 
 void Main_Window::allow_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
@@ -3186,7 +3495,32 @@ void Main_Window::allow_priority_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::allow_256_tiles_cb(Fl_Menu_ *m, Main_Window *mw) {
 	Config::allow_256_tiles(!!m->mvalue()->value());
-	mw->redraw();
+	change_tileset_cb(NULL, mw);
+}
+
+void Main_Window::roof_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_CUSTOM;
+}
+
+void Main_Window::roof_day_nite_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_day_nite_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_DAY_NITE;
+}
+
+void Main_Window::roof_morn_day_nite_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_morn_day_nite_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_MORN_DAY_NITE;
+}
+
+void Main_Window::roof_day_nite_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_day_nite_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_DAY_NITE_CUSTOM;
+}
+
+void Main_Window::roof_morn_day_nite_custom_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_roof_morn_day_nite_custom_mi->setonly();
+	mw->_roof_palettes = Roof_Palettes::ROOF_MORN_DAY_NITE_CUSTOM;
 }
 
 void Main_Window::auto_load_events_cb(Fl_Menu_ *m, Main_Window *mw) {
@@ -3209,6 +3543,13 @@ void Main_Window::auto_load_roof_colors_cb(Fl_Menu_ *m, Main_Window *mw) {
 
 void Main_Window::drag_and_drop_option_cb(Fl_Menu_ *m, Main_Window *) {
 	Config::drag_and_drop(!!m->mvalue()->value());
+}
+
+void Main_Window::overworld_map_size_cb(Fl_Menu_ *, Main_Window *mw) {
+	mw->_overworld_map_size_dialog->overworld_map_size(Config::overworld_map_size());
+	mw->_overworld_map_size_dialog->show(mw);
+	if (mw->_overworld_map_size_dialog->canceled()) { return; }
+	Config::overworld_map_size(mw->_overworld_map_size_dialog->overworld_map_size());
 }
 
 void Main_Window::help_cb(Fl_Widget *, Main_Window *mw) {
@@ -3265,31 +3606,25 @@ void Main_Window::change_block_cb(Block *b, Main_Window *mw) {
 			// Shift+left-click to flood fill
 			mw->flood_fill(b, b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			mw->substitute_block(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else if (Fl::event_alt()) {
 			// Alt+left-click to replace
 			mw->swap_blocks(b->id(), mw->_selected->id());
 			mw->_map_group->redraw();
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
 		else {
 			// Left-click/drag to edit
 			uint8_t id = mw->_selected->id();
 			b->id(id);
 			b->damage(1);
-			mw->_map.modified(true);
-			mw->update_status(b);
 		}
+		mw->_map.modified(true);
+		mw->update_status(b);
 	}
 	else if (Fl::event_button() == FL_RIGHT_MOUSE) {
 		// Right-click to select
@@ -3309,8 +3644,8 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 			int ox = Fl::event_x() - EVENT_MARGIN * e->w(), oy = Fl::event_y() - EVENT_MARGIN * e->h();
 			int rx = (ox - sx) / e->w() - (ox < sx);
 			int ry = (oy - sy) / e->h() - (oy < sy);
-			int16_t ex = (int16_t)MIN(MAX(rx, MIN_EVENT_COORD), mw->_map.max_event_x());
-			int16_t ey = (int16_t)MIN(MAX(ry, MIN_EVENT_COORD), mw->_map.max_event_y());
+			int16_t ex = std::clamp((int16_t)rx, MIN_EVENT_COORD, mw->_map.max_event_x());
+			int16_t ey = std::clamp((int16_t)ry, MIN_EVENT_COORD, mw->_map.max_event_y());
 			e->coords(ex, ey);
 			e->reposition(sx, sy);
 			mw->_map_events.modified(true);
@@ -3332,6 +3667,7 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 		if (!mw->_event_options_dialog->canceled()) {
 			mw->_event_options_dialog->update_event(e);
 			e->reposition(sx, sy);
+			mw->_map_events.refresh_warps();
 			mw->_map_events.modified(true);
 			mw->redraw();
 		}

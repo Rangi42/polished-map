@@ -22,13 +22,13 @@
 
 #endif
 
+Main_Window *window = NULL;
+
 #ifdef __APPLE__
 
 #pragma warning(push, 0)
 #include <FL/x.H>
 #pragma warning(pop)
-
-Main_Window *window = NULL;
 
 void open_dragged_cb(const char *filename) {
 	if (window) {
@@ -56,8 +56,8 @@ static void use_theme(OS::Theme theme) {
 	case OS::Theme::GREYBIRD:
 		OS::use_greybird_theme();
 		return;
-	case OS::Theme::METAL:
-		OS::use_metal_theme();
+	case OS::Theme::OCEAN:
+		OS::use_ocean_theme();
 		return;
 	case OS::Theme::BLUE:
 		OS::use_blue_theme();
@@ -70,6 +70,9 @@ static void use_theme(OS::Theme theme) {
 		return;
 	case OS::Theme::DARK:
 		OS::use_dark_theme();
+		return;
+	case OS::Theme::BRUSHED_METAL:
+		OS::use_brushed_metal_theme();
 		return;
 	case OS::Theme::HIGH_CONTRAST:
 		OS::use_high_contrast_theme();
@@ -89,7 +92,13 @@ int main(int argc, char **argv) {
 	Fl::visual(FL_DOUBLE | FL_RGB);
 
 #ifdef _WIN32
-	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::BLUE);
+	OS::Theme default_theme = OS::Theme::BLUE;
+	DWORD reg_value = 1, reg_size = sizeof(reg_value);
+	if (!RegGetValue(HKEY_CURRENT_USER, _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+		_T("AppsUseLightTheme"), RRF_RT_REG_DWORD, NULL, &reg_value, &reg_size) && reg_value == 0) {
+		default_theme = OS::Theme::DARK;
+	}
+	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)default_theme);
 #elif defined(__APPLE__)
 	OS::Theme theme = (OS::Theme)Preferences::get("theme", (int)OS::Theme::AQUA);
 #else
@@ -104,23 +113,27 @@ int main(int argc, char **argv) {
 #endif
 	int w = Preferences::get("w", 800), h = Preferences::get("h", 600);
 #ifdef __APPLE__
-	fl_open_callback(open_dragged_cb);
-	window = new Main_Window(x, y, w, h);
-#else
-	Main_Window *window = new Main_Window(x, y, w, h);
+    fl_open_callback(open_dragged_cb);
 #endif
-	window->show();
+    window = new Main_Window(x, y, w, h);
+    window->show();
+    
+    if (window->transparent()) {
+        window->apply_transparency();
+    }
+    if (window->full_screen()) {
+        window->fullscreen();
+    }
+    else if (Preferences::get("maximized")) {
+        window->maximize();
+    }
 
 	if (argc > 1) {
 		window->open_map(argv[1]);
 	}
 
-#ifdef __APPLE__
 	int r = Fl::run();
 	delete window;
 	window = NULL;
 	return r;
-#else
-	return Fl::run();
-#endif
 }

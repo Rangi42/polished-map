@@ -24,12 +24,11 @@ debugdir = tmp/debug
 bindir = bin
 
 ifdef MACOS
-CXXFLAGS = -std=c++11 --stdlib=libc++ -isystem ./include -isystem /usr/include -I$(srcdir) -I$(resdir) -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_THREAD_SAFE -D_REENTRANT
-LDFLAGS = $(wildcard lib/osx/*.a) -L/usr/local/lib -lm -lz -lpthread -framework ApplicationServices -framework Cocoa
+CXXFLAGS = -std=c++17 --stdlib=libc++ -isystem ./include -isystem /usr/include -I$(srcdir) -I$(resdir) -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_THREAD_SAFE -D_REENTRANT -Wno-narrowing
 else
-CXXFLAGS = -std=c++11 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images --cxxflags)
-LDFLAGS = $(shell fltk-config --use-images --ldflags) $(shell pkg-config --libs libpng xpm)
+CXXFLAGS = -std=c++17 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images --cxxflags)
 endif
+LDFLAGS = $(shell fltk-config --use-images --ldflags) $(shell pkg-config --libs libpng xpm)
 
 RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native
 DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter

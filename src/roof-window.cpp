@@ -84,8 +84,13 @@ void Roof_Window::initialize() {
 	_swatch4 = new Swatch(38, 128, 22, "4");
 	_copy_tb = new Toolbar_Button(16, 160, 22, 22);
 	_paste_tb = new Toolbar_Button(38, 160, 22, 22);
+#ifdef _WIN32
 	_ok_button = new Default_Button(42, 196, 80, 22, "OK");
 	_cancel_button = new OS_Button(136, 196, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(42, 196, 80, 22, "Cancel");
+	_ok_button = new Default_Button(136, 196, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_roof_group->begin();
@@ -114,6 +119,7 @@ void Roof_Window::initialize() {
 	}
 	_tile_group->end();
 	// Initialize window
+	_window->box(OS_BG_BOX);
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
@@ -169,8 +175,9 @@ void Roof_Window::tileset(Tileset *t) {
 	for (uint8_t i = 0; i < NUM_ROOF_TILES; i++) {
 		uint8_t id = i + FIRST_ROOF_TILE_ID;
 		const Tile *ti = _tileset->const_roof_tile(id);
-		_deep_tile_buttons[i]->copy(ti);
-		_deep_tile_buttons[i]->activate();
+		Deep_Tile_Button *dtb = _deep_tile_buttons[i];
+		dtb->copy(ti);
+		dtb->activate();
 	}
 }
 
@@ -186,8 +193,7 @@ void Roof_Window::show(const Fl_Widget *p) {
 }
 
 void Roof_Window::apply_modifications() {
-	for (int i = 0; i < NUM_ROOF_TILES; i++) {
-		const Tile *t = _deep_tile_buttons[i];
+	for (const Tile *t : _deep_tile_buttons) {
 		uint8_t id = t->id();
 		_tileset->roof_tile(id)->copy(t);
 	}
@@ -243,10 +249,21 @@ void Roof_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 }
 
 void Roof_Window::substitute_hue(Hue f, Hue t) const {
-	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
+		}
+	}
+}
+
+void Roof_Window::swap_hues(Hue f, Hue t) const {
+	if (f == t) { return; }
+	for (Pixel_Button *pb : _pixels) {
+		if (pb->hue() == f) {
+			pb->hue(t);
+		}
+		else if (pb->hue() == t) {
+			pb->hue(f);
 		}
 	}
 }
@@ -285,6 +302,13 @@ void Roof_Window::change_pixel_cb(Pixel_Button *pb, Roof_Window *rw) {
 		else if (Fl::event_ctrl()) {
 			// Ctrl+left-click to replace
 			rw->substitute_hue(pb->hue(), rw->_chosen->hue());
+			rw->_tile_group->redraw();
+			rw->_selected->copy_pixels(rw->_pixels);
+			rw->_selected->redraw();
+		}
+		else if (Fl::event_alt()) {
+			// Alt+left-click to swap
+			rw->swap_hues(pb->hue(), rw->_chosen->hue());
 			rw->_tile_group->redraw();
 			rw->_selected->copy_pixels(rw->_pixels);
 			rw->_selected->redraw();
@@ -371,7 +395,7 @@ void Roof_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Roof_Window *rw) {
 		rw->_selected->palette(Palette::GRAY);
 	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
-	int w = MAX(pasted->w(), TILE_SIZE), h = MAX(pasted->h(), TILE_SIZE);
+	int w = std::max(pasted->w(), TILE_SIZE), h = std::max(pasted->h(), TILE_SIZE);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();

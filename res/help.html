@@ -5,9 +5,9 @@ R"(<html>
 <body>
 <h1>)" PROGRAM_NAME R"(</h1>
 <p>Copyright © )" CURRENT_YEAR " " PROGRAM_AUTHOR R"(</p>
-<p>A map and tileset editor for <a href="https://github.com/pret/pokecrystal">pokecrystal</a> and <a href="https://github.com/pret/pokered">pokered</a>.</p>
-<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a>, but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and with more functions for graphics editing.</p>
-<p>Source code is available at <a href="https://github.com/Rangi42/polished-map">https://github.com/Rangi42/polished-map</a>.</p>
+<p>A map and tileset editor for <a href="https://github.com/pret/pokecrystal">pokecrystal</a>, <a href="https://github.com/pret/pokegold">pokegold</a>, <a href="https://github.com/pret/pokeyellow">pokeyellow</a>, <a href="https://github.com/pret/pokered">pokered</a>, and custom projects based on them.</p>
+<p>Inspired by <a href="https://github.com/yenatch/crowdmap">crowdmap</a> (now defunct), but implemented with C++ and <a href="http://www.fltk.org/">FLTK</a>, and with more functions for graphics editing.</p>
+<p>Source code is available at <a href="https://github.com/Rangi42/polished-map">https://github.com/Rangi42/polished-map</a> under the <a href="https://github.com/Rangi42/polished-map/blob/master/LICENSE.md">LGPL v3.0</a> license.</p>
 <hr>
 <p>)" PROGRAM_NAME R"( displays and edits .blk map files. It supports all the standard ways to open a file:</p>
 <ul>
@@ -26,10 +26,12 @@ R"(<html>
 <li><b>Monochrome:</b> Tileset palettes will not be read or written. This option is necessary for <a href="https://github.com/pret/pokered">pokered</a>-based projects.</li>
 <li><b>Tile Priority:</b> Allow tiles to have priority over sprites. <a href="https://github.com/pret/pokecrystal">pokecrystal</a>'s *_palette_map.asm files only assign a color to each tile. <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">This tutorial</a> explains how to make them assign priority attributes as well. This option is necessary to correctly save the *_palette_map.asm files.</li>
 <li><b>256 Tiles:</b> Allow all 256 tile IDs from $00 to $FF. <a href="https://github.com/pret/pokecrystal">pokecrystal</a>'s tileset graphics have tiles for IDs $00 to $5F, then skip $60 to $7F and continue from $80 to $DF, with $E0 to $FF unused. <a href="https://github.com/pret/pokecrystal/wiki/Expand-tilesets-from-192-to-255-tiles">This tutorial</a> explains how to use all the IDs for map tiles except $7F, which is used for spaces in text. This option is necessary for projects that support larger tilesets, such as Polished Crystal and Orange.</li>
-<li><b>Auto-Load Events:</b> Automatically loads the .asm file corresponding to the map if one exists. For example, if you open maps)" DIR_SEP "PalletTown.blk, then this option will automatically try to load maps" DIR_SEP "PalletTown.asm (for pokecrystal-based projects) or data" DIR_SEP "mapObjects" DIR_SEP R"(PalletTown.asm (for pokered).</li>
+<li><b>Roof Palettes:</b> pokecrystal loads two pairs of ROOF colors per map group by default: one for Morn + Day, one for Night. If your project is modified to use different ROOF colors (such as by <a href="https://github.com/pret/pokecrystal/wiki/Make-evening-the-fourth-time-of-day">making evening the fourth time of day</a>, with its own third pair of Custom colors), this option will let you choose which palettes they load into.</li>
+<li><b>Auto-Load Events:</b> Automatically loads the .asm file corresponding to the map if one exists. For example, if you open maps)" DIR_SEP "PalletTown.blk, then this option will automatically try to load maps" DIR_SEP "PalletTown.asm (for pokecrystal-based projects) or data" DIR_SEP "maps" DIR_SEP "objects" DIR_SEP R"(PalletTown.asm (for pokered).</li>
 <li><b>Auto-Load Special Palettes:</b> Automatically loads a .pal file associated with the map if one exists. Association is based on the map, landmark, or tileset. For example, if you open maps)" DIR_SEP "IcePath1F.blk with the tileset gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.png and the landmark in data" DIR_SEP "maps" DIR_SEP "maps.asm for IcePath is ICE_PATH, then this option will automatically load maps" DIR_SEP "IcePath1F.pal (corresponding to the map), or else gfx" DIR_SEP "tilesets" DIR_SEP "ice_path.pal (the landmark), or else gfx" DIR_SEP "tilesets" DIR_SEP R"(ice_path.pal (the tileset). You can also use Data&nbsp;→&nbsp;Load&nbsp;Palettes… to manually load any such .pal file.</li>
 <li><b>Auto-Load Roof Colors:</b> Automatically loads colors for the ROOF palette of the map's group, if the group was detected from constants)" DIR_SEP "map_constants.asm and the roof palettes are defined in gfx" DIR_SEP "tilesets" DIR_SEP "roofs.pal (or tilesets" DIR_SEP R"(roof.pal for backwards compatibility with older pokecrystal versions). You can also use Data&nbsp;→&nbsp;Load&nbsp;Roof&nbsp;Colors to do this manually.</li>
-<li><b>Drag and Drop:</b> Enables drag-and-drop for blocks in the sidebar, tiles in the tileset editor or roof editor, and colors in the palette editor. Left-click and drag one item onto another to swap them; hold Ctrl and do the same to copy.
+<li><b>Drag and Drop:</b> Enables drag-and-drop for blocks in the sidebar, tiles in the tileset editor or roof editor, and colors in the palette editor. Left-click and drag one item onto another to swap them; hold Ctrl and do the same to copy.</li>
+<li><b>Overworld Map Size:</b> The overworld map block buffer in WRAM stores the entire current map, padded by 3 blocks on each side. )" PROGRAM_NAME R"( warns you if you save a map that would overflow this buffer. If your project modifies the buffer size, this option will let you configure the warning.</li>
 </ul>
 <hr>
 <p>Most functions are available via the menu bar, the toolbar, or shortcut keys.</p>
@@ -59,6 +61,7 @@ R"(<html>
 <li>Middle-click and drag to scroll.</li>
 <li>Hold Shift and left-click a warp event to open the map it warps to. The map's filename is guessed from the warp event's constant. For example, a warp to UNION_CAVE_B1F will try to open UnionCaveB1F.ablk.</li>
 </ul>
+<p>The arrow keys, or the mouse's scrolling function if it has one, will scroll the sidebar array or the map area (whichever one the cursor is over).</p>
 <p>The number keys 0-9 are hotkeys for the sidebar array.</p>
 <ul>
 <li>Press )" COMMAND_KEY_PLUS R"(0-9 to assign that key to the selected block.</li>
@@ -72,8 +75,16 @@ R"(<html>
 <li>Left-click the tileset array to select a tile.</li>
 <li>Left-click or drag inside the block area to place the selected tile in the block.</li>
 <li>Right-click inside the block area to select a tile from the block.</li>
-<li>Hold Ctrl and left-click to place four tiles at once: a contiguous 2x2 group, with the selected tile as the top-left.</li>
-<li>Hold Ctrl+Shift and left-click to place sixteen tiles at once: a contiguous 4x4 group, with the selected tile as the top-left.</li>
+</ul>
+<p>And some more complex ones for placing multiple tiles at once, with the selected tile as the top-left:</p>
+<ul>
+<li>Hold Ctrl and left-click to place a contiguous 2x2 square.</li>
+<li>Hold Ctrl+Shift and left-click to place a contiguous 4x4 square.</li>
+<li>Hold Alt and left-click to place a sequential 2+2 line in a square.</li>
+<li>Hold Alt+Shift and left-click to place a sequential 4+4+4+4 line in a square.</li>
+<li>Hold Ctrl+Alt and left-click to place a sequential 2-2 line in a square, with the rows going backwards.</li>
+<li>Hold Ctrl+Alt+Shift and left-click to place a sequential 4-4-4-4 line in a square, with the rows going backwards.</li>
+<li>Hold Shift and left-click to place two sequential tiles in a checkerboard 2/2 square.</li>
 </ul>
 <p>For pokecrystal-based projects, you can also edit the collision values of the block's four quadrants. Old-style collision.bin files and up-to-date collision.asm files are both supported.</p>
 <hr>
@@ -89,9 +100,9 @@ R"(<html>
 <li>Hold Ctrl and left-click a pixel to replace every pixel of that hue with the selected hue.</li>
 <li>Hold Alt and left-click a pixel to swap every pixel of that hue and every pixel of the selected hue.</li>
 </ul>
-<p>)" COMMAND_KEY_PLUS R"(C, )" COMMAND_KEY_PLUS R"(V, and )" COMMAND_KEY_PLUS R"(X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
-<p>The Copy and Paste buttons, or )" COMMAND_SHIFT_KEYS_PLUS R"(C and )" COMMAND_SHIFT_KEYS_PLUS R"(V, will copy and paste the tile graphics using the system clipboard. Tile graphics are always copied in monochrome grayscale, just like the tileset PNGs. Graphics can be pasted as any color; they get converted to four-hue monochrome when pasted. (So you can easily rip tiles from full-color game screenshots.)</p>
-<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">a feature</a> of Polished Crystal and similar hacks.</p>
+<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap tiles respectively, just like they do for blocks in the map editor's sidebar array. Delete will clear a tile's graphics and set its color to UNDEFINED.</p>
+<p>The Copy and Paste buttons, or Ctrl+Shift+C and Ctrl+Shift+V, will copy and paste the tile graphics using the system clipboard. Tile graphics are always copied in monochrome grayscale, just like the tileset PNGs. Graphics can be pasted as any color; they get converted to four-hue monochrome when pasted. (So you can easily rip tiles from full-color game screenshots.)</p>
+<p>Every tile has a single color. The TEXT color is meant for menus and text boxes, and should not be used for map tiles. Alt+1 through Alt+8 will set the current tile to use the <i>N</i>th palette. The "<span>Priority (above sprites)</span>" checkbox sets the PRIORITY attribute bit for a tile so it will appear above sprites, including NPCs and the player; this is <a href="https://github.com/pret/pokecrystal/wiki/Allow-map-tiles-to-appear-above-sprites-(so-NPCs-can-walk-behind-tiles)-with-PRIORITY-colors">a feature</a> of Polished Crystal and similar hacks.</p>
 <hr>
 <p>Tilesets can be augmented by roofs. A roof is assumed to take up the nine tiles from $0A to $12. When a roof is loaded, it visibly affects the map and the block editor, but not the tileset editor. Thus you can edit the tileset without the loaded roof overwriting those nine tiles.</p>
 <p>When you open a map the roof selection always defaults to none, even if the map uses a roof. This is because pokecrystal only loads roofs for certain tilesets, which are <a href="https://github.com/pret/pokecrystal/wiki/Hard-coded-logic#tilesets-that-have-per-mapgroup-roofs">hard-coded</a> instead of being defined in a data table. This makes it impractical to automatically detect a map's roof type, so you'll have to manually specify it.</p>
@@ -105,7 +116,7 @@ R"(<html>
 <li>Left-click and drag one color onto another to swap them.</li>
 <li>Hold Ctrl, left-click and drag one color onto another to copy it.</li>
 </ul>
-<p>)" COMMAND_KEY_PLUS R"(C, )" COMMAND_KEY_PLUS R"(V, and )" COMMAND_KEY_PLUS R"(X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
-<p>Edited palette colors can be exported, but only one at a time; so if you load a multi-palette .pal file (like bg_tiles.pal, which defines MORN, DAY, NITE, and INDOOR palettes' colors), do not overwrite it when exporting your edits.</p>
+<p>Ctrl+C, Ctrl+V, and Ctrl+X will copy, paste, and swap colors respectively, just like they do for blocks and tiles in their own editor dialogs.</p>
+<p>You can export the edited colors of all the palettes at once to a single .pal file. Do not overwrite an existing file with this; instead, copy+paste only the palettes you need. For example, bg_tiles.pal defines MORN, DAY, NITE, and INDOOR palettes (as well as separate WATER colors for MORN/DAY and NITE), and ice_path.pal defines a CUSTOM palette.</p>
 </body>
 </html>)"

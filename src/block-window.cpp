@@ -1,18 +1,44 @@
 #include "themes.h"
+#include "config.h"
 #include "tile.h"
 #include "icons.h"
 #include "image.h"
 #include "block-window.h"
 
+Block_Double_Window::Block_Double_Window(int x, int y, int w, int h, const char *l) : Fl_Double_Window(x, y, w, h, l) {}
+
+int Block_Double_Window::handle(int event) {
+	Block_Window *bw = (Block_Window *)user_data();
+	switch (event) {
+	case FL_FOCUS:
+	case FL_UNFOCUS:
+		return 1;
+	case FL_KEYUP:
+	case FL_KEYDOWN:
+		switch (Fl::event_key()) {
+		case FL_Control_L:
+		case FL_Control_R:
+		case FL_Alt_L:
+		case FL_Alt_R:
+		case FL_Shift_L:
+		case FL_Shift_R:
+			bw->update_multiedit();
+			return 1;
+		}
+	}
+	return Fl_Double_Window::handle(event);
+}
+
 Block_Window::Block_Window(int x, int y) : _dx(x), _dy(y), _tileset(NULL), _metatile_id(0), _canceled(false),
-	_show_priority(false), _window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _metatile_heading(NULL),
-	_hover_tile_heading(NULL), _tileset_group(NULL), _metatile_group(NULL), _tile_buttons(), _selected(NULL),
-	_chips(), _collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
+	_show_priority(false), _window(NULL), _tileset_heading(NULL), _tile_heading(NULL), _multiedit_heading(NULL),
+	_metatile_heading(NULL), _hover_tile_heading(NULL), _tileset_group(NULL), _metatile_group(NULL), _tile_buttons(),
+	_selected(NULL), _chips(), _collision_inputs(), _bin_collision_spinners(), _ok_button(NULL), _cancel_button(NULL) {}
 
 Block_Window::~Block_Window() {
 	delete _window;
 	delete _tileset_heading;
 	delete _tile_heading;
+	delete _multiedit_heading;
 	delete _metatile_heading;
 	delete _hover_tile_heading;
 	delete _tileset_group;
@@ -26,9 +52,11 @@ void Block_Window::initialize() {
 	Fl_Group *prev_current = Fl_Group::current();
 	Fl_Group::current(NULL);
 	// Populate window
-	_window = new Fl_Double_Window(_dx, _dy, 466, 304, "Edit Block");
+	_window = new Block_Double_Window(_dx, _dy, 466, 304, "Edit Block");
 	int thw = text_width("Tile: $FFF", 2);
 	_tile_heading = new Label(268-thw, 10, thw, 22);
+	int mhw = text_width("Place 4+4+4+4", 2);
+	_multiedit_heading = new Label(268-mhw, 10, mhw, 22);
 	_tileset_heading = new Label(10, 10, 258-thw, 22);
 	_metatile_heading = new Label(278, 10, 98, 22);
 	_hover_tile_heading = new Label(376, 10, thw, 22);
@@ -42,13 +70,18 @@ void Block_Window::initialize() {
 	_collision_inputs[(int)Quadrant::TOP_RIGHT]    = new OS_Input(300, 170, 156, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_LEFT]  = new OS_Input(300, 196, 156, 22);
 	_collision_inputs[(int)Quadrant::BOTTOM_RIGHT] = new OS_Input(300, 222, 156, 22);
-	int bsw = MAX(text_width("AA", 2), text_width("FF", 2)) + 22;
+	int bsw = std::max(text_width("AA", 2), text_width("FF", 2)) + 22;
 	_bin_collision_spinners[(int)Quadrant::TOP_LEFT]     = new Default_Hex_Spinner(300, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::TOP_RIGHT]    = new Default_Hex_Spinner(332+bsw, 144, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_LEFT]  = new Default_Hex_Spinner(300, 170, bsw, 22);
 	_bin_collision_spinners[(int)Quadrant::BOTTOM_RIGHT] = new Default_Hex_Spinner(332+bsw, 170, bsw, 22);
+#ifdef _WIN32
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(282, 272, 80, 22, "Cancel");
+	_ok_button = new Default_Button(376, 272, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
@@ -75,9 +108,12 @@ void Block_Window::initialize() {
 	}
 	_metatile_group->end();
 	// Initialize window
+	_window->box(OS_BG_BOX);
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
+	_multiedit_heading->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+	_multiedit_heading->hide();
 	_tileset_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_metatile_group->box(OS_SPACER_THIN_DOWN_FRAME);
 	_collision_inputs[(int)Quadrant::TOP_LEFT]->image(COLL_TOP_LEFT_ICON);
@@ -199,7 +235,7 @@ void Block_Window::draw_tile(uint8_t id, int x, int y, int s) const {
 	t->draw_with_priority(x, y, s, _show_priority);
 }
 
-void Block_Window::update_status(Chip *c) {
+void Block_Window::update_status(const Chip *c) {
 	if (!c) {
 		_hover_tile_heading->label("");
 	}
@@ -209,6 +245,32 @@ void Block_Window::update_status(Chip *c) {
 		_hover_tile_heading->copy_label(buffer);
 	}
 	_hover_tile_heading->redraw();
+}
+
+void Block_Window::update_multiedit() {
+	const char *place_labels[8] = {
+		"",              // no modifiers
+		"Place 2/2",     // Shift
+		"Place 2x2",     // Ctrl
+		"Place 4x4",     // Ctrl+Shift
+		"Place 2+2",     // Alt
+		"Place 4+4+4+4", // Alt+Shift
+		"Place 2-2",     // Ctrl+Alt
+		"Place 4-4-4-4", // Ctrl+Alt+Shift
+	};
+	int i = (Fl::event_alt() ? 4 : 0) | (Fl::event_ctrl() ? 2 : 0) | (Fl::event_shift() ? 1 : 0);
+	_multiedit_heading->label(place_labels[i]);
+	if (i) {
+		_tile_heading->hide();
+		_multiedit_heading->show();
+	}
+	else {
+		_tile_heading->show();
+		_multiedit_heading->hide();
+	}
+	_tileset_heading->redraw();
+	_tile_heading->redraw();
+	_multiedit_heading->redraw();
 }
 
 void Block_Window::close_cb(Fl_Widget *, Block_Window *bw) {
@@ -231,18 +293,27 @@ void Block_Window::select_tile_cb(Tile_Button *tb, Block_Window *bw) {
 void Block_Window::change_chip_cb(Chip *c, Block_Window *bw) {
 	if (Fl::event_button() == FL_LEFT_MOUSE) {
 		// Left-click to edit
+		// Shift+left-click to edit 2/2
 		// Ctrl+left-click to edit 2x2
 		// Ctrl+Shift+left-click to edit 4x4
+		// Alt+left-click to edit 2+2
+		// Alt+Shift+left-click to edit 4+4+4+4
+		// Ctrl+Alt+left-click to edit 2-2
+		// Ctrl+Alt+Shift+left-click to edit 4-4-4-4
 		uint8_t id = bw->_selected->id();
-		uint8_t n = Fl::event_ctrl() ? Fl::event_shift() ? 4 : 2 : 1;
+		bool ctrl = Fl::event_ctrl(), alt = Fl::event_alt(), shift = Fl::event_shift();
+		bool checkered = !ctrl && !alt && shift;
+		uint8_t n = ((ctrl || alt) ? 2 : 1) * (shift ? 2 : 1);
+		bool allow_256_tiles = Config::allow_256_tiles();
+		bool skip = !allow_256_tiles && id < 0x60;
 		for (uint8_t dy = 0; dy < n; dy++) {
 			for (uint8_t dx = 0; dx < n; dx++) {
 				uint8_t y = c->row() + dy, x = c->col() + dx;
-				bool row_free = y < METATILE_SIZE && id < MAX_NUM_TILES - TILES_PER_ROW * dy;
-				bool col_free = x < METATILE_SIZE && id % TILES_PER_ROW < TILES_PER_ROW - dx;
-				if (row_free && col_free) {
+				uint8_t tid = id + (checkered ? dy ^ dx : (ctrl ? alt ? -n : TILES_PER_ROW : n) * dy + dx);
+				if (skip && tid >= 0x60) { tid += 0x20; }
+				if (y < METATILE_SIZE && x < METATILE_SIZE && (allow_256_tiles || tid < 0xE0)) {
 					Chip *chip = bw->chip(x, y);
-					chip->id(id + TILES_PER_ROW * dy + dx);
+					chip->id(tid);
 					chip->damage(1);
 				}
 			}

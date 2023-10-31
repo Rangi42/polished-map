@@ -12,6 +12,7 @@
 #include "colors.h"
 
 #define TILE_SIZE 8
+#define TILE_AREA (TILE_SIZE * TILE_SIZE)
 #define ZOOM_FACTOR 2
 
 #define TILE_PX_SIZE (TILE_SIZE * ZOOM_FACTOR)
@@ -27,7 +28,7 @@ class Tile {
 protected:
 	uint8_t _id;
 	Palette _palette;
-	Hue _hues[TILE_SIZE * TILE_SIZE];
+	Hue _hues[TILE_AREA];
 	uchar _rgb[LINE_PX * LINE_PX * NUM_CHANNELS];
 public:
 	Tile(uint8_t id);
@@ -40,6 +41,7 @@ public:
 	inline Hue hue(int x, int y) const { return _hues[y * TILE_SIZE + x]; }
 	inline uchar *pixel(int x, int y) { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
 	inline const uchar *const_pixel(int x, int y) const { return _rgb + (y * LINE_BYTES + x * NUM_CHANNELS) * ZOOM_FACTOR; }
+	bool is_blank(void) const;
 	void pixel(int x, int y, Hue h, uchar r, uchar g, uchar b);
 	void clear(void);
 	void copy(const Tile *t);

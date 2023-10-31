@@ -1,40 +1,17 @@
+#pragma warning(push, 0)
+#include <FL/filename.H>
+#include <FL/fl_utf8.h>
+#pragma warning(pop)
+
 #include "directory-chooser.h"
 
 #ifdef _WIN32
-
-// utf8towchar and wchartoutf8 copied from Fl_Native_File_Chooser_WIN32.cxx
-
-static LPCWSTR utf8towchar(const char *in) {
-	if (in == NULL) { return NULL; }
-	WCHAR *wout = NULL;
-	int lwout = 0;
-	int wlen = MultiByteToWideChar(CP_UTF8, 0, in, -1, NULL, 0);
-	if (wlen > lwout) {
-		lwout = wlen;
-		wout = (WCHAR *)malloc(lwout * sizeof(WCHAR));
-	}
-	MultiByteToWideChar(CP_UTF8, 0, in, -1, wout, wlen);
-	return wout;
-}
-
-static const char *wchartoutf8(LPCWSTR in) {
-	if (in == NULL) { return NULL; }
-	char *out = NULL;
-	int lchar = 0;
-	int utf8len  = WideCharToMultiByte(CP_UTF8, 0, in, -1, NULL, 0, NULL, NULL);
-	if (utf8len > lchar) {
-		lchar = utf8len;
-		out = (char *)malloc(lchar);
-	}
-	WideCharToMultiByte(CP_UTF8, 0, in, -1, out, utf8len, NULL, NULL);
-	return out;
-}
 
 Directory_Chooser::Directory_Chooser(int) : _title(NULL), _filename(NULL), _fod_ptr(NULL) {}
 
 Directory_Chooser::~Directory_Chooser() {
 	if (_fod_ptr) { _fod_ptr->Release(); }
-	free((void *)_filename);
+	delete [] _filename;
 }
 
 int Directory_Chooser::show() {
@@ -44,12 +21,11 @@ int Directory_Chooser::show() {
 		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void **>(&_fod_ptr));
 		if (!SUCCEEDED(hr)) { return -1; }
 	}
-	free((void *)_filename);
+	delete [] _filename;
 	_filename = NULL;
 
-	static WCHAR wtitle[256];
-	wcsncpy(wtitle, utf8towchar(_title), 256);
-	wtitle[255] = '\0';
+	wchar_t wtitle[FL_PATH_MAX] = {};
+	fl_utf8towc(_title, strlen(_title), wtitle, sizeof(wtitle));
 	_fod_ptr->SetTitle(wtitle);
 
 	FILEOPENDIALOGOPTIONS fod_opts;
@@ -70,7 +46,11 @@ int Directory_Chooser::show() {
 	hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 	if (!SUCCEEDED(hr)) { pItem->Release(); return -1; }
 
-	_filename = wchartoutf8(pszFilePath);
+	size_t len = wcslen(pszFilePath);
+	char *filename = new char[len + 1];
+	fl_utf8fromwc(filename, len + 1, pszFilePath, len);
+	_filename = filename;
+
 	CoTaskMemFree(pszFilePath);
 	pItem->Release();
 	return 0;

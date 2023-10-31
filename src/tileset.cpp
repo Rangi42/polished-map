@@ -2,8 +2,9 @@
 #include "tileset.h"
 #include "image.h"
 
-Tileset::Tileset() : _name(), _palettes(), _palette_map(), _tiles(), _roof_tiles(), _num_tiles(0), _num_roof_tiles(0),
-	_result(Result::GFX_NULL), _modified(false), _modified_roof(false) {
+Tileset::Tileset() : _name(), _palettes(), _palette_map(), _tiles(), _roof_tiles(), _num_tiles(0), _num_before_tiles(0),
+	_num_mid_tiles(0), _num_roof_tiles(0), _result(Result::GFX_NULL), _modified(false), _modified_roof(false),
+	_mod_time(0), _mod_time_before(0), _mod_time_after(0), _mod_time_roof(0) {
 	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
 		_tiles[i] = new Tile((uint8_t)i);
 		_roof_tiles[i] = new Tile((uint8_t)i);
@@ -22,19 +23,22 @@ void Tileset::clear() {
 	_name.clear();
 	_palette_map.clear();
 	_num_tiles = 0;
-	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_tiles[i]->clear();
+	_num_before_tiles = 0;
+	_num_mid_tiles = 0;
+	for (Tile *t : _tiles) {
+		t->clear();
 	}
 	clear_roof_graphics();
 	_result = Result::GFX_NULL;
 	_modified = false;
 	_modified_roof = false;
+	_mod_time = _mod_time_before = _mod_time_after = _mod_time_roof = 0;
 }
 
 void Tileset::clear_roof_graphics() {
 	_num_roof_tiles = 0;
-	for (size_t i = 0; i < MAX_NUM_TILES; i++) {
-		_roof_tiles[i]->clear();
+	for (Tile *rt : _roof_tiles) {
+		rt->clear();
 	}
 }
 
@@ -48,15 +52,16 @@ void Tileset::update_palettes(Palettes l) {
 	}
 }
 
-uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
+uchar *Tileset::print_rgb(size_t w, size_t h, size_t off, size_t n) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
-	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	std::fill_n(buffer, w * h * NUM_CHANNELS, (uchar)0xff);
 	bool allow_256_tiles = Config::allow_256_tiles();
 	for (size_t i = 0; i < n; i++) {
-		if (!allow_256_tiles && i == 0x60) { i += 0x1f; continue; }
-		const Tile *t = _tiles[i];
+		size_t j = i + off;
+		if (!allow_256_tiles && j == 0x60) { i += 0x1f; continue; }
+		const Tile *t = _tiles[j];
 		int ty = (i / TILES_PER_ROW) * TILE_SIZE, tx = (i % TILES_PER_ROW) * TILE_SIZE;
-		if (!allow_256_tiles && i >= 0x80) { ty -= 2 * TILE_SIZE; }
+		if (!allow_256_tiles && j >= 0x80) { ty -= 2 * TILE_SIZE; }
 		print_tile_rgb(t, tx, ty, TILES_PER_ROW, buffer);
 	}
 	return buffer;
@@ -64,7 +69,7 @@ uchar *Tileset::print_rgb(size_t w, size_t h, size_t n) const {
 
 uchar *Tileset::print_roof_rgb(size_t w, size_t h) const {
 	uchar *buffer = new uchar[w * h * NUM_CHANNELS]();
-	FILL(buffer, 0xff, w * h * NUM_CHANNELS);
+	std::fill_n(buffer, w * h * NUM_CHANNELS, (uchar)0xff);
 	for (size_t i = 0; i < NUM_ROOF_TILES; i++) {
 		const Tile *t = _roof_tiles[i + FIRST_ROOF_TILE_ID];
 		int ty = (i / ROOF_TILES_PER_ROW) * TILE_SIZE, tx = (i % ROOF_TILES_PER_ROW) * TILE_SIZE;
@@ -104,12 +109,9 @@ void Tileset::print_tile_rgb(const Tile *t, int tx, int ty, int n, uchar *buffer
 	}
 }
 
-Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
-	if (!_palette_map.size()) { return (_result = Result::GFX_NO_PALETTE); } // no colors
-
-	Tiled_Image ti(f);
-	switch (ti.result()) {
-	case Tiled_Image::Result::IMG_OK: break;
+Tileset::Result Tileset::convert_tiled_image_result(Tiled_Image::Result r) {
+	switch (r) {
+	case Tiled_Image::Result::IMG_OK: return Result::GFX_OK;
 	case Tiled_Image::Result::IMG_NULL: return (_result = Result::GFX_BAD_FILE);
 	case Tiled_Image::Result::IMG_BAD_FILE: return (_result = Result::GFX_BAD_FILE);
 	case Tiled_Image::Result::IMG_BAD_EXT: return (_result = Result::GFX_BAD_EXT);
@@ -120,26 +122,51 @@ Tileset::Result Tileset::read_graphics(const char *f, Palettes l) {
 	case Tiled_Image::Result::IMG_BAD_CMD: return (_result = Result::GFX_BAD_CMD);
 	default: return (_result = Result::GFX_BAD_FILE);
 	}
+}
 
-	_num_tiles = ti.num_tiles();
+Tileset::Result Tileset::read_graphics(const char *f, const char *bf, const char *af, Palettes l) {
+	Tiled_Image bti(bf);
+	size_t bn = bti.num_tiles();
+	if (bf && convert_tiled_image_result(bti.result()) != Result::GFX_OK) { return _result; }
+
+	Tiled_Image ti(f);
+	size_t mn = ti.num_tiles();
+	if (convert_tiled_image_result(ti.result()) != Result::GFX_OK) { return _result; }
+
+	Tiled_Image ati(af);
+	size_t an = ati.num_tiles();
+	if (af && convert_tiled_image_result(ati.result()) != Result::GFX_OK) { return _result; }
+
+	_num_before_tiles = ((bn + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILES_PER_ROW;
+	_num_mid_tiles = an ? ((mn + TILES_PER_ROW - 1) / TILES_PER_ROW) * TILES_PER_ROW : mn;
+	_num_tiles = _num_before_tiles + (an ? _num_mid_tiles + an : mn);
 
 	_palettes = l;
 	bool allow_256_tiles = Config::allow_256_tiles();
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		int j = (!allow_256_tiles && i >= 0x60) ? (i >= 0xE0 ? i - 0x80 : i + 0x20) : i;
 		Tile *t = _tiles[j];
-		read_tile(t, ti, (uint8_t)i, (size_t)i);
+		if ((size_t)i < bn) {
+			read_tile(t, bti, (uint8_t)i, (size_t)i);
+		}
+		else if ((size_t)i >= _num_before_tiles && (size_t)i < _num_before_tiles + mn) {
+			read_tile(t, ti, (uint8_t)i, (size_t)i - _num_before_tiles);
+		}
+		else if ((size_t)i >= _num_before_tiles + _num_mid_tiles) {
+			read_tile(t, ati, (uint8_t)i, (size_t)i - _num_before_tiles - _num_mid_tiles);
+		}
 	}
 
 	_modified = false;
 	_modified_roof = false;
+	_mod_time = file_modified(f);
+	_mod_time_before = file_modified(bf);
+	_mod_time_after = file_modified(af);
 
 	return (_result = Result::GFX_OK);
 }
 
 Tileset::Result Tileset::read_roof_graphics(const char *f) {
-	if (!_palette_map.size()) { return Result::GFX_NO_PALETTE; } // no colors
-
 	Tiled_Image ti(f);
 	switch (ti.result()) {
 	case Tiled_Image::Result::IMG_OK: break;
@@ -170,6 +197,8 @@ Tileset::Result Tileset::read_roof_graphics(const char *f) {
 		read_tile(t, ti, (uint8_t)k, i);
 	}
 
+	_mod_time_roof = file_modified(f);
+
 	return Result::GFX_OK;
 }
 
@@ -177,8 +206,6 @@ const char *Tileset::error_message(Result result) {
 	switch (result) {
 	case Result::GFX_OK:
 		return "OK.";
-	case Result::GFX_NO_PALETTE:
-		return "No corresponding palette file chosen.";
 	case Result::GFX_BAD_FILE:
 		return "Cannot parse file format.";
 	case Result::GFX_BAD_EXT:
@@ -200,12 +227,32 @@ const char *Tileset::error_message(Result result) {
 	}
 }
 
-bool Tileset::write_graphics(const char *f) {
-	Image::Result result = Image::write_tileset_image(f, *this);
-	return result == Image::Result::IMAGE_OK;
+const char *Tileset::write_graphics(const char *f, const char *bf, const char *af) {
+	if (bf[0]) {
+		Image::Result b_result = Image::write_tileset_image(bf, *this, 0, _num_before_tiles);
+		if (b_result != Image::Result::IMAGE_OK) { return bf; }
+		_mod_time_before = file_modified(bf);
+	}
+	if (af[0]) {
+		Image::Result result = Image::write_tileset_image(f, *this, _num_before_tiles, _num_mid_tiles);
+		if (result != Image::Result::IMAGE_OK) { return f; }
+		_mod_time = file_modified(f);
+		Image::Result a_result = Image::write_tileset_image(af, *this, _num_before_tiles + _num_mid_tiles, 0);
+		if (a_result != Image::Result::IMAGE_OK) { return af; }
+		_mod_time_after = file_modified(af);
+		return NULL;
+	}
+	else {
+		Image::Result result = Image::write_tileset_image(f, *this, _num_before_tiles, 0);
+		if (result != Image::Result::IMAGE_OK) { return f; }
+		_mod_time = file_modified(f);
+		return NULL;
+	}
 }
 
 bool Tileset::write_roof_graphics(const char *f) {
 	Image::Result result = Image::write_roof_image(f, *this);
-	return result == Image::Result::IMAGE_OK;
+	if (result != Image::Result::IMAGE_OK) { return false; }
+	_mod_time_roof = file_modified(f);
+	return true;
 }

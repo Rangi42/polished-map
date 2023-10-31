@@ -42,6 +42,15 @@ int Tile_Window::handle(int event) {
 	else if (Fl::test_shortcut(FL_Delete)) {
 		Tileset_Window::delete_tile_cb(NULL, tw);
 	}
+	else if (tw->_palette->active() && Fl::event_alt()) {
+		for (int p = 0; p < NUM_GAME_PALETTES; p++) {
+			if (Fl::test_shortcut(FL_ALT + '1' + p)) {
+				tw->_palette->value(p);
+				Tileset_Window::change_palette_cb(NULL, tw);
+				break;
+			}
+		}
+	}
 	return Fl_Double_Window::handle(event);
 }
 
@@ -92,8 +101,13 @@ void Tileset_Window::initialize() {
 	int off = text_width("Palette:", 3);
 	_palette = new Dropdown(278 + off, 192, 146 - off, 22, "Palette:");
 	_priority = new OS_Check_Button(278, 218, 178, 22, "Priority (above sprites)");
+#ifdef _WIN32
 	_ok_button = new Default_Button(282, 272, 80, 22, "OK");
 	_cancel_button = new OS_Button(376, 272, 80, 22, "Cancel");
+#else
+	_cancel_button = new OS_Button(282, 272, 80, 22, "Cancel");
+	_ok_button = new Default_Button(376, 272, 80, 22, "OK");
+#endif
 	_window->end();
 	// Populate tileset group
 	_tileset_group->begin();
@@ -120,6 +134,7 @@ void Tileset_Window::initialize() {
 	}
 	_tile_group->end();
 	// Initialize window
+	_window->box(OS_BG_BOX);
 	_window->callback((Fl_Callback *)close_cb, this);
 	_window->set_modal();
 	// Initialize window's children
@@ -187,10 +202,9 @@ void Tileset_Window::tileset(Tileset *t) {
 	_tileset_heading->copy_label(label.c_str());
 	for (int i = 0; i < MAX_NUM_TILES; i++) {
 		const Tile *ti = _tileset->const_tile((uint8_t)i);
-		_deep_tile_buttons[i]->copy(ti);
-	}
-	for (int i = 0x00; i < 0x100; i++) {
-		_deep_tile_buttons[i]->activate();
+		Deep_Tile_Button *dtb = _deep_tile_buttons[i];
+		dtb->copy(ti);
+		dtb->activate();
 	}
 	if (!Config::allow_256_tiles()) {
 		for (int i = 0x60; i < 0x80; i++) {
@@ -310,8 +324,7 @@ void Tileset_Window::flood_fill(Pixel_Button *pb, Hue f, Hue t) const {
 }
 
 void Tileset_Window::substitute_hue(Hue f, Hue t) const {
-	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
@@ -320,8 +333,7 @@ void Tileset_Window::substitute_hue(Hue f, Hue t) const {
 
 void Tileset_Window::swap_hues(Hue f, Hue t) const {
 	if (f == t) { return; }
-	for (size_t i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		Pixel_Button *pb = _pixels[i];
+	for (Pixel_Button *pb : _pixels) {
 		if (pb->hue() == f) {
 			pb->hue(t);
 		}
@@ -332,8 +344,8 @@ void Tileset_Window::swap_hues(Hue f, Hue t) const {
 }
 
 void Tileset_Window::palette(Palette p) {
-	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
-		_pixels[i]->palette(p);
+	for (Pixel_Button *pb : _pixels) {
+		pb->palette(p);
 	}
 	Palettes l = _tileset->palettes();
 	_swatch1->coloring(l, p, Hue::WHITE);
@@ -485,18 +497,30 @@ void Tileset_Window::paste_tile_graphics_cb(Toolbar_Button *tb, Tileset_Window *
 		Fl::paste(*tw->_window, 1, Fl::clipboard_image);
 		return;
 	}
-	if (tw->_selected->palette() == Palette::UNDEFINED) {
-		tw->_selected->palette(Palette::GRAY);
-	}
 	Fl_Image *pasted = (Fl_Image *)Fl::event_clipboard();
-	int w = MIN(pasted->w(), TILE_SIZE), h = MIN(pasted->h(), TILE_SIZE);
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			const char *p = *pasted->data() + (x + y * pasted->w()) * pasted->d();
+	int ox = tw->_selected->id() % TILES_PER_ROW, oy = tw->_selected->id() / TILES_PER_ROW;
+	int pw = std::min(pasted->w(), (TILES_PER_ROW - ox) * TILE_SIZE);
+	int ph = std::min(pasted->h(), (TILES_PER_COL - oy) * TILE_SIZE);
+	for (int py = 0; py < ph; py++) {
+		int ty = oy + py / TILE_SIZE, tpy = py % TILE_SIZE;
+		if (!Config::allow_256_tiles()) {
+			if (oy < (0x60 / TILES_PER_ROW) && ty >= (0x60 / TILES_PER_ROW)) { ty += 0x20 / TILES_PER_ROW; }
+			if (oy < (0xE0 / TILES_PER_ROW) && ty >= (0xE0 / TILES_PER_ROW)) { ty += 0x20 / TILES_PER_ROW; }
+		}
+		if (ty >= TILES_PER_COL) { continue; }
+		for (int px = 0; px < pw; px++) {
+			int tx = ox + px / TILE_SIZE, tpx = px % TILE_SIZE;
+			if (tx >= TILES_PER_ROW) { continue; }
+			uint8_t id = (uint8_t)(ty * TILES_PER_ROW + tx);
+			Deep_Tile_Button *dtb = tw->_deep_tile_buttons[id];
+			const char *p = *pasted->data() + (px + py * pasted->w()) * pasted->d();
 			uchar c = Color::desaturated((uchar)p[0], (uchar)p[1], (uchar)p[2]);
 			Hue e = Color::mono_hue(c);
-			const uchar *rgb = Color::color(tw->_tileset->palettes(), tw->_selected->palette(), e);
-			tw->_selected->pixel(x, y, e, rgb[0], rgb[1], rgb[2]);
+			const uchar *rgb = Color::color(tw->_tileset->palettes(), dtb->palette(), e);
+			dtb->pixel(tpx, tpy, e, rgb[0], rgb[1], rgb[2]);
+			if (tpx == 0 && tpy == 0 && dtb->palette() == Palette::UNDEFINED) {
+				dtb->palette(Palette::GRAY);
+			}
 		}
 	}
 	delete pasted;

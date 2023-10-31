@@ -15,6 +15,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>polished-map</RootNamespace>
     <ProjectName>Polished Map</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,6 +46,8 @@
     <OutDir>..\bin\$(Configuration)\</OutDir>
     <IntDir>..\tmp\$(Configuration)\</IntDir>
     <TargetName>polishedmapd</TargetName>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -59,21 +62,23 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4068;4351</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>.;..\include;..\res</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PreprocessToFile>false</PreprocessToFile>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>fltkimagesd.lib;fltkpngd.lib;fltkjpegd.lib;fltkzlibd.lib;fltkd.lib;opengl32.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>..\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,22 +90,24 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NOMINMAX;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4068;4351</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>.;..\include;..\res</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>fltkimages.lib;fltkpng.lib;fltkjpeg.lib;fltkzlib.lib;fltk.lib;opengl32.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -123,6 +130,7 @@
     <ClCompile Include="..\src\option-dialogs.cpp" />
     <ClCompile Include="..\src\palette-map.cpp" />
     <ClCompile Include="..\src\palette-window.cpp" />
+    <ClCompile Include="..\src\parse-asm.cpp" />
     <ClCompile Include="..\src\preferences.cpp" />
     <ClCompile Include="..\src\roof-window.cpp" />
     <ClCompile Include="..\src\ruler.cpp" />
@@ -155,6 +163,7 @@
     <ClInclude Include="..\src\option-dialogs.h" />
     <ClInclude Include="..\src\palette-map.h" />
     <ClInclude Include="..\src\palette-window.h" />
+    <ClInclude Include="..\src\parse-asm.h" />
     <ClInclude Include="..\src\preferences.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\roof-window.h" />
@@ -176,6 +185,7 @@
     <None Include="..\res\blank.xpm" />
     <None Include="..\res\blocks-dark.xpm" />
     <None Include="..\res\blocks.xpm" />
+    <None Include="..\res\brushed-metal.dat" />
     <None Include="..\res\change-roof.xpm" />
     <None Include="..\res\change.xpm" />
     <None Include="..\res\coll-bottom-left-dark.xpm" />
@@ -187,7 +197,6 @@
     <None Include="..\res\coll-top-right-dark.xpm" />
     <None Include="..\res\coll-top-right.xpm" />
     <None Include="..\res\copy.xpm" />
-    <None Include="..\res\cursor.xpm" />
     <None Include="..\res\error.xpm" />
     <None Include="..\res\events.xpm" />
     <None Include="..\res\gameboy.xpm" />
@@ -217,6 +226,7 @@
     <None Include="..\res\tileset.xpm" />
     <None Include="..\res\undo.xpm" />
     <None Include="..\res\warning.xpm" />
+    <None Include="..\res\warp.xpm" />
     <None Include="..\res\zoom.xpm" />
   </ItemGroup>
   <ItemGroup>

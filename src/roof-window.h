@@ -31,7 +31,7 @@ private:
 	Label *_roof_heading, *_tile_heading;
 	Fl_Group *_roof_group, *_tile_group;
 	Deep_Tile_Button *_deep_tile_buttons[NUM_ROOF_TILES], *_selected;
-	Pixel_Button *_pixels[TILE_SIZE * TILE_SIZE];
+	Pixel_Button *_pixels[TILE_AREA];
 	Toolbar_Button *_copy_tb, *_paste_tb;
 	Swatch *_swatch1, *_swatch2, *_swatch3, *_swatch4, *_chosen;
 	Default_Button *_ok_button;
@@ -57,6 +57,7 @@ public:
 	void choose(Swatch *swatch);
 	void flood_fill(Pixel_Button *pb, Hue f, Hue t) const;
 	void substitute_hue(Hue f, Hue t) const;
+	void swap_hues(Hue f, Hue t) const;
 private:
 	static void close_cb(Fl_Widget *w, Roof_Window *rw);
 	static void cancel_cb(Fl_Widget *w, Roof_Window *rw);

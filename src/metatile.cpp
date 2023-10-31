@@ -3,6 +3,17 @@
 
 Metatile::Metatile(uint8_t id) : _id(id), _tile_ids(), _collisions(), _bin_collisions() {}
 
+bool Metatile::uses_tile(uint8_t id) const {
+	for (int y = 0; y < METATILE_SIZE; y++) {
+		for (int x = 0; x < METATILE_SIZE; x++) {
+			if (_tile_ids[y][x] == id) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void Metatile::clear() {
 	for (int y = 0; y < METATILE_SIZE; y++) {
 		for (int x = 0; x < METATILE_SIZE; x++) {

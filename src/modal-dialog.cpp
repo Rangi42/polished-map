@@ -47,6 +47,7 @@ void Modal_Dialog::initialize() {
 	_canceled = false;
 	_dialog->end();
 	// Initialize dialog
+	_dialog->box(OS_BG_BOX);
 	_dialog->resizable(NULL);
 	_dialog->callback((Fl_Callback *)close_cb, this);
 	_dialog->set_modal();
@@ -97,7 +98,7 @@ void Modal_Dialog::refresh() {
 	fl_font(_body->labelfont(), _body->labelsize());
 	int bw = _max_w - bwd, bh = 0;
 	fl_measure(_body->label(), bw, bh);
-	int w = MAX(MAX(bw, hw) + bwd + OS_FONT_SIZE, _min_w), h = 10;
+	int w = std::max(std::max(bw, hw) + bwd + OS_FONT_SIZE, _min_w), h = 10;
 	int ww = w - 20;
 	int heading_h = 25;
 	int btn_w = 80, btn_h = 22;
@@ -124,8 +125,9 @@ void Modal_Dialog::refresh() {
 		}
 		_body->resize(70, h, ww-60, bh);
 		h += _body->h() + 10;
-		h = MAX(h, 70);
+		h = std::max(h, 70);
 	}
+#ifdef _WIN32
 	if (_cancel_button) {
 		_ok_button->resize(w-btn_w-14-btn_w-10, h, btn_w, btn_h);
 		_cancel_button->resize(w-btn_w-10, h, btn_w, btn_h);
@@ -133,6 +135,12 @@ void Modal_Dialog::refresh() {
 	else {
 		_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
 	}
+#else
+	if (_cancel_button) {
+		_cancel_button->resize(w-btn_w-14-btn_w-10, h, btn_w, btn_h);
+	}
+	_ok_button->resize(w-btn_w-10, h, btn_w, btn_h);
+#endif
 	h += _ok_button->h() + 10;
 	_dialog->size_range(w, h, w, h);
 	_dialog->size(w, h);

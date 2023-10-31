@@ -23,6 +23,7 @@
 #include "hex.xpm"
 #include "hex-dark.xpm"
 #include "show.xpm"
+#include "warp.xpm"
 #include "priority.xpm"
 #include "gameboy.xpm"
 #include "blocks.xpm"
@@ -65,6 +66,7 @@ static Fl_Pixmap IDS_DARK_ICON(IDS_DARK_XPM);
 static Fl_Pixmap HEX_ICON(HEX_XPM);
 static Fl_Pixmap HEX_DARK_ICON(HEX_DARK_XPM);
 static Fl_Pixmap SHOW_ICON(SHOW_XPM);
+static Fl_Pixmap WARP_ICON(WARP_XPM);
 static Fl_Pixmap PRIORITY_ICON(PRIORITY_XPM);
 static Fl_Pixmap GAMEBOY_ICON(GAMEBOY_XPM);
 static Fl_Pixmap BLOCKS_ICON(BLOCKS_XPM);

@@ -29,7 +29,7 @@ int Hex_Input::handle_paste_text() {
 	while (isspace(*t & 0xFF) && t < e) { t++; }
 	const char *p = t;
 	if (*p == '+' || *p == '-') { p++; }
-	while (isxdigit(*p & 0xFF) && p < e) { p++; }
+	while (isxdigit((unsigned char)(*p) & 0xFF) && p < e) { p++; }
 	if (p < e) {
 		fl_beep(FL_BEEP_ERROR);
 		return 1;
@@ -45,8 +45,8 @@ int Hex_Input::handle_key() {
 	}
 	Fl::compose_reset();
 	char a = Fl::event_text()[0];
-	int ip = MIN(position(), mark());
-	if (isxdigit(a) || (!ip && (a == '+' || a == '-'))) {
+	int ip = std::min(position(), mark());
+	if (isxdigit((unsigned char)a) || (!ip && (a == '+' || a == '-'))) {
 		if (readonly()) {
 			fl_beep();
 		}
@@ -119,7 +119,7 @@ void Hex_Spinner::update() {
 }
 
 void Hex_Spinner::input_cb(Hex_Input *, Hex_Spinner *hs) {
-	int v = std::stoi(hs->_input.value(), NULL, 16);
+	int v = strtol(hs->_input.value(), NULL, 16);
 	if (v < hs->_minimum) {
 		hs->_value = hs->_minimum;
 		hs->update();

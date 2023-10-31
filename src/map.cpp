@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include "map.h"
+#include "parse-asm.h"
 
 void Map_Attributes::clear() {
 	group = 0;
@@ -9,7 +10,7 @@ void Map_Attributes::clear() {
 	palette.clear();
 }
 
-Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(Result::MAP_NULL), _modified(false),
+Map::Map() : _attributes(), _width(0), _height(0), _blocks(NULL), _result(Result::MAP_NULL), _modified(false), _mod_time(0),
 	_history(), _future() {}
 
 Map::~Map() {
@@ -40,6 +41,7 @@ void Map::clear() {
 	_width = _height = 0;
 	_result = Result::MAP_NULL;
 	_modified = false;
+	_mod_time = 0;
 	_history.clear();
 	_future.clear();
 }
@@ -47,7 +49,7 @@ void Map::clear() {
 void Map::resize_blocks(int x, int y, int s) const {
 	size_t n = size();
 	for (size_t i = 0; i < n; i++) {
-		Block *b = _blocks[i];
+		Block *b = block(i);
 		int bx = x + ((int)b->col() + MAP_MARGIN) * s, by = y + ((int)b->row() + MAP_MARGIN) * s;
 		b->resize(bx, by, s, s);
 	}
@@ -99,6 +101,8 @@ void Map::redo() {
 }
 
 Map::Result Map::read_blocks(const char *f) {
+	if (ends_with_ignore_case(f, ".map")) { return read_asm_blocks(f); }
+
 	bool too_long = false;
 
 	FILE *file = fl_fopen(f, "rb");
@@ -107,6 +111,7 @@ Map::Result Map::read_blocks(const char *f) {
 	uint8_t *data = new uint8_t[size() + 1];
 	size_t c = fread(data, 1, size() + 1, file);
 	fclose(file);
+	_mod_time = file_modified(f);
 	if (c < size()) { delete [] data; return (_result = Result::MAP_TOO_SHORT); } // too-short blk
 	if (c == size() + 1) { too_long = true; }
 
@@ -120,6 +125,47 @@ Map::Result Map::read_blocks(const char *f) {
 
 	delete [] data;
 	return (_result = too_long ? Result::MAP_TOO_LONG : Result::MAP_OK);
+}
+
+Map::Result Map::read_asm_blocks(const char *f) {
+	Parsed_Asm data(f);
+	if (data.result() != Parsed_Asm::Result::ASM_OK) {
+		return (_result = Result::MAP_BAD_FILE); // cannot parse file
+	}
+
+	bool too_long = false;
+	size_t c = data.size();
+	if (c < size()) { return (_result = Result::MAP_TOO_SHORT); } // too-short CHR
+	if (c > size()) { too_long = true; }
+
+	FILE *file = fl_fopen(f, "rb");
+	if (file == NULL) { return (_result = Result::MAP_BAD_FILE); } // cannot load file
+
+	for (uint8_t y = 0; y < (size_t)_height; y++) {
+		for (uint8_t x = 0; x < (size_t)_width; x++) {
+			size_t i = (size_t)y * _width + (size_t)x;
+			uint8_t id = data.get(i);
+			_blocks[i] = new Block(y, x, id);
+		}
+	}
+
+	fclose(file);
+	_mod_time = file_modified(f);
+
+	return (_result = too_long ? Result::MAP_TOO_LONG : Result::MAP_OK);
+}
+
+bool Map::write_blocks(const char *f) {
+	FILE *file = fl_fopen(f, "wb");
+	if (!file) { return false; }
+	size_t n = size();
+	for (size_t i = 0; i < n; i++) {
+		uint8_t id = block(i)->id();
+		fputc(id, file);
+	}
+	fclose(file);
+	_mod_time = file_modified(f);
+	return true;
 }
 
 const char *Map::error_message(Result result) {

@@ -89,10 +89,10 @@ std::string Preferences::get_string(const char *key) {
 	char *value;
 	_preferences->get(key, value, "");
 	std::string s(value ? value : "");
-	delete value;
+	free(value);
 	return s;
 }
 
-void Preferences::set_string(const char *key, std::string &value) {
+void Preferences::set_string(const char *key, const std::string &value) {
 	_preferences->set(key, value.c_str());
 }

@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include <algorithm>
-#include <cstdlib>
 
 #pragma warning(push, 0)
 #include <FL/Enumerations.H>
@@ -16,6 +14,7 @@
 #include "widgets.h"
 #include "utils.h"
 #include "option-dialogs.h"
+#include "parse-asm.h"
 
 Option_Dialog::Option_Dialog(int w, const char *t) : _width(w), _title(t), _canceled(false),
 	_dialog(NULL), _content(NULL), _ok_button(NULL), _cancel_button(NULL) {}
@@ -42,6 +41,7 @@ void Option_Dialog::initialize() {
 	_cancel_button = new OS_Button(0, 0, 0, 0, "Cancel");
 	_dialog->end();
 	// Initialize dialog
+	_dialog->box(OS_BG_BOX);
 	_dialog->resizable(NULL);
 	_dialog->callback((Fl_Callback *)cancel_cb, this);
 	_dialog->set_modal();
@@ -137,13 +137,12 @@ static void guess_map_constant(const char *name, char *constant) {
 	for (size_t i = 0; i < n; i++) {
 		char c = *name;
 		if ((islower(prev) && isupperordigit(c)) || // ...zA... -> ...Z_A...
-			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(*(name+1)))) { // ...ZAb... -> ...Z_AB...
+			(i < n - 1 && isupperordigit(prev) && isupper(c) && islower(name[1]))) { // ...ZAb... -> ...Z_AB...
 			*constant++ = '_';
 		}
 		prev = c;
 		*constant++ = (char)toconstant(*name++);
 	}
-	*constant++ = ',';
 	*constant = '\0';
 }
 
@@ -164,6 +163,10 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	_map_header->copy_label(buffer);
 
 	size_t fs = file_size(filename);
+	if (ends_with_ignore_case(filename, ".map")) {
+		Parsed_Asm data(filename);
+		fs = data.size();
+	}
 	sprintf(buffer, "(%zu B)", fs);
 	_map_size->copy_label(buffer);
 	add_valid_sizes(fs);
@@ -173,8 +176,7 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	std::regex_match(filename, cm, rx);
 	size_t n = cm.size();
 	if (n == 3) {
-		std::string sw(cm[1]), sh(cm[2]);
-		int w = std::stoi(sw), h = std::stoi(sh);
+		int w = strtol(cm[1].first, NULL, 10), h = strtol(cm[2].first, NULL, 10);
 		int i = add_map_size(w, h);
 		select_map_size(i);
 		return true;
@@ -183,7 +185,8 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 	char map_constants[FL_PATH_MAX] = {};
 	Config::map_constants_path(map_constants, directory);
 
-	std::ifstream ifs(map_constants);
+	std::ifstream ifs;
+	open_ifstream(ifs, map_constants);
 	if (!ifs.good()) { return false; }
 
 	char constant[FL_PATH_MAX] = {};
@@ -191,33 +194,27 @@ bool Map_Options_Dialog::guess_map_size(const char *filename, const char *direct
 
 	attrs.group = 0;
 	while (ifs.good()) {
-		bool w_x_h = false;
 		std::string line;
 		std::getline(ifs, line);
-		trim(line);
-		if (starts_with(line, "newgroup") && line[strlen("newgroup")] != ':') {
+		std::istringstream lss(line);
+
+		std::string macro;
+		if (!leading_macro(lss, macro)) { continue; }
+		if (macro == "newgroup") {
 			attrs.group++;
 			continue;
 		}
-		else if (starts_with(line, "map_const")) {
-			// "map_const": pokecrystal
-			line.erase(0, strlen("map_const") + 1); // include next whitespace character
-			w_x_h = true;
-		}
-		else if (starts_with(line, "mapgroup")) {
-			// "mapgroup": pokecrystal pre-2018
-			line.erase(0, strlen("mapgroup") + 1); // include next whitespace character
-		}
-		else if (starts_with(line, "mapconst")) {
-			// "mapconst": pokered
-			line.erase(0, strlen("mapconst") + 1); // include next whitespace character
-		}
-		else {
-			continue;
-		}
-		if (!starts_with(line, constant)) { continue; }
-		line.erase(0, strlen(constant));
-		std::istringstream lss(line);
+		if (macro != "map_const"   // "map_const": pokecrystal
+			&& macro != "mapgroup" // "mapgroup": pokecrystal pre-2018
+			&& macro != "mapconst" // "mapconst": pokered
+		) { continue; }
+		bool w_x_h = macro == "map_const";
+
+		std::string map;
+		std::getline(lss, map, ',');
+		trim(map);
+		if (map != constant) { continue; } // rgbasm is case-sensitive
+
 		int w, h;
 		char comma;
 		if (w_x_h) {
@@ -256,7 +253,8 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 	bool map_headers_exist = Config::map_headers_path(map_headers, directory);
 
 	if (map_headers_exist) {
-		std::ifstream ifs(map_headers);
+		std::ifstream ifs;
+		open_ifstream(ifs, map_headers);
 		if (!ifs.good()) { return ""; }
 
 		while (ifs.good()) {
@@ -274,7 +272,12 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 			std::string map_label;
 			std::getline(lss, map_label, ',');
 			trim(map_label);
+#ifdef _WIN32
+			// Windows filenames are case-insensitive
+			if (!equals_ignore_case(map_label, map_name)) { continue; }
+#else
 			if (map_label != map_name) { continue; }
+#endif
 
 			std::string tileset_name;
 			std::getline(lss, tileset_name, ',');
@@ -284,13 +287,13 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 				lowercase(tileset_name);
 			}
 			else if (starts_with(tileset_name, "$")) {
-				tileset_name.erase(0, 1);
-				int ti = std::stoi(tileset_name, NULL, 16);
+				tileset_name.erase(0, strlen("$"));
+				int ti = strtol(tileset_name.c_str(), NULL, 16);
 				char tileset_num[16] = {};
 				sprintf(tileset_num, "%02d", ti);
 				tileset_name = tileset_num;
 			}
-			else if (std::all_of(tileset_name.begin(), tileset_name.end(), isdigit)) {
+			else if (std::all_of(RANGE(tileset_name), isdigit)) {
 				if (tileset_name.length() == 1) {
 					tileset_name = "0" + tileset_name;
 				}
@@ -299,25 +302,19 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 				tileset_name.erase();
 			}
 
-			std::string environment;
-			std::getline(lss, environment, ',');
-			trim(environment);
-			attrs.environment = environment;
+			std::getline(lss, attrs.environment, ',');
+			trim(attrs.environment);
 
-			std::string landmark;
-			std::getline(lss, landmark, ',');
-			trim(landmark);
-			lowercase(landmark);
-			attrs.landmark = landmark;
+			std::getline(lss, attrs.landmark, ',');
+			trim(attrs.landmark);
+			lowercase(attrs.landmark);
 
 			std::string skip_token;
 			std::getline(lss, skip_token, ','); // music
 			std::getline(lss, skip_token, ','); // phone service flag
 
-			std::string palette;
-			std::getline(lss, palette, ',');
-			trim(palette);
-			attrs.palette = palette;
+			std::getline(lss, attrs.palette, ',');
+			trim(attrs.palette);
 
 			return tileset_name;
 		}
@@ -326,7 +323,8 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 		char map_header[FL_PATH_MAX] = {};
 		Config::map_header_path(map_header, directory, map_name);
 
-		std::ifstream ifs(map_header);
+		std::ifstream ifs;
+		open_ifstream(ifs, map_header);
 		if (!ifs.good()) { return ""; }
 
 		while (ifs.good()) {
@@ -337,14 +335,25 @@ std::string Map_Options_Dialog::guess_map_tileset(const char *filename, const ch
 
 			std::istringstream lss(line);
 
-			std::string db;
-			lss >> db;
-			if (db != "db") { continue; }
+			std::string macro;
+			lss >> macro;
+			if (macro == "map_header") {
+				std::string skip_token;
+				std::getline(lss, skip_token, ','); // map name
+				std::getline(lss, skip_token, ','); // map ID
 
-			std::string tileset_name;
-			lss >> tileset_name;
-			lowercase(tileset_name);
-			return tileset_name;
+				std::string tileset_name;
+				std::getline(lss, tileset_name, ',');
+				trim(tileset_name);
+				lowercase(tileset_name);
+				return tileset_name;
+			}
+			else if (macro == "db") {
+				std::string tileset_name;
+				lss >> tileset_name;
+				lowercase(tileset_name);
+				return tileset_name;
+			}
 		}
 	}
 
@@ -355,7 +364,8 @@ void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &
 	char tileset_constants[FL_PATH_MAX] = {};
 	Config::tileset_constants_path(tileset_constants, directory);
 
-	std::ifstream ifs(tileset_constants);
+	std::ifstream ifs;
+	open_ifstream(ifs, tileset_constants);
 	if (!ifs.good()) { return; }
 
 	int id = 1;
@@ -365,8 +375,7 @@ void Map_Options_Dialog::guess_tileset_names(const char *directory, Dictionary &
 		std::getline(ifs, line);
 		std::istringstream lss(line);
 		std::string token;
-		lss >> token;
-		if (token != "const") { continue; }
+		if (!leading_macro(lss, token, "const")) { continue; }
 		lss >> token;
 		if (starts_with(token, "TILESET_")) { token.erase(0, strlen("TILESET_")); }
 		sprintf(original, "%02d", id++);
@@ -385,7 +394,7 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	v.erase(v.size() - ext_len, ext_len);
 	std::string p(v);
 
-	if (p.length() == 2 && isdigit(p[0]) && isdigit(p[1])) {
+	if (p.length() == 2 && isdigit((unsigned char)p[0]) && isdigit((unsigned char)p[1])) {
 		Dictionary::const_iterator it = pretty_names.find(p);
 		if (it != pretty_names.end()) {
 			p = it->second;
@@ -396,7 +405,7 @@ std::string Map_Options_Dialog::add_tileset(const char *t, int ext_len, const Di
 	if (_tileset->find_index(p.c_str()) == -1) {
 		_tileset->add(p.c_str());
 		int m = text_width(p.c_str(), 6);
-		_max_tileset_name_length = MAX(m, _max_tileset_name_length);
+		_max_tileset_name_length = std::max(m, _max_tileset_name_length);
 	}
 
 	return v;
@@ -409,7 +418,7 @@ void Map_Options_Dialog::add_roof(const char *r, int ext_len) {
 	if (_roof->find_index(v.c_str()) == -1) {
 		_roof->add(v.c_str());
 		int m = text_width(v.c_str(), 6);
-		_max_roof_name_length = MAX(m, _max_roof_name_length);
+		_max_roof_name_length = std::max(m, _max_roof_name_length);
 	}
 }
 
@@ -418,8 +427,8 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 	// Initialize map size
 	if (!guess_map_size(filename, directory, attrs) && _valid_sizes.empty()) {
-		_map_width->value(1);
-		_map_height->value(1);
+		_map_width->value(10);
+		_map_height->value(9);
 	}
 
 	// Initialize tileset choices
@@ -428,8 +437,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_tileset_name_length = 0;
 
 	char tileset_directory[FL_PATH_MAX] = {};
-	strcpy(tileset_directory, directory);
-	strcat(tileset_directory, Config::gfx_tileset_dir());
+	Config::gfx_tileset_dir(tileset_directory, directory);
 
 	dirent **list;
 	int n = fl_filename_list(tileset_directory, &list);
@@ -441,12 +449,17 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	int v = 0;
 	for (int i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
-		if (ends_with(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
-		int ext_len = ends_with(name, ".2bpp.lz") ? 8 :
-			          ends_with(name, ".2bpp.unique.lz") ? 15 : // for Red++ 3.0's generic+unique tilesets
-			          ends_with(name, ".png") ? 4 : 0;
+		if (ends_with_ignore_case(name, ".colored.png")) { continue; } // ignore utils/metatiles.py renders
+		int ext_len = ends_with_ignore_case(name, ".2bpp.lz") ? strlen(".2bpp.lz") :
+			ends_with_ignore_case(name, ".2bpp.unique.lz") ? strlen(".2bpp.unique.lz") : // for Red++ 3.0's unique tilesets
+			ends_with_ignore_case(name, ".2bpp") ? strlen(".2bpp") :
+			ends_with_ignore_case(name, ".chr") ? strlen(".chr") :
+			ends_with_ignore_case(name, ".png") ? strlen(".png") : 0;
 		if (ext_len) {
-			std::string guessable_name(add_tileset(name, ext_len, pretty_names));
+			std::string tileset_filename = add_tileset(name, ext_len, pretty_names);
+			char guessable_trimmed[FL_PATH_MAX] = {};
+			remove_suffix(tileset_filename.c_str(), guessable_trimmed);
+			std::string guessable_name(guessable_trimmed);
 			if (guessed_tileset_name == guessable_name) { v = _tileset->size() - 2; } // ignore terminating NULL
 			Dictionary::const_iterator it = guessable_names.find(guessable_name);
 			if (it != guessable_names.end()) {
@@ -467,15 +480,16 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 	_max_roof_name_length = text_width("(none)", 6);
 
 	char roof_directory[FL_PATH_MAX] = {};
-	strcpy(roof_directory, directory);
-	strcat(roof_directory, Config::gfx_roof_dir());
+	Config::gfx_roof_dir(roof_directory, directory);
 
 	n = fl_filename_list(roof_directory, &list);
 	if (n >= 0) {
 		for (int i = 0; i < n; i++) {
 			const char *name = list[i]->d_name;
-			int ext_len = ends_with(name, ".2bpp") ? 5 :
-						  ends_with(name, ".png") ? 4 : 0;
+			int ext_len = ends_with_ignore_case(name, ".2bpp.lz") ? strlen(".2bpp.lz") :
+			              ends_with_ignore_case(name, ".2bpp") ? strlen(".2bpp") :
+			              ends_with_ignore_case(name, ".chr") ? strlen(".chr") :
+			              ends_with_ignore_case(name, ".png") ? strlen(".png") : 0;
 			if (ext_len) {
 				add_roof(name, ext_len);
 			}
@@ -495,7 +509,7 @@ bool Map_Options_Dialog::limit_blk_options(const char *filename, const char *dir
 
 int Map_Options_Dialog::add_map_size(int w, int h) {
 	std::pair<int, int> s(w, h);
-	std::vector<std::pair<int, int>>::iterator it = std::find(_valid_sizes.begin(), _valid_sizes.end(), s);
+	const auto it = std::find(RANGE(_valid_sizes), s);
 	if (it == _valid_sizes.end()) {
 		_valid_sizes.push_back(s);
 		char buffer[128] = {};
@@ -515,7 +529,16 @@ void Map_Options_Dialog::add_valid_sizes(size_t n) {
 		}
 	}
 	if (!_valid_sizes.empty()) {
-		select_map_size((int)_valid_sizes.size() / 2);
+		int i = ((int)_valid_sizes.size() - 1) / 2;
+		// Prefer size multiples of 10x9, the typical unit size
+		for (int j = i; j >= 0; j--) {
+			auto &[w, h] = _valid_sizes[j];
+			if (w % 10 == 0 && h % 9 == 0) {
+				select_map_size(j);
+				return;
+			}
+		}
+		select_map_size(i);
 	}
 }
 
@@ -556,7 +579,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 		_map_height->set_visible();
 		_map_sizes->clear_visible();
 
-		wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
+		wgt_off = win_m + std::max(text_width(_map_width->label(), 2), text_width(_tileset->label(), 2));
 
 		wgt_w = text_width("999", 2) + wgt_h;
 		_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -571,7 +594,7 @@ int Map_Options_Dialog::refresh_content(int ww, int dy) {
 		_map_height->clear_visible();
 		_map_sizes->set_visible();
 
-		wgt_off = win_m + MAX(text_width(_map_sizes->label(), 2), text_width(_tileset->label(), 2));
+		wgt_off = win_m + std::max(text_width(_map_sizes->label(), 2), text_width(_tileset->label(), 2));
 
 		wgt_w = text_width("9999 x 9999", 2) + wgt_h;
 		_map_sizes->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -615,7 +638,7 @@ Resize_Dialog::Resize_Dialog(const char *t) : Option_Dialog(220, t), _map_width(
 Resize_Dialog::~Resize_Dialog() {
 	delete _map_width;
 	delete _map_height;
-	for (int i = 0; i < 9; i++) { delete _anchor_buttons[i]; }
+	for (Anchor_Button *ab : _anchor_buttons) { delete ab; }
 }
 
 Resize_Dialog::Hor_Align Resize_Dialog::horizontal_anchor() const {
@@ -669,7 +692,7 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 	int ch = (wgt_h + wgt_m) * 2 + wgt_h;
 	_content->resize(win_m, dy, ww, ch);
 
-	int wgt_off = win_m + MAX(text_width(_map_width->label(), 2), text_width(_map_height->label(), 2));
+	int wgt_off = win_m + std::max(text_width(_map_width->label(), 2), text_width(_map_height->label(), 2));
 
 	wgt_w = text_width("999", 2) + wgt_h;
 	_map_width->resize(wgt_off, dy, wgt_w, wgt_h);
@@ -690,8 +713,8 @@ int Resize_Dialog::refresh_content(int ww, int dy) {
 
 void Resize_Dialog::anchor_button_cb(Anchor_Button *ab, Resize_Dialog *rd) {
 	ab->setonly();
-	for (int i = 0; i < 9; i++) {
-		rd->_anchor_buttons[i]->label(NULL);
+	for (Anchor_Button *abi : rd->_anchor_buttons) {
+		abi->label(NULL);
 	}
 	int a = ab->anchor();
 	int y = a / 3, x = a % 3;
@@ -730,6 +753,55 @@ int Add_Sub_Dialog::refresh_content(int ww, int dy) {
 	_num_metatiles->resize(wgt_off, dy, wgt_w, wgt_h);
 
 	return wgt_h;
+}
+
+Overworld_Map_Size_Dialog::Overworld_Map_Size_Dialog(const char *t) : Option_Dialog(380, t), _description(NULL),
+	_overworld_map_size(NULL) {}
+
+Overworld_Map_Size_Dialog::~Overworld_Map_Size_Dialog() {
+	delete _description;
+	delete _overworld_map_size;
+}
+
+void Overworld_Map_Size_Dialog::initialize_content() {
+	// Populate content group
+	_description = new Label(0, 0, 0, 0,
+		"The overworld map block buffer in WRAM stores the entire\n"
+		"current map, padded by 3 blocks on each side.\n\n"
+		"Its standard label in wram.asm is wOverworldMapBlocks,\n"
+		"wOverworldMap, or OverworldMap.\n\n"
+		"Its default size is 1300 bytes, so every map requires that\n"
+		"(width + 6) \xc3\x97 (height + 6) \xe2\x89\xa4 1300."
+	);
+	_overworld_map_size = new Default_Spinner(0, 0, 0, 0, "ds:");
+	// Initialize content group's children
+	_overworld_map_size->align(FL_ALIGN_LEFT);
+	_overworld_map_size->range(1, 4096);
+	_overworld_map_size->labelfont(FL_COURIER);
+}
+
+int Overworld_Map_Size_Dialog::refresh_content(int ww, int dy) {
+	int wgt_h = 22, win_m = 10;
+
+	int ew = 0, eh = 0;
+	fl_measure(_description->label(), ew, eh, 0);
+	eh += wgt_h - _description->labelsize();
+
+	int ch = eh + wgt_h + wgt_h;
+	_content->resize(win_m, dy, ww, ch);
+
+	_description->resize(win_m, dy, ww, eh);
+	dy += eh + wgt_h;
+
+	Fl_Font f = fl_font();
+	Fl_Fontsize s = fl_size();
+	fl_font(_overworld_map_size->labelfont(), _overworld_map_size->labelsize());
+	int wgt_off = win_m + text_width(_overworld_map_size->label(), 2);
+	fl_font(f, s);
+	int wgt_w = text_width("9999", 2) + wgt_h;
+	_overworld_map_size->resize(wgt_off, dy, wgt_w, wgt_h);
+
+	return ch;
 }
 
 Tileset_Options_Dialog::Tileset_Options_Dialog(const char *t, Map_Options_Dialog *mod) : Option_Dialog(280, t),
@@ -850,11 +922,20 @@ Event_Options_Dialog::~Event_Options_Dialog() {
 void Event_Options_Dialog::use_event(const Event *e) {
 	initialize();
 	char buffer[512];
+	if (e->_warp_id > 0) {
 #if defined(_MSC_VER) && _MSC_VER < 1900
-	_snprintf_s(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+		_snprintf_s(buffer, sizeof(buffer), e->_hex_coords ? "%s $%X:" : "%s #%d:", e->_macro.c_str(), e->_warp_id);
 #else
-	snprintf(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+		snprintf(buffer, sizeof(buffer), e->_hex_coords ? "%s $%X:" : "%s #%d:", e->_macro.c_str(), e->_warp_id);
 #endif
+	}
+	else {
+#if defined(_MSC_VER) && _MSC_VER < 1900
+		_snprintf_s(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#else
+		snprintf(buffer, sizeof(buffer), "%s:", e->_macro.c_str());
+#endif
+	}
 	_macro_heading->copy_label(buffer);
 
 	sprintf(buffer, "Line: %zu", e->_line);
@@ -905,6 +986,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_prefixed) {
 		e->_prefix = _prefix->value();
 		trim(e->_prefix);
+		std::replace(RANGE(e->_prefix), '\n', ' ');
 		if (!ends_with(e->_prefix, ",")) {
 			e->_prefix += ",";
 		}
@@ -912,6 +994,7 @@ void Event_Options_Dialog::update_event(Event *e) const {
 	if (e->_suffixed) {
 		e->_suffix = _suffix->value();
 		trim(e->_suffix);
+		std::replace(RANGE(e->_suffix), '\n', ' ');
 		if (starts_with(e->_suffix, ";")) {
 			e->_suffix = " " + e->_suffix;
 		}
@@ -953,12 +1036,34 @@ void Event_Options_Dialog::initialize_content() {
 
 int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	int wgt_w = 0, wgt_h = 22, win_m = 10, wgt_m = 4;
-	int ch = wgt_h + wgt_m + wgt_h;
+
+	int wgt_off = text_width(_event_x->label(), 2);
 	if (_prefix->visible()) {
-		ch += wgt_h + wgt_m;
+		wgt_off = std::max(wgt_off, text_width(_prefix->label(), 2));
 	}
 	if (_suffix->visible()) {
-		ch += wgt_h + wgt_m;
+		wgt_off = std::max(wgt_off, text_width(_suffix->label(), 2));
+	}
+	wgt_off += win_m;
+
+	int ph = wgt_h, sh = wgt_h;
+	if (_prefix->visible()) {
+		int pvw = ww-wgt_off+win_m, pvh = 0;
+		fl_measure(_prefix->value(), pvw, pvh, 0);
+		ph = std::max(wgt_h, pvh + Fl::box_dh(_prefix->box()));
+	}
+	if (_suffix->visible()) {
+		int svw = ww-wgt_off+win_m, svh = 0;
+		fl_measure(_suffix->value(), svw, svh, 0);
+		sh = std::max(wgt_h, svh + Fl::box_dh(_suffix->box()));
+	}
+
+	int ch = wgt_h + wgt_m + wgt_h;
+	if (_prefix->visible()) {
+		ch += ph + wgt_m;
+	}
+	if (_suffix->visible()) {
+		ch += sh + wgt_m;
 	}
 	_content->resize(win_m, dy, ww, ch);
 
@@ -967,18 +1072,17 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	_line_heading->resize(win_m+ww-wgt_w, dy, wgt_w, wgt_h);
 	dy += wgt_h + wgt_m;
 
-	int wgt_off = text_width(_event_x->label(), 2);
 	if (_prefix->visible()) {
-		wgt_off = MAX(wgt_off, text_width(_prefix->label(), 2));
-	}
-	if (_suffix->visible()) {
-		wgt_off = MAX(wgt_off, text_width(_suffix->label(), 2));
-	}
-	wgt_off += win_m;
-
-	if (_prefix->visible()) {
-		_prefix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
-		dy += wgt_h + wgt_m;
+		if (ph > wgt_h) {
+			_prefix->align(FL_ALIGN_LEFT_TOP | FL_ALIGN_CLIP);
+			_prefix->type(FL_MULTILINE_INPUT_WRAP);
+		}
+		else {
+			_prefix->align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+			_prefix->type(FL_NORMAL_INPUT);
+		}
+		_prefix->resize(wgt_off, dy, ww-wgt_off+win_m, ph);
+		dy += ph + wgt_m;
 	}
 
 	if (_event_x->visible()) {
@@ -989,22 +1093,30 @@ int Event_Options_Dialog::refresh_content(int ww, int dy) {
 	}
 	else {
 		int dx = text_width(_hex_event_y->label(), 2) + win_m;
-		wgt_w = MAX(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
+		wgt_w = std::max(text_width("AA", 2), text_width("FF", 2)) + wgt_h;
 		_hex_event_x->resize(wgt_off, dy, wgt_w, wgt_h);
 		_hex_event_y->resize(wgt_off+wgt_w+dx, dy, wgt_w, wgt_h);
 	}
 	dy += wgt_h + wgt_m;
 
 	if (_suffix->visible()) {
-		_suffix->resize(wgt_off, dy, ww-wgt_off+win_m, wgt_h);
+		if (sh > wgt_h) {
+			_suffix->align(FL_ALIGN_LEFT_TOP | FL_ALIGN_CLIP);
+			_suffix->type(FL_MULTILINE_INPUT_WRAP);
+		}
+		else {
+			_suffix->align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+			_suffix->type(FL_NORMAL_INPUT);
+		}
+		_suffix->resize(wgt_off, dy, ww-wgt_off+win_m, sh);
 	}
 
 	return ch;
 }
 
 Print_Options_Dialog::Print_Options_Dialog(const char *t) : _title(t), _copied(false), _canceled(false), _dialog(NULL),
-	_show_heading(NULL), _grid(NULL), _ids(NULL), _priority(NULL), _events(NULL), _export_button(NULL), _copy_button(NULL),
-	_cancel_button(NULL) {}
+	_show_heading(NULL), _grid(NULL), _ids(NULL), _priority(NULL), _events(NULL), _warp_ids(NULL), _export_button(NULL),
+	_copy_button(NULL), _cancel_button(NULL) {}
 
 Print_Options_Dialog::~Print_Options_Dialog() {
 	delete _dialog;
@@ -1013,6 +1125,7 @@ Print_Options_Dialog::~Print_Options_Dialog() {
 	delete _ids;
 	delete _priority;
 	delete _events;
+	delete _warp_ids;
 	delete _export_button;
 	delete _copy_button;
 	delete _cancel_button;
@@ -1029,11 +1142,13 @@ void Print_Options_Dialog::initialize() {
 	_ids = new OS_Check_Button(0, 0, 0, 0, "IDs");
 	_priority = new OS_Check_Button(0, 0, 0, 0, "Priority");
 	_events = new OS_Check_Button(0, 0, 0, 0, "Events");
+	_warp_ids = new OS_Check_Button(0, 0, 0, 0, "Warp IDs");
 	_export_button = new Default_Button(0, 0, 0, 0, "Export...");
 	_copy_button = new OS_Button(0, 0, 0, 0, "Copy");
 	_cancel_button = new OS_Button(0, 0, 0, 0, "Cancel");
 	_dialog->end();
 	// Initialize dialog
+	_dialog->box(OS_BG_BOX);
 	_dialog->resizable(NULL);
 	_dialog->callback((Fl_Callback *)cancel_cb, this);
 	_dialog->set_modal();
@@ -1070,7 +1185,10 @@ void Print_Options_Dialog::refresh() {
 	dx += _priority->w() + wgt_m;
 	wgt_w = text_width(_events->label(), 2) + wgt_h;
 	_events->resize(dx, dy, wgt_w, wgt_h);
-	dx += _priority->w() + win_m;
+	dx += _events->w() + wgt_m;
+	wgt_w = text_width(_warp_ids->label(), 2) + wgt_h;
+	_warp_ids->resize(dx, dy, wgt_w, wgt_h);
+	dx += _warp_ids->w() + win_m;
 	if (dx < 288) { dx = 288; }
 	dy += wgt_h + 16;
 #ifdef _WIN32

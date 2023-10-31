@@ -57,6 +57,15 @@ OS_Input::OS_Input(int x, int y, int w, int h, const char *l) : Fl_Input(x, y, w
 	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
 }
 
+OS_Hex_Input::OS_Hex_Input(int x, int y, int w, int h, const char *l) : Hex_Input(x, y, w, h, l) {
+	labelfont(OS_FONT);
+	labelsize(OS_FONT_SIZE);
+	textfont(OS_FONT);
+	textsize(OS_FONT_SIZE);
+	box(OS_INPUT_THIN_DOWN_BOX);
+	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+}
+
 OS_Button::OS_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y, w, h, l) {
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
@@ -91,8 +100,8 @@ int OS_Button::handle(int event) {
 Default_Button::Default_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y, w, h, l) {
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
-	box(OS_DEFAULT_BUTTON_BOX);
-	down_box(OS_DEPRESSED_DOWN_BOX);
+	box(OS_DEFAULT_BUTTON_UP_BOX);
+	down_box(OS_DEFAULT_DEPRESSED_DOWN_BOX);
 	shortcut(FL_Enter);
 }
 
@@ -103,7 +112,7 @@ int Default_Button::handle(int event) {
 		switch (event) {
 		case FL_ENTER:
 			if (active_r()) {
-				box(OS_HOVERED_UP_BOX);
+				box(OS_DEFAULT_HOVERED_UP_BOX);
 				redraw();
 				return 1;
 			}
@@ -111,7 +120,7 @@ int Default_Button::handle(int event) {
 		case FL_LEAVE:
 		case FL_HIDE:
 		case FL_DEACTIVATE:
-			box(OS_DEFAULT_BUTTON_BOX);
+			box(OS_DEFAULT_BUTTON_UP_BOX);
 			redraw();
 			return 1;
 		}
@@ -122,7 +131,7 @@ int Default_Button::handle(int event) {
 OS_Check_Button::OS_Check_Button(int x, int y, int w, int h, const char *l) : Fl_Check_Button(x, y, w, h, l) {
 	labelfont(OS_FONT);
 	labelsize(OS_FONT_SIZE);
-	box(FL_FLAT_BOX);
+	box(OS_BG_BOX);
 	align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
 	selection_color(FL_SELECTION_COLOR);
 }
@@ -237,6 +246,82 @@ int Default_Hex_Spinner::handle(int event) {
 	return Hex_Spinner::handle(event);
 }
 
+OS_Slider::OS_Slider(int x, int y, int w, int h, const char *l) : Fl_Hor_Nice_Slider(x, y, w, h, l) {
+	labelfont(OS_FONT);
+	labelsize(OS_FONT_SIZE);
+	box(OS_BG_BOX);
+	color(FL_BACKGROUND_COLOR);
+	slider(OS_BUTTON_UP_BOX);
+	slider_size(0.0);
+	align(FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+}
+
+int OS_Slider::handle(int event) {
+	if (event == FL_PUSH) {
+		Fl::focus(this);
+	}
+	return Fl_Hor_Nice_Slider::handle(event);
+}
+
+void OS_Slider::draw() {
+	// Based on Fl_Slider::draw()
+	Fl_Boxtype b = box();
+	if (damage() & FL_DAMAGE_ALL) { draw_box(b, active_r() ? color() : fl_inactive(color())); }
+	draw(x()+Fl::box_dx(b), y()+Fl::box_dy(b), w()-Fl::box_dw(b), h()-Fl::box_dh(b));
+}
+
+void OS_Slider::draw(int x, int y, int w, int h) {
+	// Based on Fl_Slider::draw(...)
+	double v = 0.5;
+	if (minimum() != maximum()) {
+		v = std::clamp((value() - minimum()) / (maximum() - minimum()), 0.0, 1.0);
+	}
+	int s = std::max((int)(slider_size() * w + 0.5), h / 2 + 2);
+	int ws = w - s;
+	int lx = x + (int)(v * ws + 0.5);
+	fl_push_clip(x, y, w, h);
+	draw_box(box(), active_r() ? color() : fl_inactive(color()));
+	fl_pop_clip();
+	draw_box(OS::current_theme() == OS::Theme::OCEAN || OS::current_theme() == OS::Theme::HIGH_CONTRAST ?
+		OS_BUTTON_UP_BOX : OS_SPACER_THIN_DOWN_BOX, x, y+h/2-2, w, 4, active_r() ? FL_DARK2 : fl_inactive(FL_DARK2));
+	draw_box(slider(), lx, y, s, h, FL_GRAY);
+	draw_label(lx, y, s, h);
+	if (Fl::focus() == this) {
+		draw_focus(slider(), lx, y, s, h);
+	}
+}
+
+Default_Slider::Default_Slider(int x, int y, int w, int h, const char *l) : OS_Slider(x, y, w, h, l),
+	_default_value(0.0) {}
+
+int Default_Slider::handle(int event) {
+	return handle(event, x(), y(), w(), h());
+}
+
+int Default_Slider::handle(int event, int x, int y, int w, int h) {
+	switch (event) {
+	case FL_PUSH:
+		Fl::focus(this);
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 1;
+		}
+		break;
+	case FL_DRAG:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			return 0;
+		}
+		break;
+	case FL_RELEASE:
+		if (Fl::event_button() == FL_MIDDLE_MOUSE) {
+			value(_default_value);
+			do_callback();
+			return 1;
+		}
+		break;
+	}
+	return Fl_Hor_Nice_Slider::handle(event, x, y, w, h);
+}
+
 HTML_View::HTML_View(int x, int y, int w, int h, const char *l) : Fl_Help_View(x, y, w, h, l) {
 	box(OS_INPUT_THIN_DOWN_BOX);
 	// TODO: scrollbar_.slider(OS_MINI_BUTTON_UP_BOX);
@@ -256,15 +341,15 @@ Dropdown::Dropdown(int x, int y, int w, int h, const char *l) : Fl_Choice(x, y, 
 
 void Dropdown::draw() {
 	// Based on Fl_Choice::draw()
-	Fl_Boxtype bb = OS::current_theme() == OS::Theme::METAL || OS::current_theme() == OS::Theme::HIGH_CONTRAST ?
+	Fl_Boxtype bb = OS::current_theme() == OS::Theme::OCEAN || OS::current_theme() == OS::Theme::HIGH_CONTRAST ?
 		OS_INPUT_THIN_DOWN_BOX : OS::current_theme() == OS::Theme::OLIVE ? OS_SWATCH_BOX : FL_DOWN_BOX;
 	int dx = Fl::box_dx(bb);
 	int dy = Fl::box_dy(bb);
 	int H = h() - 2 * dy;
-	int W = (H > 20) ? 20 : H;
-	int X = x() + w() - W - dx;
+	int W = std::min(H, 20);
+	int X = x() + w() - W - std::max(dx, dy);
 	int Y = y() + dy;
-	int w1 = MAX((W - 4) / 3, 1);
+	int w1 = std::max((W - 4) / 3, 1);
 	int x1 = X + (W - 2 * w1 - 1) / 2;
 	int y1 = Y + (H - w1 - 1) / 2;
 	if (Fl::scheme()) {
@@ -362,9 +447,9 @@ int Workspace::handle(int event) {
 	case FL_DRAG:
 		int dx = Fl::event_x(), dy = Fl::event_y();
 		int nx = _ox + (_cx - dx), ny = _oy + (_cy - dy);
-		int max_x = _content_w - w() + (scrollbar.visible() ? Fl::scrollbar_size() : 0);
-		int max_y = _content_h - h() + (hscrollbar.visible() ? Fl::scrollbar_size() : 0);
-		scroll_to(MAX(MIN(nx, max_x), 0), MAX(MIN(ny, max_y), 0));
+		int max_x = std::max(_content_w - w() + (scrollbar.visible() ? Fl::scrollbar_size() : 0), 0);
+		int max_y = std::max(_content_h - h() + (hscrollbar.visible() ? Fl::scrollbar_size() : 0), 0);
+		scroll_to(std::clamp(nx, 0, max_x), std::clamp(ny, 0, max_y));
 		return 1;
 	}
 	return Fl_Scroll::handle(event);
@@ -389,7 +474,7 @@ void Workspace::scrollbar_cb(Fl_Scrollbar *sb, void *) {
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Group(x, y, w, h, l), _spacer(0, 0, 0, 0) {
 	labeltype(FL_NO_LABEL);
-	box(OS_PANEL_THIN_UP_FRAME);
+	box(OS_TOOLBAR_FRAME);
 	resizable(_spacer);
 	clip_children(1);
 	begin();
@@ -451,7 +536,7 @@ void Toolbar::draw() {
 }
 
 Toolbar_Button::Toolbar_Button(int x, int y, int w, int h, const char *l) : Fl_Button(x, y, w, h, l) {
-	box(FL_FLAT_BOX);
+	box(OS_BG_BOX);
 	color(FL_BACKGROUND_COLOR);
 	down_box(OS_MINI_DEPRESSED_DOWN_BOX);
 	down_color(FL_SELECTION_COLOR);
@@ -490,7 +575,7 @@ int Toolbar_Button::handle(int event) {
 		return 0;
 	case FL_LEAVE:
 		color(FL_BACKGROUND_COLOR);
-		box(FL_FLAT_BOX);
+		box(OS_BG_BOX);
 		redraw();
 		return 1;
 	case FL_PUSH:
@@ -508,12 +593,3 @@ Toolbar_Radio_Button::Toolbar_Radio_Button(int x, int y, int w, int h, const cha
 	Toolbar_Button(x, y, w, h, l) {
 	type(FL_RADIO_BUTTON);
 }
-
-Status_Bar_Field::Status_Bar_Field(int x, int y, int w, int h, const char *l) : Fl_Box(x, y, w, h, l),
-	_default_label(l) {
-	labelfont(OS_FONT);
-	labelsize(OS_FONT_SIZE);
-	align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
-}
-
-Status_Bar_Field::~Status_Bar_Field() { delete _default_label; }
