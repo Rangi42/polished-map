@@ -12,9 +12,67 @@
 #include <fstream>
 #include <sstream>
 
+#if defined(__linux__) || defined(__unix__)
+#define __LINUX__
+#else
+#undef __LINUX__
+#endif
+
+#ifdef _DEBUG
+
 #pragma warning(push, 0)
 #include <FL/fl_draw.H>
 #pragma warning(pop)
+
+#include <iostream>
+#include <sstream>
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+#define DEBUGPRINT(X) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable:4127)) \
+	do { \
+		std::wstringstream wss_dbg_; \
+		wss_dbg_ << X << std::endl; \
+		OutputDebugString(wss_dbg_.str().c_str()); \
+	} while (0) \
+	__pragma(warning(pop))
+
+#endif
+
+#else
+
+#define DEBUGPRINT(X)
+
+#endif
+
+#ifdef _WIN32
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
+#endif
+
+#ifdef __APPLE__
+#define COMMAND_KEY_PLUS "\xE2\x8C\x98" // UTF-8 encoding of U+2318 "PLACE OF INTEREST SIGN"
+#define ALT_KEY_PLUS "\xE2\x8C\xA5" // UTF-8 encoding of U+2325 "OPTION KEY"
+#define SHIFT_KEY_PLUS "\xE2\x87\xA7" // UTF-8 encoding of U+21E7 "UPWARDS WHITE ARROW"
+#define COMMAND_SHIFT_KEYS_PLUS SHIFT_KEY_PLUS COMMAND_KEY_PLUS
+#define COMMAND_ALT_KEYS_PLUS ALT_KEY_PLUS COMMAND_KEY_PLUS
+#define ENTER_KEY_NAME "\xE2\x8C\xA4" // UTF-8 encoding of U+2324 "UP ARROWHEAD BETWEEN TWO HORIZONTAL BARS"
+#else
+#define COMMAND_KEY_PLUS "Ctrl+"
+#define ALT_KEY_PLUS "Alt+"
+#define SHIFT_KEY_PLUS "Shift+"
+#define COMMAND_SHIFT_KEYS_PLUS COMMAND_KEY_PLUS SHIFT_KEY_PLUS
+#define COMMAND_ALT_KEYS_PLUS COMMAND_KEY_PLUS ALT_KEY_PLUS
+#define ENTER_KEY_NAME "Enter"
+#endif
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #ifdef _WIN32
 #define DIR_SEP "\\"

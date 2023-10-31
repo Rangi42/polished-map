@@ -1,10 +1,19 @@
+UNAME := $(shell uname)
+ifeq ($(UNAME), Darwin)
+MACOS = 1
+endif
+
 DESTDIR =
 PREFIX = /usr/local
 
 polishedmap = polishedmap
 polishedmapd = polishedmapd
 
+ifdef MACOS
+CXX ?= clang
+else
 CXX ?= g++
+endif
 LD = $(CXX)
 RM = rm -rf
 
@@ -14,8 +23,13 @@ tmpdir = tmp
 debugdir = tmp/debug
 bindir = bin
 
-CXXFLAGS = -std=c++17 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images --cxxflags)
+ifdef MACOS
+CXXFLAGS = -std=c++11 --stdlib=libc++ -isystem ./include -isystem /usr/include -I$(srcdir) -I$(resdir) -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_THREAD_SAFE -D_REENTRANT
+LDFLAGS = $(wildcard lib/osx/*.a) -L/usr/local/lib -lm -lz -lpthread -framework ApplicationServices -framework Cocoa
+else
+CXXFLAGS = -std=c++11 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images --cxxflags)
 LDFLAGS = $(shell fltk-config --use-images --ldflags) $(shell pkg-config --libs libpng xpm)
+endif
 
 RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native
 DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter
@@ -62,6 +76,12 @@ $(debugdir)/%.o: $(srcdir)/%.cpp $(COMMON)
 clean:
 	$(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
 
+ifdef MACOS
+
+# TODO: install and uninstall
+
+else
+
 install: release
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
@@ -82,3 +102,5 @@ uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap48.xpm
 	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap16.xpm
 	rm -f $(DESKTOP)
+
+endif

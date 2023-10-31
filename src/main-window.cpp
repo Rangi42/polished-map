@@ -3,9 +3,10 @@
 #include <utility>
 
 #pragma warning(push, 0)
+#include <FL/x.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Overlay_Window.H>
-#include <FL/Fl_Menu_Bar.H>
+#include <FL/Fl_Sys_Menu_Bar.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Multi_Label.H>
@@ -31,7 +32,13 @@
 
 #ifdef _WIN32
 #include "resource.h"
-#else
+#endif
+
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
+#ifdef __LINUX__
 #include <unistd.h>
 #include <X11/xpm.h>
 #include "app-icon.xpm"
@@ -102,25 +109,41 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	int wx = 0, wy = 0, ww = w, wh = h;
 
 	// Initialize menu bar
-	_menu_bar = new Fl_Menu_Bar(wx, wy, w, 21);
+#ifdef __APPLE__
+	Fl_Mac_App_Menu::about = "About " PROGRAM_NAME;
+	Fl_Mac_App_Menu::hide = "Hide " PROGRAM_NAME;
+	Fl_Mac_App_Menu::quit = "Quit " PROGRAM_NAME;
+	_menu_bar = new Fl_Sys_Menu_Bar(wx, wy, w, 0);
+#else
+	_menu_bar = new Fl_Sys_Menu_Bar(wx, wy, w, 21);
+#endif
 	wy += _menu_bar->h();
 	wh -= _menu_bar->h();
 
 	// Toolbar
+#ifdef __APPLE__
+	_toolbar = new Toolbar(wx, wy, w, 38);
+#define SEPARATE_TOOLBAR_BUTTONS new Fl_Box(0, 0, 12, 36)
+#else
 	_toolbar = new Toolbar(wx, wy, w, 26);
+#define SEPARATE_TOOLBAR_BUTTONS new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24)
+#endif
 	wy += _toolbar->h();
 	wh -= _toolbar->h();
+#ifdef __APPLE__
+	new Fl_Box(0, 0, 6, 36);
+#endif
 	_new_tb = new Toolbar_Button(0, 0, 24, 24);
 	_open_tb = new Toolbar_Button(0, 0, 24, 24);
 	_load_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
 	_reload_event_script_tb = new Toolbar_Button(0, 0, 24, 24);
 	_save_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_print_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_undo_tb = new Toolbar_Button(0, 0, 24, 24);
 	_redo_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_grid_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_rulers_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_zoom_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
@@ -130,25 +153,26 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_gameboy_screen_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_events_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
 	_show_warp_ids_tb = new Toolbar_Toggle_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_blocks_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
 	_events_mode_tb = new Toolbar_Radio_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	new Label(0, 0, text_width("Palettes:", 3), 24, "Palettes:");
 	_palettes = new Dropdown(0, 0, text_width("Custom", 3) + 24, 22);
 	new Fl_Box(0, 0, 4, 24);
 	_load_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_current_palettes_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_add_sub_tb = new Toolbar_Button(0, 0, 24, 24);
 	_resize_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_change_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_tileset_tb = new Toolbar_Button(0, 0, 24, 24);
-	new Fl_Box(0, 0, 2, 24); new Spacer(0, 0, 2, 24); new Fl_Box(0, 0, 2, 24);
+	SEPARATE_TOOLBAR_BUTTONS;
 	_change_roof_tb = new Toolbar_Button(0, 0, 24, 24);
 	_edit_roof_tb = new Toolbar_Button(0, 0, 24, 24);
 	_toolbar->end();
+#undef SEPARATE_TOOLBAR_BUTTONS
 	begin();
 
 	// Status bar
@@ -238,7 +262,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	// Configure window icon
 #ifdef _WIN32
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
-#else
+#elif defined(__LINUX__)
 	fl_open_display();
 	XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display), (char **)&APP_ICON_XPM, &_icon_pixmap, &_icon_mask, NULL);
 	icon((const void *)_icon_pixmap);
@@ -297,8 +321,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("Save &Blockset", 0, (Fl_Callback *)save_metatiles_cb, this, 0),
 		OS_MENU_ITEM("Save &Tileset", 0, (Fl_Callback *)save_tileset_cb, this, 0),
 		OS_MENU_ITEM("Save &Roof", 0, (Fl_Callback *)save_roof_cb, this, FL_MENU_DIVIDER),
+#ifdef __APPLE__
+		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, 0),
+#else
 		OS_MENU_ITEM("&Print...", FL_COMMAND + 'p', (Fl_Callback *)print_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("E&xit", FL_ALT + FL_F + 4, (Fl_Callback *)exit_cb, this, 0),
+#endif
 		{},
 		OS_SUBMENU("&Data"),
 		OS_MENU_ITEM("Load &Event Script...", FL_COMMAND + 'a', (Fl_Callback *)load_event_script_cb, this, 0),
@@ -378,8 +406,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		{},
 		OS_MENU_ITEM("Tr&ansparent", FL_F + 10, (Fl_Callback *)transparent_cb, this,
 			FL_MENU_TOGGLE | (transparent ? FL_MENU_VALUE : 0)),
-		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this,
-			FL_MENU_TOGGLE | (fullscreen ? FL_MENU_VALUE : 0)),
+#ifdef __APPLE__
+		// F11 toggles all open windows in macOS
+		OS_MENU_ITEM("Full &Screen", FL_COMMAND + FL_SHIFT + 'f', (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
+#else
+		OS_MENU_ITEM("Full &Screen", FL_F + 11, (Fl_Callback *)full_screen_cb, this, FL_MENU_TOGGLE),
+#endif
 		{},
 		OS_SUBMENU("&Mode"),
 		OS_MENU_ITEM("&Blocks", FL_COMMAND + 'B', (Fl_Callback *)blocks_mode_cb, this,
@@ -391,9 +423,18 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_SUBMENU("&Tools"),
 		OS_MENU_ITEM("Resize &Blockset...", FL_COMMAND + 'b', (Fl_Callback *)add_sub_cb, this, 0),
 		OS_MENU_ITEM("Resize &Map...", FL_COMMAND + 'e', (Fl_Callback *)resize_cb, this, FL_MENU_DIVIDER),
+#ifdef __APPLE__
+		// Command+H hides all open windows in macOS
+		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'j', (Fl_Callback *)change_tileset_cb, this, 0),
+#else
 		OS_MENU_ITEM("Chan&ge Tileset...", FL_COMMAND + 'h', (Fl_Callback *)change_tileset_cb, this, 0),
+#endif
 		OS_MENU_ITEM("Edit &Tileset...", FL_COMMAND + 't', (Fl_Callback *)edit_tileset_cb, this, FL_MENU_DIVIDER),
+#ifdef __APPLE__
+		OS_MENU_ITEM("C&hange Roof...", FL_COMMAND + 'J', (Fl_Callback *)change_roof_cb, this, 0),
+#else
 		OS_MENU_ITEM("C&hange Roof...", FL_COMMAND + 'H', (Fl_Callback *)change_roof_cb, this, 0),
+#endif
 		OS_MENU_ITEM("Edit &Roof...", FL_COMMAND + 'f', (Fl_Callback *)edit_roof_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("Edit Current &Palettes...", FL_COMMAND + 'L', (Fl_Callback *)edit_current_palettes_cb, this, 0),
 		{},
@@ -427,12 +468,25 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		OS_MENU_ITEM("&Overworld Map Size...", 0, (Fl_Callback *)overworld_map_size_cb, this, 0),
 		{},
 		OS_SUBMENU("&Help"),
+#ifdef __APPLE__
+		OS_MENU_ITEM(PROGRAM_NAME " &Help", FL_F + 1, (Fl_Callback *)help_cb, this, 0),
+#else
 		OS_MENU_ITEM("&Help", FL_F + 1, (Fl_Callback *)help_cb, this, FL_MENU_DIVIDER),
 		OS_MENU_ITEM("&About", FL_COMMAND + '/', (Fl_Callback *)about_cb, this, 0),
+#endif
 		{},
 		{}
 	};
+#ifdef __APPLE__
+	// Fix for menu items not working in macOS
+	Fl_Menu_Item *menu_items_copy = static_cast<Fl_Menu_Item *>(malloc(sizeof(menu_items)));
+	memcpy(menu_items_copy, menu_items, sizeof(menu_items));
+	_menu_bar->menu(menu_items_copy);
+	// Initialize macOS application menu
+	fl_mac_set_about((Fl_Callback *)about_cb, this);
+#else
 	_menu_bar->copy(menu_items);
+#endif
 
 	// Initialize menu bar items
 	int first_recent_i = _menu_bar->find_index((Fl_Callback *)open_recent_cb);
@@ -511,6 +565,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_edit_roof_mi = PM_FIND_MENU_ITEM_CB(edit_roof_cb);
 #undef PM_FIND_MENU_ITEM_CB
 
+#ifndef __APPLE__
 	for (int i = 0, md = 0; i < _menu_bar->size(); i++) {
 		Fl_Menu_Item *mi = (Fl_Menu_Item *)&_menu_bar->menu()[i];
 		if (!mi) { continue; }
@@ -527,43 +582,44 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 		if (mi->submenu()) { md++; }
 		else if (!mi->label()) { md--; }
 	}
+#endif
 
 	// Configure toolbar buttons
 
-	_new_tb->tooltip("New... (Ctrl+N)");
+	_new_tb->tooltip("New... (" COMMAND_KEY_PLUS "N)");
 	_new_tb->callback((Fl_Callback *)new_cb, this);
 	_new_tb->image(NEW_ICON);
 	_new_tb->take_focus();
 
-	_open_tb->tooltip("Open... (Ctrl+O)");
+	_open_tb->tooltip("Open... (" COMMAND_KEY_PLUS "O)");
 	_open_tb->callback((Fl_Callback *)open_cb, this);
 	_open_tb->image(OPEN_ICON);
 
-	_load_event_script_tb->tooltip("Load Event Script... (Ctrl+A)");
+	_load_event_script_tb->tooltip("Load Event Script... (" COMMAND_KEY_PLUS "A)");
 	_load_event_script_tb->callback((Fl_Callback *)load_event_script_cb, this);
 	_load_event_script_tb->image(LOAD_ICON);
 
-	_reload_event_script_tb->tooltip("Reload Event Script... (Ctrl+R)");
+	_reload_event_script_tb->tooltip("Reload Event Script... (" COMMAND_KEY_PLUS "R)");
 	_reload_event_script_tb->callback((Fl_Callback *)reload_event_script_cb, this);
 	_reload_event_script_tb->image(RELOAD_ICON);
 
-	_save_tb->tooltip("Save (Ctrl+S)");
+	_save_tb->tooltip("Save (" COMMAND_KEY_PLUS "S)");
 	_save_tb->callback((Fl_Callback *)save_cb, this);
 	_save_tb->image(SAVE_ICON);
 
-	_print_tb->tooltip("Print (Ctrl+P)");
+	_print_tb->tooltip("Print (" COMMAND_KEY_PLUS "P)");
 	_print_tb->callback((Fl_Callback *)print_cb, this);
 	_print_tb->image(PRINT_ICON);
 
-	_undo_tb->tooltip("Undo (Ctrl+Z)");
+	_undo_tb->tooltip("Undo (" COMMAND_KEY_PLUS "Z)");
 	_undo_tb->callback((Fl_Callback *)undo_cb, this);
 	_undo_tb->image(UNDO_ICON);
 
-	_redo_tb->tooltip("Redo (Ctrl+Y)");
+	_redo_tb->tooltip("Redo (" COMMAND_KEY_PLUS "Y)");
 	_redo_tb->callback((Fl_Callback *)redo_cb, this);
 	_redo_tb->image(REDO_ICON);
 
-	_grid_tb->tooltip("Grid (Ctrl+G)");
+	_grid_tb->tooltip("Grid (" COMMAND_KEY_PLUS "G)");
 	_grid_tb->callback((Fl_Callback *)grid_tb_cb, this);
 	_grid_tb->image(GRID_ICON);
 	_grid_tb->value(grid());
@@ -573,34 +629,34 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_rulers_tb->image(RULERS_ICON);
 	_rulers_tb->value(rulers());
 
-	_zoom_tb->tooltip("Zoom (Ctrl+=)");
+	_zoom_tb->tooltip("Zoom (" COMMAND_KEY_PLUS "=)");
 	_zoom_tb->callback((Fl_Callback *)zoom_tb_cb, this);
 	_zoom_tb->image(ZOOM_ICON);
 	_zoom_tb->shortcut(FL_COMMAND + '+');
 	_zoom_tb->value(zoom());
 
-	_ids_tb->tooltip("Block IDs (Ctrl+I)");
+	_ids_tb->tooltip("Block IDs (" COMMAND_KEY_PLUS "I)");
 	_ids_tb->callback((Fl_Callback *)ids_tb_cb, this);
 	_ids_tb->image(IDS_ICON);
 	_ids_tb->value(ids());
 
-	_hex_tb->tooltip("Hexadecimal (Ctrl+$)");
+	_hex_tb->tooltip("Hexadecimal (" COMMAND_KEY_PLUS "$)");
 	_hex_tb->callback((Fl_Callback *)hex_tb_cb, this);
 	_hex_tb->image(HEX_ICON);
 	_hex_tb->shortcut(FL_COMMAND + '$');
 	_hex_tb->value(hex());
 
-	_show_priority_tb->tooltip("Show Priority (Ctrl+Shift+P)");
+	_show_priority_tb->tooltip("Show Priority (" COMMAND_SHIFT_KEYS_PLUS "P)");
 	_show_priority_tb->callback((Fl_Callback *)show_priority_tb_cb, this);
 	_show_priority_tb->image(PRIORITY_ICON);
 	_show_priority_tb->value(show_priority());
 
-	_gameboy_screen_tb->tooltip("Game Boy Screen (Ctrl+Shift+M)");
+	_gameboy_screen_tb->tooltip("Game Boy Screen (" COMMAND_SHIFT_KEYS_PLUS "M)");
 	_gameboy_screen_tb->callback((Fl_Callback *)gameboy_screen_tb_cb, this);
 	_gameboy_screen_tb->image(GAMEBOY_ICON);
 	_gameboy_screen_tb->value(gameboy_screen());
 
-	_show_events_tb->tooltip("Show Events (Ctrl+Shift+V)");
+	_show_events_tb->tooltip("Show Events (" COMMAND_SHIFT_KEYS_PLUS "R)");
 	_show_events_tb->callback((Fl_Callback *)show_events_tb_cb, this);
 	_show_events_tb->image(SHOW_ICON);
 	_show_events_tb->value(show_events());
@@ -611,12 +667,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_show_warp_ids_tb->shortcut(FL_COMMAND + '#');
 	_show_warp_ids_tb->value(show_warp_ids());
 
-	_blocks_mode_tb->tooltip("Blocks Mode (Ctrl+Shift+B)");
+	_blocks_mode_tb->tooltip("Blocks Mode (" COMMAND_SHIFT_KEYS_PLUS "B)");
 	_blocks_mode_tb->callback((Fl_Callback *)blocks_mode_tb_cb, this);
 	_blocks_mode_tb->image(BLOCKS_ICON);
 	_blocks_mode_tb->value(mode() == Mode::BLOCKS);
 
-	_events_mode_tb->tooltip("Events Mode (Ctrl+Shift+E)");
+	_events_mode_tb->tooltip("Events Mode (" COMMAND_SHIFT_KEYS_PLUS "E)");
 	_events_mode_tb->callback((Fl_Callback *)events_mode_tb_cb, this);
 	_events_mode_tb->image(EVENTS_ICON);
 	_events_mode_tb->value(mode() == Mode::EVENTS);
@@ -630,35 +686,43 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_palettes->value((int)palettes_config);
 	_palettes->callback((Fl_Callback *)palettes_cb, this);
 
-	_add_sub_tb->tooltip("Resize Blockset... (Ctrl+B)");
+	_add_sub_tb->tooltip("Resize Blockset... (" COMMAND_KEY_PLUS "B)");
 	_add_sub_tb->callback((Fl_Callback *)add_sub_cb, this);
 	_add_sub_tb->image(ADD_SUB_ICON);
 
-	_resize_tb->tooltip("Resize Map... (Ctrl+E)");
+	_resize_tb->tooltip("Resize Map... (" COMMAND_KEY_PLUS "E)");
 	_resize_tb->callback((Fl_Callback *)resize_cb, this);
 	_resize_tb->image(RESIZE_ICON);
 
-	_change_tileset_tb->tooltip("Change Tileset... (Ctrl+H)");
+#ifdef __APPLE__
+	_change_tileset_tb->tooltip("Change Tileset... (" COMMAND_KEY_PLUS "J)");
+#else
+	_change_tileset_tb->tooltip("Change Tileset... (" COMMAND_KEY_PLUS "H)");
+#endif
 	_change_tileset_tb->callback((Fl_Callback *)change_tileset_cb, this);
 	_change_tileset_tb->image(CHANGE_ICON);
 
-	_edit_tileset_tb->tooltip("Edit Tileset... (Ctrl+T)");
+	_edit_tileset_tb->tooltip("Edit Tileset... (" COMMAND_KEY_PLUS "T)");
 	_edit_tileset_tb->callback((Fl_Callback *)edit_tileset_cb, this);
 	_edit_tileset_tb->image(TILESET_ICON);
 
-	_change_roof_tb->tooltip("Change Roof... (Ctrl+Shift+H)");
+#ifdef __APPLE__
+	_change_roof_tb->tooltip("Change Roof... (" COMMAND_SHIFT_KEYS_PLUS "J)");
+#else
+	_change_roof_tb->tooltip("Change Roof... (" COMMAND_SHIFT_KEYS_PLUS "H)");
+#endif
 	_change_roof_tb->callback((Fl_Callback *)change_roof_cb, this);
 	_change_roof_tb->image(CHANGE_ROOF_ICON);
 
-	_edit_roof_tb->tooltip("Edit Roof... (Ctrl+F)");
+	_edit_roof_tb->tooltip("Edit Roof... (" COMMAND_KEY_PLUS "F)");
 	_edit_roof_tb->callback((Fl_Callback *)edit_roof_cb, this);
 	_edit_roof_tb->image(ROOF_ICON);
 
-	_load_palettes_tb->tooltip("Load Palettes... (Ctrl+L)");
+	_load_palettes_tb->tooltip("Load Palettes... (" COMMAND_KEY_PLUS "L)");
 	_load_palettes_tb->callback((Fl_Callback *)load_palettes_cb, this);
 	_load_palettes_tb->image(LOAD_PALETTES_ICON);
 
-	_edit_current_palettes_tb->tooltip("Edit Current Palettes... (Ctrl+Shift+L)");
+	_edit_current_palettes_tb->tooltip("Edit Current Palettes... (" COMMAND_SHIFT_KEYS_PLUS "L)");
 	_edit_current_palettes_tb->callback((Fl_Callback *)edit_current_palettes_cb, this);
 	_edit_current_palettes_tb->image(PALETTES_ICON);
 
@@ -768,7 +832,7 @@ void Main_Window::show() {
 	HANDLE small_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
 		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CXSMICON), 0);
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
-#else
+#elif defined(__LINUX__)
 	// Fix for X11 icon alpha mask <https://www.mail-archive.com/fltk@easysw.com/msg02863.html>
 	XWMHints *hints = XGetWMHints(fl_display, fl_xid(this));
 	hints->flags |= IconMaskHint;
@@ -1181,21 +1245,30 @@ void Main_Window::store_recent_map() {
 void Main_Window::update_recent_maps() {
 	int last = -1;
 	for (int i = 0; i < NUM_RECENT; i++) {
+#ifndef __APPLE__
 		Fl_Multi_Label *ml = (Fl_Multi_Label *)_recent_mis[i]->label();
 		if (ml->labelb[0]) {
 			delete [] ml->labelb;
 			ml->labelb = "";
 		}
+#endif
 		if (_recent[i].empty()) {
+#ifdef __APPLE__
+			_recent_mis[i]->label("");
+#endif
 			_recent_mis[i]->hide();
 		}
 		else {
 			const char *basename = fl_filename_name(_recent[i].c_str());
+#ifndef __APPLE__
 			char *label = new char[FL_PATH_MAX]();
 			strcpy(label, OS_MENU_ITEM_PREFIX);
 			strcat(label, basename);
 			strcat(label, OS_MENU_ITEM_SUFFIX);
 			ml->labelb = label;
+#else
+			_recent_mis[i]->label(basename);
+#endif
 			_recent_mis[i]->show();
 			last = i;
 		}
@@ -1594,6 +1667,11 @@ void Main_Window::view_event_script(Event *e) {
 	}
 
 	ShellExecute(hwnd, L"edit", filename, NULL, NULL, SW_SHOW);
+#elif defined(__APPLE__)
+	if (fork() == 0) {
+		execl("/usr/bin/open", "open", _asm_file.c_str(), NULL);
+		exit(EXIT_SUCCESS);
+	}
 #else
 	if (fork() == 0) {
 		execl("/usr/bin/xdg-open", "xdg-open", _asm_file.c_str(), NULL);
