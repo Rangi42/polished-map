@@ -3,6 +3,7 @@
 
 #pragma warning(push, 0)
 #include <FL/filename.H>
+#include <FL/Enumerations.H>
 #pragma warning(pop)
 
 #include "utils.h"

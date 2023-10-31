@@ -12,6 +12,10 @@
 #include <fstream>
 #include <sstream>
 
+#pragma warning(push, 0)
+#include <FL/Enumerations.H>
+#pragma warning(pop)
+
 #if defined(__linux__) || defined(__unix__)
 #define __LINUX__
 #else

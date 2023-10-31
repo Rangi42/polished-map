@@ -848,7 +848,7 @@ bool Main_Window::maximized() const {
 	wp.length = sizeof(wp);
 	if (!GetWindowPlacement(fl_xid(this), &wp)) { return false; }
 	return wp.showCmd == SW_MAXIMIZE;
-#else
+#elif defined(__LINUX__)
 	Atom wmState = XInternAtom(fl_display, "_NET_WM_STATE", True);
 	Atom actual;
 	int format;
@@ -871,12 +871,14 @@ bool Main_Window::maximized() const {
 	return numMax == 2;
 	return false;
 #endif
+// TODO: Implement for macOS
+return false;
 }
 
 void Main_Window::maximize() {
 #ifdef _WIN32
 	ShowWindow(fl_xid(this), SW_MAXIMIZE);
-#else
+#elif defined(__LINUX__)
 	XEvent event;
 	memset(&event, 0, sizeof(event));
 	event.xclient.type = ClientMessage;
@@ -889,6 +891,7 @@ void Main_Window::maximize() {
 	event.xclient.data.l[3] = 1;
 	XSendEvent(fl_display, DefaultRootWindow(fl_display), False, SubstructureNotifyMask | SubstructureNotifyMask, &event);
 #endif
+	// TODO: Implement for macOS
 }
 
 void Main_Window::apply_transparency() {
@@ -900,11 +903,12 @@ void Main_Window::apply_transparency() {
 		SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle | WS_EX_LAYERED);
 	}
 	SetLayeredWindowAttributes(hwnd, 0, (BYTE)(alpha * 0xFF), LWA_ALPHA);
-#else
+#elif defined(__LINUX__)
 	Atom atom = XInternAtom(fl_display, "_NET_WM_WINDOW_OPACITY", False);
 	uint32_t opacity = (uint32_t)(UINT32_MAX * alpha);
 	XChangeProperty(fl_display, fl_xid(this), atom, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&opacity, 1);
 #endif
+	// TODO: Implement for macOS
 }
 
 bool Main_Window::unsaved() const {
@@ -1342,6 +1346,7 @@ void Main_Window::open_map(const char *filename) {
 void Main_Window::open_map(const char *directory, const char *filename) {
 	// get map options
 	Map_Attributes attrs;
+	printf("limit_blk_options(%s, %s, %p)\n", filename, directory, &attrs);
 	if (!_map_options_dialog->limit_blk_options(filename, directory, attrs)) {
 		std::string msg = "This is not a valid project!\n\n"
 			"Make sure the Options are correct.";

@@ -7,6 +7,7 @@
 #pragma warning(push, 0)
 #include <FL/filename.H>
 #include <FL/fl_utf8.h>
+#include <FL/fl_draw.H>
 #pragma warning(pop)
 
 #include "utils.h"
@@ -118,7 +119,7 @@ size_t file_size(const char *f) {
 }
 
 size_t file_size(FILE *f) {
-#ifdef defined(__APPLE__) || defined(__CYGWIN__)
+#if defined(__APPLE__) || defined(__CYGWIN__)
 #define stat64 stat
 #define fstat64 fstat
 #elif defined(_WIN32)
