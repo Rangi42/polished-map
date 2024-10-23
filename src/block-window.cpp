@@ -161,7 +161,7 @@ void Block_Window::initialize() {
 	_metatile_group->end();
 	// Initialize window
 	_window->box(OS_BG_BOX);
-	_window->callback((Fl_Callback *)close_cb, this);
+	_window->callback((Fl_Callback *)cancel_cb, this);
 	_window->set_modal();
 	// Initialize window's children
 	_multiedit_heading->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
@@ -301,10 +301,10 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 				cin->activate();
 			}
 			else {
-				cin->value(NULL);
+				cin->value(nullptr);
 				cin->deactivate();
 			}
-			cin->position(0);
+			cin->insert_position(0);
 		}
 	}
 	char buffer[32];
@@ -315,12 +315,15 @@ void Block_Window::metatile(const Metatile *mt, bool has_collisions, bool bin_co
 void Block_Window::show(const Fl_Widget *p) {
 	initialize();
 	refresh();
+	Fl_Window *prev_grab = Fl::grab();
+	Fl::grab(NULL);
 	int x = p->x() + (p->w() - _window->w()) / 2;
 	int y = p->y() + (p->h() - _window->h()) / 2;
 	_window->position(x, y);
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+	Fl::grab(prev_grab);
 }
 
 void Block_Window::select(const Tile_Button *tb) {

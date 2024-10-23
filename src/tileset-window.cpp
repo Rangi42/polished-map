@@ -122,7 +122,7 @@ void Tileset_Window::initialize() {
 	_tile_group->end();
 	// Initialize window
 	_window->box(OS_BG_BOX);
-	_window->callback((Fl_Callback *)close_cb, this);
+	_window->callback((Fl_Callback *)cancel_cb, this);
 	_window->set_modal();
 	// Initialize window's children
 	_tileset_group->type(Fl_Scroll::VERTICAL_ALWAYS);
@@ -204,12 +204,15 @@ void Tileset_Window::tileset(Tileset *t) {
 void Tileset_Window::show(const Fl_Widget *p) {
 	initialize();
 	refresh();
+	Fl_Window *prev_grab = Fl::grab();
+	Fl::grab(NULL);
 	int x = p->x() + (p->w() - _window->w()) / 2;
 	int y = p->y() + (p->h() - _window->h()) / 2;
 	_window->position(x, y);
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+	Fl::grab(prev_grab);
 }
 
 void Tileset_Window::apply_modifications() {

@@ -9,6 +9,7 @@
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Native_File_Chooser.H>
+#include <FL/platform.H>
 #pragma warning(pop)
 
 #include "utils.h"

@@ -6,6 +6,7 @@
 #include <FL/Fl_PNG_Image.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Tooltip.H>
+#include <FL/platform.H>
 #pragma warning(pop)
 
 #ifdef _WIN32
@@ -590,7 +591,7 @@ static void use_aero_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_INACTIVE_COLOR, 0x6F, 0x6F, 0x6F);
-	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x99, 0xFF);
+	Fl::set_color(FL_SELECTION_COLOR, 0x2A, 0x7D, 0xDD);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xF0));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -734,7 +735,7 @@ static void use_metro_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x00, 0x00, 0x00);
 	Fl::set_color(FL_INACTIVE_COLOR, 0x6F, 0x6F, 0x6F);
-	Fl::set_color(FL_SELECTION_COLOR, 0x33, 0x99, 0xFF);
+	Fl::set_color(FL_SELECTION_COLOR, 0x2A, 0x7D, 0xDD);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -1332,7 +1333,7 @@ static void use_greybird_colors() {
 	Fl::background2(0xFC, 0xFC, 0xFC);
 	Fl::foreground(0x3C, 0x3C, 0x3C);
 	Fl::set_color(FL_INACTIVE_COLOR, 0x55, 0x55, 0x55);
-	Fl::set_color(FL_SELECTION_COLOR, 0x50, 0xA0, 0xF4);
+	Fl::set_color(FL_SELECTION_COLOR, 0x3D, 0x7B, 0xBB);
 	Fl_Tooltip::color(fl_rgb_color(0x0A, 0x0A, 0x0A));
 	Fl_Tooltip::textcolor(fl_rgb_color(0xFF, 0xFF, 0xFF));
 }
@@ -2370,7 +2371,7 @@ static void use_rose_gold_colors() {
 	Fl::background2(0xFF, 0xFF, 0xFF);
 	Fl::foreground(0x4C, 0x1E, 0x12);
 	Fl::set_color(FL_INACTIVE_COLOR, 0x60, 0x4C, 0x4C);
-	Fl::set_color(FL_SELECTION_COLOR, 0x15, 0x81, 0xFA);
+	Fl::set_color(FL_SELECTION_COLOR, 0x14, 0x79, 0xEA);
 	Fl_Tooltip::color(fl_rgb_color(0xFF, 0xFF, 0xFF));
 	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
 }
@@ -3004,8 +3005,9 @@ void OS::use_brushed_metal_theme() {
 
 static void high_contrast_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 	fl_color(activated_color(fl_rgb_color(0x00, 0xFF, 0xFF)));
-	fl_rect(x, y, w, h);
-	fl_rect(x+1, y+1, w-2, h-2);
+	fl_line_style(FL_SOLID, 2);
+	fl_rect(x+1, y+1, w-1, h-1);
+	fl_line_style(FL_SOLID);
 }
 
 static void high_contrast_button_up_box(int x, int y, int w, int h, Fl_Color c) {
@@ -3016,8 +3018,9 @@ static void high_contrast_button_up_box(int x, int y, int w, int h, Fl_Color c) 
 
 static void high_contrast_check_down_frame(int x, int y, int w, int h, Fl_Color) {
 	fl_color(activated_color(fl_rgb_color(0x00, 0x80, 0x80)));
-	fl_rect(x, y, w, h);
-	fl_rect(x+1, y+1, w-2, h-2);
+	fl_line_style(FL_SOLID, 2);
+	fl_rect(x+1, y+1, w-1, h-1);
+	fl_line_style(FL_SOLID);
 }
 
 static void high_contrast_check_down_box(int x, int y, int w, int h, Fl_Color c) {
@@ -3050,8 +3053,9 @@ static void high_contrast_spacer_thin_down_box(int x, int y, int w, int h, Fl_Co
 
 static void high_contrast_default_button_up_frame(int x, int y, int w, int h, Fl_Color) {
 	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
-	fl_rect(x, y, w, h);
-	fl_rect(x+1, y+1, w-2, h-2);
+	fl_line_style(FL_SOLID, 2);
+	fl_rect(x+1, y+1, w-1, h-1);
+	fl_line_style(FL_SOLID);
 }
 
 static void high_contrast_default_button_up_box(int x, int y, int w, int h, Fl_Color c) {
@@ -3074,8 +3078,9 @@ static void high_contrast_radio_round_down_box(int x, int y, int w, int h, Fl_Co
 
 static void high_contrast_hovered_up_frame(int x, int y, int w, int h, Fl_Color) {
 	fl_color(activated_color(fl_rgb_color(0xFF, 0xFF, 0xFF)));
-	fl_rect(x, y, w, h);
-	fl_rect(x+1, y+1, w-2, h-2);
+	fl_line_style(FL_SOLID, 2);
+	fl_rect(x+1, y+1, w-1, h-1);
+	fl_line_style(FL_SOLID);
 }
 
 static void high_contrast_hovered_up_box(int x, int y, int w, int h, Fl_Color c) {
@@ -3154,7 +3159,7 @@ void OS::use_native_fonts() {
 	metrics.cbSize = sizeof(NONCLIENTMETRICS);
 	SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
 	char system_font[256] = {};
-	int n = wcstombs(system_font, metrics.lfMessageFont.lfFaceName, sizeof(system_font));
+	size_t n = wcstombs(system_font, metrics.lfMessageFont.lfFaceName, sizeof(system_font));
 	if (n == sizeof(system_font)) {
 		system_font[sizeof(system_font)-1] = '\0';
 	}
@@ -3186,7 +3191,7 @@ void OS::use_native_fonts() {
 	use_any_font(FL_COURIER, monospace_fonts, _countof(monospace_fonts));
 	// Use common bold monospace font
 	const char *bold_monospace_fonts[] = {
-		"Ubuntu Mono bold", "Noto Sans Mono bold", "Droid Sans Mono bold", "DejaVu Sans Mono bold"
+		"Ubuntu Mono Bold", "Noto Sans Mono Bold", "Droid Sans Mono Bold", "DejaVu Sans Mono Bold"
 	};
 	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, _countof(bold_monospace_fonts));
 #endif

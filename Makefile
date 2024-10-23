@@ -14,13 +14,15 @@ tmpdir = tmp
 debugdir = tmp/debug
 bindir = bin
 
-CXXFLAGS = -std=c++17 -I$(srcdir) -I$(resdir) $(shell fltk-config --use-images --cxxflags)
-LDFLAGS = $(shell fltk-config --use-images --ldflags) $(shell pkg-config --libs libpng xpm)
+fltk-config = $(bindir)/fltk-config
 
-RELEASEFLAGS = -DNDEBUG -O3 -flto -march=native
+CXXFLAGS := -std=c++17 -I$(srcdir) -I$(resdir) $(shell $(fltk-config) --use-images --cxxflags) $(CXXFLAGS)
+LDFLAGS := $(shell $(fltk-config) --use-images --ldstaticflags) $(shell pkg-config --libs xpm) $(LDFLAGS)
+
+RELEASEFLAGS = -DNDEBUG -O3 -flto
 DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter
 
-COMMON = $(wildcard $(srcdir)/*.h) $(wildcard $(resdir)/*.xpm)
+COMMON = $(wildcard $(srcdir)/*.h) $(wildcard $(resdir)/*.xpm) $(resdir)/help.html
 SOURCES = $(wildcard $(srcdir)/*.cpp)
 OBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(tmpdir)/%.o)
 DEBUGOBJECTS = $(SOURCES:$(srcdir)/%.cpp=$(debugdir)/%.o)
@@ -37,19 +39,19 @@ all: $(polishedmap)
 $(polishedmap): release
 $(polishedmapd): debug
 
-release: CXXFLAGS += $(RELEASEFLAGS)
+release: CXXFLAGS := $(RELEASEFLAGS) $(CXXFLAGS)
 release: $(TARGET)
 
-debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: CXXFLAGS := $(DEBUGFLAGS) $(CXXFLAGS)
 debug: $(DEBUGTARGET)
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(@D)
-	$(LD) -o $@ $^ $(LDFLAGS)
+	$(LD) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
 $(DEBUGTARGET): $(DEBUGOBJECTS)
 	@mkdir -p $(@D)
-	$(LD) -o $@ $^ $(LDFLAGS)
+	$(LD) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
 $(tmpdir)/%.o: $(srcdir)/%.cpp $(COMMON)
 	@mkdir -p $(@D)

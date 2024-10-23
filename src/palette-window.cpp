@@ -1,6 +1,10 @@
 #include <queue>
 #include <utility>
 
+#pragma warning(push, 0)
+#include <FL/platform.H>
+#pragma warning(pop)
+
 #include "themes.h"
 #include "config.h"
 #include "palette-window.h"
@@ -58,7 +62,7 @@ void Abstract_Palette_Window::initialize() {
 	initial_setup();
 	// Initialize window
 	_window->box(OS_BG_BOX);
-	_window->callback((Fl_Callback *)close_cb, this);
+	_window->callback((Fl_Callback *)cancel_cb, this);
 	_window->set_modal();
 	// Initialize window's children
 	_red_spinner->range(0, 31);
@@ -189,12 +193,15 @@ void Abstract_Palette_Window::update_color(Fl_Widget *wgt) {
 void Abstract_Palette_Window::show(const Fl_Widget *p) {
 	initialize();
 	refresh();
+	Fl_Window *prev_grab = Fl::grab();
+	Fl::grab(NULL);
 	int x = p->x() + (p->w() - _window->w()) / 2;
 	int y = p->y() + (p->h() - _window->h()) / 2;
 	_window->position(x, y);
 	_ok_button->take_focus();
 	_window->show();
 	while (_window->shown()) { Fl::wait(); }
+	Fl::grab(prev_grab);
 }
 
 void Abstract_Palette_Window::select(Color_Button *cb) {
