@@ -2893,6 +2893,7 @@ void Main_Window::classic_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_classic_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2900,6 +2901,7 @@ void Main_Window::aero_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_aero_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2907,6 +2909,7 @@ void Main_Window::metro_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_metro_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::aqua_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2914,6 +2917,7 @@ void Main_Window::aqua_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_aqua_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2921,6 +2925,7 @@ void Main_Window::greybird_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_greybird_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::ocean_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2928,6 +2933,7 @@ void Main_Window::ocean_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_ocean_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::blue_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2935,6 +2941,7 @@ void Main_Window::blue_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_blue_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::olive_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2942,6 +2949,7 @@ void Main_Window::olive_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_olive_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::rose_gold_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2949,6 +2957,7 @@ void Main_Window::rose_gold_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_rose_gold_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2956,6 +2965,7 @@ void Main_Window::dark_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_dark_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::brushed_metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2963,6 +2973,7 @@ void Main_Window::brushed_metal_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_brushed_metal_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
@@ -2970,6 +2981,7 @@ void Main_Window::high_contrast_theme_cb(Fl_Menu_ *, Main_Window *mw) {
 	mw->_high_contrast_theme_mi->setonly();
 	mw->update_icons();
 	mw->redraw();
+	mw->_help_window->redraw();
 }
 
 void Main_Window::transparent_cb(Fl_Menu_ *, Main_Window *mw) {
