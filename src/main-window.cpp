@@ -37,11 +37,6 @@
 #include "app-icon.xpm"
 #endif
 
-// Avoid "warning C4458: declaration of 'i' hides class member"
-// due to Fl_Window's Fl_X *i
-#pragma warning(push)
-#pragma warning(disable : 4458)
-
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_Window(x, y, w, h, PROGRAM_NAME),
 	_directory(), _blk_file(), _asm_file(), _recent(), _metatileset(), _map(), _map_events(), _status_event_x(INT_MIN),
 	_status_event_y(INT_MIN), _metatile_buttons(), _clipboard(0), _wx(x), _wy(y), _ww(w), _wh(h) {
@@ -3514,5 +3509,3 @@ void Main_Window::change_event_cb(Event *e, Main_Window *mw) {
 		}
 	}
 }
-
-#pragma warning(pop)
