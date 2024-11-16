@@ -2685,11 +2685,13 @@ void Main_Window::print_cb(Fl_Widget *, Main_Window *mw) {
 
 	int w = (int)mw->_map.width() * METATILE_PX_SIZE, h = (int)mw->_map.height() * METATILE_PX_SIZE;
 	if (mw->_print_options_dialog->copied()) {
+		float scale = fl_override_scale();
 		Fl_Copy_Surface *surface = new Fl_Copy_Surface(w, h);
 		surface->set_current();
 		mw->print_map();
 		delete surface;
 		Fl_Display_Device::display_device()->set_current();
+		fl_restore_scale(scale);
 
 		std::string msg = "Copied to clipboard!";
 		mw->_success_dialog->message(msg);

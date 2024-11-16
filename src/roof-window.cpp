@@ -373,11 +373,13 @@ void Roof_Window::swap_tiles_cb(Fl_Widget *, Roof_Window *rw) {
 
 void Roof_Window::copy_tile_graphics_cb(Toolbar_Button *, Roof_Window *rw) {
 	rw->_selected->for_clipboard(true);
+	float scale = fl_override_scale();
 	Fl_Copy_Surface *surface = new Fl_Copy_Surface(TILE_SIZE, TILE_SIZE);
 	surface->set_current();
 	surface->draw(rw->_selected);
 	delete surface;
 	Fl_Display_Device::display_device()->set_current();
+	fl_restore_scale(scale);
 	rw->_selected->for_clipboard(false);
 }
 

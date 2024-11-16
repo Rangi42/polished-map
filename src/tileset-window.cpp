@@ -479,11 +479,13 @@ void Tileset_Window::delete_tile_cb(Fl_Widget *, Tileset_Window *tw) {
 
 void Tileset_Window::copy_tile_graphics_cb(Toolbar_Button *, Tileset_Window *tw) {
 	tw->_selected->for_clipboard(true);
+	float scale = fl_override_scale();
 	Fl_Copy_Surface *surface = new Fl_Copy_Surface(TILE_SIZE, TILE_SIZE);
 	surface->set_current();
 	surface->draw(tw->_selected);
 	delete surface;
 	Fl_Display_Device::display_device()->set_current();
+	fl_restore_scale(scale);
 	tw->_selected->for_clipboard(false);
 }
 
