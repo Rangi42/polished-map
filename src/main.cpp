@@ -72,6 +72,7 @@ int main(int argc, char **argv) {
 #endif
 	Fl::keyboard_screen_scaling(0);
 	Fl::visual(FL_DOUBLE | FL_RGB);
+	Fl_Image::scaling_algorithm(FL_RGB_SCALING_NEAREST);
 	fl_contrast_level(50);
 
 #ifdef _WIN32
