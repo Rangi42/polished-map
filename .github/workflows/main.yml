@@ -14,7 +14,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y git zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
+          sudo apt-get install -y git zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev libcairo2-dev libpango1.0-dev
 
       - name: Checkout FLTK
         uses: actions/checkout@master

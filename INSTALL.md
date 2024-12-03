@@ -46,7 +46,7 @@ Run the following commands:
 
 ```bash
 sudo apt install make g++ git autoconf
-sudo apt install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev
+sudo apt install zlib1g-dev libpng-dev libxpm-dev libx11-dev libxft-dev libxinerama-dev libfontconfig1-dev x11proto-xext-dev libxrender-dev libxfixes-dev libcairo2-dev libpango1.0-dev
 ```
 
 #### Fedora
@@ -55,7 +55,7 @@ Run the following commands:
 
 ```bash
 sudo dnf install make g++ git autoconf
-sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel
+sudo dnf install zlib-devel libpng-devel libXpm-devel libX11-devel libXft-devel libXinerama-devel fontconfig-devel libXext-devel libXrender-devel libXfixes-devel libcairo2-devel libpango1.0-devel
 ```
 
 ### Install and build Polished Map
