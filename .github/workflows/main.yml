@@ -21,7 +21,7 @@ jobs:
         with:
           path: lib/fltk
           repository: fltk/fltk
-          ref: release-1.4.0
+          ref: release-1.4.1
           fetch-depth: 1
 
       - name: Install FLTK
