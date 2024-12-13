@@ -28,7 +28,7 @@ If the pre-built release already works for you, you don't have to build it yours
 11. Copy the lib\fltk-1.4.1\\**FL** folder to a new include\\**FL** folder. Also copy lib\fltk-1.4.1\out\build\x86-Release\FL\fl_config.h into include\FL.
 12. Open ide\polished-map.sln in Visual Studio 2019.
 13. If the Solution Configuration dropdown on the toolbar says Debug, set it to **Release**.
-14. Go to **Build → Build Solution** or press F7 to build the project. This will create bin\Release\**polishedmap-plusplus.exe**.
+14. Go to **Build → Build Solution** or press F7 to build the project. This will create bin\Release\\**polishedmap-plusplus.exe**.
 15. Hold down Shift, right-click **install.bat**, and click "**Run as administrator**". This will install Polished Map++ to your account and create a shortcut on your Desktop.
 
 
