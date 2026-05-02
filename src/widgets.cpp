@@ -20,7 +20,7 @@ void DnD_Receiver::deferred_callback(DnD_Receiver *dndr) {
 
 DnD_Receiver::DnD_Receiver(int x, int y, int w, int h, const char *l) : Fl_Box(x, y, w, h, l), _text() {
 	labeltype(FL_NO_LABEL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	clear_visible_focus();
 }
 
@@ -413,7 +413,7 @@ OS_Scroll::OS_Scroll(int x, int y, int w, int h, const char *l) : Fl_Scroll(x, y
 Workspace::Workspace(int x, int y, int w, int h, const char *l) : OS_Scroll(x, y, w, h, l),
 	_content_w(0), _content_h(0), _ox(0), _oy(0), _cx(0), _cy(0), _dnd_receiver(NULL), _correlates() {
 	labeltype(FL_NO_LABEL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	color(FL_INACTIVE_COLOR);
 	hscrollbar.callback((Fl_Callback *)hscrollbar_cb);
 	scrollbar.callback((Fl_Callback *)scrollbar_cb);
@@ -474,7 +474,7 @@ void Workspace::scrollbar_cb(Fl_Scrollbar *sb, void *) {
 
 Toolbar::Toolbar(int x, int y, int w, int h, const char *l) : Fl_Group(x, y, w, h, l), _spacer(0, 0, 0, 0) {
 	labeltype(FL_NO_LABEL);
-	box(OS_TOOLBAR_FRAME);
+	box(OS_TOOLBAR_BOX);
 	resizable(_spacer);
 	clip_children(1);
 	begin();
@@ -492,6 +492,10 @@ void Toolbar::draw() {
 	int tw = w() - Fl::box_dw(box()), th = h() - Fl::box_dh(box());
 	int cur_x = tx, max_x = tx;
 	uchar d = damage();
+	if (d & FL_DAMAGE_ALL) {
+		draw_box();
+		draw_label();
+	}
 	Fl_Widget * const *a = array();
 	int rw = 0;
 	for (int i = children(); i--;) {
@@ -528,10 +532,6 @@ void Toolbar::draw() {
 	if (tw != w() || th != h()) {
 		Fl_Widget::resize(x(), y(), tw, th);
 		d = FL_DAMAGE_ALL;
-	}
-	if (d & FL_DAMAGE_ALL) {
-		draw_box();
-		draw_label();
 	}
 }
 

@@ -55,7 +55,7 @@ Metatile_Button *Metatile_Button::dragging = NULL;
 
 Metatile_Button::Metatile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	labeltype(FL_NO_LABEL);
 	labelcolor(FL_WHITE);
 }
@@ -119,7 +119,7 @@ int Metatile_Button::handle(int event) {
 
 Block::Block(uint8_t row, uint8_t col, uint8_t id) : Fl_Box(0, 0, 0, 0), _row(row), _col(col), _id(id) {
 	user_data(NULL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	labeltype(FL_NO_LABEL);
 	labelcolor(FL_YELLOW);
 }
@@ -139,6 +139,12 @@ void Block::draw() {
 	int hx = x() + right_half() * w() / 2, hy = y() + bottom_half() * h() / 2;
 	int hs = mw->metatile_size() / 2;
 	draw_selection_border(hx, hy, hs, mw->zoom());
+}
+
+void Block::redraw() {
+	Fl_Box::redraw();
+	Main_Window *mw = (Main_Window *)user_data();
+	mw->redraw_events(this);
 }
 
 void Block::print() {
@@ -197,7 +203,7 @@ int Block::handle(int event) {
 
 Tile_Button::Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), _id(id) {
 	user_data(NULL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	labeltype(FL_NO_LABEL);
 	when(FL_WHEN_RELEASE);
 }
@@ -208,7 +214,7 @@ void Tile_Button::draw() {
 
 Chip::Chip(int x, int y, int s, uint8_t row, uint8_t col) : Fl_Box(x, y, s, s), _row(row), _col(col), _id(0) {
 	user_data(NULL);
-	box(FL_NO_BOX);
+	box(OS_NO_BOX);
 	labeltype(FL_NO_LABEL);
 	labelcolor(FL_YELLOW);
 }
@@ -254,6 +260,7 @@ Deep_Tile_Button *Deep_Tile_Button::_dragging = NULL;
 Deep_Tile_Button::Deep_Tile_Button(int x, int y, int s, uint8_t id) : Fl_Radio_Button(x, y, s, s), Tile(id),
 	_for_clipboard(false) {
 	user_data(NULL);
+	box(OS_NO_BOX);
 	when(FL_WHEN_RELEASE);
 }
 

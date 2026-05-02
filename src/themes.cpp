@@ -226,8 +226,10 @@ static void use_classic_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, classic_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, classic_check_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, classic_radio_round_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -581,8 +583,10 @@ static void use_aero_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -724,8 +728,10 @@ static void use_metro_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -1001,8 +1007,10 @@ static void use_aqua_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -1323,8 +1331,10 @@ static void use_greybird_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -1462,8 +1472,10 @@ static void use_ocean_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -1705,8 +1717,10 @@ static void use_blue_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -2118,8 +2132,10 @@ static void use_olive_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, olive_check_down_box, 1, 1, 2, 2);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -2361,8 +2377,10 @@ static void use_rose_gold_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -2569,8 +2587,10 @@ static void use_dark_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -2979,8 +2999,10 @@ static void use_brushed_metal_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, OS_BUTTON_UP_BOX);
 	Fl::set_boxtype(FL_DOWN_BOX, OS_CHECK_DOWN_BOX);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, OS_RADIO_ROUND_DOWN_BOX);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, brushed_metal_bg_box, 0, 0, 0, 0);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_PANEL_THIN_UP_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_PANEL_THIN_UP_FRAME);
 }
 
@@ -3123,8 +3145,10 @@ static void use_high_contrast_scheme() {
 	Fl::set_boxtype(FL_UP_BOX, high_contrast_button_up_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_DOWN_BOX, high_contrast_check_down_box, 2, 2, 4, 4);
 	Fl::set_boxtype(FL_ROUND_DOWN_BOX, high_contrast_radio_round_down_box, 2, 2, 4, 4);
+	Fl::set_boxtype(OS_NO_BOX, FL_NO_BOX);
 	Fl::set_boxtype(OS_BG_BOX, FL_FLAT_BOX);
 	Fl::set_boxtype(OS_BG_DOWN_BOX, OS_BG_BOX);
+	Fl::set_boxtype(OS_TOOLBAR_BOX, OS_SPACER_THIN_DOWN_BOX);
 	Fl::set_boxtype(OS_TOOLBAR_FRAME, OS_SPACER_THIN_DOWN_FRAME);
 }
 

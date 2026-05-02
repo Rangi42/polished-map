@@ -171,6 +171,7 @@ public:
 	inline void update_gameboy_screen(Event *e) { update_gameboy_screen(_map.block_under(e)); }
 	inline void update_gameboy_screen(void) { update_gameboy_screen(dynamic_cast<Block *>(Fl::belowmouse())); }
 	inline void redraw_map(void) { _map_scroll->redraw(); }
+	void redraw_events(Block *b);
 	void flood_fill(Block *b, uint8_t f, uint8_t t);
 	void substitute_block(uint8_t f, uint8_t t);
 	void swap_blocks(uint8_t f, uint8_t t);

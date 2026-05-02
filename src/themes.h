@@ -40,9 +40,11 @@
 #define OS_TOOLBAR_BUTTON_HOVER_BOX   FL_GLEAM_ROUND_UP_BOX
 #define OS_SWATCH_BOX                 FL_ENGRAVED_BOX
 #define OS_SWATCH_FRAME               FL_ENGRAVED_FRAME
-#define OS_BG_BOX                     FL_FREE_BOXTYPE
-#define OS_BG_DOWN_BOX                (Fl_Boxtype)(FL_FREE_BOXTYPE+1)
-#define OS_TOOLBAR_FRAME              (Fl_Boxtype)(FL_FREE_BOXTYPE+2)
+#define OS_NO_BOX                     FL_FREE_BOXTYPE
+#define OS_BG_BOX                     (Fl_Boxtype)(FL_FREE_BOXTYPE+1)
+#define OS_BG_DOWN_BOX                (Fl_Boxtype)(FL_FREE_BOXTYPE+2)
+#define OS_TOOLBAR_BOX                (Fl_Boxtype)(FL_FREE_BOXTYPE+3)
+#define OS_TOOLBAR_FRAME              (Fl_Boxtype)(FL_FREE_BOXTYPE+4)
 
 class OS {
 public:

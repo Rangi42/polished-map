@@ -150,14 +150,19 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_status_bar = new Toolbar(wx, h-23, w, 23);
 	wh -= _status_bar->h();
 	_metatile_count = new Label(0, 0, text_width("Blocks: 999", 8), 21, "");
+	_metatile_count->box(OS_NO_BOX);
 	new Spacer(0, 0, 2, 21);
 	_map_dimensions = new Label(0, 0, text_width("Map: 999 x 999", 8), 21, "");
+	_map_dimensions->box(OS_NO_BOX);
 	new Spacer(0, 0, 2, 21);
 	_hover_id = new Label(0, 0, text_width("ID: $99", 8), 21, "");
+	_hover_id->box(OS_NO_BOX);
 	new Spacer(0, 0, 2, 21);
 	_hover_xy = new Label(0, 0, text_width("X/Y ($99, $99)", 8), 21, "");
+	_hover_xy->box(OS_NO_BOX);
 	new Spacer(0, 0, 2, 21);
 	_hover_event = new Label(0, 0, text_width("Event: X/Y ($999, $999)", 8), 21, "");
+	_hover_event->box(OS_NO_BOX);
 	_status_bar->end();
 	begin();
 
@@ -260,6 +265,7 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	_map_scroll->resizable(NULL);
 	_map_group->resizable(NULL);
 	_map_group->clip_children(1);
+	_map_group->box(OS_NO_BOX);
 
 	// Configure menu bar
 	_menu_bar->box(OS_PANEL_THIN_UP_BOX);
@@ -960,6 +966,18 @@ void Main_Window::update_gameboy_screen(Block *b) {
 	}
 	else if (b) {
 		b->redraw();
+	}
+}
+
+void Main_Window::redraw_events(Block *b) {
+	if (_mode != Mode::EVENTS && !show_events()) { return; }
+	size_t n = _map_events.size();
+	for (size_t i = 0; i < n; i++) {
+		Event *event = _map_events.event(i);
+		int16_t bx = event->event_x() / 2, by = event->event_y() / 2;
+		if (bx == b->col() && by == b->row()) {
+			event->redraw();
+		}
 	}
 }
 

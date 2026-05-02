@@ -166,6 +166,7 @@ Event::Event(size_t line, const std::string &prelude, const std::string &macro, 
 	Fl_Box(0, 0, 0, 0), _line(line), _meta(meta), _event_x(0), _event_y(0), _prelude(prelude), _macro(macro), _prefix(),
 	_suffix(), _tip(tip_), _warp_id(warp_id), _warp_to(NULL), _prefixed(false), _suffixed(false), _hex_coords(false) {
 	user_data(NULL);
+	box(OS_NO_BOX);
 	trim(_tip);
 	tip(_tip);
 }
@@ -366,7 +367,7 @@ int Event::handle(int event) {
 		}
 		mw->update_status(this);
 		mw->update_gameboy_screen(this);
-		redraw();
+		mw->redraw_map();
 		return 1;
 	case FL_LEAVE:
 		if (_warp_to) {
@@ -374,10 +375,9 @@ int Event::handle(int event) {
 		}
 		mw->update_status((Block *)NULL);
 		mw->update_gameboy_screen((Block *)NULL);
-		redraw();
+		mw->redraw_map();
 		return 1;
 	case FL_MOVE:
-		mw->redraw_map();
 		return 1;
 	case FL_PUSH:
 		return 1;
