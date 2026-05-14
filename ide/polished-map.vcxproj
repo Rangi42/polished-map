@@ -74,7 +74,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>fltk_imagesd.lib;fltk_pngd.lib;fltk_jpegd.lib;fltk_zd.lib;fltkd.lib;opengl32.lib;glu32.lib;comctl32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk_imagesd.lib;fltk_pngd.lib;fltk_jpegd.lib;fltk_zd.lib;fltkd.lib;opengl32.lib;glu32.lib;gdiplus.lib;comctl32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>..\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
@@ -103,7 +103,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fltk_images.lib;fltk_png.lib;fltk_jpeg.lib;fltk_z.lib;fltk.lib;opengl32.lib;glu32.lib;comctl32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk_images.lib;fltk_png.lib;fltk_jpeg.lib;fltk_z.lib;fltk.lib;opengl32.lib;glu32.lib;gdiplus.lib;comctl32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>

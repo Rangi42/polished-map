@@ -19,7 +19,7 @@ fltk-config = $(bindir)/fltk-config
 CXXFLAGS := -std=c++17 -I$(srcdir) -I$(resdir) $(shell $(fltk-config) --use-images --cxxflags) $(CXXFLAGS)
 LDFLAGS := $(shell $(fltk-config) --use-images --ldstaticflags) $(shell pkg-config --libs xpm) $(LDFLAGS)
 
-RELEASEFLAGS = -DNDEBUG -O3 -flto
+RELEASEFLAGS = -DNDEBUG -O3
 DEBUGFLAGS = -DDEBUG -D_DEBUG -O0 -g -ggdb3 -Wall -Wextra -pedantic -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter
 
 COMMON = $(wildcard $(srcdir)/*.h) $(wildcard $(resdir)/*.xpm) $(resdir)/help.html

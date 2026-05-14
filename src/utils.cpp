@@ -118,7 +118,7 @@ size_t file_size(const char *f) {
 }
 
 size_t file_size(FILE *f) {
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(__APPLE__)
 #define stat64 stat
 #define fstat64 fstat
 #elif defined(_WIN32)

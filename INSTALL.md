@@ -92,3 +92,42 @@ make
 #  bin/polishedmap-plusplus and res/app.xpm to system directories)
 sudo make install
 ```
+
+
+
+## macOS
+
+### Install dependencies
+
+You need the Xcode Command Line Tools installed:
+
+```bash
+xcode-select --install
+```
+
+CMake (version 3.15 or later) is required for building FLTK 1.4.
+
+### Install and build Polished Map++
+
+Run the following commands:
+
+```bash
+# Clone Polished Map++
+git clone --branch plusplus https://github.com/Rangi42/polished-map.git
+cd polished-map
+
+# Build FLTK 1.4.4 for macOS (Cocoa backend)
+git clone --branch release-1.4.4 --depth 1 https://github.com/fltk/fltk.git lib/fltk
+pushd lib/fltk
+cmake -D CMAKE_INSTALL_PREFIX="$(realpath "$PWD/../..")" -D CMAKE_BUILD_TYPE=Release -D FLTK_USE_SYSTEM_LIBPNG=0 -D FLTK_USE_SYSTEM_ZLIB=0
+make
+make install
+popd
+
+# Build Polished Map++
+SDK=$(xcrun --show-sdk-path)
+CXXFLAGS="-isysroot $SDK -I$SDK/usr/include/c++/v1" LDFLAGS="" make
+
+# Run the application
+open bin/polishedmap-plusplus
+```

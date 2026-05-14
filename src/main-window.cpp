@@ -31,10 +31,12 @@
 
 #ifdef _WIN32
 #include "resource.h"
-#else
+#elif !defined(__APPLE__)
 #include <unistd.h>
 #include <X11/xpm.h>
 #include "app-icon.xpm"
+#else
+#include <unistd.h>
 #endif
 
 Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_Window(x, y, w, h, PROGRAM_NAME),
@@ -230,11 +232,12 @@ Main_Window::Main_Window(int x, int y, int w, int h, const char *) : Fl_Overlay_
 	// Configure window icon
 #ifdef _WIN32
 	icon((const void *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
-#else
+#elif !defined(__APPLE__)
 	fl_open_display();
 	XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display), (char **)&APP_ICON_XPM, &_icon_pixmap, &_icon_mask, NULL);
 	icon((const void *)_icon_pixmap);
 #endif
+	// macOS uses the app bundle icon automatically
 
 	// Configure rulers
 	_hor_ruler->direction(Ruler::Direction::HORIZONTAL);
@@ -756,7 +759,7 @@ void Main_Window::show() {
 	HANDLE small_icon = LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON,
 		GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CXSMICON), 0);
 	SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(small_icon));
-#else
+#elif !defined(__APPLE__)
 	// Fix for X11 icon alpha mask <https://www.mail-archive.com/fltk@easysw.com/msg02863.html>
 	XWMHints *hints = XGetWMHints(fl_display, fl_xid(this));
 	hints->flags |= IconMaskHint;
@@ -775,10 +778,13 @@ void Main_Window::apply_transparency() {
 		SetWindowLongPtr(hwnd, GWL_EXSTYLE, exstyle | WS_EX_LAYERED);
 	}
 	SetLayeredWindowAttributes(hwnd, 0, (BYTE)(alpha * 0xFF), LWA_ALPHA);
-#else
+#elif !defined(__APPLE__)
 	Atom atom = XInternAtom(fl_display, "_NET_WM_WINDOW_OPACITY", False);
 	uint32_t opacity = (uint32_t)(UINT32_MAX * alpha);
 	XChangeProperty(fl_display, fl_xid(this), atom, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&opacity, 1);
+#else
+	// macOS transparency is handled natively by FLTK/Cocoa
+	(void)alpha;
 #endif
 }
 

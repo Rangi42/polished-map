@@ -1,0 +1,306 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+
+  # ──────────────────────────────────────────────
+  # Linux — AppImage
+  # ──────────────────────────────────────────────
+  build-linux:
+    name: Build (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            g++ autoconf zlib1g-dev libpng-dev \
+            libx11-dev libxext-dev libxft-dev libxinerama-dev \
+            libxcursor-dev libxrender-dev libxfixes-dev \
+            libxpm-dev libpango1.0-dev libcairo2-dev \
+            imagemagick
+
+      - name: Cache FLTK
+        id: fltk-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            include/FL
+            lib
+            bin/fltk-config
+            share/fltk
+          key: fltk-1.4.4-linux-${{ hashFiles('.github/workflows/release.yml') }}
+
+      - name: Download and build FLTK
+        if: steps.fltk-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL https://github.com/fltk/fltk/releases/download/release-1.4.4/fltk-1.4.4-source.tar.gz \
+            -o fltk.tar.gz
+          tar -xzf fltk.tar.gz
+          cmake -S fltk-1.4.4 -B fltk-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE" \
+            -DFLTK_GRAPHICS_CAIRO=ON \
+            -DFLTK_USE_SYSTEM_LIBPNG=OFF \
+            -DFLTK_USE_SYSTEM_ZLIB=OFF \
+            -DFLTK_BUILD_GL=OFF \
+            -DFLTK_BUILD_EXAMPLES=OFF \
+            -DFLTK_BUILD_TEST=OFF
+          cmake --build fltk-build -j$(nproc)
+          cmake --install fltk-build
+
+      - name: Build Polished Map++
+        run: make release
+
+      - name: Strip binary
+        run: strip bin/polishedmap-plusplus
+
+      - name: Create AppImage
+        run: |
+          # Download linuxdeploy
+          curl -fsSL \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
+            -o linuxdeploy
+          chmod +x linuxdeploy
+
+          # Set up AppDir
+          mkdir -p AppDir/usr/bin
+          cp bin/polishedmap-plusplus AppDir/usr/bin/
+
+          # Convert XPM app icon to PNG
+          convert res/app.xpm AppDir/polished-map.png
+
+          # Write .desktop file
+          cat > AppDir/polished-map.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=Polished Map++
+          Exec=polishedmap-plusplus
+          Icon=polished-map
+          Categories=Development;
+          EOF
+
+          # Build AppImage
+          ./linuxdeploy \
+            --appdir AppDir \
+            --output appimage
+
+          # linuxdeploy names it based on the .desktop Name field
+          mv Polished_Map++*.AppImage polished-map-linux-x86_64.AppImage
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: polished-map-linux-x86_64
+          path: polished-map-linux-x86_64.AppImage
+
+  # ──────────────────────────────────────────────
+  # macOS — .app bundle in zip
+  # ──────────────────────────────────────────────
+  build-macos:
+    name: Build (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache FLTK
+        id: fltk-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            include/FL
+            lib
+            bin/fltk-config
+            share/fltk
+          key: fltk-1.4.4-macos-${{ hashFiles('.github/workflows/release.yml') }}
+
+      - name: Download and build FLTK
+        if: steps.fltk-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL https://github.com/fltk/fltk/releases/download/release-1.4.4/fltk-1.4.4-source.tar.gz \
+            -o fltk.tar.gz
+          tar -xzf fltk.tar.gz
+          cmake -S fltk-1.4.4 -B fltk-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE" \
+            -DFLTK_USE_SYSTEM_LIBPNG=OFF \
+            -DFLTK_USE_SYSTEM_ZLIB=OFF \
+            -DFLTK_BUILD_GL=OFF \
+            -DFLTK_BUILD_EXAMPLES=OFF \
+            -DFLTK_BUILD_TEST=OFF
+          cmake --build fltk-build -j$(sysctl -n hw.ncpu)
+          cmake --install fltk-build
+
+      - name: Build Polished Map++
+        run: |
+          SDK=$(xcrun --show-sdk-path)
+          CXXFLAGS="-isysroot $SDK -I$SDK/usr/include/c++/v1" LDFLAGS="" make release
+
+      - name: Strip binary
+        run: strip bin/polishedmap-plusplus
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=2.7.1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create .app bundle
+        run: |
+          APP="Polished Map++.app"
+          mkdir -p "$APP/Contents/MacOS"
+
+          cp bin/polishedmap-plusplus "$APP/Contents/MacOS/"
+
+          cat > "$APP/Contents/Info.plist" << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>polishedmap-plusplus</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.rangi.polished-map-plusplus</string>
+            <key>CFBundleName</key>
+            <string>Polished Map++</string>
+            <key>CFBundleDisplayName</key>
+            <string>Polished Map++</string>
+            <key>CFBundleVersion</key>
+            <string>${{ steps.version.outputs.version }}</string>
+            <key>CFBundleShortVersionString</key>
+            <string>${{ steps.version.outputs.version }}</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+
+          # Ad-hoc sign so macOS shows "unidentified developer" instead of "damaged"
+          codesign --deep --force --sign - "$APP"
+
+          zip -r polished-map-macos.zip "$APP"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: polished-map-macos
+          path: polished-map-macos.zip
+
+  # ──────────────────────────────────────────────
+  # Windows — .exe in zip
+  # ──────────────────────────────────────────────
+  build-windows:
+    name: Build (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Cache FLTK
+        id: fltk-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            include/FL
+            lib
+          key: fltk-1.4.4-windows-${{ hashFiles('.github/workflows/release.yml') }}
+
+      - name: Download and build FLTK
+        if: steps.fltk-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://github.com/fltk/fltk/releases/download/release-1.4.4/fltk-1.4.4-source.tar.gz" `
+            -OutFile fltk.tar.gz
+          tar -xzf fltk.tar.gz
+          cmake -S fltk-1.4.4 -B fltk-build `
+            -G "Visual Studio 17 2022" -A Win32 `
+            -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE" `
+            -DFLTK_USE_SYSTEM_LIBPNG=OFF `
+            -DFLTK_USE_SYSTEM_ZLIB=OFF `
+            -DFLTK_BUILD_GL=OFF `
+            -DFLTK_BUILD_EXAMPLES=OFF `
+            -DFLTK_BUILD_TEST=OFF
+          cmake --build fltk-build --config Release -- /m
+          cmake --install fltk-build --config Release
+
+      - name: Build Polished Map++
+        shell: pwsh
+        run: |
+          msbuild ide/polished-map.sln `
+            /p:Configuration=Release `
+            /p:Platform=Win32 `
+            /m
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path bin/Release/polishedmap-plusplus.exe `
+            -DestinationPath polished-map-windows-x86.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: polished-map-windows-x86
+          path: polished-map-windows-x86.zip
+
+  # ──────────────────────────────────────────────
+  # GitHub Release (tag push only)
+  # ──────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Polished Map++ ${{ github.ref_name }}
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            **macOS:** Unzip, then right-click → Open (first launch only). If macOS says the app is damaged, remove the quarantine attribute first:
+            ```
+            xattr -d com.apple.quarantine "Polished Map++.app"
+            ```
+
+            **Windows:** Unzip and run `polishedmap-plusplus.exe`. If SmartScreen appears, click "More info" → "Run anyway". Requires the [Visual C++ Redistributable for VS 2019 (x86)](https://aka.ms/vs/16/release/vc_redist.x86.exe).
+
+            **Linux:** Make the AppImage executable and run it:
+            ```
+            chmod +x polished-map-linux-x86_64.AppImage
+            ./polished-map-linux-x86_64.AppImage
+            ```
+          files: |
+            polished-map-linux-x86_64.AppImage
+            polished-map-macos.zip
+            polished-map-windows-x86.zip
