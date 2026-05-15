@@ -10,6 +10,7 @@
 #pragma warning(pop)
 
 #ifdef _WIN32
+#include <Windows.h>
 #include <WinUser.h>
 #endif
 
@@ -3149,6 +3150,8 @@ void OS::use_high_contrast_theme() {
 
 #ifdef _WIN32
 OS::Theme OS::_current_theme = is_classic_windows() ? Theme::CLASSIC : is_modern_windows() ? Theme::METRO : Theme::AERO;
+#elif defined(__APPLE__)
+OS::Theme OS::_current_theme = Theme::AQUA;
 #else
 OS::Theme OS::_current_theme = Theme::GREYBIRD;
 #endif
@@ -3180,7 +3183,23 @@ void OS::use_native_fonts() {
 	int monospace_i = use_any_font(FL_COURIER, monospace_fonts, _countof(monospace_fonts));
 	if (monospace_i == 0) { _is_consolas = true; }
 	// Use common bold monospace font
-	const char *bold_monospace_fonts[] = {"Consolas bold", "Lucida Console bold", "Courier New bold"};
+	const char *bold_monospace_fonts[3] = {"Consolas bold", "Lucida Console bold", "Courier New bold"};
+	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, _countof(bold_monospace_fonts));
+#elif defined(__APPLE__)
+	// Use system UI font
+	const char *system_fonts[4] = {
+		"San Francisco", "Helvetica Neue", "Lucida Grande", "Helvetica"
+	};
+	use_any_font(OS_FONT, system_fonts, _countof(system_fonts));
+	// Use monospace font
+	const char *monospace_fonts[4] = {
+		"SF Mono", "Menlo", "Monaco", "Courier"
+	};
+	use_any_font(FL_COURIER, monospace_fonts, _countof(monospace_fonts));
+	// Use bold monospace font
+	const char *bold_monospace_fonts[4] = {
+		"SF Mono bold", "Menlo bold", "Monaco bold", "Courier bold"
+	};
 	use_any_font(FL_COURIER_BOLD, bold_monospace_fonts, _countof(bold_monospace_fonts));
 #else
 	// Use common system UI font
@@ -3209,3 +3228,4 @@ void OS::use_native_settings() {
 	Fl_Tooltip::size(OS_FONT_SIZE);
 	Fl_Tooltip::delay(0.5f);
 }
+

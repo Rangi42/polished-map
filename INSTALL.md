@@ -92,3 +92,44 @@ make
 #  and res/app.xpm to system directories)
 sudo make install
 ```
+
+
+## macOS    
+
+### Install dependencies
+
+You will need to install `clang` on your device for C++ compilation.
+
+```bash
+xcode-select --install
+```
+
+Install `homebrew` for remaining dependencies
+https://brew.sh/
+
+Run the following command after installing `homebrew`
+
+```bash
+brew install cmake pkg-config libpng libxpm
+```
+
+### Install and build Polished Map
+
+Run the following commands:
+
+```bash
+# Clone Polished Map
+git clone https://github.com/Rangi42/polished-map.git
+cd polished-map
+
+# Build FLTK 1.4.4
+git clone --branch release-1.4.4 --depth 1 https://github.com/fltk/fltk.git lib/fltk
+pushd lib/fltk
+cmake -D CMAKE_INSTALL_PREFIX="$(realpath "$PWD/../..")" -D CMAKE_BUILD_TYPE=Release -D FLTK_GRAPHICS_CAIRO=1 -D FLTK_USE_SYSTEM_LIBPNG=0 -D FLTK_USE_SYSTEM_ZLIB=0
+make
+make install
+popd
+
+# Build Polished Map
+make
+```

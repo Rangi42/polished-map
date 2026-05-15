@@ -6,7 +6,7 @@
 
 #pragma warning(push, 0)
 #include <FL/Fl_Overlay_Window.H>
-#include <FL/Fl_Menu_Bar.H>
+#include <FL/Fl_Sys_Menu_Bar.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/platform.H>
@@ -38,7 +38,7 @@ enum class Mode { BLOCKS, EVENTS };
 class Main_Window : public Fl_Overlay_Window {
 private:
 	// GUI containers
-	Fl_Menu_Bar *_menu_bar;
+	Fl_Sys_Menu_Bar *_menu_bar;
 	Toolbar *_toolbar;
 	Workspace *_sidebar, *_map_scroll;
 	Toolbar *_status_bar;
@@ -116,13 +116,16 @@ private:
 	std::unordered_map<uint8_t, int> _metatile_hotkeys;
 	// Window size cache
 	int _wx, _wy, _ww, _wh;
-#ifndef _WIN32
+#ifdef __LINUX__
 	// Window icons
 	Pixmap _icon_pixmap, _icon_mask;
 #endif
 public:
 	Main_Window(int x, int y, int w, int h, const char *l = NULL);
 	~Main_Window();
+#ifdef __APPLE__
+	using Fl_Double_Window::show; // fix for "warning: 'Main_Window::show' hides overloaded virtual function" in macOS
+#endif
 	void show(void);
 	void apply_transparency(void);
 	inline bool transparent(void) const { return _transparent_mi && !!_transparent_mi->value(); }
