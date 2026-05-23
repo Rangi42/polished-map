@@ -10,7 +10,7 @@
 #pragma warning(pop)
 
 #ifdef _WIN32
-#include <WinUser.h>
+#include <winuser.h>
 #endif
 
 #include "utils.h"
