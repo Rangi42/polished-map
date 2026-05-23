@@ -65,22 +65,22 @@ clean:
 	$(RM) $(TARGET) $(DEBUGTARGET) $(OBJECTS) $(DEBUGOBJECTS)
 
 install: release
-	mkdir -p "$(DESTDIR)$(PREFIX)/bin"
-	cp $(TARGET) "$(DESTDIR)$(PREFIX)/bin/$(polishedmap)"
-	mkdir -p "$(DESTDIR)$(PREFIX)/share/pixmaps"
-	cp $(resdir)/app.xpm "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm"
-	cp $(resdir)/app-icon.xpm "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm"
-	mkdir -p "$(DESTDIR)$(PREFIX)/share/applications"
-	echo "[Desktop Entry]" > "$(DESKTOP)"
-	echo "Name=Polished Map++" >> "$(DESKTOP)"
-	echo "Comment=Edit pokecrystal maps and tilesets" >> "$(DESKTOP)"
-	echo "Icon=$(PREFIX)/share/pixmaps/polishedmap++48.xpm" >> "$(DESKTOP)"
-	echo "Exec=$(PREFIX)/bin/$(polishedmap)" >> "$(DESKTOP)"
-	echo "Type=Application" >> "$(DESKTOP)"
-	echo "Terminal=false" >> "$(DESKTOP)"
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
+	mkdir -p $(DESTDIR)$(PREFIX)/share/pixmaps
+	cp $(resdir)/app.xpm $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm
+	cp $(resdir)/app-icon.xpm $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm
+	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
+	echo "[Desktop Entry]" > $(DESKTOP)
+	echo "Name=Polished Map++" >> $(DESKTOP)
+	echo "Comment=Edit pokecrystal maps and tilesets" >> $(DESKTOP)
+	echo "Icon=$(PREFIX)/share/pixmaps/polishedmap++48.xpm" >> $(DESKTOP)
+	echo "Exec=$(PREFIX)/bin/$(polishedmap)" >> $(DESKTOP)
+	echo "Type=Application" >> $(DESKTOP)
+	echo "Terminal=false" >> $(DESKTOP)
 
 uninstall:
-	rm -f "$(DESTDIR)$(PREFIX)/bin/$(polishedmap)"
-	rm -f "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm"
-	rm -f "$(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm"
-	rm -f "$(DESKTOP)"
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(polishedmap)
+	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++48.xpm
+	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/polishedmap++16.xpm
+	rm -f $(DESKTOP)
